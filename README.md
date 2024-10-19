@@ -41,4 +41,4 @@ Desarrollando una aplicación web que integre y facilite los procesos clave del 
 [Notion](https://www.notion.so/10e7b43ab13f807e8064f722710db551?v=10e7b43ab13f81689b3a000cbbcf7276&pvs=4)
 
 ### Diseños en Figma
---- EN DESARROLLO ---
+----- EN DESARROLLO -----
