@@ -8,10 +8,12 @@ import passport from "passport";
 import express, { json, urlencoded } from "express";
 import { cookieKey, HOST, PORT } from "./config/configEnv.js";
 import { connectDB } from "./config/configDb.js";
-import { createUsers } from "./config/initialSetup.js";
+import { createUsers, createHorario, createHorario_dia} from "./config/initialSetup.js";
 import { passportJwtSetup } from "./auth/passport.auth.js";
+import horario_dia from "./entity/horario_dia.entity.js";
 
 async function setupServer() {
+  console.log("hola")
   try {
     const app = express();
 
@@ -74,6 +76,8 @@ async function setupAPI() {
     await connectDB();
     await setupServer();
     await createUsers();
+    let horario_dia = await createHorario();
+    await createHorario_dia(horario_dia)
   } catch (error) {
     console.log("Error en index.js -> setupAPI(), el error es: ", error);
   }

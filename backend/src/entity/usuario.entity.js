@@ -1,0 +1,48 @@
+"use strict"
+import { EntitySchema} from "typeorm";
+import horario_laboral from "./horario_laboral.entity.js";
+
+const usuario = new EntitySchema({
+    name:"usuario",
+    tablename:"usuario",
+    columns: {
+        id_usuario: {
+            type: "int",
+            primary: true,
+            generated: true,
+        },
+        nombre_usuario: {
+            type: "varchar",
+            length: "255",
+            nullable: false
+        },
+        apellido_usuario: {
+            type: "varchar"
+        },
+        correo_usuario: {
+            type: "varchar"
+        },
+        contrasena_usuario: {
+            type: "varchar"
+        },
+        rol_usuario: {
+            type: "varchar"
+        },
+    },
+    relations: {
+        horario_laboral: {
+            type: "one-to-many",
+            target: "horario_laboral",
+            joinTable: true,
+            cascade: true
+        },
+        platillo: {
+            type: "many-to-many",
+            target: "platillo",
+            joinTable: true,
+            cascade: true
+        }
+    }
+});
+
+export default usuario;
