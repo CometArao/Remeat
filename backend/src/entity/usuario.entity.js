@@ -1,7 +1,7 @@
 "use strict"
 import { EntitySchema} from "typeorm";
 import horario_laboral from "./horario_laboral.entity.js";
-
+//http://146.83.198.35:1289/api/user/all
 const usuario = new EntitySchema({
     name:"usuario",
     tablename:"usuario",
@@ -33,7 +33,6 @@ const usuario = new EntitySchema({
         horario_laboral: {
             type: "one-to-many",
             target: "horario_laboral",
-            joinTable: true,
             cascade: true
         },
         platillo: {

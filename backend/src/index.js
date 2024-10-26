@@ -76,8 +76,9 @@ async function setupAPI() {
     await connectDB();
     await setupServer();
     await createUsers();
-    let horario_dia = await createHorario();
-    await createHorario_dia(horario_dia)
+    //let horario_dia = await createHorario();
+    //await createHorario_dia(horario_dia)
+    
   } catch (error) {
     console.log("Error en index.js -> setupAPI(), el error es: ", error);
   }
