@@ -19,13 +19,19 @@ const platillo = new EntitySchema({
         precio_platillo: {
             type: "int"
         },
+        id_usuario: {
+            type: "int",
+            nullable: true
+        }
     },
     relations: {
         usuario: {
-            type: "one-to-many",
+            type: "many-to-one",
             target: "usuario",
-            joinTable: true,
-            cascade: true
+            joinColumn: {
+                name: "id_usuario"
+            },
+            onDelete: "SET NULL"
         },
         comandas: {
             type: "many-to-many",

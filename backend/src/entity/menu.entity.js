@@ -17,14 +17,20 @@ const menu = new EntitySchema({
         },
         disponibilidad: {
             type: "int"
-        }
+        },
+        id_horario_dia: {
+            type: "int",
+            nullable: true,
+        },
     },
     relations: {
         horario_dia: {
-            type: "one-to-many",
+            type: "many-to-one",
             target: "horario_dia",
-            joinTable: true,
-            cascade: true
+            joinColumn: {
+                name: "id_horario_dia"
+            },
+            onDelete: "SET NULL"
         },
         platillo: {
             type: "many-to-many",

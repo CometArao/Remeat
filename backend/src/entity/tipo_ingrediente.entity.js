@@ -20,13 +20,19 @@ const tipo_ingrediente = new EntitySchema({
             type: "int",
             nullable: false
         },
+        id_unidad_medida: {
+            type: "int",
+            nullable: true
+        }
     },
     relations: {
         unidad_medida: {
-            type: "one-to-many",
+            type: "many-to-one",
             target: "unidad_medida",
-            joinTable: true,
-            cascade: true
+            joinColumn: {
+                name: "id_unidad_medida"
+            },
+            onDelete: "SET NULL"
         },
         //TODO: Como hacer atributos en una relacion
     }

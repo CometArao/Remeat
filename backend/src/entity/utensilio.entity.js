@@ -1,5 +1,5 @@
 "use strict"
-import { EntitySchema} from "typeorm";
+import { EntitySchema, JoinColumn} from "typeorm";
 import tipo_utensilio from "./tipo_utensilio.entity.js"
 
 const utensilio = new EntitySchema({
@@ -16,13 +16,19 @@ const utensilio = new EntitySchema({
             length: "255",
             nullable: false
         },
+        id_tipo_utensilio: {
+            type: "int",
+            nullable: true
+        }
     },
     relations: {
         tipo_utensilio: {
-            type: "one-to-many",
+            type: "many-to-one",
             target: "tipo_utensilio",
-            joinTable: true,
-            cascade: true
+            JoinColumn: {
+                name: "id_tipo_utensilio"
+            },
+            onDelete: "SET NULL",
         },
         pedido: {
             type: "many-to-many",

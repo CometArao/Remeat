@@ -28,14 +28,20 @@ const pedido = new EntitySchema({
         costo_perdido: {
             type: "int"
         },
+        id_usuario: {
+            type: "int",
+            nullable: true
+        },
     },
     relations: {
         usuario: {
-            type: "one-to-many",
+            type: "many-to-one",
             target: "usuario",
-            joinTable: true,
-            cascade: true
-        }
+            joinColumn: {
+                name: "id_usuario"
+            },
+            onDelete: "SET NULL",
+        },
     }
 });
 

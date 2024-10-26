@@ -20,14 +20,20 @@ const comandas = new EntitySchema({
         },
         validado_comanda: {
             type: "int"
+        },
+        id_usuario: {
+            type: "int", 
+            nullable: true
         }
     },
     relations: {
         usuario: {
-            type: "one-to-many",
+            type: "many-to-one",//tiene que ser many-to-one NO one-to-many
             target: "usuario",
-            joinTable: true,
-            cascade: true
+            joinColumn: {
+                name: "id_usuario"
+            },
+            onDelete: "SET NULL",
         }
     }
 });
