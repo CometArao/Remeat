@@ -18,7 +18,7 @@ import { AppDataSource } from "../config/configDb.js";
 import horario_dia from "../entity/horario_dia.entity.js";
 import usuarios from "../entity/usuario.entity.js"
 
-export async function find() {
+export async function find(req, res) {
     console.log("find function: \n");
     const usuarioRepository = AppDataSource.getRepository(usuarios)
     const Usuarios = await usuarioRepository.find({
@@ -27,4 +27,6 @@ export async function find() {
         },
     })
     console.log(Usuarios);
+    handleSuccess(res, 200, "Usuario encontrado", Usuarios);
+    return
 }

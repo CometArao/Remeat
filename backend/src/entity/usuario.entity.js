@@ -1,5 +1,5 @@
 "use strict"
-import { EntitySchema} from "typeorm";
+import { EntitySchema, JoinColumn} from "typeorm";
 import horario_laboral from "./horario_laboral.entity.js";
 //http://146.83.198.35:1289/api/user/all
 const usuario = new EntitySchema({
@@ -28,18 +28,25 @@ const usuario = new EntitySchema({
         rol_usuario: {
             type: "varchar"
         },
+        id_horario_laboral: {
+            type: "int",
+            nullable: true
+        }
     },
     relations: {
         horario_laboral: {
-            type: "one-to-many",
+            type: "many-to-one",
             target: "horario_laboral",
-            cascade: true
+            joinColumn: {
+                name: "id_horario_laboral",
+            },
+            onDelete: "SET NULL",
         },
         platillo: {
             type: "many-to-many",
             target: "platillo",
             joinTable: true,
-            cascade: true
+            cascade: true,
         }
     }
 });
