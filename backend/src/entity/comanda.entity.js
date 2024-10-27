@@ -18,8 +18,8 @@ const comandaSchema = new EntitySchema({
         hora_compra_comanda: {
             type: "int"
         },
-        validado_comanda: {
-            type: "int"
+        estado: {
+            type: "varchar"//
         },
         id_usuario: {
             type: "int", 
