@@ -1,8 +1,8 @@
 "use strict"
 import { EntitySchema} from "typeorm";
-import usuario from "./usuario.entity.js"
+import usuarioSchema from "./usuario.entity.js"
 
-const comandas = new EntitySchema({
+const comandaSchema = new EntitySchema({
     name:"comandas",
     tablename:"comandas",
     columns: {
@@ -38,4 +38,4 @@ const comandas = new EntitySchema({
     }
 });
 
-export default comandas;
+export default comandaSchema;
