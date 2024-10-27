@@ -1,8 +1,8 @@
 "use strict"
 import { EntitySchema, JoinColumn} from "typeorm";
 import horario_laboral from "./horario_laboral.entity.js";
-//http://146.83.198.35:1289/api/user/all
-const usuario = new EntitySchema({
+
+const usuarioSchema = new EntitySchema({
     name:"usuario",
     tablename:"usuario",
     columns: {
@@ -51,4 +51,4 @@ const usuario = new EntitySchema({
     }
 });
 
-export default usuario;
+export default usuarioSchema;

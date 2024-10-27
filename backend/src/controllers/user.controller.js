@@ -8,7 +8,7 @@ import {
 import {
   userBodyValidation,
   userQueryValidation,
-} from "../validations/user.validation.js";
+} from "../validations/usuario.validation.js";
 import {
   handleErrorClient,
   handleErrorServer,
