@@ -7,7 +7,7 @@ import { encryptPassword } from "../helpers/bcrypt.helper.js";
 
 async function createUsers() {
   try {
-    const userRepository = AppDataSource.getRepository(User);
+    const userRepository = AppDataSource.getRepository(usuarios);
 
     const count = await userRepository.count();
     if (count > 0) return;
