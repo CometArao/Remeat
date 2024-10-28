@@ -33,12 +33,6 @@ const ingrediente = new EntitySchema({
             },
             onDelete: "SET NULL",
         },
-        pedido: {
-            type: "many-to-many",
-            target: "pedido",
-            joinTable: true,
-            cascade: true
-        }  
     }
 });
 

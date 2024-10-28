@@ -10,6 +10,33 @@ export async function getGraficoLinea(dependiente, independiente, ingrediente, p
     }
 
     /*
+    stock ingrediente vs fecha(ultimas x fechas) {
+      consultar cantidad actual.
+      consultar todos los pedidos  (hechos en las ultimas x fechas)
+      comandas con ese ingrediente (hechos en las ultimas x fechas)
+    }
+    ingresos_ventas vs fecha(ultimas x fechas) {
+      consultar comandas
+      sumar el precio de todos los platillos de todas las comandas
+      entregar un listado con la suma de las ventas por fecha
+    }
+    ingresos_cantidad_ventas por un platillo vs fecha {
+      consultar platillo
+      consultar comandas con ese platillo
+    }
+    costos vs fecha {
+      consultar pedidos
+      consultar 
+    }
+
+    tiene que ser un diccionario de forma
+    datos = {
+      //recordar convertir la fecha de la base de datos a fecha js
+      Date(fecha) : cantidad_ingrediente
+    }
+
+
+
     (mingrediente)
     SELECT *
     FROM ingrediente i
@@ -20,10 +47,32 @@ export async function getGraficoLinea(dependiente, independiente, ingrediente, p
     INNER JOIN conformada_comanda cc ON p.id_platillo = cc.id_platillo
     INNER JOIN comandas c ON c.id_comanda = cc.id_comanda
     INNER JOIN 
-    */
-   //como tiene que verse en el front end
+    */N
+   //¿como tiene que verse en el front end?
 
 }
+export async function getCantidadIngrediente(tipo_ingrediente) {
+  //revisar si existe el tipo ingrediente
+  //verificar si existen ingredientes en el inventario
+  //consultar por todos y sumar la cantidad (solo contar si no esta vencido)
+  //retornar candidad
+}
+export async function getPedidosConTipoIngrediente(tipo_ingrediente) {
+  //revisar si existe el tipo de ingrediente
+  //verificar si existen ingredientes en pedidos
+  //consultar todos los pedidos que tengan ese tipo de ingrediente
+  //retornar lista de pedidos
+}
+export async function getComandasConTipoIngrediente(tipo_ingrediente) {
+  //revisar si existe el tipo de ingrediente
+  //verificar si existen comandas con ese tipo
+  //consultar todas las comandas con este tipo
+  //retornar lista de comandas
+}
+/*
+ * ESTADOS: pendiente, lista_entrega, entregado
+ * consultar si se puede retornar platillos.
+ */
 
 export async function getUserService(query) {
   try {

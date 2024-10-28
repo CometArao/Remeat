@@ -33,12 +33,6 @@ const platillo = new EntitySchema({
             },
             onDelete: "SET NULL"
         },
-        comandas: {
-            type: "many-to-many",
-            target: "comandas",
-            joinTable: true,
-            cascade: true
-        }
     }
 });
 
