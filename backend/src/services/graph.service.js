@@ -21,7 +21,12 @@ export async function getGraficoLinea(dependiente, independiente, ingrediente, p
       entregar un listado con la suma de las ventas por fecha
     }
     ingresos_cantidad_ventas por un platillo vs fecha {
-      
+      consultar platillo
+      consultar comandas con ese platillo
+    }
+    costos vs fecha {
+      consultar pedidos
+      consultar 
     }
 
     tiene que ser un diccionario de forma
@@ -42,7 +47,7 @@ export async function getGraficoLinea(dependiente, independiente, ingrediente, p
     INNER JOIN conformada_comanda cc ON p.id_platillo = cc.id_platillo
     INNER JOIN comandas c ON c.id_comanda = cc.id_comanda
     INNER JOIN 
-    */
+    */N
    //¿como tiene que verse en el front end?
 
 }

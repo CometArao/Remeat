@@ -3,10 +3,10 @@ import { EntitySchema} from "typeorm";
 import usuarioSchema from "./usuario.entity.js"
 
 const comandaSchema = new EntitySchema({
-    name:"comandas",
-    tablename:"comandas",
+    name:"comanda",
+    tablename:"comanda",
     columns: {
-        id_comandas: {
+        id_comanda: {
             type: "int",
             primary: true,
             generated: true,
