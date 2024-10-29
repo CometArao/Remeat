@@ -1,10 +1,10 @@
 "use strtict"
 import {
-    createPlatillo,
-    deletePlatilloById,  
-    getPlatilloById,
-    getPlatillos,
-    updatePlatilloById
+    createPlatilloService,
+    deletePlatilloByIdService,  
+    getPlatilloByIdService,
+    getPlatillosService,
+    updatePlatilloByIdService
       
 }
 from "../services/platillo.service.js";
@@ -29,7 +29,8 @@ export async function createPlatilloController(req, res){
 
         if(error) return handleErrorClient(res, 400, error.message);
 
-        const [newPlatillo, errorPlatillo] = await createPlatillo({ nombre_platillo,  precio_platillo, id_usuario });
+        const [newPlatillo, errorPlatillo] = await 
+        createPlatilloService({ nombre_platillo,  precio_platillo, id_usuario });
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
 
@@ -41,7 +42,7 @@ export async function createPlatilloController(req, res){
 
 export async function getPlatillosController(req, res){
     try{
-        const [platillos, errorPlatillos] = await getPlatillos();
+        const [platillos, errorPlatillos] = await getPlatillosService();
 
         if(errorPlatillos) return handleErrorClient(res, 404, errorPlatillos);
 
@@ -58,7 +59,7 @@ export async function getPlatilloByIdController(req, res){
     try{
         const { id_platillo } = req.params;
 
-        const [platillo, errorPlatillo] = await getPlatilloById(id_platillo);
+        const [platillo, errorPlatillo] = await getPlatilloByIdService(id_platillo);
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
 
@@ -79,7 +80,7 @@ export async function updatePlatilloController(req, res){
         if(error) return handleErrorClient(res, 400, error.message);
 
         // eslint-disable-next-line max-len
-        const [updatedPlatillo, errorPlatillo] = await updatePlatilloById(id_platillo, { nombre, descripcion, precio, id_categoria });
+        const [updatedPlatillo, errorPlatillo] = await updatePlatilloByIdService(id_platillo, { nombre, descripcion, precio, id_categoria });
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
 
@@ -94,7 +95,7 @@ export async function deletePlatilloController(req, res){
     try{
         const { id_platillo } = req.params;
 
-        const [platillo, errorPlatillo] = await deletePlatilloById(id_platillo);
+        const [platillo, errorPlatillo] = await deletePlatilloByIdService(id_platillo);
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
 
