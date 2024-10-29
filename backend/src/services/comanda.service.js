@@ -2,12 +2,11 @@
 import Comanda from '../entity/comanda.entity.js';
 import { AppDataSource } from '../config/configDb.js';
 
-export async function createComanda(meseroId, platillos) {
+export async function createComanda(meseroId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const nuevaComanda = comandaRepository.create({
     mesero: meseroId,
-    platillos,
-    estado: 'pendiente',
+    estado: 'pendiente'
   });
   await comandaRepository.save(nuevaComanda);
 
@@ -17,7 +16,7 @@ export async function createComanda(meseroId, platillos) {
 
 export async function getComandasByMesero(meseroId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
-  return comandaRepository.find({ where: { mesero: meseroId }, relations: ['platillos'] });
+  return comandaRepository.find({ where: { mesero: meseroId } });
 }
 
 export async function updateComanda(comandaId, platillos) {
@@ -25,7 +24,7 @@ export async function updateComanda(comandaId, platillos) {
   const comanda = await comandaRepository.findOne({ where: { id: comandaId } });
 
   if (comanda.estado === 'pendiente') {
-    comanda.platillos = platillos;
+    
     await comandaRepository.save(comanda);
     return comanda;
   }

@@ -9,14 +9,15 @@ const comandaSchema = new EntitySchema({
         id_comanda: {
             type: "int",
             primary: true,
-            generated: true,
+            generated: true
         },
         fecha_compra_comanda: {
             type: "date",
-            nullable: false
+            nullable: true
         },
         hora_compra_comanda: {
-            type: "int"
+            type: "int",
+            nullable: true
         },
         estado: {
             type: "varchar"//

@@ -9,11 +9,11 @@ import {
   import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
   
   export async function createComandaController(req, res) {
-    const { platillos } = req.body;
+    
     const meseroId = req.user.id;
   
     try {
-      const newComanda = await createComanda(meseroId, platillos);
+      const newComanda = await createComanda(meseroId);
       handleSuccess(res, 201, 'Comanda creada', newComanda);
     } catch (error) {
       handleErrorServer(res, 500, error.message);
@@ -32,11 +32,11 @@ import {
   }
   
   export async function updateComandaController(req, res) {
-    const { platillos } = req.body;
+
     const comandaId = req.params.id;
   
     try {
-      const updatedComanda = await updateComanda(comandaId, platillos);
+      const updatedComanda = await updateComanda(comandaId);
       handleSuccess(res, 200, 'Comanda actualizada', updatedComanda);
     } catch (error) {
       handleErrorClient(res, 400, error.message);
