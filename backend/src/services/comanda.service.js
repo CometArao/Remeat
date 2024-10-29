@@ -13,6 +13,11 @@ export async function createComanda(data) {
     throw new Error('Usuario no encontrado');
   }
 
+   // Validar que el usuario tenga `id_usuario: 2` y `rol_usuario: mesero`
+   if (usuario.id_usuario !== 2 || usuario.rol_usuario !== 'mesero') {
+    throw new Error('Solo el usuario con ID 2 y rol "mesero" tiene permiso para crear comandas.');
+  }
+
   // Crear la comanda asignando el objeto de usuario
   const nuevaComanda = comandaRepository.create({
     usuario: usuario,  // Asignar el objeto completo de usuario
@@ -46,13 +51,36 @@ export async function updateComanda(comandaId, data) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const comanda = await comandaRepository.findOne({ where: { id_comanda: comandaId }, relations: ['usuario'] });
 
-  if (comanda && comanda.estado === 'pendiente') {
-    Object.assign(comanda, data);
-    await comandaRepository.save(comanda);
-    return comanda;
+  if (!comanda) {
+    throw new Error('Comanda no encontrada.');
   }
-  throw new Error('La comanda no se puede modificar si ya está cocinada o no se encuentra.');
+
+  // Verificar que el estado actual permita modificación
+  if (comanda.estado !== 'pendiente') {
+    throw new Error('La comanda no se puede modificar porque ya está completada o en otro estado.');
+  }
+
+  // Validar que no se intente cambiar el id_usuario
+  if (data.id_usuario && data.id_usuario !== comanda.usuario.id_usuario) {
+    throw new Error('No se permite cambiar el ID del usuario asociado a la comanda.');
+  }
+
+  // Validar que no se intente cambiar el id_comanda
+  if (data.id_comanda && data.id_comanda !== comandaId) {
+    throw new Error('No se permite cambiar el ID de la comanda.');
+  }
+
+  // Actualizar solo los campos permitidos
+  Object.assign(comanda, {
+    estado: data.estado || comanda.estado,
+    fecha_compra_comanda: data.fecha_compra_comanda || comanda.fecha_compra_comanda,
+    hora_compra_comanda: data.hora_compra_comanda || comanda.hora_compra_comanda,
+  });
+
+  await comandaRepository.save(comanda);
+  return comanda;
 }
+
 
 export async function deleteComanda(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
