@@ -4,7 +4,7 @@ import {
   getUserService,
   getUsersService,
   updateUserService,
-} from "../services/user.service.js";
+} from "../services/usuario.service.js";
 
 import {
   userBodyValidation,
