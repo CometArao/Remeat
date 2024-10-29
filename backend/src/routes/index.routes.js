@@ -1,18 +1,20 @@
 "use strict";
 import { Router } from "express";
-import userRoutes from "./user.routes.js";
 import authRoutes from "./auth.routes.js";
 import usuariosRoutes from "./usuarios.routes.js";
 import menuRoutes from "./menu.routes.js";
 import platilloRoutes from "./platillo.routes.js";
+import horariosLaborales from "./horario_laboral.routes.js"
+import horariosDias from "./horario_dia.routes.js"
 
 const router = Router();
 
 router
     .use("/auth", authRoutes)
-    .use("/user", userRoutes) 
-    .use("/usuarios", usuariosRoutes)
     .use("/menu", menuRoutes)
-    .use("/platillo", platilloRoutes);
+    .use("/platillo", platilloRoutes)
+    .use("/usuarios", usuariosRoutes)
+    .use("/horarios-laborales", horariosLaborales)
+    .use("/horarios-dias", horariosDias);
 
 export default router;

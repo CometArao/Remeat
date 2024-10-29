@@ -1,10 +1,11 @@
 "use strict"
-import { EntitySchema, JoinColumn} from "typeorm";
+import { EntitySchema, JoinColumn } from "typeorm";
 import horario_laboral from "./horario_laboral.entity.js";
+import platillo from "./platillo.entity.js";
 
 const usuarioSchema = new EntitySchema({
     name:"usuario",
-    tablename:"usuario",
+    tableName:"usuario",
     columns: {
         id_usuario: {
             type: "int",
@@ -13,20 +14,29 @@ const usuarioSchema = new EntitySchema({
         },
         nombre_usuario: {
             type: "varchar",
-            length: "255",
+            length: "50",
             nullable: false
         },
         apellido_usuario: {
-            type: "varchar"
+            type: "varchar",
+            length: "50",
+            nullable: false
         },
         correo_usuario: {
-            type: "varchar"
+            type: "varchar",
+            length: 100,
+            nullable: false,
+            unique: true
         },
         contrasena_usuario: {
-            type: "varchar"
+            type: "varchar",
+            length: 255,
+            nullable: false
         },
         rol_usuario: {
-            type: "varchar"
+            type: "enum",
+            enum: ["administrador", "cocinero", "mesero"],
+            nullable: false
         },
         id_horario_laboral: {
             type: "int",
@@ -42,10 +52,16 @@ const usuarioSchema = new EntitySchema({
             },
             onDelete: "SET NULL",
         },
-        platillo: {
-            type: "many-to-many",
+        cocina_platillos: {
+            type: "one-to-many",
             target: "platillo",
-            joinTable: true,
+            inverseSide: "cocinero",
+            cascade: true,
+        },
+        crea_platillos: {
+            type: "one-to-many",
+            target: "platillo",
+            inverseSide: "creador",
             cascade: true,
         }
     }

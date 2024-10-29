@@ -1,6 +1,12 @@
 "use strict";
 import Menu from "../entity/menu.entity.js";
 
+import QRCode from "qrcode";
+
+export async function generateMenuQRCode() {
+  const menuUrl = `${process.env.BASE_URL}/menu`;
+  return QRCode.toDataURL(menuUrl);
+}
 
 export async function createMenu(menuData) {
     try {

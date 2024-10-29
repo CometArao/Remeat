@@ -2,16 +2,19 @@
 import{
     createMenu,
     deleteMenuById,
+    generateMenuQRCode,
     getMenuById,
     getMenus,
-    updateMenu,
+    updateMenu
 }
 from "../services/menu.service.js";
+
 import{
     menuBodyValidation,
     menuQueryValidation,
 }
 from "../validations/menu.validation.js";
+
 import{
     handleErrorClient,
     handleErrorServer,
@@ -19,6 +22,16 @@ import{
 }
 from "../handlers/responseHandlers.js";
 
+export async function getMenuQRCodeController(req, res) {
+    try {
+      const qrCode = await generateMenuQRCode();
+      // eslint-disable-next-line quotes
+      handleSuccess(res, 200, 'QR del menú generado exitosamente', { qrCode });
+    } catch (error) {
+      handleErrorServer(res, 500, error.message);
+    }
+  }
+  
 export async function createMenuController(req, res){
     console.log("Keys de req.body:", Object.keys(req.body));
 

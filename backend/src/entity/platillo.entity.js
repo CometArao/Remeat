@@ -4,7 +4,7 @@ import usuario from "./usuario.entity.js"
 
 const platillo = new EntitySchema({
     name:"platillo",
-    tablename:"platillo",
+    tableName:"platillo",
     columns: {
         id_platillo: {
             type: "int",
@@ -13,24 +13,39 @@ const platillo = new EntitySchema({
         },
         nombre_platillo: {
             type: "varchar",
-            length: "255",
+            length: "100",
             nullable: false
         },
         precio_platillo: {
-            type: "int"
+            type: "int",
+            nullable: false
         },
-        id_usuario: {
+        id_cocinero: {
+            type: "int",
+            nullable: true
+        },
+        id_creador: {
             type: "int",
             nullable: true
         }
     },
     relations: {
-        usuario: {
+        cocinero: {
             type: "many-to-one",
             target: "usuario",
             joinColumn: {
-                name: "id_usuario"
+                name: "id_cocinero"
             },
+            inverseSide: "cocina_platillos",
+            onDelete: "SET NULL"
+        },
+        creador: {
+            type: "many-to-one",
+            target: "usuario",
+            joinColumn: {
+                name: "id_creador"
+            },
+            inverseSide: "crea_platillos",
             onDelete: "SET NULL"
         },
     }
