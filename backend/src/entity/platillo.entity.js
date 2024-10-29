@@ -1,5 +1,5 @@
 "use strict"
-import { EntitySchema} from "typeorm";
+import { EntitySchema } from "typeorm";
 import usuario from "./usuario.entity.js"
 
 const platillo = new EntitySchema({
