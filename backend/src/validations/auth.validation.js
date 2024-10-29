@@ -25,7 +25,7 @@ export const authValidation = Joi.object({
       "string.max": "El correo electrónico debe tener como máximo 35 caracteres.",
     })
     .custom(domainEmailValidator, "Validación dominio email"),
-    correo_usuario: Joi.string()
+    contrasena_usuario: Joi.string()
     .min(8)
     .max(26)
     .pattern(/^[a-zA-Z0-9]+$/)

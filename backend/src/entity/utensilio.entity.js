@@ -12,9 +12,8 @@ const utensilio = new EntitySchema({
             generated: true,
         },
         cantidad_utensilio: {
-            type: "varchar",
-            length: "255",
-            nullable: false
+            type: "int",
+            nullable: true
         },
         id_tipo_utensilio: {
             type: "int",
@@ -30,6 +29,12 @@ const utensilio = new EntitySchema({
             },
             onDelete: "SET NULL",
         },
+        merma: {
+            type: "many-to-many",
+            target: "merma",
+            joinTable: true,
+            cascade: true,
+        }
     }
 });
 
