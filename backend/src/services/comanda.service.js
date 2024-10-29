@@ -1,4 +1,4 @@
-/ backend/src/services/comanda.service.js
+// backend/src/services/comanda.service.js
 import Comanda from '../entity/comanda.entity.js';
 import Usuario from '../entity/usuario.entity.js';
 import { AppDataSource } from '../config/configDb.js';
