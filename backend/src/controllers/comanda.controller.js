@@ -10,10 +10,10 @@ import {
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
 
 export async function createComandaController(req, res) {
-  const meseroId = req.user.id;
+  const data = req.body;
 
   try {
-      const newComanda = await createComanda(meseroId);
+      const newComanda = await createComanda(data);
       handleSuccess(res, 201, 'Comanda creada', newComanda);
   } catch (error) {
       handleErrorServer(res, 500, error.message);

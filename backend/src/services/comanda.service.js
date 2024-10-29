@@ -3,12 +3,12 @@ import Comanda from '../entity/comanda.entity.js';
 import Usuario from '../entity/usuario.entity.js';
 import { AppDataSource } from '../config/configDb.js';
 
-export async function createComanda(meseroId) {
+export async function createComanda(data) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
   // Obtener el objeto usuario correspondiente al meseroId
-  const usuario = await usuarioRepository.findOne({ where: { id_usuario: meseroId } });
+  const usuario = await usuarioRepository.findOne({ where: { id_usuario: data.id_usuario } });
   if (!usuario) {
     throw new Error('Usuario no encontrado');
   }
@@ -16,7 +16,9 @@ export async function createComanda(meseroId) {
   // Crear la comanda asignando el objeto de usuario
   const nuevaComanda = comandaRepository.create({
     usuario: usuario,  // Asignar el objeto completo de usuario
-    estado: 'pendiente'
+    estado: data.estado || 'pendiente',
+    fecha_compra_comanda: data.fecha_compra_comanda || null,
+    hora_compra_comanda: data.hora_compra_comanda || null
   });
   await comandaRepository.save(nuevaComanda);
 
