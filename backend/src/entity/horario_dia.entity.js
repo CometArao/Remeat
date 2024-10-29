@@ -1,6 +1,5 @@
 "use strict";
-import horario_laboral_schema from "./horario_laboral.entity.js"
-import { EntitySchema} from "typeorm";
+import { EntitySchema } from "typeorm";
 
 const horario_dia = new EntitySchema({
     name: "horario_dia",
@@ -12,15 +11,26 @@ const horario_dia = new EntitySchema({
             generated: true,
         },
         hora_inicio: {
-            type: "int",
+            type: "time",
         },
         hora_fin: {
-            type: "int"
+            type: "time"
         },
         dia_semana: {
             type: "varchar",
-            lenght: "miercoles".length
+            length: 10
+        }
+    },
+    relations: {
+        horario_laboral: {
+            type: "many-to-one",
+            target: "horario_laboral",
+            joinColumn: {
+                name: "id_horario_laboral", // Llave foránea en horario_dia que apunta a horario_laboral
+            },
+            onDelete: "CASCADE" // Configura el borrado en cascada si se elimina un horario_laboral
         }
     }
-})
+});
+
 export default horario_dia;

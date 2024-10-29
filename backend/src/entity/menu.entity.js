@@ -1,5 +1,5 @@
 "use strict"
-import { EntitySchema} from "typeorm";
+import { EntitySchema } from "typeorm";
 import horario_dia from "./horario_dia.entity.js"
 
 const menu = new EntitySchema({
