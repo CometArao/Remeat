@@ -20,7 +20,16 @@ async function createUsers() {
           correo_usuario: "cometarao@gmail.com",
           contrasena_usuario: await encryptPassword("admin1234"),
           rol_usuario: "administrador",
-        }),
+        })
+      ),
+      usuarioRepository.save(
+        usuarioRepository.create({
+          nombre_usuario: "mesero",
+          apellido_usuario: "principal",
+          correo_usuario: "meseroprincipal@gmail.com",
+          contrasena_usuario: await encryptPassword("mesero1234"),
+          rol_usuario: "mesero",
+        })
       )
     ]);
     console.log("* => Usuarios creados exitosamente");
@@ -28,6 +37,7 @@ async function createUsers() {
     console.error("Error al crear usuarios:", error);
   }
 }
+
 
 async function createHorario(horario_dia) {
   try {
