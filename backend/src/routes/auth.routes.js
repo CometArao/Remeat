@@ -1,12 +1,15 @@
 "use strict";
 import { Router } from "express";
 import { login, logout, register } from "../controllers/auth.controller.js";
+import { authenticateJwt } from "../middlewares/authentication.middleware.js";
+import { isAdmin } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
 
 router
   .post("/login", login)
-  .post("/register", register)
-  .post("/logout", logout);
+  .post("/logout", logout)
+  // Solo permite el registro si el usuario es administrador
+  .post("/register", authenticateJwt, isAdmin, register);
 
 export default router;
