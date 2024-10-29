@@ -2,10 +2,11 @@
 import express from 'express';
 import {
   createComandaController,
-  getComandasController,
+  getAllComandasController,
   updateComandaController,
   deleteComandaController,
   completeComandaController,
+  getComandaByIdController,
 } from '../controllers/comanda.controller.js';
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
 
@@ -14,7 +15,8 @@ const router = express.Router();
 router.use(authenticateJwt);
 
 router.post('/comandas', createComandaController);
-router.get('/comandas', getComandasController);
+router.get('/comandas', getAllComandasController);
+router.get('/comandas/:id', getComandaByIdController);
 router.put('/comandas/:id', updateComandaController);
 router.delete('/comandas/:id', deleteComandaController);
 router.patch('/comandas/:id/complete', completeComandaController);

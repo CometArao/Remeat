@@ -23,25 +23,38 @@ export async function createComanda(meseroId) {
   return nuevaComanda;
 }
 
-export async function getComandasByMesero(meseroId) {
+
+export async function getAllComandas() {
   const comandaRepository = AppDataSource.getRepository(Comanda);
-  return comandaRepository.find({ where: { usuario: { id_usuario: meseroId } } }); // Buscar por usuario
+  return await comandaRepository.find({ relations: ['usuario'] }); // Obtener todas las comandas con la relación usuario
 }
 
-export async function updateComanda(comandaId) {
-  const comandaRepository = AppDataSource.getRepository(Comanda);
-  const comanda = await comandaRepository.findOne({ where: { id: comandaId } });
 
-  if (comanda.estado === 'pendiente') {
+
+
+export async function getComandaById(comandaId) {
+  const comandaRepository = AppDataSource.getRepository(Comanda);
+  return await comandaRepository.findOne({
+    where: { id_comanda: comandaId },
+    relations: ['usuario'], // Incluye la relación con usuario
+  });
+}
+
+export async function updateComanda(comandaId, data) {
+  const comandaRepository = AppDataSource.getRepository(Comanda);
+  const comanda = await comandaRepository.findOne({ where: { id_comanda: comandaId }, relations: ['usuario'] });
+
+  if (comanda && comanda.estado === 'pendiente') {
+    Object.assign(comanda, data);
     await comandaRepository.save(comanda);
     return comanda;
   }
-  throw new Error('La comanda no se puede modificar si ya está cocinada.');
+  throw new Error('La comanda no se puede modificar si ya está cocinada o no se encuentra.');
 }
 
 export async function deleteComanda(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
-  const comanda = await comandaRepository.findOne({ where: { id: comandaId } });
+  const comanda = await comandaRepository.findOne({ where: { id_comanda: comandaId }, relations: ['usuario'] });
   if (comanda) {
     await comandaRepository.remove(comanda);
     return comanda;
