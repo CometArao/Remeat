@@ -1,6 +1,5 @@
 "use strict"
-import { EntitySchema} from "typeorm";
-import horario_dia from "./horario_dia.entity.js"
+import { EntitySchema } from "typeorm";
 
 const menu = new EntitySchema({
     name:"menu",
@@ -16,22 +15,14 @@ const menu = new EntitySchema({
             nullable: false
         },
         disponibilidad: {
-            type: "int"
+            type: "boolean",
         },
-        id_horario_dia: {
+        id_usuario: {
             type: "int",
-            nullable: true,
+            nullable: false
         },
     },
     relations: {
-        horario_dia: {
-            type: "many-to-one",
-            target: "horario_dia",
-            joinColumn: {
-                name: "id_horario_dia"
-            },
-            onDelete: "SET NULL"
-        },
         platillo: {
             type: "many-to-many",
             target: "platillo",
@@ -39,10 +30,11 @@ const menu = new EntitySchema({
             cascade: true
         },
         usuario: {
-            type: "many-to-many",
+            type: "many-to-one",
             target: "usuario",
-            joinTable: true,
-            cascade: true
+            joinColumn: {
+                name: "id_usuario",
+              },
         }
     }
 });
