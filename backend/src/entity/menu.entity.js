@@ -1,10 +1,9 @@
-"use strict"
+"use strict";
 import { EntitySchema } from "typeorm";
-import horario_dia from "./horario_dia.entity.js"
 
 const menu = new EntitySchema({
-    name:"menu",
-    tablename:"menu",
+    name: "menu",
+    tableName: "menu",
     columns: {
         id_menu: {
             type: "int",
@@ -16,33 +15,28 @@ const menu = new EntitySchema({
             nullable: false
         },
         disponibilidad: {
-            type: "int"
+            type: "boolean",
+            default: true // Por defecto, el menú está disponible
         },
-        id_horario_dia: {
+        id_usuario: {
             type: "int",
-            nullable: true,
-        },
+            nullable: false
+        }
     },
     relations: {
-        horario_dia: {
-            type: "many-to-one",
-            target: "horario_dia",
-            joinColumn: {
-                name: "id_horario_dia"
-            },
-            onDelete: "SET NULL"
-        },
         platillo: {
             type: "many-to-many",
             target: "platillo",
-            joinTable: true,
-            cascade: true
+            joinTable: true, // TypeORM creará automáticamente la tabla intermedia
+            cascade: true // Permite guardar cambios en platillos cuando se actualiza el menú
         },
         usuario: {
-            type: "many-to-many",
+            type: "many-to-one",
             target: "usuario",
-            joinTable: true,
-            cascade: true
+            joinColumn: {
+                name: "id_usuario"
+            },
+            onDelete: "CASCADE" // Elimina el menú si el usuario asociado se elimina
         }
     }
 });

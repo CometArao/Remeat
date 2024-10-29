@@ -1,22 +1,22 @@
 // backend/src/routes/comanda.routes.js
-import express from 'express';
+import express from "express";
 import {
+  completeComandaController,
   createComandaController,
+  deleteComandaController,
   getComandasController,
   updateComandaController,
-  deleteComandaController,
-  completeComandaController,
-} from '../controllers/comanda.controller.js';
-import { authenticateJwt } from '../middlewares/authentication.middleware.js';
+} from "../controllers/comanda.controller.js";
+import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 
 const router = express.Router();
 
 router.use(authenticateJwt);
 
-router.post('/comandas', createComandaController);
-router.get('/comandas', getComandasController);
-router.put('/comandas/:id', updateComandaController);
-router.delete('/comandas/:id', deleteComandaController);
-router.patch('/comandas/:id/complete', completeComandaController);
+router.post("/", createComandaController);
+router.get("/", getComandasController);
+router.put("/:id", updateComandaController);
+router.delete("/:id", deleteComandaController);
+router.patch("/:id/complete", completeComandaController);
 
 export default router;

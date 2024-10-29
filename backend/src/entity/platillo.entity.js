@@ -1,10 +1,9 @@
-"use strict"
+"use strict";
 import { EntitySchema } from "typeorm";
-import usuario from "./usuario.entity.js"
 
 const platillo = new EntitySchema({
-    name:"platillo",
-    tableName:"platillo",
+    name: "platillo",
+    tableName: "platillo",
     columns: {
         id_platillo: {
             type: "int",
@@ -20,47 +19,31 @@ const platillo = new EntitySchema({
             type: "int",
             nullable: false
         },
-        id_cocinero: {
-            type: "int",
-            nullable: true
+        disponible: {
+            type: "boolean",
+            default: true, // Por defecto, el platillo está disponible
+            nullable: false
         },
-        id_creador: {
+        id_usuario: {
             type: "int",
-            nullable: true
+            nullable: false
         }
     },
     relations: {
-        cocinero: {
-            type: "many-to-one",
-            target: "usuario",
-            joinColumn: {
-                name: "id_cocinero"
-            },
-            inverseSide: "cocina_platillos",
-            onDelete: "SET NULL"
-        },
         creador: {
             type: "many-to-one",
             target: "usuario",
             joinColumn: {
-                name: "id_creador"
+                name: "id_usuario"
             },
             inverseSide: "crea_platillos",
             onDelete: "SET NULL"
         },
-        menu: {
+        menus: {
             type: "many-to-many",
             target: "menu",
-            joinTable: true,
-            cascade: true
-        },
-        compuesto_platillo: {
-            type: "many-to-one",//tiene que ser many-to-one NO one-to-many
-            target: "compuesto_platillo",
-            joinColumn: {
-                name: "id_platillo"
-            }
-        },
+            joinTable: true
+        }
     }
 });
 
