@@ -1,6 +1,7 @@
 // backend/src/routes/comanda.routes.js
-import express from 'express';
+import express from "express";
 import {
+  completeComandaController,
   createComandaController,
   getAllComandasController,
   updateComandaController,
