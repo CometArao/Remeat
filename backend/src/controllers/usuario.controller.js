@@ -5,17 +5,21 @@ import {
   getUsersService,
   updateUserService,
 } from "../services/user.service.js";
+
 import {
   userBodyValidation,
   userQueryValidation,
 } from "../validations/usuario.validation.js";
+
 import {
   handleErrorClient,
   handleErrorServer,
   handleSuccess,
 } from "../handlers/responseHandlers.js";
 import { AppDataSource } from "../config/configDb.js";
+
 import horario_dia from "../entity/horario_dia.entity.js";
+
 import usuarios from "../entity/usuario.entity.js"
 
 export async function find(req, res) {
@@ -29,4 +33,55 @@ export async function find(req, res) {
     console.log(Usuarios);
     handleSuccess(res, 200, "Usuario encontrado", Usuarios);
     return
+}
+
+// Obtener todos los usuarios
+export async function getUsers(req, res) {
+  try {
+    const [users, error] = await getUsersService();
+    if (error) return handleErrorClient(res, 404, error);
+    
+    handleSuccess(res, 200, "Usuarios obtenidos exitosamente", users);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+
+// Obtener un usuario específico
+export async function getUser(req, res) {
+  try {
+    const { query } = req;
+    const [user, error] = await getUserService(query);
+    if (error) return handleErrorClient(res, 404, error);
+    
+    handleSuccess(res, 200, "Usuario obtenido exitosamente", user);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+
+// Actualizar un usuario
+export async function updateUser(req, res) {
+  try {
+    const { query, body } = req;
+    const [updatedUser, error] = await updateUserService(query, body);
+    if (error) return handleErrorClient(res, 400, error);
+    
+    handleSuccess(res, 200, "Usuario actualizado exitosamente", updatedUser);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+
+// Eliminar un usuario
+export async function deleteUser(req, res) {
+  try {
+    const { query } = req;
+    const [deletedUser, error] = await deleteUserService(query);
+    if (error) return handleErrorClient(res, 400, error);
+    
+    handleSuccess(res, 200, "Usuario eliminado exitosamente", deletedUser);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
 }

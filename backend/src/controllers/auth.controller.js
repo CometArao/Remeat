@@ -1,5 +1,6 @@
 "use strict";
 import { loginService, registerService } from "../services/auth.service.js";
+import { addTokenToBlacklist } from "../utils/tokenBlacklist.js"; // Importa la función
 import {
   authValidation,
   registerValidation,
@@ -19,13 +20,15 @@ export async function login(req, res) {
     if (error) {
       return handleErrorClient(res, 400, "Error de validación", error.message);
     }
+
     const [accessToken, errorToken] = await loginService(body);
 
     if (errorToken) return handleErrorClient(res, 400, "Error iniciando sesión", errorToken);
 
+    // Configura la cookie para que expire en 30 días
     res.cookie("jwt", accessToken, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 días en milisegundos
     });
 
     handleSuccess(res, 200, "Inicio de sesión exitoso", { token: accessToken });
@@ -55,6 +58,13 @@ export async function register(req, res) {
 
 export async function logout(req, res) {
   try {
+    const token = req.cookies.jwt;
+
+    if (token) {
+      // Agrega el token a la lista negra
+      addTokenToBlacklist(token);
+    }
+
     res.clearCookie("jwt", { httpOnly: true });
     handleSuccess(res, 200, "Sesión cerrada exitosamente");
   } catch (error) {
