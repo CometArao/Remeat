@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { getStockIngrediente, getStockUtensilio } from "../controllers/informes.controller.js"
+import { getStockIngrediente, getStockUtensilio, getVentasPlatillo, getPlatillosMenu} from "../controllers/informes.controller.js"
 
 const router = Router();
 
@@ -13,7 +13,7 @@ router
     .get("/get_utilidades")
     .get("/get_utilidades")
     //grafico circular
-    .get("/get_platillo_vendido")
-    .get("/get_platillo_menu")
+    .get("/get_platillos_vendidos", getVentasPlatillo)
+    .get("/get_platillo_menu", getPlatillosMenu)
 
 export default router;

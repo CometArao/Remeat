@@ -13,7 +13,6 @@ export async function createTipoUtensilioService(tipoUtensilio) {
             message
         });
 
-        //que el nombre solo se le agregue nombre con todo en minuscula sin tilde ni numeros
         const existeTipoUtensilioNombre = await tipoUtensilioRepository.findOne({
             where: {
                 nombre_tipo_utensilio

@@ -19,6 +19,18 @@ export async function getComandasByMesero(meseroId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   return comandaRepository.find({ where: { mesero: meseroId }, relations: ['platillos'] });
 }
+export async function getAllComandas() {
+  try {
+    const comandaRepository = AppDataSource.getRepository(Comanda);
+    const comandasEncontradas = comandaRepository.find();
+    if (!comandasEncontradas || comandasEncontradas.length === 0) {
+        return [null, "No hay comandas"];
+    } 
+  }catch(error) {
+    console.error("Error al obtener a los usuarios", error);
+    return [null, "Error interno del servidor"];
+  }
+}
 
 export async function updateComanda(comandaId, platillos) {
   const comandaRepository = AppDataSource.getRepository(Comanda);

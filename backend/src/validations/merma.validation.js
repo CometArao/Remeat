@@ -1,3 +1,5 @@
+"use strict"
+import Joi from "joi";
 export const mermaValidation = Joi.object({
     id_merma: Joi.number()
     .integer()
@@ -7,17 +9,14 @@ export const mermaValidation = Joi.object({
       "number.integer": "El id debe ser un número entero.",
       "number.positive": "El id debe ser un número positivo.",
     }),
-    fecha: Joi.date()
-    
-    .message({
-        "string.empty": "El nombre del tipo utensilio no puede estar vacío.",
-        "string.base": "El nombre del tipo utensilio debe ser de tipo string.",
-        "string.min":
-            "El nombre del tipo utensiliodebe tener como mínimo 1 caracteres.",
-        "string.max":
-            "El nombre del tipo utensilio debe tener como máximo 50 caracteres.",
-    }),
-    cantidad_perdida: Joi.integer()
+    //fecha: Joi.date()
+    //.required()
+    //.message({
+        //'date.base': 'La fecha debe ser un valor de tipo fecha.',
+        //'date.empty': 'La fecha no puede estar vacía.',
+
+    //}),
+    cantidad_perdida: Joi.number()
     .integer()
     .positive()
     .message({
@@ -25,5 +24,14 @@ export const mermaValidation = Joi.object({
       "number.integer": "El id debe ser un número entero.",
       "number.positive": "El id debe ser un número positivo.",
     })
-
+})
+export const mermaQueryValidation = Joi.object({
+    id_merma: Joi.number()
+    .integer()
+    .positive()
+    .messages({
+      "number.base": "El id debe ser un número.",
+      "number.integer": "El id debe ser un número entero.",
+      "number.positive": "El id debe ser un número positivo.",
+    }),
 })

@@ -48,6 +48,19 @@ const platillo = new EntitySchema({
             inverseSide: "crea_platillos",
             onDelete: "SET NULL"
         },
+        menu: {
+            type: "many-to-many",
+            target: "menu",
+            joinTable: true,
+            cascade: true
+        },
+        compuesto_platillo: {
+            type: "many-to-one",//tiene que ser many-to-one NO one-to-many
+            target: "compuesto_platillo",
+            joinColumn: {
+                name: "id_platillo"
+            }
+        },
     }
 });
 
