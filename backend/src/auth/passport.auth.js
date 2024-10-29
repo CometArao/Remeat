@@ -15,9 +15,7 @@ passport.use(
     try {
       const userRepository = AppDataSource.getRepository(User);
       const user = await userRepository.findOne({
-        where: {
-          email: jwt_payload.email,
-        },
+        where: { correo_usuario: jwt_payload.correo_usuario },
       });
 
       if (user) {
@@ -28,7 +26,7 @@ passport.use(
     } catch (error) {
       return done(error, false);
     }
-  }),
+  })
 );
 
 export function passportJwtSetup() {

@@ -1,10 +1,24 @@
 "use strict";
 import { Router } from "express";
-import { find } from "../controllers/usuario.controller.js"
+import { isAdmin } from "../middlewares/authorization.middleware.js";
+import { authenticateJwt } from "../middlewares/authentication.middleware.js";
+import {
+  deleteUser,
+  getUser,
+  getUsers,
+  updateUser
+} from "../controllers/usuario.controller.js";
 
 const router = Router();
 
 router
-  .get('/find', find)
+  .use(authenticateJwt)
+  .use(isAdmin);
+
+router
+  .get("/", getUsers)         // Obtener todos los usuarios
+  .get("/:id", getUser)        // Obtener un usuario específico por ID
+  .put("/:id", updateUser)     // Actualizar un usuario específico por ID
+  .delete("/:id", deleteUser); // Eliminar un usuario específico por ID
 
 export default router;
