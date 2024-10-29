@@ -1,11 +1,11 @@
 "use strict";
 import{
-    createMenu,
-    deleteMenuById,
+    createMenuService,
+    deleteMenuByIdService,
     generateMenuQRCode,
-    getMenuById,
-    getMenus,
-    updateMenu
+    getMenuByIdService,
+    getMenusService,
+    updateMenuService
 }
 from "../services/menu.service.js";
 
@@ -31,32 +31,22 @@ export async function getMenuQRCodeController(req, res) {
       handleErrorServer(res, 500, error.message);
     }
   }
-  
-export async function createMenuController(req, res){
-    console.log("Keys de req.body:", Object.keys(req.body));
 
-    try{
-        const { fecha, disponibilidad, id_horario_dia, platilloIds, usuarioIds } = req.body;
+export async function createMenuController(req, res) {
+    try {
+        const [newMenu, error] = await createMenuService(req.body);
+        if (error) return handleErrorClient(res, 400, error);
 
-        // eslint-disable-next-line max-len
-        const { error } = menuBodyValidation.validate({ fecha, disponibilidad, id_horario_dia, platilloIds, usuarioIds });
-
-        if(error) return handleErrorClient(res, 400, error.message);
-
-        // eslint-disable-next-line max-len
-        const [newMenu, errorMenu] = await createMenu({ fecha, disponibilidad, id_horario_dia, platilloIds, usuarioIds });
-
-        if(errorMenu) return handleErrorClient(res, 404, errorMenu);
-
-        handleSuccess(res, 201, "Menú creado", newMenu);
-    }catch(error){
+        handleSuccess(res, 201, "Menú creado exitosamente", newMenu);
+    } catch (error) {
         handleErrorServer(res, 500, error.message);
     }
 }
 
+
 export async function getMenusController(req, res){
     try{
-        const [menus, errorMenus] = await getMenus();
+        const [menus, errorMenus] = await getMenusService();
 
         if(errorMenus) return handleErrorClient(res, 404, errorMenus);
 
@@ -77,7 +67,7 @@ export async function getMenuByIdController(req, res){
 
         if(error) return handleErrorClient(res, 400, error.message);
 
-        const [menu, errorMenu] = await getMenuById(id_menu);
+        const [menu, errorMenu] = await getMenuByIdService(id_menu);
 
         if(errorMenu) return handleErrorClient(res, 404, errorMenu);
 
@@ -98,7 +88,7 @@ export async function deleteMenuController(req, res){
 
         if(error) return handleErrorClient(res, 400, error.message);
 
-        const [menu, errorMenu] = await deleteMenuById(id_menu);
+        const [menu, errorMenu] = await deleteMenuByIdService(id_menu);
 
         if(errorMenu) return handleErrorClient(res, 404, errorMenu);
 
@@ -119,7 +109,7 @@ export async function updateMenuController(req, res){
         if(error) return handleErrorClient(res, 400, error.message);
 
         // eslint-disable-next-line max-len
-        const [menu, errorMenu] = await updateMenu({ id_menu, fecha, disponibilidad, id_horario_dia, platilloIds, usuarioIds });
+        const [menu, errorMenu] = await updateMenuService({ id_menu, fecha, disponibilidad, id_horario_dia, platilloIds, usuarioIds });
 
         if(errorMenu) return handleErrorClient(res, 404, errorMenu);
 
