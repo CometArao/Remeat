@@ -1,10 +1,10 @@
 // backend/src/controllers/comanda.controller.js
 import {
-    createComanda,
-    getComandasByMesero,
-    updateComanda,
-    deleteComanda,
-    completeComanda,
+    createComandaService,
+    getComandasByMeseroService,
+    updateComandaService,
+    deleteComandaService,
+    completeComandaService,
   } from '../services/comanda.service.js';
   import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
   
