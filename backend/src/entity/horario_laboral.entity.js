@@ -1,10 +1,9 @@
-"use strict"
-import { EntitySchema} from "typeorm";
-import horario_dia from "./horario_dia.entity.js"
+"use strict";
+import { EntitySchema } from "typeorm";
 
 const horario_laboral = new EntitySchema({
-    name:"horario_laboral",
-    tablename:"horario_laboral",
+    name: "horario_laboral",
+    tableName: "horario_laboral",
     columns: {
         id_horario_laboral: {
             type: "int",
@@ -13,16 +12,16 @@ const horario_laboral = new EntitySchema({
         },
         descripcion: {
             type: "varchar",
-            length: "255",
+            length: 255,
             nullable: false
         }
     },
     relations: {
         horario_dia: {
-            type: "many-to-many",
+            type: "one-to-many",
             target: "horario_dia",
-            joinTable: true,
-            cascade: true
+            inverseSide: "horario_laboral",
+            cascade: true,
         }
     }
 });
