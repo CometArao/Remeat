@@ -71,4 +71,4 @@ async function createHorario_dia() {
   }
 }
 
-export { createUsers, createHorario, createHorario_dia};
+export { createUsers, createHorario, createHorario_dia };
