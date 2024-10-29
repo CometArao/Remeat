@@ -5,13 +5,13 @@ import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
 
 export async function getUserService(query) {
   try {
-    const { id_usuario, correo_usuario } = query;
+    const { id_usuario } = query;
 
     const userRepository = AppDataSource.getRepository(User);
 
     const userFound = await userRepository.findOne({
-      where: [{ id_usuario }, { correo_usuario }],
-      relations: ["horario_laboral"]
+      where: { id_usuario },
+      relations: ["horario_laboral"],
     });
 
     if (!userFound) return [null, "Usuario no encontrado"];
@@ -31,7 +31,7 @@ export async function getUsersService() {
     const userRepository = AppDataSource.getRepository(User);
 
     const users = await userRepository.find({
-      relations: ["horario_laboral"]
+      relations: ["horario_laboral"],
     });
 
     if (!users || users.length === 0) return [null, "No hay usuarios"];
@@ -47,24 +47,26 @@ export async function getUsersService() {
 
 export async function updateUserService(query, body) {
   try {
-    const { id_usuario, correo_usuario } = query;
+    const { id_usuario } = query;
 
     const userRepository = AppDataSource.getRepository(User);
 
     const userFound = await userRepository.findOne({
-      where: [{ id_usuario }, { correo_usuario }],
-      relations: ["horario_laboral"]
+      where: { id_usuario },
+      relations: ["horario_laboral"],
     });
 
     if (!userFound) return [null, "Usuario no encontrado"];
 
     // Validar que el email o rol no están duplicados
-    const existingUser = await userRepository.findOne({
-      where: [{ correo_usuario: body.correo_usuario }]
-    });
+    if (body.correo_usuario) {
+      const existingUser = await userRepository.findOne({
+        where: { correo_usuario: body.correo_usuario },
+      });
 
-    if (existingUser && existingUser.id_usuario !== userFound.id_usuario) {
-      return [null, "Ya existe un usuario con el mismo correo electrónico"];
+      if (existingUser && existingUser.id_usuario !== userFound.id_usuario) {
+        return [null, "Ya existe un usuario con el mismo correo electrónico"];
+      }
     }
 
     // Comparar y actualizar la contraseña
@@ -82,7 +84,7 @@ export async function updateUserService(query, body) {
       apellido_usuario: body.apellido_usuario,
       correo_usuario: body.correo_usuario,
       rol_usuario: body.rol_usuario,
-      id_horario_laboral: body.id_horario_laboral
+      id_horario_laboral: body.id_horario_laboral,
     };
 
     if (body.newPassword && body.newPassword.trim() !== "") {
@@ -94,7 +96,7 @@ export async function updateUserService(query, body) {
     // Obtener usuario actualizado para retornar
     const userData = await userRepository.findOne({
       where: { id_usuario: userFound.id_usuario },
-      relations: ["horario_laboral"]
+      relations: ["horario_laboral"],
     });
 
     if (!userData) {
@@ -112,12 +114,12 @@ export async function updateUserService(query, body) {
 
 export async function deleteUserService(query) {
   try {
-    const { id_usuario, correo_usuario } = query;
+    const { id_usuario } = query;
 
     const userRepository = AppDataSource.getRepository(User);
 
     const userFound = await userRepository.findOne({
-      where: [{ id_usuario }, { correo_usuario }],
+      where: { id_usuario },
     });
 
     if (!userFound) return [null, "Usuario no encontrado"];

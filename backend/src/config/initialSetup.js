@@ -29,6 +29,7 @@ async function createUsers() {
   }
 }
 
+
 async function createHorario(horario_dia) {
   try {
     const userRepository = AppDataSource.getRepository(horario_laboral);
