@@ -2,6 +2,9 @@
 import { Router } from "express";
 import authRoutes from "./auth.routes.js";
 import usuariosRoutes from "./usuarios.routes.js";
+import utensiliosRoutes from "./utensilios.routes.js"
+import informesRoutes from "./informes.routes.js"
+import mermaRoutes from "./merma.routes.js"
 import menuRoutes from "./menu.routes.js";
 import platilloRoutes from "./platillo.routes.js";
 import horariosLaborales from "./horario_laboral.routes.js"
@@ -17,10 +20,13 @@ router
     .use("/menus", menuRoutes)
     .use("/platillos", platilloRoutes)
     .use("/usuarios", usuariosRoutes)
+    .use("/utensilios", utensiliosRoutes)
+    .use("/informes", informesRoutes)
     .use("/horarios-laborales", horariosLaborales)
     .use("/horarios-dias", horariosDias)
     .use("/comandas", comandaRoutes)
     .use("/pedidos", pedidoRoutes)
+    .use("/mermas", mermaRoutes)
     .use("/ingredientes", ingredienteRoutes); // Añadir las rutas de ingrediente y tipo_ingrediente
 
 export default router;

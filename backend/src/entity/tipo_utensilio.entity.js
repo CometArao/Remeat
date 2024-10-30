@@ -12,8 +12,9 @@ const tipo_utensilio = new EntitySchema({
             generated: true,
         },
         nombre_tipo_utensilio: {
-            type: "int",
-            nullable: false
+            type: "varchar",
+            length: "50",
+            unique: true
         },
     },
 });

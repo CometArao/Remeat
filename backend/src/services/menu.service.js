@@ -15,7 +15,6 @@ export async function createMenuService(data) {
     const menuRepository = AppDataSource.getRepository(Menu);
     const platilloRepository = AppDataSource.getRepository(Platillo);
     const usuarioRepository = AppDataSource.getRepository(Usuario);
-
     try {
         const { fecha, disponibilidad, id_usuario, platillos } = data;
 
@@ -24,7 +23,6 @@ export async function createMenuService(data) {
         if (!usuarioExistente) {
             return [null, `El usuario con ID ${id_usuario} no existe.`];
         }
-
         // Verificar que todos los platillos existen
         const platillosValidos = await platilloRepository.findByIds(platillos.map(p => p.id_platillo));
         if (platillosValidos.length !== platillos.length) {
@@ -38,17 +36,13 @@ export async function createMenuService(data) {
             usuario: usuarioExistente, // Relacionar con el usuario
             platillo: platillosValidos // Relacionar con los platillos validados
         });
-        
         await menuRepository.save(newMenu);
-
         return [newMenu, null];
     } catch (error) {
         console.error("Error al crear el menú:", error);
         return [null, error.message];
     }
 }
-
-
 export async function getMenusService() {
     try {
         const menuRepository = AppDataSource.getRepository(Menu);
