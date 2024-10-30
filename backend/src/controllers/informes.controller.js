@@ -1,6 +1,6 @@
 "use strict";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { getMenuPlatilloService, getUtensiliosDeTipoService, getVentasPlatilloService } from "../services/graph.service.js"
+import { getMenuPlatilloService, getUtensiliosDeTipoService, getVentasPlatilloService, getIngresosVentasService } from "../services/graph.service.js"
 import { tipo_utensilioValidation, tipo_utensilioQueryValidation, utensilioValidation, utensilioQueryValidation } from "../validations/utensilio.validation.js"
 
 export async function getStockIngrediente(req, res) {
@@ -44,8 +44,18 @@ export async function getStockUtensilio(req, res) {
     }
 }
 
-export async function IngresosPorVentas(req, res) {
-    
+export async function getIngresosPorVentas(req, res) {
+    console.log("getIngresosPorVentas()")
+    try {
+        const [ingresos_ventas, error] = await getIngresosVentasService();
+        if (error) return handleErrorClient(res, 404, error);
+
+        console.log(ingresos_ventas)
+        handleSuccess(res, 200, "Ingresos obtenidos exitosamente", ingresos_ventas);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+        console.log(error)
+    }
 }
 
 //circulares y de barras
@@ -59,8 +69,6 @@ export async function getVentasPlatillo(req, res) {
         handleErrorServer(res, 500, error.message);
         console.log(error)
     }
-
-
 }
 export async function getPlatillosMenu() {
     //consigue una lista de platillos y su relacion con el menu
