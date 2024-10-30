@@ -144,6 +144,9 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
   try {
     const platilloRepository = AppDataSource.getRepository(Platillo);
     const usuarioRepository = AppDataSource.getRepository(Usuario);
+    const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
+    const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
+
 
     const { nombre_platillo, precio_platillo, disponible, id_usuario } = platilloData;
 
@@ -196,6 +199,39 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
     }
 
     await platilloRepository.save(platilloItem);
+
+    // Verificar y agregar los ingredientes al platillo
+    if (ingredientes && ingredientes.length > 0) {
+      const ingredientesToAdd = [];
+
+      for (const ingrediente of ingredientes) {
+          // Verificar que el tipo de ingrediente existe
+          const tipoIngredienteExistente = await tipoIngredienteRepository.findOneBy({ 
+            id_tipo_ingrediente: ingrediente.id_tipo_ingrediente });
+          
+          if (!tipoIngredienteExistente) {
+              return [
+                  null,
+                  createErrorMessage(
+                      "id_tipo_ingrediente",
+                      `El tipo de ingrediente con ID ${ingrediente.id_tipo_ingrediente} no existe.`
+                  ),
+              ];
+          }
+
+          // Crear la relación entre el platillo y el ingrediente
+          ingredientesToAdd.push(
+              componePlatilloRepository.create({
+                  id_tipo_ingrediente: ingrediente.id_tipo_ingrediente,
+                  id_platillo: newPlatillo.id_platillo,
+                  porcion_ingrediente_platillo: ingrediente.porcion_ingrediente_platillo,
+              })
+          );
+      }
+
+      await componePlatilloRepository.save(ingredientesToAdd);
+  }
+
 
     return [platilloItem, null];
   } catch (error) {

@@ -10,6 +10,7 @@ import {
 from "../services/platillo.service.js";
 import {
     platilloBodyValidation,
+    platilloQueryValidation,
 }
 from "../validations/platillo.validation.js";
 import {

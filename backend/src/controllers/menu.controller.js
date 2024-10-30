@@ -34,8 +34,16 @@ export async function getMenuQRCodeController(req, res) {
 
 export async function createMenuController(req, res) {
     try {
-        const [newMenu, error] = await createMenuService(req.body);
-        if (error) return handleErrorClient(res, 400, error);
+       const { fecha, disponibilidad, id_usuario, platillos } = req.body;
+
+       const { error } = menuBodyValidation.validate({ fecha,  disponibilidad, id_usuario, platillos });
+
+       if(error) return handleErrorClient(res, 400, error.message);
+
+       const [newMenu, errorMenu] = await 
+        createMenuService({ fecha, disponibilidad, id_usuario, platillos });
+
+        if(errorMenu) return handleErrorClient(res, 404, errorMenu);
 
         handleSuccess(res, 201, "Menú creado exitosamente", newMenu);
     } catch (error) {
@@ -101,15 +109,14 @@ export async function deleteMenuController(req, res){
 
 export async function updateMenuController(req, res){
     try{
-        const { id_menu } = req.params;
-        const { fecha, disponibilidad, id_horario_dia, platilloIds, usuarioIds } = req.body;
+        const { fecha, disponibilidad, id_usuario,platillos } = req.body;
 
-        const { error } = menuQueryValidation.validate({ id_menu });
+        const { error } = menuBodyValidation.validate({ fecha, disponibilidad, id_usuario, platillos });
 
         if(error) return handleErrorClient(res, 400, error.message);
 
-        // eslint-disable-next-line max-len
-        const [menu, errorMenu] = await updateMenuService({ id_menu, fecha, disponibilidad, id_horario_dia, platilloIds, usuarioIds });
+     
+        const [menu, errorMenu] = await updateMenuService({ id_menu, fecha, disponibilidad, id_usuario, platillos });
 
         if(errorMenu) return handleErrorClient(res, 404, errorMenu);
 
