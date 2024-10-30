@@ -1,4 +1,5 @@
-import Mermas from "../entity/merma.entity"
+import Mermas from "../entity/merma.entity.js"
+import { AppDataSource } from "../config/configDb.js";
 
 
 
@@ -16,10 +17,10 @@ export async function createMermaService(query) {
             fecha: fecha,
             cantidad_perdida: cantidad_perdida 
         })
-        await tipoUtensilioRepository.save(nuevaMerma);
+        await mermasRepository.save(nuevaMerma);
         return [nuevaMerma, null];
     }catch(error) {
-        console.error("Error al crear un utensilio", error)
+        console.error("Error al crear una merma", error)
     }
 }
 
@@ -32,8 +33,7 @@ export async function getMermasService() {
             message
         });
 
-    const mermasEncontradas = await tipo_utensilioRepository.find({
-    });
+    const mermasEncontradas = await mermasRepository.find();
     if (!mermasEncontradas) {
         return [null, "mermas no encontrado"];
     } 

@@ -9,13 +9,12 @@ export const mermaValidation = Joi.object({
       "number.integer": "El id debe ser un número entero.",
       "number.positive": "El id debe ser un número positivo.",
     }),
-    //fecha: Joi.date()
-    //.required()
-    //.message({
-        //'date.base': 'La fecha debe ser un valor de tipo fecha.',
-        //'date.empty': 'La fecha no puede estar vacía.',
-
-    //}),
+  fecha: Joi.date()
+    .iso()
+    .messages({
+      "date.base": "La fecha debe ser una fecha válida.",
+      "date.format": "La fecha debe estar en formato ISO 8601.",
+    }),
     cantidad_perdida: Joi.number()
     .integer()
     .positive()
