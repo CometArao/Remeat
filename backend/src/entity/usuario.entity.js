@@ -52,7 +52,7 @@ const usuarioSchema = new EntitySchema({
         comandas: {
             type: "one-to-many",
             target: "comanda",
-            inverseSide: "cocinero",
+            inverseSide: "usuario",
             cascade: true,
         },
         crea_platillos: { // Relación con platillo

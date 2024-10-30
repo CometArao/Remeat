@@ -14,14 +14,15 @@ export async function createComanda(data) {
   }
 
    // Validar que el usuario tenga `id_usuario: 2` y `rol_usuario: mesero`
-   if (usuario.id_usuario !== 2 || usuario.rol_usuario !== 'mesero') {
-    throw new Error('Solo el usuario con ID 2 y rol "mesero" tiene permiso para crear comandas.');
+  if ( usuario.rol_usuario !== 'mesero') {
+    throw new Error('Solo el rol "mesero" tiene permiso para crear comandas.');
   }
+    
 
   // Crear la comanda asignando el objeto de usuario
   const nuevaComanda = comandaRepository.create({
     usuario: usuario,  // Asignar el objeto completo de usuario
-    estado: data.estado || 'pendiente',
+    estado_comanda: data.estado || 'pendiente',
     fecha_compra_comanda: data.fecha_compra_comanda || null,
     hora_compra_comanda: data.hora_compra_comanda || null
   });
@@ -56,7 +57,7 @@ export async function updateComanda(comandaId, data) {
   }
 
   // Verificar que el estado actual permita modificación
-  if (comanda.estado !== 'pendiente') {
+  if (comanda.estado_comanda !== 'pendiente') {
     throw new Error('La comanda no se puede modificar porque ya está completada o en otro estado.');
   }
 
@@ -72,7 +73,7 @@ export async function updateComanda(comandaId, data) {
 
   // Actualizar solo los campos permitidos
   Object.assign(comanda, {
-    estado: data.estado || comanda.estado,
+    estado_comanda: data.estado_comanda || comanda.estado_comanda,
     fecha_compra_comanda: data.fecha_compra_comanda || comanda.fecha_compra_comanda,
     hora_compra_comanda: data.hora_compra_comanda || comanda.hora_compra_comanda,
   });
@@ -96,8 +97,8 @@ export async function completeComanda(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const comanda = await comandaRepository.findOne({ where: { id: comandaId } });
 
-  if (comanda && comanda.estado === 'pendiente') {
-    comanda.estado = 'completada';
+  if (comanda && comanda.estado_comanda === 'pendiente') {
+    comanda.estado_comanda = 'completada';
     await comandaRepository.save(comanda);
     return comanda;
   }

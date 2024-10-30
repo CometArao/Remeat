@@ -18,7 +18,7 @@ router
     .use("/usuarios", usuariosRoutes)
     .use("/horarios-laborales", horariosLaborales)
     .use("/horarios-dias", horariosDias)
-    .use("/comandas", comandaRoutes)
+   .use("/comandas", comandaRoutes)
     .use("/ingredientes", ingredienteRoutes); // Añadir las rutas de ingrediente y tipo_ingrediente
 
 export default router;
