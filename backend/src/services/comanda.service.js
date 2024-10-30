@@ -69,7 +69,6 @@ export async function createComanda(data) {
   if ( usuario.rol_usuario !== 'mesero') {
     throw new Error('Solo el rol "mesero" tiene permiso para crear comandas.');
   }
-    
 
   // Crear la comanda asignando el objeto de usuario
   const nuevaComanda = comandaRepository.create({
@@ -83,14 +82,10 @@ export async function createComanda(data) {
   return nuevaComanda;
 }
 
-
 export async function getAllComandas() {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   return await comandaRepository.find({ relations: ['usuario'] }); // Obtener todas las comandas con la relación usuario
 }
-
-
-
 
 export async function getComandaById(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
@@ -99,7 +94,6 @@ export async function getComandaById(comandaId) {
     relations: ['usuario'], // Incluye la relación con usuario
   });
 }
-
 
 export async function updateComanda(comandaId, data) {
   const comandaRepository = AppDataSource.getRepository(Comanda);

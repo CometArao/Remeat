@@ -1,157 +1,149 @@
 "use strict";
+import { AppDataSource } from "../config/configDb.js";
 import Utensilio from "../entity/utensilio.entity.js";
 import TipoUtensilio from "../entity/tipo_utensilio.entity.js";
-import { AppDataSource } from "../config/configDb.js";
-import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
-import utensilio from "../entity/utensilio.entity.js";
-import tipo_utensilio from "../entity/tipo_utensilio.entity.js";
 
-export async function createUtensilioService(utensilio) {
+// Servicio para crear un tipo de utensilio
+export async function createTipoUtensilioService(data) {
+    const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
     try {
+        const { nombre_tipo_utensilio } = data;
+        const newTipoUtensilio = tipoUtensilioRepository.create({ nombre_tipo_utensilio });
+        await tipoUtensilioRepository.save(newTipoUtensilio);
+        return [newTipoUtensilio, null];
+    } catch (error) {
+        console.error("Error al crear el tipo de utensilio:", error);
+        return [null, error.message];
+    }
+}
+
+// Servicio para obtener un tipo de utensilio específico
+export async function getTipoUtensilioService(id) {
     const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
-    const { cantidad_utensilio, id_tipo_utensilio } = utensilio;
-
-    //declara una funcion con dos parametros que devuelve un diccionario(hashset) con esos dos parametros
-    const createErrorMessage = (dataInfo, message) => ({
-        dataInfo,
-        message
-    });
-    //verificar si existe el tipo
-    const existeTipo = await tipoUtensilioRepository.findOne({
-        where: {
-            id_tipo_utensilio: id_tipo_utensilio
-        },
-    });
-    const utensilioRepository = AppDataSource.getRepository(Utensilio);
-    if(!existeTipo) {
-        return [null, createErrorMessage("tipo_utensilio", "el tipo utensilio no existe")]
-    }
-    const nuevoUtensilio = utensilioRepository.create({
-        cantidad_utensilio: cantidad_utensilio,
-        id_tipo_utensilio: id_tipo_utensilio
-    })
-    console.log(nuevoUtensilio)
-    await utensilioRepository.save(nuevoUtensilio);
-    console.log(nuevoUtensilio)
-    return [nuevoUtensilio, null];
-    }catch(error) {
-        console.error("Error al crear un utensilio", error)
-        return [null, "Error interno del servidor"];
+    try {
+        const tipoUtensilio = await tipoUtensilioRepository.findOneBy({ id_tipo_utensilio: id });
+        return tipoUtensilio ? [tipoUtensilio, null] : [null, "Tipo de utensilio no encontrado"];
+    } catch (error) {
+        console.error("Error al obtener el tipo de utensilio:", error);
+        return [null, error.message];
     }
 }
 
-export async function getUtensilioService(query) {
-  try {
-    const {id_utensilio} = query
-    const utensilioRepository = AppDataSource.getRepository(Utensilio);
-    const utensilioEncontrado = await utensilioRepository.findOne({
-        where: [{id_utensilio: id_utensilio}]
-    });
-
-    if (!utensilioEncontrado) {
-        return [null, "Utensilio no encontrado"];
-    } 
-    return utensilioEncontrado;
-  }catch (error) {
-    console.error("Error obtener el utensilio:", error);
-    return [null, "Error interno del servidor"];
-  }
+// Servicio para obtener todos los tipos de utensilios
+export async function getTiposUtensilioService() {
+    const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
+    try {
+        const tiposUtensilio = await tipoUtensilioRepository.find();
+        return [tiposUtensilio, null];
+    } catch (error) {
+        console.error("Error al obtener los tipos de utensilios:", error);
+        return [null, error.message];
+    }
 }
 
+// Servicio para actualizar un tipo de utensilio
+export async function updateTipoUtensilioService(id, data) {
+    const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
+    try {
+        const tipoUtensilio = await tipoUtensilioRepository.findOneBy({ id_tipo_utensilio: id });
+        if (!tipoUtensilio) return [null, "Tipo de utensilio no encontrado"];
+        tipoUtensilioRepository.merge(tipoUtensilio, data);
+        await tipoUtensilioRepository.save(tipoUtensilio);
+        return [tipoUtensilio, null];
+    } catch (error) {
+        console.error("Error al actualizar el tipo de utensilio:", error);
+        return [null, error.message];
+    }
+}
+
+// Servicio para eliminar un tipo de utensilio
+export async function deleteTipoUtensilioService(id) {
+    const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
+    try {
+        const result = await tipoUtensilioRepository.delete(id);
+        return [result.affected > 0, null];
+    } catch (error) {
+        console.error("Error al eliminar el tipo de utensilio:", error);
+        return [null, error.message];
+    }
+}
+
+// Servicio para crear un utensilio
+export async function createUtensilioService(data) {
+    const utensilioRepository = AppDataSource.getRepository(Utensilio);
+    const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
+    try {
+        const { cantidad_utensilio, id_tipo_utensilio } = data;
+        const tipoUtensilio = await tipoUtensilioRepository.findOneBy({ id_tipo_utensilio });
+        if (!tipoUtensilio) return [null, `El tipo de utensilio con ID ${id_tipo_utensilio} no existe`];
+        const newUtensilio = utensilioRepository.create({ cantidad_utensilio, tipo_utensilio: tipoUtensilio });
+        await utensilioRepository.save(newUtensilio);
+        return [newUtensilio, null];
+    } catch (error) {
+        console.error("Error al crear el utensilio:", error);
+        return [null, error.message];
+    }
+}
+
+// Servicio para obtener un utensilio específico
+export async function getUtensilioService(id) {
+    const utensilioRepository = AppDataSource.getRepository(Utensilio);
+    try {
+        const utensilio = await utensilioRepository.findOne({
+            where: { id_utensilio: id },
+            relations: ["tipo_utensilio"]
+        });
+        return utensilio ? [utensilio, null] : [null, "Utensilio no encontrado"];
+    } catch (error) {
+        console.error("Error al obtener el utensilio:", error);
+        return [null, error.message];
+    }
+}
+
+// Servicio para obtener todos los utensilios
 export async function getUtensiliosService() {
-  try {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
-
-    const utensilios = await utensilioRepository.find();
-
-    if (!utensilios || utensilios.length === 0) {
-        return [null, "No hay utensilios"];
-    } 
-    return [utensilios, null];
-  } catch (error) {
-    console.error("Error al obtener a los usuarios:", error);
-    return [null, "Error interno del servidor"];
-  }
+    try {
+        const utensilios = await utensilioRepository.find({ relations: ["tipo_utensilio"] });
+        return [utensilios, null];
+    } catch (error) {
+        console.error("Error al obtener los utensilios:", error);
+        return [null, error.message];
+    }
 }
 
-export async function updateUtensilioService(query, body) {
-  try {
-    const createErrorMessage = (dataInfo, message) => ({
-        dataInfo,
-        message
-    });
-    const { id_utensilio } = query;
-    const { id_tipo_utensilio, cantidad_utensilio } = body
-
+// Servicio para actualizar un utensilio
+export async function updateUtensilioService(id, data) {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
     const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
+    try {
+        const utensilio = await utensilioRepository.findOneBy({ id_utensilio: id });
+        if (!utensilio) return [null, "Utensilio no encontrado"];
 
-    const existeTipo = await tipoUtensilioRepository.findOne({
-        where: {
-            id_tipo_utensilio: id_tipo_utensilio
-        },
-    });
-    console.log(existeTipo)
-    if(!existeTipo) {
-        return [null, createErrorMessage("tipo_utensilio", "el tipo utensilio no existe")]
+        if (data.id_tipo_utensilio) {
+            const tipoUtensilio = await tipoUtensilioRepository.findOneBy({ id_tipo_utensilio: data.id_tipo_utensilio });
+            if (!tipoUtensilio) return [null, `El tipo de utensilio con ID ${data.id_tipo_utensilio} no existe`];
+            data.tipo_utensilio = tipoUtensilio;
+            delete data.id_tipo_utensilio;
+        }
+
+        utensilioRepository.merge(utensilio, data);
+        await utensilioRepository.save(utensilio);
+        return [utensilio, null];
+    } catch (error) {
+        console.error("Error al actualizar el utensilio:", error);
+        return [null, error.message];
     }
-    const utensilioFound = await utensilioRepository.findOne({
-      where: [{ id_utensilio: id_utensilio }],
-    });
-
-    if (!utensilioFound) {
-        return [null, "Usuario no encontrado"];
-    } 
-    const existingTipo_utensilio = await utensilioRepository.findOne({
-        where: [{id_tipo_utensilio: body.id_tipo_utensilio}]
-    })
-    if(!existingTipo_utensilio) {
-        return [null, "tipo_utensilio no encontrado"]
-    }
-    const dataUpdateUtensilio = {
-      cantidad_utensilio: body.cantidad_utensilio,
-      id_tipo_utensilio: body.id_tipo_utensilio,
-    };
-    //console.log(dataUpdateUtensilio)
-
-    await utensilioRepository.update({ id_utensilio: utensilioFound.id_utensilio }, dataUpdateUtensilio);
-
-
-    //comprobar
-    const utensilioDatos = await utensilioRepository.findOne({
-      where: { id_utensilio: utensilioFound.id_utensilio },
-    });
-    if (!utensilioDatos) {
-      return [null, "Utensilio no encontrado después de actualizar"];
-    }
-    return [utensilioDatos, null];
-  } catch (error) {
-    console.error("Error al modificar un utensilio:", error);
-    return [null, "Error interno del servidor"];
-  }
 }
 
-export async function deleteUtensilioService(query) {
-  try {
-    const { id_utensilio } = query;
-
+// Servicio para eliminar un utensilio
+export async function deleteUtensilioService(id) {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
-
-    const UtensilioFound = await utensilioRepository.findOne({
-      where: [{ id_utensilio: id_utensilio }],
-    });
-
-    if (!UtensilioFound) return [null, "Utensilio no encontrado"];
-
-    //TODO agregar permisos a estos servicios
-    //if (userFound.rol === "administrador") {
-      //return [null, "No se puede eliminar un usuario con rol de administrador"];
-    //}
-
-    const UtensilioEliminado = await utensilioRepository.remove(UtensilioFound);
-    return [UtensilioEliminado, null];
-  } catch (error) {
-    console.error("Error al eliminar un utensilio:", error);
-    return [null, "Error interno del servidor"];
-  }
+    try {
+        const result = await utensilioRepository.delete(id);
+        return [result.affected > 0, null];
+    } catch (error) {
+        console.error("Error al eliminar el utensilio:", error);
+        return [null, error.message];
+    }
 }

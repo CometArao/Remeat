@@ -12,7 +12,7 @@ export async function createPlatilloService(data) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
 
     try {
-        const { nombre_platillo, precio_platillo, disponible, id_usuario, ingredientes } = data;
+        const { nombre_platillo, disponible, id_usuario, ingredientes } = data;
 
         const createErrorMessage = (dataInfo, message) => ({
             dataInfo,
@@ -31,12 +31,12 @@ export async function createPlatilloService(data) {
             ];
         }
 
-        // Crear el platillo
+        // Crear el platillo con precio inicial de 0
         const newPlatillo = platilloRepository.create({
             nombre_platillo,
-            precio_platillo,
+            precio_platillo: 0, // Precio inicial de 0
             disponible,
-            creador: usuarioExistente, // Asignar el usuario como creador del platillo
+            creador: usuarioExistente,
         });
         await platilloRepository.save(newPlatillo);
 
@@ -46,9 +46,10 @@ export async function createPlatilloService(data) {
 
             for (const ingrediente of ingredientes) {
                 // Verificar que el tipo de ingrediente existe
-                const tipoIngredienteExistente = await tipoIngredienteRepository.findOneBy({ 
-                  id_tipo_ingrediente: ingrediente.id_tipo_ingrediente });
-                
+                const tipoIngredienteExistente = await tipoIngredienteRepository.findOneBy({
+                    id_tipo_ingrediente: ingrediente.id_tipo_ingrediente
+                });
+
                 if (!tipoIngredienteExistente) {
                     return [
                         null,
@@ -80,13 +81,37 @@ export async function createPlatilloService(data) {
 }
 
 
+export async function assignPriceToPlatilloService(data) {
+  const platilloRepository = AppDataSource.getRepository(Platillo);
+
+  try {
+      const { id_platillo, precio_platillo } = data;
+
+      // Verificar que el platillo existe
+      const platillo = await platilloRepository.findOneBy({ id_platillo });
+      if (!platillo) {
+          return [null, `El platillo con ID ${id_platillo} no existe.`];
+      }
+
+      // Asignar el precio al platillo
+      platillo.precio_platillo = precio_platillo;
+      await platilloRepository.save(platillo);
+
+      return [platillo, null];
+  } catch (error) {
+      console.error("Error al asignar precio al platillo:", error);
+      return [null, error.message];
+  }
+}
+
+
 //Función para obtener todos los platillos
 export async function getPlatillosService() {
     try {
         const platilloRepository = AppDataSource.getRepository(Platillo);
 
         const platillos = await platilloRepository.find({
-            relations: ["usuario"],
+            relations: ["creador"],
         });
 
         return [platillos, null];

@@ -6,6 +6,7 @@ import Platillo from "../entity/platillo.entity.js"
 import Comanda from "../entity/comanda.entity.js"
 
 
+//para despues del miercoles
 export async function getUtensiliosDeTipoService(id_tipo_utensilio) {
   const tipo_utensilioRepository = AppDataSource.getRepository(TipoUtensilio);
   const utensilioRepository = AppDataSource.getRepository(Utensilio);
@@ -23,13 +24,21 @@ export async function getUtensiliosDeTipoService(id_tipo_utensilio) {
   console.log(utensilios)
   return [utensilios, null]
 }
+//Para grafico de barras y circular
+//Listo pero sin probar
 export async function getVentasPlatilloService() {
-  /*
-    SELECT *
-    FROM platillo
-    INNER JOIN comanda
-  */
-  //quiero todos los platillos
+  /**
+   * resultados
+   * [
+   *  {
+   *    id_platillo: id_platillo
+   *    ventas: ventas
+   *  }
+   * ]
+   * 
+   * 
+   * 
+   */
   try {
     const platillosRepository = AppDataSource.getRepository(Platillo)
     const platillosEncontrados = await platillosRepository.find()
@@ -39,6 +48,8 @@ export async function getVentasPlatilloService() {
     console.log("test")
     console.log(platillosEncontrados)
     console.log(platillosEncontrados.length)
+    let listaVentas = []
+
 
     for (let i = 0; i < platillosEncontrados.length; i++) {
       //let platillo = platillosEncontrados[i]
@@ -51,26 +62,45 @@ export async function getVentasPlatilloService() {
       //.getMany()
       //console.log("test")
       //console.log(ventasPorPlatillo)
+      let ventasPlatillo = {}
       console.log("test")
       const platillo_comanda = await AppDataSource.query(`
-  SELECT COUNT(1) 
+  SELECT COUNT(1) as count
   FROM platillo p
   INNER JOIN conforma_comanda cc ON p.id_platillo = cc.id_platillo
   WHERE p.id_platillo = $1
   `, [platillosEncontrados[i].id_platillo])
       console.log(platillo_comanda)
+      ventasPlatillo['ventas'] = platillo_comanda['count']
     }
-    return [platillo_comanda, null]
+    return [ventasPlatillo, null]
   } catch (error) {
     console.error("error en consulta ventas platillo", error)
     return [null, "error consulta"]
   }
 }
+//Para grafico de barras y circular
+//Listo pero sin probar
 export async function getMenuPlatilloService() {
+  /**
+   * Quiero que mi resultado se vea:
+   * [
+      * {
+      *  id_platillo: id_platillo
+      *  nombre_platillo: nombre_platillo
+      *  en_el_menu: cantidad_en_menu
+      * },
+      * {
+      *   etc
+      * }
+   * ]
+   * 
+   * 
+   */
   const platillosRepository = AppDataSource.getRepository(Platillo)
   const platillosEncontrados = await platillosRepository.find()
   if (!platillosEncontrados) {
-    return [null, "No se encontro ningun platos"]
+    return [null, "No se encontro ningun plato"]
   }
   try {
     for (platillo in platillosEncontrados) {
@@ -82,26 +112,29 @@ export async function getMenuPlatilloService() {
       //.getMany()
       //console.log("test")
       //console.log(ventasPorPlatillo)
-      let PlatillosPorMenu = {}
+
+      let platillosPorMenu = {}
+      platillosPorMenu['id_platillo'] = platillosEncontrados[i].id_platillo
+      platillosPorMenu['nombre_platillo'] = platillosEncontrados[i].nombre_platillo
       //Se asume que platillo menu tiene forma de diccionario
       const platillo_menu = await AppDataSource.query(` 
-    SELECT p.nombre_platillo, COUNT(1) as count
-    FROM platillo p
-    INNER JOIN menu_platillo_platillo mpp ON p.id_platillo = mpp.id_platillo
-    WHERE p.id_platillo = $1
-    GROUP BY p.nombre_platillo
-    `
+      SELECT p.id_platillo, COUNT(1) as count
+      FROM platillo p
+      INNER JOIN menu_platillo_platillo mpp ON p.id_platillo = mpp.id_platillo
+      INNER JOIN menu m ON mpp.id_menu = m.id_menu
+      WHERE p.id_platillo = $1
+      GROUP BY p.id_platillo`
         , [platillosEncontrados[i].id_platillo])
       console.log(platillo_menu)
-      platillosEncontrados[platillo_menu['nombre_platillo'], platillo_menu['count']]
+      platillosPorMenu['en_el_menu'] = platillo_menu['count']
     }
-    return [platillosEncontrados, null]
-
+    return [platillosPorMenu, null]
   } catch (error) {
     console.error("error en consulta menu_platillos")
   }
 }
 
+//ignorar
 export async function getGraficoLinea(dependiente, independiente, ingrediente, platillo) {
   switch (independiente) {
 
@@ -173,33 +206,210 @@ export async function getGraficoLinea(dependiente, independiente, ingrediente, p
   //¿como tiene que verse en el front end?
 
 }
-export async function getVentasComandas() {
+////get ingresos venta
+//export async function getIngresosVenta() {
 
-  comandas = await AppDataSource.query(`
-    SELECT c.id_comanda, SUM(precio_platillo) as precio_total, c.fecha_compra_comanda, hora_compra_comanda
-    FROM comandas c
-    INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
-    INNER JOIN platillo p ON p.id_platillo = cc.id_platillo
-    GROUP BY c.id_comanda
-    `)//salen las id_platillo repetidas ¿?
-    let ventas_comanda = 0;
-    let venta_fecha = {}
-    for(let i = 0; i < ventas_totales.length; i++) {
-      ventas_comanda += comandas[i]['precio_platillo']
-    }
-      venta_fecha['fecha'] = comandas[i]['fecha_compra']
-      venta_fecha['hora'] = comandas[i]['hora_compra_comanda']
-      venta_fecha['ventas'] = ventas_comanda
-    return [venta_fecha, null]
-}
-export async function getCantidadVentasPlatillo(id_platillo) {
-  //TODO: verificar existencia del platillo
-  ventas_platillo = await AppDataSource.query(`
-   SELECT 
-   FROM comanda c
-   INNER JOIN 
-   INNER JOIN conforma_comanda cc ON cc.id_platillo = p.id_platillo
-   WHERE p.id_platillo = $1
-    `, [id_platillo])
+//comandas = await AppDataSource.query(`
+//SELECT c.id_comanda, SUM(precio_platillo) as precio_total, c.fecha_compra_comanda, hora_compra_comanda
+//FROM comandas c
+//INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
+//INNER JOIN platillo p ON p.id_platillo = cc.id_platillo
+//GROUP BY c.id_comanda
+//`)//salen las id_platillo repetidas ¿?
+//let ventas_comanda = 0;
+//let venta_fecha = {}
+//for (let i = 0; i < ventas_totales.length; i++) {
+//ventas_comanda += comandas[i]['precio_platillo']
+//}
+//venta_fecha['fecha'] = comandas[i]['fecha_compra']
+//venta_fecha['hora'] = comandas[i]['hora_compra_comanda']
+//venta_fecha['ventas'] = ventas_comanda
+//return [venta_fecha, null]
+//}
+
+//get ingresos venta
+//export async function getIngresosVentasService() {
+  //const platillosRepository = AppDataSource.getRepository(Platillo)
+  //const platillosEncontrados = await platillosRepository.find()
+  //if (!platillosEncontrados) {
+    //return [null, "El platillo seleccionado no existe"]
+  //}
+  //console.log(platillosEncontrados)
+  //// guardar cantidad de veces que se asocia comanda con platillo
+  //// 
+  ////tengo que conectar con comanda para saber la fecha
+  ///*
+    //Lo que quiero devolver es algo:
+    //[
+      //{
+        //platillo: id_platillo,
+        //ventas_por_comanda: [
+          //{
+            //fecha_compra: fecha_compra_comanda,
+            //hora_compra: hora_compra_comanda,
+            //cantidad_ventas: cantidad_ventas
+          //}
+        //]
+      //}
+    //]
   
+  //*/
+  //let result = {}
+  //let outer_json = {}
+  //outer_json['platillo'] = platillosEncontrados.id_platillo
+
+  //let cantidadVentasPlatillos = []
+
+  //for (let j = 0; j < platillosEncontrados.length; j++) {
+    //const id_platillo = platillosEncontrados[j].id_platillo
+    //console.log("id_platillo")
+    //console.log(id_platillo)
+    ////obtiene todas las comandas asociadas al platillo
+    //let comandas_platillo = await AppDataSource.query(`
+    //SELECT c.id_comanda, cc.id_platillo, c.fecha_compra_comanda, c.hora_compra_comanda
+    //FROM comanda c
+    //INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
+    //WHERE cc.id_platillo = $1
+      //`, [id_platillo])
+    //console.log("comandas_platillo")
+    //console.log(comandas_platillo)
+    ////verificar que existan comandas asociadas al platillo
+    //if (!comandas_platillo || comandas_platillo.length === 0) {
+      //return [null, "no existen comandas asociadas"]
+    //}
+    ////cuanta la cantidad de veces que se vendio el platillo en esta comanda
+    //for (let i = 0; i < comandas_platillo.length; i++) {
+      //const comanda = comandas_platillo[i]
+      //let dict_ventas_platillo = {}
+      //console.log(comanda['hora_compra_comanda'])
+
+      //dict_ventas_platillo['fecha_compra'] = comanda['fecha_compra_comanda']
+      //dict_ventas_platillo['hora_compra'] = comanda['hora_compra_comanda']
+
+
+      //const ventas_platillo = AppDataSource.query(`
+      //SELECT COUNT(1) as count 
+      //FROM comanda c
+      //INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
+      //WHERE c.id_comanda = $1
+      //`, [comandas_platillo])
+      //console.log(ventas_platillo)
+      //dict_ventas_platillo['cantidad_ventas'] = ventas_platillo['count']
+      //cantidadVentasPlatillos.push(dict_ventas_platillo)
+    //}
+    //outer_json['ventas_por_comanda'] = cantidadVentasPlatillos
+    //console.log("outerjson")
+    //console.log(outer_json)
+    //result[id_platillo] = outer_json
+    //console.log(result)
+  //}
+  //console.log("ventas_platillo: " + result);
+  //return [result, null]
+//}
+export async function getIngresosVentasService() {
+  const platillosRepository = AppDataSource.getRepository(Platillo);
+  const platillosEncontrados = await platillosRepository.find();
+  
+  if (!platillosEncontrados) {
+      return [null, "El platillo seleccionado no existe"];
+  }
+
+  console.log(platillosEncontrados);
+
+  let result = {};
+  
+  for (let j = 0; j < platillosEncontrados.length; j++) {
+      const id_platillo = platillosEncontrados[j].id_platillo;
+      console.log("id_platillo:", id_platillo);
+
+      // Obtiene todas las comandas asociadas al platillo
+      const comandas_platillo = await AppDataSource.query(`
+          SELECT c.id_comanda, cc.id_platillo, c.fecha_compra_comanda, c.hora_compra_comanda
+          FROM comanda c
+          INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
+          WHERE cc.id_platillo = $1
+      `, [id_platillo]);
+
+      console.log("comandas_platillo:", comandas_platillo);
+
+      // Verificar que existan comandas asociadas al platillo
+      if (!comandas_platillo || comandas_platillo.length === 0) {
+          continue; // Si no hay comandas, pasa al siguiente platillo
+      }
+
+      // Estructura para almacenar ventas por comanda
+      let cantidadVentasPlatillos = [];
+
+      // Recorre cada comanda para contar las ventas del platillo en esa comanda
+      for (let i = 0; i < comandas_platillo.length; i++) {
+          const comanda = comandas_platillo[i];
+          let dict_ventas_platillo = {
+              fecha_compra: comanda.fecha_compra_comanda,
+              hora_compra: comanda.hora_compra_comanda
+          };
+
+          // Contar la cantidad de veces que el platillo fue vendido en esta comanda
+          const ventas_platillo_result = await AppDataSource.query(`
+              SELECT COUNT(1) as count 
+              FROM conforma_comanda
+              WHERE id_comanda = $1 AND id_platillo = $2
+          `, [comanda.id_comanda, id_platillo]);
+
+          dict_ventas_platillo['cantidad_ventas'] = ventas_platillo_result[0].count;
+          cantidadVentasPlatillos.push(dict_ventas_platillo);
+      }
+
+      result[id_platillo] = {
+          platillo: id_platillo,
+          ventas_por_comanda: cantidadVentasPlatillos
+      };
+  }
+
+  console.log("ventas_platillo:", result);
+  return [result, null];
 }
+//para despues del miercoles
+export async function getCostos() {
+  /**
+   * Resultado = [
+   *  {
+   *    comandas: {
+      *    comanda: {
+      *      costo: costo_comanda
+      *      fecha_compra: fecha
+   *      }
+    *    mermas: {
+    *       mermas: {
+    *         tipo: "ingrediente"/"utensilio"
+    *         costo_por_merma
+    *         fecha_merma: fecha
+    *       }
+    *    }
+   *    }
+   *  }
+   * ]
+   * 
+   * 
+   * 
+   */
+  comandas = AppDataSource.query(`
+    SELECT *
+    FROM comanda c
+    INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
+    INNER JOIN 
+    `)
+
+
+}
+
+
+//inventario actual
+`
+SELECT *
+FROM comanda c
+INNER JOIN conforma comanda cc
+INNER JOIN platillo p
+INNER JOIN tipo_ingrediente ti
+INNER JOIN 
+
+`

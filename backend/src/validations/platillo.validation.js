@@ -1,8 +1,6 @@
 "use strict";
 import Joi from "joi";
 
-// No se requieren validadores personalizados en este caso, pero si los necesitas, puedes definirlos aquí.
-
 // Validación para el cuerpo de las solicitudes de platillo (body)
 export const platilloBodyValidation = Joi.object({
   nombre_platillo: Joi.string()
@@ -12,16 +10,6 @@ export const platilloBodyValidation = Joi.object({
       "string.base": "El nombre del platillo debe ser una cadena de texto.",
       "string.max": "El nombre del platillo no debe exceder los 255 caracteres.",
       "any.required": "El campo 'nombre_platillo' es obligatorio.",
-    }),
-  precio_platillo: Joi.number()
-    .integer()
-    .positive()
-    .required()
-    .messages({
-      "number.base": "El precio del platillo debe ser un número.",
-      "number.integer": "El precio del platillo debe ser un número entero.",
-      "number.positive": "El precio del platillo debe ser un número positivo.",
-      "any.required": "El campo 'precio_platillo' es obligatorio.",
     }),
   id_usuario: Joi.number()
     .integer()
@@ -38,3 +26,16 @@ export const platilloBodyValidation = Joi.object({
   .messages({
     "object.unknown": "No se permiten propiedades adicionales.",
   });
+
+export const platilloPrecioValidation = Joi.object({
+  precio_platillo: Joi.number()
+    .integer()
+    .positive()
+    .required()
+    .messages({
+      "number.base": "El precio del platillo debe ser un número.",
+      "number.integer": "El precio del platillo debe ser un número entero.",
+      "number.positive": "El precio del platillo debe ser un número positivo.",
+      "any.required": "El campo 'precio_platillo' es obligatorio.",
+    }),
+});
