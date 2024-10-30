@@ -32,7 +32,8 @@ const compuestoPlatillo = new EntitySchema({
             joinColumn: {
                 name: "id_platillo"
             }
-        }
+        },
+        
     }
 });
 
