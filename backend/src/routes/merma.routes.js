@@ -8,5 +8,7 @@ import {
 const router = Router();
 
 router
+  .post('/create_merma', createMerma)
+  .get('/get_mermas', getMermas)
 
 export default router;
