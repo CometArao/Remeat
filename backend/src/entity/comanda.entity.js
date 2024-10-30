@@ -29,7 +29,7 @@ const comanda = new EntitySchema({
         }
     },
     relations: {
-        cocinero: {
+        usuario: {
             type: "many-to-one",
             target: "usuario",
             joinColumn: {

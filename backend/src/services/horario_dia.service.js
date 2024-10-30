@@ -36,3 +36,57 @@ export async function createHorarioDiaService(data) {
     return [null, error.message];
   }
 }
+
+
+
+export async function getHorariosDiaService() {
+  const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
+  try {
+    const horariosDia = await horarioDiaRepository.find();
+    return horariosDia;
+  } catch (error) {
+    console.error("Error al obtener los horarios día:", error);
+    throw new Error("Error interno al obtener los horarios día");
+  }
+}
+
+export async function getHorarioDiaByIdService(id) {
+  const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
+  try {
+    const horarioDia = await horarioDiaRepository.findOneBy({ id_horario_dia: id });
+    return horarioDia;
+  } catch (error) {
+    console.error("Error al obtener el horario día por ID:", error);
+    throw new Error("Error interno al obtener el horario día");
+  }
+}
+
+export async function updateHorarioDiaService(id, data) {
+  const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
+
+  try {
+    const horarioDia = await horarioDiaRepository.findOneBy({ id_horario_dia: id });
+    if (!horarioDia) return [null, "Horario día no encontrado"];
+
+    horarioDiaRepository.merge(horarioDia, data);
+    await horarioDiaRepository.save(horarioDia);
+    return [horarioDia, null];
+  } catch (error) {
+    console.error("Error al actualizar horario día:", error);
+    return [null, error.message];
+  }
+}
+
+export async function deleteHorarioDiaService(id) {
+  const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
+
+  try {
+    const result = await horarioDiaRepository.delete(id);
+    if (result.affected === 0) return [null, "Horario día no encontrado"];
+
+    return [true, null];
+  } catch (error) {
+    console.error("Error al eliminar horario día:", error);
+    return [null, error.message];
+  }
+}
