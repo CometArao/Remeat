@@ -1,10 +1,10 @@
-"use strict"
+"use strict";
 import { EntitySchema } from "typeorm";
-import usuario from "./usuario.entity.js"
+import usuario from "./usuario.entity.js";
 
 const pedido = new EntitySchema({
     name: "pedido",
-    tablename: "pedido",
+    tableName: "pedido",
     columns: {
         id_pedido: {
             type: "int",
@@ -17,20 +17,32 @@ const pedido = new EntitySchema({
             nullable: false
         },
         fecha_compra_pedido: {
-            type: "date"
+            type: "date",
+            nullable: false
         },
         estado_pedido: {
-            type: "int"
+            type: "int",
+            nullable: false
         },
         fecha_entrega_pedido: {
-            type: "date"
+            type: "date",
+            nullable: false
         },
-        costo_perdido: {
-            type: "int"
+        costo_pedido: {
+            type: "int",
+            nullable: false
+        },
+        cantidad_ingrediente_pedido: {
+            type: "int",
+            nullable: false
+        },
+        cantidad_utensilio_pedido: {
+            type: "int",
+            nullable: false
         },
         id_usuario: {
             type: "int",
-            nullable: true
+            nullable: false
         },
     },
     relations: {
