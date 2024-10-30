@@ -195,9 +195,11 @@ export async function getVentasComandas() {
 export async function getCantidadVentasPlatillo(id_platillo) {
   //TODO: verificar existencia del platillo
   ventas_platillo = await AppDataSource.query(`
-   SELECT *
-   FROM platillo p
+   SELECT 
+   FROM comanda c
+   INNER JOIN 
    INNER JOIN conforma_comanda cc ON cc.id_platillo = p.id_platillo
    WHERE p.id_platillo = $1
     `, [id_platillo])
+  
 }
