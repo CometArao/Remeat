@@ -1,44 +1,69 @@
 "use strtict"
 import {
+    assignPriceToPlatilloService,
     createPlatilloService,
     deletePlatilloByIdService,  
     getPlatilloByIdService,
     getPlatillosService,
     updatePlatilloByIdService
-      
-}
-from "../services/platillo.service.js";
+} from "../services/platillo.service.js";
 import {
     platilloBodyValidation,
-}
-from "../validations/platillo.validation.js";
+    platilloPrecioValidation
+} from "../validations/platillo.validation.js";
 import {
     handleErrorClient,
     handleErrorServer,
     handleSuccess,
-}
-from "../handlers/responseHandlers.js";
+} from "../handlers/responseHandlers.js";
 
-export async function createPlatilloController(req, res){
-    console.log("Keys de req.body:", Object.keys(req.body));
+export async function createPlatilloController(req, res) {
+    try {
+        const { nombre_platillo, id_usuario, disponible = true, ingredientes } = req.body;
 
-    try{
-        const { nombre_platillo,  precio_platillo, id_usuario } = req.body;
+        const { error } = platilloBodyValidation.validate({ nombre_platillo, id_usuario });
+        if (error) return handleErrorClient(res, 400, error.message);
 
-        const { error } = platilloBodyValidation.validate({ nombre_platillo,  precio_platillo, id_usuario });
+        const [newPlatillo, errorPlatillo] = await createPlatilloService({
+            nombre_platillo,
+            disponible,
+            id_usuario,
+            ingredientes
+        });
 
-        if(error) return handleErrorClient(res, 400, error.message);
-
-        const [newPlatillo, errorPlatillo] = await 
-        createPlatilloService({ nombre_platillo,  precio_platillo, id_usuario });
-
-        if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
+        if (errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
 
         handleSuccess(res, 201, "Platillo creado", newPlatillo);
-    }catch(error){
+    } catch (error) {
         handleErrorServer(res, 500, error.message);
     }
 }
+
+export async function assignPriceToPlatilloController(req, res) {
+    try {
+        const { id_platillo, precio_platillo } = req.body;
+        const { error } = platilloPrecioValidation.validate({ precio_platillo });
+
+        // Verificar si el usuario es administrador
+        if (req.user.rol_usuario !== "administrador") {
+            return handleErrorClient(res, 403, "No tienes permiso para asignar precio a un platillo.");
+        }
+
+        // Validar el precio del platillo para asegurar que no es negativo
+        if (error) {
+            return handleErrorClient(res, 400, error.message);
+        }
+
+        const [updatedPlatillo, serviceError] = await assignPriceToPlatilloService({ id_platillo, precio_platillo });
+
+        if (serviceError) return handleErrorClient(res, 404, serviceError);
+
+        handleSuccess(res, 200, "Precio asignado al platillo exitosamente", updatedPlatillo);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+    }
+}
+
 
 export async function getPlatillosController(req, res){
     try{
