@@ -31,15 +31,6 @@ export async function createComanda(data) {
   return nuevaComanda;
 }
 
-
-export async function getAllComandas() {
-  const comandaRepository = AppDataSource.getRepository(Comanda);
-  return await comandaRepository.find({ relations: ['usuario'] }); // Obtener todas las comandas con la relación usuario
-}
-
-
-
-
 export async function getComandaById(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   return await comandaRepository.findOne({
