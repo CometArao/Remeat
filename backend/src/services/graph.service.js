@@ -51,13 +51,16 @@ export async function getVentasPlatilloService() {
       //.getMany()
       //console.log("test")
       //console.log(ventasPorPlatillo)
-      const platillo_comanda = AppDataSource.query(`
-        SELECT COUNT(1) 
-        FROM platillo p
-        INNER JOIN conforma_comanda cc ON p.id_platillo = cc.id_platillo
-        WHERE p.id_platillo = $1
+      console.log("test")
+      const platillo_comanda = await AppDataSource.query(`
+  SELECT COUNT(1) 
+  FROM platillo p
+  INNER JOIN conforma_comanda cc ON p.id_platillo = cc.id_platillo
+  WHERE p.id_platillo = $1
   `, [platillosEncontrados[i].id_platillo])
+      console.log(platillo_comanda)
     }
+    return [platillo_comanda, null]
   } catch (error) {
     console.error("error en consulta ventas platillo", error)
     return [null, "error consulta"]
@@ -71,15 +74,29 @@ export async function getMenuPlatilloService() {
   }
   try {
     for (platillo in platillosEncontrados) {
-      ventasPorPlatillo = await AppDataSource.createQueryBuilder()
-        .select("platillo")
-        .from(Platillo, "platillo")
-        .innerJoinAndSelect(platillo.menu, "menu",)
-        .where("platillo.id = :id", { id: platillo.id_platillo })
-        .getMany()
-      console.log("test")
-      console.log(ventasPorPlatillo)
+      //ventasPorPlatillo = await AppDataSource.createQueryBuilder()
+      //.select("platillo")
+      //.from(Platillo, "platillo")
+      //.innerJoinAndSelect(platillo.menu, "menu",)
+      //.where("platillo.id = :id", { id: platillo.id_platillo })
+      //.getMany()
+      //console.log("test")
+      //console.log(ventasPorPlatillo)
+      let PlatillosPorMenu = {}
+      //Se asume que platillo menu tiene forma de diccionario
+      const platillo_menu = await AppDataSource.query(` 
+    SELECT p.nombre_platillo, COUNT(1) as count
+    FROM platillo p
+    INNER JOIN menu_platillo_platillo mpp ON p.id_platillo = mpp.id_platillo
+    WHERE p.id_platillo = $1
+    GROUP BY p.nombre_platillo
+    `
+        , [platillosEncontrados[i].id_platillo])
+      console.log(platillo_menu)
+      platillosEncontrados[platillo_menu['nombre_platillo'], platillo_menu['count']]
     }
+    return [platillosEncontrados, null]
+
   } catch (error) {
     console.error("error en consulta menu_platillos")
   }
@@ -155,4 +172,32 @@ export async function getGraficoLinea(dependiente, independiente, ingrediente, p
   */
   //¿como tiene que verse en el front end?
 
+}
+export async function getVentasComandas() {
+
+  comandas = await AppDataSource.query(`
+    SELECT c.id_comanda, SUM(precio_platillo) as precio_total, c.fecha_compra_comanda, hora_compra_comanda
+    FROM comandas c
+    INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
+    INNER JOIN platillo p ON p.id_platillo = cc.id_platillo
+    GROUP BY c.id_comanda
+    `)//salen las id_platillo repetidas ¿?
+    let ventas_comanda = 0;
+    let venta_fecha = {}
+    for(let i = 0; i < ventas_totales.length; i++) {
+      ventas_comanda += comandas[i]['precio_platillo']
+    }
+      venta_fecha['fecha'] = comandas[i]['fecha_compra']
+      venta_fecha['hora'] = comandas[i]['hora_compra_comanda']
+      venta_fecha['ventas'] = ventas_comanda
+    return [venta_fecha, null]
+}
+export async function getCantidadVentasPlatillo(id_platillo) {
+  //TODO: verificar existencia del platillo
+  ventas_platillo = await AppDataSource.query(`
+   SELECT *
+   FROM platillo p
+   INNER JOIN conforma_comanda cc ON cc.id_platillo = p.id_platillo
+   WHERE p.id_platillo = $1
+    `, [id_platillo])
 }

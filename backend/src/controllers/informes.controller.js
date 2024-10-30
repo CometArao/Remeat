@@ -40,8 +40,15 @@ export async function getStockUtensilio(req, res) {
         return;
     } catch (error) {
         handleErrorServer(res, 500, error.message);
+        console.log(error)
     }
 }
+
+export async function IngresosPorVentas(req, res) {
+    
+}
+
+//circulares y de barras
 export async function getVentasPlatillo(req, res) {
     try {
         const [ventas_platillo, error] = await getVentasPlatilloService();
@@ -50,6 +57,7 @@ export async function getVentasPlatillo(req, res) {
         handleSuccess(res, 200, "Usuario obtenido exitosamente", ventas_platillo);
     } catch (error) {
         handleErrorServer(res, 500, error.message);
+        console.log(error)
     }
 
 

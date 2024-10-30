@@ -4,8 +4,6 @@ import authRoutes from "./auth.routes.js";
 import usuariosRoutes from "./usuarios.routes.js";
 import utensiliosRoutes from "./utensilios.routes.js"
 import informesRoutes from "./informes.routes.js"
-import horariosLaborales from "./horario_laboral.routes.js"
-import horariosDias from "./horario_dia.routes.js"
 import mermaRoutes from "./merma.routes.js"
 import menuRoutes from "./menu.routes.js";
 import platilloRoutes from "./platillo.routes.js";
