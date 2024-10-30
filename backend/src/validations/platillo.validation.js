@@ -2,7 +2,7 @@
 "use strict";
 import Joi from "joi";
 
-// Validación para el cuerpo de las solicitudes de platillo (crear y actualizar)
+// Validación para el cuerpo de las solicitudes de platillo (body)
 export const platilloBodyValidation = Joi.object({
   nombre_platillo: Joi.string()
     .max(100)
@@ -10,15 +10,6 @@ export const platilloBodyValidation = Joi.object({
       "string.base": "El campo 'nombre_platillo' debe ser una cadena de texto.",
       "string.max": "El campo 'nombre_platillo' no debe exceder los 100 caracteres.",
     }),
-  precio_platillo: Joi.number()
-    .positive()
-    .messages({
-      "number.base": "El campo 'precio_platillo' debe ser un número.",
-      "number.positive": "El campo 'precio_platillo' debe ser un número positivo.",
-    }),
-  disponible: Joi.boolean().messages({
-    "boolean.base": "El campo 'disponible' debe ser un valor booleano.",
-  }),
   id_usuario: Joi.number()
     .integer()
     .positive()
@@ -79,3 +70,16 @@ export const platilloQueryValidation = Joi.object({
   .messages({
     "object.unknown": "No se permiten propiedades adicionales en los parámetros de consulta.",
   });
+
+export const platilloPrecioValidation = Joi.object({
+  precio_platillo: Joi.number()
+    .integer()
+    .positive()
+    .required()
+    .messages({
+      "number.base": "El precio del platillo debe ser un número.",
+      "number.integer": "El precio del platillo debe ser un número entero.",
+      "number.positive": "El precio del platillo debe ser un número positivo.",
+      "any.required": "El campo 'precio_platillo' es obligatorio.",
+    }),
+});
