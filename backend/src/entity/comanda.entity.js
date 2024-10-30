@@ -1,10 +1,9 @@
-"use strict"
-import { EntitySchema} from "typeorm";
-import usuarioSchema from "./usuario.entity.js"
+"use strict";
+import { EntitySchema } from "typeorm";
 
-const comandaSchema = new EntitySchema({
-    name:"comanda",
-    tablename:"comanda",
+const comanda = new EntitySchema({
+    name: "comanda",
+    tableName: "comanda",
     columns: {
         id_comanda: {
             type: "int",
@@ -16,26 +15,30 @@ const comandaSchema = new EntitySchema({
             nullable: false
         },
         hora_compra_comanda: {
-            type: "int"
+            type: "time",
+            nullable: false
         },
-        estado: {
-            type: "varchar"//
+        estado_comanda: {
+            type: "varchar",
+            length: 20,
+            nullable: false
         },
         id_usuario: {
-            type: "int", 
-            nullable: true
+            type: "int",
+            nullable: true // Se puede dejar como null para los casos donde no se asigne un cocinero aún
         }
     },
     relations: {
         usuario: {
-            type: "many-to-one",//tiene que ser many-to-one NO one-to-many
+            type: "many-to-one",
             target: "usuario",
             joinColumn: {
                 name: "id_usuario"
             },
-            onDelete: "SET NULL",
+            inverseSide: "comandas",
+            onDelete: "SET NULL"
         }
     }
 });
 
-export default comandaSchema;
+export default comanda;
