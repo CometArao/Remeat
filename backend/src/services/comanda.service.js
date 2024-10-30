@@ -1,7 +1,39 @@
 // backend/src/services/comanda.service.js
 import Comanda from '../entity/comanda.entity.js';
 import Usuario from '../entity/usuario.entity.js';
+import Platillo from '../entity/platillo.entity.js';
+import ConformaComanda from '../entity/conforma_comanda.entity.js';
 import { AppDataSource } from '../config/configDb.js';
+
+
+
+
+export async function addPlatilloToComanda(comandaId, platilloData) {
+  const comandaRepository = AppDataSource.getRepository(Comanda);
+  const platilloRepository = AppDataSource.getRepository(Platillo);
+  const conformaRepository = AppDataSource.getRepository(ConformaComanda);
+
+  // Buscar la comanda y el platillo por sus IDs
+  const comanda = await comandaRepository.findOne({ where: { id_comanda: comandaId } });
+  if (!comanda) throw new Error('Comanda no encontrada.');
+
+  const platillo = await platilloRepository.findOne({ where: { id_platillo: platilloData.id_platillo } });
+  if (!platillo) throw new Error('Platillo no encontrado.');
+
+  // Crear la relación en conforma_comanda
+  const newConforma = conformaRepository.create({
+    comanda: comanda,
+    platillo: platillo,
+    estado_platillo: platilloData.estado || 'pendiente',
+  });
+
+  // Guardar la relación en la base de datos
+  await conformaRepository.save(newConforma);
+  return newConforma;
+}
+
+
+
 
 export async function createComanda(data) {
   const comandaRepository = AppDataSource.getRepository(Comanda);

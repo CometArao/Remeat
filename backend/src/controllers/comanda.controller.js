@@ -6,8 +6,26 @@ import {
   deleteComanda,
   completeComanda,
   getAllComandas,
+  addPlatilloToComanda,
 } from '../services/comanda.service.js';
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
+
+export async function addPlatilloToComandaController(req, res) {
+  const comandaId = req.params.id;
+  const platilloData = req.body;
+
+  try {
+    const addedPlatillo = await addPlatilloToComanda(comandaId, platilloData);
+    handleSuccess(res, 201, 'Platillo añadido a la comanda', addedPlatillo);
+  } catch (error) {
+    if (error.message.includes('no encontrado')) {
+      handleErrorClient(res, 404, error.message);
+    } else {
+      handleErrorServer(res, 500, error.message);
+    }
+  }
+}
+
 
 export async function createComandaController(req, res) {
   const data = req.body;
