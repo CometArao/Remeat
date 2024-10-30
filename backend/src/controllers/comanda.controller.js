@@ -6,8 +6,41 @@ import {
   deleteComanda,
   completeComanda,
   getAllComandas,
+  addPlatilloToComanda,
+  obtenerComandasConPlatillos
 } from '../services/comanda.service.js';
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
+
+
+
+export async function getComandasConPlatillosController(req, res) {
+  try {
+      const comandas = await obtenerComandasConPlatillos();
+      handleSuccess(res, 200, 'Comandas obtenidas con estado de platillos', comandas);
+  } catch (error) {
+      handleErrorServer(res, 500, error.message);
+  }
+}
+
+
+
+
+export async function addPlatilloToComandaController(req, res) {
+  const comandaId = req.params.id;
+  const platilloData = req.body;
+
+  try {
+    const addedPlatillo = await addPlatilloToComanda(comandaId, platilloData);
+    handleSuccess(res, 201, 'Platillo añadido a la comanda', addedPlatillo);
+  } catch (error) {
+    if (error.message.includes('no encontrado')) {
+      handleErrorClient(res, 404, error.message);
+    } else {
+      handleErrorServer(res, 500, error.message);
+    }
+  }
+}
+
 
 export async function createComandaController(req, res) {
   const data = req.body;
@@ -56,6 +89,7 @@ export async function updateComandaController(req, res) {
   }
 }
 
+
 export async function deleteComandaController(req, res) {
   const comandaId = req.params.id;
 
@@ -63,7 +97,11 @@ export async function deleteComandaController(req, res) {
       const deletedComanda = await deleteComanda(comandaId);
       handleSuccess(res, 200, 'Comanda eliminada', deletedComanda);
   } catch (error) {
-      handleErrorClient(res, 404, error.message);
+      if (error.message.includes('no encontrada')) {
+          handleErrorClient(res, 404, error.message);
+      } else {
+          handleErrorServer(res, 500, error.message);
+      }
   }
 }
 
