@@ -1,6 +1,6 @@
-"use strict"
+"use strict";
 import { EntitySchema } from "typeorm";
-import usuario from "./usuario.entity.js"
+import usuario from "./usuario.entity.js";
 
 const pedido = new EntitySchema({
     name: "pedido",
@@ -29,6 +29,14 @@ const pedido = new EntitySchema({
             nullable: false
         },
         costo_pedido: {
+            type: "int",
+            nullable: false
+        },
+        cantidad_ingrediente_pedido: {
+            type: "int",
+            nullable: false
+        },
+        cantidad_utensilio_pedido: {
             type: "int",
             nullable: false
         },
