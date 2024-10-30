@@ -14,11 +14,11 @@ const router = express.Router();
 
 router.use(authenticateJwt);
 
-router.post('/comandas', createComandaController);
-router.get('/comandas', getAllComandasController);
-router.get('/comandas/:id', getComandaByIdController);
-router.put('/comandas/:id', updateComandaController);
-router.delete('/comandas/:id', deleteComandaController);
-router.patch('/comandas/:id/complete', completeComandaController);
+router.post('/', createComandaController);
+router.get('/', getAllComandasController);
+router.get('/:id', getComandaByIdController);
+router.put('/:id', updateComandaController);
+router.delete('/:id', deleteComandaController);
+router.patch('/:id/complete', completeComandaController);
 
 export default router;
