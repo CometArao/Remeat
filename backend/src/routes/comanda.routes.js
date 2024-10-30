@@ -8,6 +8,7 @@ import {
   completeComandaController,
   getComandaByIdController,
   addPlatilloToComandaController,
+  getComandasConPlatillosController ,
 } from '../controllers/comanda.controller.js';
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
 
@@ -26,5 +27,8 @@ router.patch('/:id/complete', completeComandaController);
 
 // Nueva ruta para añadir platillos a la comanda
 router.post('/:id/platillos', addPlatilloToComandaController);
+
+
+router.get('/comandas/platillos', getComandasConPlatillosController );
 
 export default router;
