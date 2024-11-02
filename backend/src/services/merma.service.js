@@ -16,7 +16,7 @@ export async function createMermaService(query) {
             message
         });
         const nuevaMerma = mermasRepository.create({
-            fecha: fecha,
+            fecha_merma: fecha,
             cantidad_perdida: cantidad_perdida 
         })
         await mermasRepository.save(nuevaMerma);

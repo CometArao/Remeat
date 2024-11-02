@@ -24,9 +24,9 @@ const proveedor = new EntitySchema({
         }
     },
     relations: {
-        proveedor: {
+        pedido: {
             type: "many-to-many",
-            target: "proveedor",
+            target: "pedido",
             joinTable: true,
             cascade: true
         }

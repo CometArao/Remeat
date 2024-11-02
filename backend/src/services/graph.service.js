@@ -5,23 +5,69 @@ import TipoUtensilio from "../entity/tipo_utensilio.entity.js"
 import Platillo from "../entity/platillo.entity.js"
 import Comanda from "../entity/comanda.entity.js"
 
-
-//para despues del miercoles
-export async function getUtensiliosDeTipoService(id_tipo_utensilio) {
+/* 
+Dada una lista de ids devuelve la cantidad vigente en el sistema
+de utensilios, para esto descuenta la cantidad de mermas y agrega la 
+cantidad de pedidos
+*/
+export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
+  /*
+  respuesta:
+  {
+    utensilios: [ 
+      id_utensilio [
+        {
+          fecha: {fecha actual},
+          cantidad_utensilios: {cantidad_utensilios}
+        },
+        ...
+      ]
+    ]
+  } 
+  
+  */
   const tipo_utensilioRepository = AppDataSource.getRepository(TipoUtensilio);
-  const utensilioRepository = AppDataSource.getRepository(Utensilio);
-  //validar que existe el tipo
-  const tipoUtensilioEncontrado = await tipo_utensilioRepository.findOne({
-    where: [{ id_tipo_utensilio: id_tipo_utensilio }]
-  })
-  if (!tipoUtensilioEncontrado) {
-    return [null, "No se encontro ese tipo de utensilio"]
+  result = [];
+  for (let i = 0; i < ids_tipos_utensilio.length; i++) {
+    const id_tipo_utensilio = ids_tipos_utensilio[i];
+    const tipoUtensilioEncontrado = await tipo_utensilioRepository.findOne({
+      where: {id_tipo_utensilio : id_tipo_utensilio}
+    })
+    if(!tipoUtensilioEncontrado) {
+      //No importa si el resto de las ids no se ve porque en el front end este error no deberia ser posible. 
+      //Es solo si alguien esta accediendo a las urls directamente posiblemente intentando una inyeccion sql
+      return [null, "El utensilio de id: " + id_tipo_utensilio + " no existe"]
+    }
+
+    //Se usa "" en una columna cuando el nombre de esa columna tiene que ser *case-sensitive*
+    AppDataSource.query(`
+      SELECT *
+      FROM tipo_utensilio tu
+      INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
+      INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
+      INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
+      INNER JOIN utensilio_merma_merma um ON um."utensilioIdUtensilio" = u.id_utensilio
+      INNER JOIN merma m ON um."mermaIdMerma" = m.id_merma
+      WHERE tu.id_tipo_utensilio = $1;
+      ORDER BY 
+      `, [{id_tipo_utensilio}])
+      par_cantidad_fecha = {}
+      //Creo que tiene mas sentido consultar los utensilios, despues consultar separadamente los pedidos y las mermas
+      const utensilios = AppDataSource.query(`
+      SELECT *
+      FROM tipo_utensilio tu
+      INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
+      INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
+      INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
+      WHERE tu.id_tipo_utensilio = $1;
+      ORDER BY p.fecha_entrega_pedido ASC
+      `, [{id_tipo_utensilio}])
+      console.log(utensilios)
+      //TODO: se usa fecha entrega o fecha compra
+      //por cada utensilio restarle las mermas a la cantidad
+      
   }
-  const utensilios = await utensilioRepository.find({
-    where: [{ id_tipo_utensilio: id_tipo_utensilio }]
-  })
-  console.log("utensilios")
-  console.log(utensilios)
+
   return [utensilios, null]
 }
 //Para grafico de barras y circular
