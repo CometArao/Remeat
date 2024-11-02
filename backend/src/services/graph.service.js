@@ -65,6 +65,9 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
       console.log(utensilios)
       //TODO: se usa fecha entrega o fecha compra
       //por cada utensilio restarle las mermas a la cantidad
+      /*
+        Para cada utensilio contar su cantidad menos las mermas de ese ingrediente. Contar por fechas, cada vez que se usa 
+      */
       
   }
 

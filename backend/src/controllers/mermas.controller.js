@@ -39,11 +39,12 @@ export async function getMerma(req, res) {
     
 }
 
-export async function getMermas(req, res) {
-
+export async function getMermasService(req, res) {
     try {
-        const [mermas, errorMerma] = await getMermasService();
-
+        const [isDeleted, errorMerma] = await deleteMermasService();
+        if (!isDeleted) {
+            return handleErrorClient(res, 400, "No se pudo borrar la merma");
+        }
         if(errorMerma) {
             return handleErrorClient(res, 400, "Error en la consulta", errorMerma);
         }
