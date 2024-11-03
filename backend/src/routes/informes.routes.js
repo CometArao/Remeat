@@ -1,13 +1,22 @@
 "use strict";
 import { Router } from "express";
-import { getStockIngrediente, getStockUtensilio, getVentasPlatillo, getPlatillosMenu, getIngresosPorVentas} from "../controllers/informes.controller.js"
+import { getIngresosPorVentas, getPlatillosMenu, getStockIngrediente, 
+    getStockUtensilio, getVentasPlatillo } from "../controllers/informes.controller.js"
 
 const router = Router();
 
 router
-    //grafico de linea
-    .get("/get_stock_ingrediente:id", getStockIngrediente)
-    .get("/get_stock_utensilio:id", getStockUtensilio)
+    .get("/get_stock_ingrediente", getStockIngrediente)
+    /*grafico de linea
+    recibe un json(body) una lista de todos los ingredientes que
+    se nesesitan
+    {
+        "ids": [
+        1,2,3,...
+        ] 
+    }
+    */
+    .get("/get_stock_utensilio", getStockUtensilio)
     .get("/get_ingresos_venta", getIngresosPorVentas)
     .get("/get_costos")
     .get("/get_utilidades")

@@ -1,5 +1,5 @@
 "use strict"
-import { EntitySchema, JoinColumn} from "typeorm";
+import { EntitySchema, JoinColumn } from "typeorm";
 import tipo_utensilio from "./tipo_utensilio.entity.js"
 
 const merma = new EntitySchema({

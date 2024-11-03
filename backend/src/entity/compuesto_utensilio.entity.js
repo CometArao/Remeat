@@ -1,5 +1,5 @@
 "use strict"
-import { EntitySchema} from "typeorm";
+import { EntitySchema } from "typeorm";
 import usuarioSchema from "./usuario.entity.js"
 
 const compuestoUtensilio = new EntitySchema({

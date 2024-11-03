@@ -1,13 +1,15 @@
 "use strict";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { createMermaService, getMermasService, getMermaService, updateMermaService, deleteMermaService } from "../services/merma.service.js"
-import { mermaValidation, mermaQueryValidation } from "../validations/merma.validation.js"
-import { tipo_utensilioValidation, tipo_utensilioQueryValidation, utensilioValidation, utensilioQueryValidation } from "../validations/utensilio.validation.js"
+import { createMermaService, deleteMermaService, 
+    getMermaService, getMermasService, updateMermaService } from "../services/merma.service.js"
+import { mermaQueryValidation, mermaValidation } from "../validations/merma.validation.js"
+import { tipo_utensilioQueryValidation, tipo_utensilioValidation, 
+    utensilioQueryValidation, utensilioValidation } from "../validations/utensilio.validation.js"
 
 export async function createMerma(req, res) {
     try {
-        const {body} = req 
-        const {error} = mermaValidation.validate(body) 
+        const { body } = req 
+        const { error } = mermaValidation.validate(body) 
         if(error) {
             return handleErrorClient(res, 400, "Error de validación", error.message);
         }
@@ -39,16 +41,13 @@ export async function getMerma(req, res) {
     
 }
 
-export async function getMermasService(req, res) {
+export async function getMermas(req, res) {
     try {
-        const [isDeleted, errorMerma] = await deleteMermasService();
-        if (!isDeleted) {
-            return handleErrorClient(res, 400, "No se pudo borrar la merma");
-        }
+        const [MermaEncontradas, errorMerma] = await deleteMermasService();
         if(errorMerma) {
             return handleErrorClient(res, 400, "Error en la consulta", errorMerma);
         }
-        handleSuccess(res, 201, "merma encontradas exitosamente", mermas)
+        handleSuccess(res, 201, "merma encontradas exitosamente", MermaEncontradas)
         return;
     }catch(error) {
         handleErrorServer(res, 500, error.message);
@@ -56,8 +55,8 @@ export async function getMermasService(req, res) {
 }
 export async function updateMerma(req, res) {
     try {
-        const {body} = req 
-        const {error} = mermaValidation.validate(body) 
+        const { body } = req 
+        const { error } = mermaValidation.validate(body) 
         if(error) {
             return handleErrorClient(res, 400, "Error de validacion", errorMerma);
         }
@@ -78,7 +77,7 @@ export async function deleteMerma(req, res) {
     console.log("test")
     try {
         const id_merma = req.params.id;
-        const {errorValidacion} = mermaQueryValidation.validate(id_merma);
+        const { errorValidacion } = mermaQueryValidation.validate(id_merma);
         if(errorValidacion) {
             return handleErrorClient(res, 400, 
                 "no se especifico la id de la merma a eliminar", errorValidacion);

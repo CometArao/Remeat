@@ -1,46 +1,31 @@
 "use strict";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { getMenuPlatilloService, getUtensiliosDeTipoService, getVentasPlatilloService, getIngresosVentasService } from "../services/graph.service.js"
-import { tipo_utensilioValidation, tipo_utensilioQueryValidation, utensilioValidation, utensilioQueryValidation } from "../validations/utensilio.validation.js"
+import { getIngresosVentasService, getMenuPlatilloService, 
+    getUtensiliosDeTipoService, getVentasPlatilloService } from "../services/graph.service.js"
+import { tipo_utensilioQueryValidation, tipo_utensilioValidation, 
+    utensilioQueryValidation, utensilioValidation } from "../validations/utensilio.validation.js"
 
 export async function getStockIngrediente(req, res) {
 }
 
 export async function getStockUtensilio(req, res) {
     console.log("stock utensilio")
+    const { body } = req
+    console.log(body)
     try {
-        const id_tipo_utensilio = req.params.id;
-        const { error } = tipo_utensilioQueryValidation.validate({ id_tipo_utensilio: id_tipo_utensilio })
-
-        if (error) {
-            return handleErrorClient(res, 400, "Error de validación", error.message);
-        }
-        const [utensilios, errorTipoUtensilio] =
-            await getUtensiliosDeTipoService(id_tipo_utensilio);
-        console.log("utensilios")
-        console.log(utensilios)
-        let cantidad_total_ingrediente = 0;
-        for (let i = 0; i < utensilios.length; i++) {
-            cantidad_total_ingrediente += utensilios[i]['cantidad_utensilio'];
-        }
-        //Una vez tenga la cantidad de la fecha actual
-        //buscar x fechas anteriores y ver como cambia
-        let datos_retorno = []
-        let entrada1 = { fecha: new Date(), cantidad: cantidad_total_ingrediente }
-        const X = 10; //Cantidad de fechas que se mostraran en el grafico //TODO: mostrar de alguna forma que permita configurarlo
-        for (let i = 0; i < X; i++) {
-
-        }
-
-
-        if (errorTipoUtensilio) {
-            return handleErrorClient(res, 400, "Error en la consulta", errorTipoUtensilio);
-        }
-        handleSuccess(res, 201, "Tipo utensilio creado correctamente", cantidad_total_ingrediente)
-        return;
+        //const id_tipo_utensilio = req.params.id;
+        //const { error } = tipo_utensilioQueryValidation.validate({ id_tipo_utensilio: id_tipo_utensilio })
+        //if (error) {
+            //return handleErrorClient(res, 400, "Error de validación", error.message);
+        //}
+        const [datos_utensilios, errorTipoUtensilio] =
+            await getUtensiliosDeTipoService(body);
+        console.log("datos_utensilio")
+        console.log(datos_utensilios);
+        return handleSuccess(res, 201, "Datos stock utensilio consultados exitosamente", datos_utensilios)
     } catch (error) {
-        handleErrorServer(res, 500, error.message);
         console.log(error)
+        return handleErrorServer(res, 500, error.message);
     }
 }
 

@@ -9,69 +9,103 @@ import Comanda from "../entity/comanda.entity.js"
 Dada una lista de ids devuelve la cantidad vigente en el sistema
 de utensilios, para esto descuenta la cantidad de mermas y agrega la 
 cantidad de pedidos
+
+ids_tipos_utensilio = {
+  ids: [
+    1,2,3,... 
+  ]
+result = {
+  id_utensilio [
+    {
+      fecha: {fecha actual},
+      cantidad_utensilios: {cantidad_utensilios}
+    },
+    ...
+  ]
+}
 */
 export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
-  /*
-  respuesta:
-  {
-    utensilios: [ 
-      id_utensilio [
-        {
-          fecha: {fecha actual},
-          cantidad_utensilios: {cantidad_utensilios}
-        },
-        ...
-      ]
-    ]
-  } 
-  
-  */
+  const { ids } = ids_tipos_utensilio;
   const tipo_utensilioRepository = AppDataSource.getRepository(TipoUtensilio);
-  result = [];
-  for (let i = 0; i < ids_tipos_utensilio.length; i++) {
-    const id_tipo_utensilio = ids_tipos_utensilio[i];
+  let result = {};
+  for (let i = 0; i < ids.length; i++) {
+    const id_tipo_utensilio = ids[i];
     const tipoUtensilioEncontrado = await tipo_utensilioRepository.findOne({
-      where: {id_tipo_utensilio : id_tipo_utensilio}
+      where: { id_tipo_utensilio: id_tipo_utensilio }
     })
-    if(!tipoUtensilioEncontrado) {
+    if (!tipoUtensilioEncontrado) {
       //No importa si el resto de las ids no se ve porque en el front end este error no deberia ser posible. 
       //Es solo si alguien esta accediendo a las urls directamente posiblemente intentando una inyeccion sql
       return [null, "El utensilio de id: " + id_tipo_utensilio + " no existe"]
     }
 
     //Se usa "" en una columna cuando el nombre de esa columna tiene que ser *case-sensitive*
-    AppDataSource.query(`
+    //AppDataSource.query(`
+    //SELECT *
+    //FROM tipo_utensilio tu
+    //INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
+    //INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
+    //INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
+    //INNER JOIN utensilio_merma_merma um ON um."utensilioIdUtensilio" = u.id_utensilio
+    //INNER JOIN merma m ON um."mermaIdMerma" = m.id_merma
+    //WHERE tu.id_tipo_utensilio = $1;
+    //ORDER BY 
+    //`, [id_tipo_utensilio])
+    //Creo que tiene mas sentido consultar los utensilios, despues consultar separadamente los pedidos y las mermas
+    const utensilios = await AppDataSource.query(`
       SELECT *
       FROM tipo_utensilio tu
       INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
       INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
       INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
-      INNER JOIN utensilio_merma_merma um ON um."utensilioIdUtensilio" = u.id_utensilio
-      INNER JOIN merma m ON um."mermaIdMerma" = m.id_merma
-      WHERE tu.id_tipo_utensilio = $1;
-      ORDER BY 
-      `, [{id_tipo_utensilio}])
-      par_cantidad_fecha = {}
-      //Creo que tiene mas sentido consultar los utensilios, despues consultar separadamente los pedidos y las mermas
-      const utensilios = AppDataSource.query(`
-      SELECT *
-      FROM tipo_utensilio tu
-      INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
-      INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
-      INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
-      WHERE tu.id_tipo_utensilio = $1;
+      WHERE tu.id_tipo_utensilio = $1
       ORDER BY p.fecha_entrega_pedido ASC
-      `, [{id_tipo_utensilio}])
-      console.log(utensilios)
-      //TODO: se usa fecha entrega o fecha compra
-      //por cada utensilio restarle las mermas a la cantidad
-      /*
-        Para cada utensilio contar su cantidad menos las mermas de ese ingrediente. Contar por fechas, cada vez que se usa 
-      */
-      
+      `, [id_tipo_utensilio])
+    console.log("id: " + id_tipo_utensilio)
+    console.log("utensilios")
+    console.log(utensilios)
+    //TODO: se usa fecha entrega o fecha compra
+    //TODO: comprobar si pedido deberia ser muchos a muchos o no
+    //por cada utensilio restarle las mermas a la cantidad
+    /*
+      Para cada utensilio contar su cantidad menos las mermas de ese ingrediente. Contar por fechas, cada vez que se usa 
+    */
+    let cantidad_total = 0;
+    let inventarioDelTipo = [];
+    for (let i = 0; i < utensilios.length; i++) {
+      const utensilio = utensilios[i];
+      console.log(utensilio)
+      cantidad_total += utensilio.cantidad_utensilio
+      const par_cantidad_fecha_pedido = {
+        fecha: utensilio.fecha_compra_pedido,
+        cantidad_utensilios: cantidad_total 
+      }
+      console.log("par_cantidad_fecha")
+      console.log(cantidad_total)
+      console.log(par_cantidad_fecha_pedido)
+      inventarioDelTipo.push(par_cantidad_fecha_pedido)
+      const mermas = await AppDataSource.query(`
+        SELECT *
+        FROM merma m
+        INNER JOIN utensilio_merma_merma um on um."mermaIdMerma" = m.id_merma
+        WHERE um."utensilioIdUtensilio" = $1
+        `, [utensilio["id_utensilio"]])
+      console.log("merma");
+      console.log(mermas);
+      //aqui se añaden las cantidades de las mermas
+      for(let i = 0; i < mermas.length; i++) {
+        const merma = mermas[i];
+        cantidad_total -= merma.cantidad_perdida;
+        const par_cantidad_fecha_merma = {
+          fecha: merma.fecha_merma,
+          cantidad_utensilios: cantidad_total 
+        }
+        inventarioDelTipo.push(par_cantidad_fecha_merma)
+      }
+    }
+    result[id_tipo_utensilio] = inventarioDelTipo
   }
-
-  return [utensilios, null]
+  return [result, null]
 }
 //Para grafico de barras y circular
 //Listo pero sin probar
@@ -120,8 +154,9 @@ export async function getVentasPlatilloService() {
   WHERE p.id_platillo = $1
   `, [platillosEncontrados[i].id_platillo])
       console.log(platillo_comanda)
-      ventasPlatillo['ventas'] = platillo_comanda['count']
+      ventasPlatillo["ventas"] = platillo_comanda["count"]
     }
+
     return [ventasPlatillo, null]
   } catch (error) {
     console.error("error en consulta ventas platillo", error)
@@ -163,8 +198,8 @@ export async function getMenuPlatilloService() {
       //console.log(ventasPorPlatillo)
 
       let platillosPorMenu = {}
-      platillosPorMenu['id_platillo'] = platillosEncontrados[i].id_platillo
-      platillosPorMenu['nombre_platillo'] = platillosEncontrados[i].nombre_platillo
+      platillosPorMenu["id_platillo"] = platillosEncontrados[i].id_platillo
+      platillosPorMenu["nombre_platillo"] = platillosEncontrados[i].nombre_platillo
       //Se asume que platillo menu tiene forma de diccionario
       const platillo_menu = await AppDataSource.query(` 
       SELECT p.id_platillo, COUNT(1) as count
@@ -175,7 +210,7 @@ export async function getMenuPlatilloService() {
       GROUP BY p.id_platillo`
         , [platillosEncontrados[i].id_platillo])
       console.log(platillo_menu)
-      platillosPorMenu['en_el_menu'] = platillo_menu['count']
+      platillosPorMenu["en_el_menu"] = platillo_menu["count"]
     }
     return [platillosPorMenu, null]
   } catch (error) {
@@ -404,7 +439,7 @@ export async function getIngresosVentasService() {
               WHERE id_comanda = $1 AND id_platillo = $2
           `, [comanda.id_comanda, id_platillo]);
 
-      dict_ventas_platillo['cantidad_ventas'] = ventas_platillo_result[0].count;
+      dict_ventas_platillo["cantidad_ventas"] = ventas_platillo_result[0].count;
       cantidadVentasPlatillos.push(dict_ventas_platillo);
     }
 
