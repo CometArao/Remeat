@@ -30,25 +30,25 @@ export async function createPlatilloService(data) {
                 ),
             ];
         }
-
+ 
         // Crear el platillo con precio inicial de 0
         const newPlatillo = platilloRepository.create({
             nombre_platillo,
             precio_platillo: 0, // Precio inicial de 0
             disponible,
-            creador: usuarioExistente,
+            creador: usuarioExistente,  
         });
         await platilloRepository.save(newPlatillo);
-
+        
         // Verificar y agregar los ingredientes al platillo
+       
         if (ingredientes && ingredientes.length > 0) {
-            const ingredientesToAdd = [];
-
-            for (const ingrediente of ingredientes) {
-                // Verificar que el tipo de ingrediente existe
-                const tipoIngredienteExistente = await tipoIngredienteRepository.findOneBy({
-                    id_tipo_ingrediente: ingrediente.id_tipo_ingrediente
-                });
+              // Utilizamos map para transformar cada ingrediente en una entrada de ComponePlatillo
+              const ingredientesToAdd = await Promise.all(
+                ingredientes.map(async (ingrediente) => {
+                    const tipoIngredienteExistente = await tipoIngredienteRepository.findOneBy({
+                        id_tipo_ingrediente: ingrediente.id_tipo_ingrediente
+                    });
 
                 if (!tipoIngredienteExistente) {
                     return [
@@ -60,20 +60,53 @@ export async function createPlatilloService(data) {
                     ];
                 }
 
-                // Crear la relación entre el platillo y el ingrediente
-                ingredientesToAdd.push(
-                    componePlatilloRepository.create({
-                        id_tipo_ingrediente: ingrediente.id_tipo_ingrediente,
-                        id_platillo: newPlatillo.id_platillo,
-                        porcion_ingrediente_platillo: ingrediente.porcion_ingrediente_platillo,
-                    })
-                );
-            }
+                return componePlatilloRepository.create({
+                    id_tipo_ingrediente: ingrediente.id_tipo_ingrediente,
+                    id_platillo: newPlatillo.id_platillo,
+                    porcion_ingrediente_platillo: ingrediente.porcion_ingrediente_platillo,
+                });
+            })
+        );
 
-            await componePlatilloRepository.save(ingredientesToAdd);
-        }
+        await componePlatilloRepository.save(ingredientesToAdd);
+    }
 
-        return [newPlatillo, null];
+    
+    // Recuperar la información completa del platillo, excluyendo la contraseña del creador
+    const creadorData = {
+        id_usuario: usuarioExistente.id_usuario,
+        nombre_usuario: usuarioExistente.nombre_usuario,
+        apellido_usuario: usuarioExistente.apellido_usuario,
+        correo_usuario: usuarioExistente.correo_usuario,
+        rol_usuario: usuarioExistente.rol_usuario,
+        id_horario_laboral: usuarioExistente.id_horario_laboral,
+    };
+
+    // Formatear los ingredientes para la respuesta
+    const ingredientesData = ingredientes.map((ing) => ({
+        id_tipo_ingrediente: ing.id_tipo_ingrediente,
+        nombre_tipo_ingrediente: tipoIngredienteRepository.findOneBy({
+             id_tipo_ingrediente: ing.id_tipo_ingrediente }).then(tipo => tipo.nombre_tipo_ingrediente),
+        porcion_ingrediente_platillo: ing.porcion_ingrediente_platillo,
+    }));
+
+    // Crear el objeto de respuesta final
+    const respuestaFinal = {
+        id_platillo: newPlatillo.id_platillo,
+        nombre_platillo: newPlatillo.nombre_platillo,
+        precio_platillo: newPlatillo.precio_platillo,
+        disponible: newPlatillo.disponible,
+        creador: creadorData,
+        ingredientes: await Promise.all(ingredientesData.map(async ing => ({
+            id_tipo_ingrediente: ing.id_tipo_ingrediente,
+            nombre_tipo_ingrediente: await ing.nombre_tipo_ingrediente,
+            porcion_ingrediente_platillo: ing.porcion_ingrediente_platillo,
+        })))
+    };
+
+    return [respuestaFinal, null];
+       
+  
     } catch (error) {
         console.error("Error al crear el platillo:", error);
         return [null, error.message];
@@ -173,7 +206,7 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
 
 
-    const { nombre_platillo, precio_platillo, disponible, id_usuario } = platilloData;
+    const { nombre_platillo, precio_platillo, disponible, id_usuario, ingredientes } = platilloData;
 
     const createErrorMessage = (dataInfo, message) => ({
       dataInfo,
@@ -248,7 +281,7 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
           ingredientesToAdd.push(
               componePlatilloRepository.create({
                   id_tipo_ingrediente: ingrediente.id_tipo_ingrediente,
-                  id_platillo: newPlatillo.id_platillo,
+                  id_platillo: platilloItem.id_platillo,
                   porcion_ingrediente_platillo: ingrediente.porcion_ingrediente_platillo,
               })
           );
