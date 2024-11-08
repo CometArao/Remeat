@@ -20,7 +20,8 @@ const pedido = new EntitySchema({
             nullable: false
         },
         estado_pedido: {
-            type: "int",
+            type: "varchar",
+            length: "20", 
             nullable: false
         },
         fecha_entrega_pedido: {
@@ -28,14 +29,6 @@ const pedido = new EntitySchema({
             nullable: false
         },
         costo_pedido: {
-            type: "int",
-            nullable: false
-        },
-        cantidad_ingrediente_pedido: {
-            type: "int",
-            nullable: false
-        },
-        cantidad_utensilio_pedido: {
             type: "int",
             nullable: false
         },

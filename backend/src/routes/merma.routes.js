@@ -2,13 +2,16 @@
 import { Router } from "express";
 import { 
   createMerma, 
-  getMermas, 
+  deleteMerma, 
+  getMerma, 
+  getMermas,
+  updateMerma
 } from "../controllers/mermas.controller.js"
-
 const router = Router();
-
 router
-  .post('/create_tipo_utensilio', createMerma)
-  .get('/get_tipo_utensilio:id', getMermas)
-
+  .post("/create_merma", createMerma)
+  .get("/get_all_mermas", getMermas)
+  .get("/get_merma:id", getMerma)
+  .patch("/update_merma", updateMerma)
+  .delete("/delete_merma:id", deleteMerma)
 export default router;

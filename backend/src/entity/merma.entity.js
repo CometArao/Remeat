@@ -1,5 +1,5 @@
 "use strict"
-import { EntitySchema, JoinColumn} from "typeorm";
+import { EntitySchema, JoinColumn } from "typeorm";
 import tipo_utensilio from "./tipo_utensilio.entity.js"
 
 const merma = new EntitySchema({
@@ -11,23 +11,10 @@ const merma = new EntitySchema({
             primary: true,
             generated: true,
         },
-        fecha: {
+        fecha_merma: {
             type: "date",
             nullable: true
         },
-        cantidad_perdida: {
-            type: "int",
-            nullable: true
-        },
-        //utensilio: {
-            //type: "many-to-many",
-            //target: "utensilio",
-            //cascade: true
-        //},
-        //ingrediente: {//No se tiene join table cascading en uno de los lados pero se tiene que tener de ambos lados
-            //type: "many-to-many",
-            //target: "ingrediente",
-        //}
     },
 });
 

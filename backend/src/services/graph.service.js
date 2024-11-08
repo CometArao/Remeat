@@ -3,26 +3,225 @@ import { AppDataSource, connectDB } from "../config/configDb.js";
 import Utensilio from "../entity/utensilio.entity.js"
 import TipoUtensilio from "../entity/tipo_utensilio.entity.js"
 import Platillo from "../entity/platillo.entity.js"
+import TipoIngrediente from "../entity/tipo_ingrediente.entity.js"
 import Comanda from "../entity/comanda.entity.js"
 
+/* 
+Dada una lista de ids devuelve la cantidad vigente en el sistema
+de utensilios, para esto descuenta la cantidad de mermas y agrega la 
+cantidad de pedidos
 
-//para despues del miercoles
-export async function getUtensiliosDeTipoService(id_tipo_utensilio) {
+ids_tipos_utensilio = {
+  ids: [
+    1,2,3,... 
+  ]
+result = {
+  id_utensilio [
+    {
+      fecha: {fecha actual},
+      cantidad_utensilios: {cantidad_utensilios}
+    },
+    ...
+  ]
+}
+*/
+export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
+  const { ids } = ids_tipos_utensilio;
   const tipo_utensilioRepository = AppDataSource.getRepository(TipoUtensilio);
-  const utensilioRepository = AppDataSource.getRepository(Utensilio);
-  //validar que existe el tipo
-  const tipoUtensilioEncontrado = await tipo_utensilioRepository.findOne({
-    where: [{ id_tipo_utensilio: id_tipo_utensilio }]
-  })
-  if (!tipoUtensilioEncontrado) {
-    return [null, "No se encontro ese tipo de utensilio"]
+  let result = {};
+  for (let i = 0; i < ids.length; i++) {
+    const id_tipo_utensilio = ids[i];
+    const tipoUtensilioEncontrado = await tipo_utensilioRepository.findOne({
+      where: { id_tipo_utensilio: id_tipo_utensilio }
+    })
+    if (!tipoUtensilioEncontrado) {
+      //No importa si el resto de las ids no se ve porque en el front end este error no deberia ser posible. 
+      //Es solo si alguien esta accediendo a las urls directamente posiblemente intentando una inyeccion sql
+      return [null, "El utensilio de id: " + id_tipo_utensilio + " no existe"]
+    }
+
+    //Se usa "" en una columna cuando el nombre de esa columna tiene que ser *case-sensitive*
+    //AppDataSource.query(`
+    //SELECT *
+    //FROM tipo_utensilio tu
+    //INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
+    //INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
+    //INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
+    //INNER JOIN utensilio_merma_merma um ON um."utensilioIdUtensilio" = u.id_utensilio
+    //INNER JOIN merma m ON um."mermaIdMerma" = m.id_merma
+    //WHERE tu.id_tipo_utensilio = $1;
+    //ORDER BY 
+    //`, [id_tipo_utensilio])
+    //Creo que tiene mas sentido consultar los utensilios, despues consultar separadamente los pedidos y las mermas
+    const utensilios = await AppDataSource.query(`
+      SELECT *
+      FROM tipo_utensilio tu
+      INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
+      INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
+      INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
+      WHERE tu.id_tipo_utensilio = $1
+      ORDER BY p.fecha_entrega_pedido ASC
+      `, [id_tipo_utensilio])
+    console.log("id: " + id_tipo_utensilio)
+    console.log("utensilios")
+    console.log(utensilios)
+    //TODO: se usa fecha entrega o fecha compra
+    //TODO: comprobar si pedido deberia ser muchos a muchos o no
+    //por cada utensilio restarle las mermas a la cantidad
+    /*
+      Para cada utensilio contar su cantidad menos las mermas de ese ingrediente. Contar por fechas, cada vez que se usa 
+    */
+    let cantidad_total = 0;
+    let inventarioDelTipo = [];
+    for (let i = 0; i < utensilios.length; i++) {
+      const utensilio = utensilios[i];
+      console.log(utensilio)
+      cantidad_total += utensilio.cantidad_utensilio
+      const par_cantidad_fecha_pedido = {
+        fecha: utensilio.fecha_compra_pedido,
+        cantidad_utensilios: cantidad_total
+      }
+      console.log("par_cantidad_fecha")
+      console.log(cantidad_total)
+      console.log(par_cantidad_fecha_pedido)
+      inventarioDelTipo.push(par_cantidad_fecha_pedido)
+      const mermas = await AppDataSource.query(`
+        SELECT *
+        FROM merma m
+        INNER JOIN utensilio_merma_merma um on um."mermaIdMerma" = m.id_merma
+        WHERE um."utensilioIdUtensilio" = $1
+        `, [utensilio["id_utensilio"]])
+      console.log("merma");
+      console.log(mermas);
+      //aqui se añaden las cantidades de las mermas
+      for (let i = 0; i < mermas.length; i++) {
+        const merma = mermas[i];
+        cantidad_total -= merma.cantidad_perdida;
+        const par_cantidad_fecha_merma = {
+          fecha: merma.fecha_merma,
+          cantidad_utensilios: cantidad_total
+        }
+        inventarioDelTipo.push(par_cantidad_fecha_merma)
+      }
+    }
+    result[id_tipo_utensilio] = inventarioDelTipo
   }
-  const utensilios = await utensilioRepository.find({
-    where: [{ id_tipo_utensilio: id_tipo_utensilio }]
-  })
-  console.log("utensilios")
-  console.log(utensilios)
-  return [utensilios, null]
+  return [result, null]
+  //TODO: Las mermas se pueden crear con fecha anterior a la 
+  //entrega del utensilio
+
+  //el orden de las mermas no parece ser el correcto.
+  //en principio con el anterior se deberia arreglar este
+}
+export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
+  let result = {}
+  let inventarioDelTipo = []
+  const { ids } = ids_tipo_ingrediente;
+  const tipo_ingredienteRepositorio = AppDataSource.getRepository(TipoIngrediente);
+  //Por cada tipo de ingrediente mirar el ingrediente
+  for (let i = 0; i < ids.length; i++) {
+    let inventarioDelTipo = [];
+    const id_tipo_ingrediente = ids[i];
+    const tipoIngredienteEncontrado = await tipo_ingredienteRepositorio.findOne({
+      where: { id_tipo_ingrediente: id_tipo_ingrediente }
+    });
+    if (!tipoIngredienteEncontrado) {
+      return [null,
+        "El tipo de ingrediente con id: " + id_tipo_ingrediente + "no existe"]
+    }
+    const ingredientes = await AppDataSource.query(`
+    SELECT * 
+    FROM tipo_ingrediente ti
+    INNER JOIN ingrediente i ON i.id_tipo_ingrediente = ti.id_tipo_ingrediente
+    INNER JOIN pedido p ON p.id_pedido = i.id_pedido
+    WHERE ti.id_tipo_ingrediente = $1
+    `, [id_tipo_ingrediente])
+    if (!ingredientes || ingredientes.length == 0) {
+      return [null, "No se encontraron ingredientes asociados a ese tipo"]
+    }
+    //Por cada ingrediente mirar mermas y pedidos
+    for (let i = 0; i < ingredientes.length; i++) {
+      const ingrediente = ingredientes[i];
+      const par_cantidad_fecha_pedido = {
+        fecha: ingrediente.fecha_compra_pedido,
+        cantidad_ingrediente: ingrediente.cantidad_ingrediente
+      }
+      inventarioDelTipo.push(par_cantidad_fecha_pedido);
+      const listaInfoMermas = await getInfoMermasDeIngrediente(ingrediente.id_ingrediente);
+      //a considerar
+      //push apply es mas eficiente que el operador ...
+      inventarioDelTipo = [...inventarioDelTipo, ...listaInfoMermas];
+
+    }
+    //Mirar comandas
+    const listInfoComandas = await getInfoComandasDeTipoIngrediente(ids_tipo_ingrediente);
+    inventarioDelTipo = [...inventarioDelTipo, ...listInfoComandas]
+    //Barajar comandas con pedidos y mermas
+    //TODO que tipo de dato llegan las fechas
+    inventarioDelTipo.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
+    result[id_tipo_ingrediente] = inventarioDelTipo;
+  }
+  return result;
+  /**
+   * Para realizar esta parte nesesito tener claro como se realiza el descuento
+   * de los ingredientes. ¿Deberia existir una relacion entre ingredientes y comandas para
+   * saber cuando se consumio? O solo usar el tipo de ingrediente para ver
+   * que platillos usan ese ingrediente y cuando se consumieron.
+   */
+
+}
+//retorna lista de pares cantidad_fecha_merma en una lista
+//no es export porque es solo de uso interno
+async function getInfoMermasDeIngrediente(id_ingrediente) {
+  let result = [];
+  //TODO: remplazar nombre de merma (relacion cantidad ¿?)
+  const mermas = await AppDataSource.query(`
+      SELECT *
+      FROM mermas m
+      INNER JOIN ingrediente_merma_merma um on um."mermaIdMerma" = m.id_merma
+      INNER JOIN ingrediente i ON ingrediente_merma_merma.id_ingrediente = i.ingrediente
+      WHERE i.id_ingrediente = $1
+      `, [id_ingrediente]);
+  for (let i = 0; i < mermas.length; i++) {
+    const merma = mermas[i];
+    const par_cantidad_fecha_merma = {
+      fecha: merma.fecha_merma,
+      cantidad_ingrediente: merma.cantidad_perdida
+    }
+    result.push(par_cantidad_fecha_merma);
+  }
+  return result;
+}
+/**
+ * 
+ * dada una id de tipo_ingrediente
+ * crea una lista de diccionarios con la fecha de la comanda y la cantidad
+ * usada de ese ingrediente en esa comanda
+ */
+async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
+  let result = [];
+  //Me importa la cantidad de platillos
+  //que pasa con cantidad
+  const comandas = await AppDataSource.query(`
+    SELECT *
+    FROM comanda c
+    INNER JOIN conforma_comanda cc ON c.id_comanda = conforma_comanda.id_comanda
+    INNER JOIN platillo p ON p.id_platillo = cc.id_platillo
+    INNER JOIN compuesto_platillo cp ON cp.id_platillo = p.id_platillo
+    INNER JOIN tipo_ingrediente ti ON ti.id_tipo_platillo = cp.id_tipo_platillo
+    WHERE ti.id_tipo_ingrediente = $1
+    `, [id_tipo_ingrediente])
+    for(let i = 0; i < comandas.length; i++) {
+      const comanda = comandas[i];
+      //Para calcular la cantidad de la comanda se usa
+      //porcion del ingrediente * cantidad de platillos
+      const par_cantidad_fecha_merma = {
+        fecha: comanda.fecha_compra_comanda,
+        cantidad_ingrediente: "¿?"
+      }
+      result.push(par_cantidad_fecha_merma);
+    }
+    return result;
 }
 //Para grafico de barras y circular
 //Listo pero sin probar
@@ -71,8 +270,9 @@ export async function getVentasPlatilloService() {
   WHERE p.id_platillo = $1
   `, [platillosEncontrados[i].id_platillo])
       console.log(platillo_comanda)
-      ventasPlatillo['ventas'] = platillo_comanda['count']
+      ventasPlatillo["ventas"] = platillo_comanda["count"]
     }
+
     return [ventasPlatillo, null]
   } catch (error) {
     console.error("error en consulta ventas platillo", error)
@@ -114,8 +314,8 @@ export async function getMenuPlatilloService() {
       //console.log(ventasPorPlatillo)
 
       let platillosPorMenu = {}
-      platillosPorMenu['id_platillo'] = platillosEncontrados[i].id_platillo
-      platillosPorMenu['nombre_platillo'] = platillosEncontrados[i].nombre_platillo
+      platillosPorMenu["id_platillo"] = platillosEncontrados[i].id_platillo
+      platillosPorMenu["nombre_platillo"] = platillosEncontrados[i].nombre_platillo
       //Se asume que platillo menu tiene forma de diccionario
       const platillo_menu = await AppDataSource.query(` 
       SELECT p.id_platillo, COUNT(1) as count
@@ -126,7 +326,7 @@ export async function getMenuPlatilloService() {
       GROUP BY p.id_platillo`
         , [platillosEncontrados[i].id_platillo])
       console.log(platillo_menu)
-      platillosPorMenu['en_el_menu'] = platillo_menu['count']
+      platillosPorMenu["en_el_menu"] = platillo_menu["count"]
     }
     return [platillosPorMenu, null]
   } catch (error) {
@@ -229,140 +429,140 @@ export async function getGraficoLinea(dependiente, independiente, ingrediente, p
 
 //get ingresos venta
 //export async function getIngresosVentasService() {
-  //const platillosRepository = AppDataSource.getRepository(Platillo)
-  //const platillosEncontrados = await platillosRepository.find()
-  //if (!platillosEncontrados) {
-    //return [null, "El platillo seleccionado no existe"]
-  //}
-  //console.log(platillosEncontrados)
-  //// guardar cantidad de veces que se asocia comanda con platillo
-  //// 
-  ////tengo que conectar con comanda para saber la fecha
-  ///*
-    //Lo que quiero devolver es algo:
-    //[
-      //{
-        //platillo: id_platillo,
-        //ventas_por_comanda: [
-          //{
-            //fecha_compra: fecha_compra_comanda,
-            //hora_compra: hora_compra_comanda,
-            //cantidad_ventas: cantidad_ventas
-          //}
-        //]
-      //}
-    //]
-  
-  //*/
-  //let result = {}
-  //let outer_json = {}
-  //outer_json['platillo'] = platillosEncontrados.id_platillo
+//const platillosRepository = AppDataSource.getRepository(Platillo)
+//const platillosEncontrados = await platillosRepository.find()
+//if (!platillosEncontrados) {
+//return [null, "El platillo seleccionado no existe"]
+//}
+//console.log(platillosEncontrados)
+//// guardar cantidad de veces que se asocia comanda con platillo
+//// 
+////tengo que conectar con comanda para saber la fecha
+///*
+//Lo que quiero devolver es algo:
+//[
+//{
+//platillo: id_platillo,
+//ventas_por_comanda: [
+//{
+//fecha_compra: fecha_compra_comanda,
+//hora_compra: hora_compra_comanda,
+//cantidad_ventas: cantidad_ventas
+//}
+//]
+//}
+//]
 
-  //let cantidadVentasPlatillos = []
+//*/
+//let result = {}
+//let outer_json = {}
+//outer_json['platillo'] = platillosEncontrados.id_platillo
 
-  //for (let j = 0; j < platillosEncontrados.length; j++) {
-    //const id_platillo = platillosEncontrados[j].id_platillo
-    //console.log("id_platillo")
-    //console.log(id_platillo)
-    ////obtiene todas las comandas asociadas al platillo
-    //let comandas_platillo = await AppDataSource.query(`
-    //SELECT c.id_comanda, cc.id_platillo, c.fecha_compra_comanda, c.hora_compra_comanda
-    //FROM comanda c
-    //INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
-    //WHERE cc.id_platillo = $1
-      //`, [id_platillo])
-    //console.log("comandas_platillo")
-    //console.log(comandas_platillo)
-    ////verificar que existan comandas asociadas al platillo
-    //if (!comandas_platillo || comandas_platillo.length === 0) {
-      //return [null, "no existen comandas asociadas"]
-    //}
-    ////cuanta la cantidad de veces que se vendio el platillo en esta comanda
-    //for (let i = 0; i < comandas_platillo.length; i++) {
-      //const comanda = comandas_platillo[i]
-      //let dict_ventas_platillo = {}
-      //console.log(comanda['hora_compra_comanda'])
+//let cantidadVentasPlatillos = []
 
-      //dict_ventas_platillo['fecha_compra'] = comanda['fecha_compra_comanda']
-      //dict_ventas_platillo['hora_compra'] = comanda['hora_compra_comanda']
+//for (let j = 0; j < platillosEncontrados.length; j++) {
+//const id_platillo = platillosEncontrados[j].id_platillo
+//console.log("id_platillo")
+//console.log(id_platillo)
+////obtiene todas las comandas asociadas al platillo
+//let comandas_platillo = await AppDataSource.query(`
+//SELECT c.id_comanda, cc.id_platillo, c.fecha_compra_comanda, c.hora_compra_comanda
+//FROM comanda c
+//INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
+//WHERE cc.id_platillo = $1
+//`, [id_platillo])
+//console.log("comandas_platillo")
+//console.log(comandas_platillo)
+////verificar que existan comandas asociadas al platillo
+//if (!comandas_platillo || comandas_platillo.length === 0) {
+//return [null, "no existen comandas asociadas"]
+//}
+////cuanta la cantidad de veces que se vendio el platillo en esta comanda
+//for (let i = 0; i < comandas_platillo.length; i++) {
+//const comanda = comandas_platillo[i]
+//let dict_ventas_platillo = {}
+//console.log(comanda['hora_compra_comanda'])
+
+//dict_ventas_platillo['fecha_compra'] = comanda['fecha_compra_comanda']
+//dict_ventas_platillo['hora_compra'] = comanda['hora_compra_comanda']
 
 
-      //const ventas_platillo = AppDataSource.query(`
-      //SELECT COUNT(1) as count 
-      //FROM comanda c
-      //INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
-      //WHERE c.id_comanda = $1
-      //`, [comandas_platillo])
-      //console.log(ventas_platillo)
-      //dict_ventas_platillo['cantidad_ventas'] = ventas_platillo['count']
-      //cantidadVentasPlatillos.push(dict_ventas_platillo)
-    //}
-    //outer_json['ventas_por_comanda'] = cantidadVentasPlatillos
-    //console.log("outerjson")
-    //console.log(outer_json)
-    //result[id_platillo] = outer_json
-    //console.log(result)
-  //}
-  //console.log("ventas_platillo: " + result);
-  //return [result, null]
+//const ventas_platillo = AppDataSource.query(`
+//SELECT COUNT(1) as count 
+//FROM comanda c
+//INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
+//WHERE c.id_comanda = $1
+//`, [comandas_platillo])
+//console.log(ventas_platillo)
+//dict_ventas_platillo['cantidad_ventas'] = ventas_platillo['count']
+//cantidadVentasPlatillos.push(dict_ventas_platillo)
+//}
+//outer_json['ventas_por_comanda'] = cantidadVentasPlatillos
+//console.log("outerjson")
+//console.log(outer_json)
+//result[id_platillo] = outer_json
+//console.log(result)
+//}
+//console.log("ventas_platillo: " + result);
+//return [result, null]
 //}
 export async function getIngresosVentasService() {
   const platillosRepository = AppDataSource.getRepository(Platillo);
   const platillosEncontrados = await platillosRepository.find();
-  
+
   if (!platillosEncontrados) {
-      return [null, "El platillo seleccionado no existe"];
+    return [null, "El platillo seleccionado no existe"];
   }
 
   console.log(platillosEncontrados);
 
   let result = {};
-  
-  for (let j = 0; j < platillosEncontrados.length; j++) {
-      const id_platillo = platillosEncontrados[j].id_platillo;
-      console.log("id_platillo:", id_platillo);
 
-      // Obtiene todas las comandas asociadas al platillo
-      const comandas_platillo = await AppDataSource.query(`
+  for (let j = 0; j < platillosEncontrados.length; j++) {
+    const id_platillo = platillosEncontrados[j].id_platillo;
+    console.log("id_platillo:", id_platillo);
+
+    // Obtiene todas las comandas asociadas al platillo
+    const comandas_platillo = await AppDataSource.query(`
           SELECT c.id_comanda, cc.id_platillo, c.fecha_compra_comanda, c.hora_compra_comanda
           FROM comanda c
           INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
           WHERE cc.id_platillo = $1
       `, [id_platillo]);
 
-      console.log("comandas_platillo:", comandas_platillo);
+    console.log("comandas_platillo:", comandas_platillo);
 
-      // Verificar que existan comandas asociadas al platillo
-      if (!comandas_platillo || comandas_platillo.length === 0) {
-          continue; // Si no hay comandas, pasa al siguiente platillo
-      }
+    // Verificar que existan comandas asociadas al platillo
+    if (!comandas_platillo || comandas_platillo.length === 0) {
+      continue; // Si no hay comandas, pasa al siguiente platillo
+    }
 
-      // Estructura para almacenar ventas por comanda
-      let cantidadVentasPlatillos = [];
+    // Estructura para almacenar ventas por comanda
+    let cantidadVentasPlatillos = [];
 
-      // Recorre cada comanda para contar las ventas del platillo en esa comanda
-      for (let i = 0; i < comandas_platillo.length; i++) {
-          const comanda = comandas_platillo[i];
-          let dict_ventas_platillo = {
-              fecha_compra: comanda.fecha_compra_comanda,
-              hora_compra: comanda.hora_compra_comanda
-          };
+    // Recorre cada comanda para contar las ventas del platillo en esa comanda
+    for (let i = 0; i < comandas_platillo.length; i++) {
+      const comanda = comandas_platillo[i];
+      let dict_ventas_platillo = {
+        fecha_compra: comanda.fecha_compra_comanda,
+        hora_compra: comanda.hora_compra_comanda
+      };
 
-          // Contar la cantidad de veces que el platillo fue vendido en esta comanda
-          const ventas_platillo_result = await AppDataSource.query(`
+      // Contar la cantidad de veces que el platillo fue vendido en esta comanda
+      const ventas_platillo_result = await AppDataSource.query(`
               SELECT COUNT(1) as count 
               FROM conforma_comanda
               WHERE id_comanda = $1 AND id_platillo = $2
           `, [comanda.id_comanda, id_platillo]);
 
-          dict_ventas_platillo['cantidad_ventas'] = ventas_platillo_result[0].count;
-          cantidadVentasPlatillos.push(dict_ventas_platillo);
-      }
+      dict_ventas_platillo["cantidad_ventas"] = ventas_platillo_result[0].count;
+      cantidadVentasPlatillos.push(dict_ventas_platillo);
+    }
 
-      result[id_platillo] = {
-          platillo: id_platillo,
-          ventas_por_comanda: cantidadVentasPlatillos
-      };
+    result[id_platillo] = {
+      platillo: id_platillo,
+      ventas_por_comanda: cantidadVentasPlatillos
+    };
   }
 
   console.log("ventas_platillo:", result);
@@ -385,6 +585,7 @@ export async function getCostos() {
     *         fecha_merma: fecha
     *       }
     *    }
+    *    
    *    }
    *  }
    * ]
@@ -404,12 +605,11 @@ export async function getCostos() {
 
 
 //inventario actual
-`
-SELECT *
-FROM comanda c
-INNER JOIN conforma comanda cc
-INNER JOIN platillo p
-INNER JOIN tipo_ingrediente ti
-INNER JOIN 
-
-`
+//`
+//SELECT *
+//FROM comanda c
+//INNER JOIN conforma comanda cc
+//INNER JOIN platillo p
+//INNER JOIN tipo_ingrediente ti
+//INNER JOIN 
+//`
