@@ -15,15 +15,6 @@ const merma = new EntitySchema({
             type: "date",
             nullable: true
         },
-        //utensilio: {
-            //type: "many-to-many",
-            //target: "utensilio",
-            //cascade: true
-        //},
-        //ingrediente: {//No se tiene join table cascading en uno de los lados pero se tiene que tener de ambos lados
-            //type: "many-to-many",
-            //target: "ingrediente",
-        //}
     },
 });
 
