@@ -33,14 +33,6 @@ const pedido = new EntitySchema({
             type: "int",
             nullable: false
         },
-        cantidad_ingrediente_pedido: {
-            type: "int",
-            nullable: true
-        },
-        cantidad_utensilio_pedido: {
-            type: "int",
-            nullable: true
-        },
         id_usuario: {
             type: "int",
             nullable: false

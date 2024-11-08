@@ -1,5 +1,6 @@
 "use strict"
 import Joi from "joi";
+
 export const mermaValidation = Joi.object({
     id_merma: Joi.number()
     .integer()

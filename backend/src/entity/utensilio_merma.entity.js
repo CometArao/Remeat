@@ -1,43 +1,39 @@
-"use strict";
+"use strict"
 import { EntitySchema } from "typeorm";
+import tipo_utensilio from "./tipo_utensilio.entity.js";
 
-const conformaComanda = new EntitySchema({
-    name: "conforma_comanda",
-    tableName: "conforma_comanda",
+const utensilio_merma = new EntitySchema({
+    name: "utensilio_merma",
+    tableName: "utensilio_merma",
     columns: {
-        id_comanda: {
+        id_utensilio: {
             type: "int",
             primary: true,
         },
-        id_platillo: {
+        id_merma: {
             type: "int",
             primary: true,
         },
-        estado_platillo: {
-            type: "varchar",
-            length: 20
-        },
-        cantidad_platillo: {
-            type: "int",
+        cantidad_perdida_utensilio: {
+            type: "int"
         }
-
     },
     relations: {
-        comanda: {
+        merma: {
             type: "many-to-one", // Una comanda puede tener múltiples platillos
-            target: "comanda",
+            target: "merma",
             joinColumn: {
                 name: "id_comanda"
             }
         },
-        platillo: {
+        utensilio: {
             type: "many-to-one", // Un platillo puede estar en múltiples comandas
-            target: "platillo",
+            target: "utensilio",
             joinColumn: {
-                name: "id_platillo"
+                name: "id_utensilio"
             }
         }
     }
 });
 
-export default conformaComanda;
+export default utensilio_merma;

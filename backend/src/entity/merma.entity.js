@@ -15,10 +15,6 @@ const merma = new EntitySchema({
             type: "date",
             nullable: true
         },
-        cantidad_perdida: {
-            type: "int",
-            nullable: true
-        },
         //utensilio: {
             //type: "many-to-many",
             //target: "utensilio",

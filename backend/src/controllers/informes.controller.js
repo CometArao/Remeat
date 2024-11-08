@@ -1,12 +1,27 @@
 "use strict";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { getIngresosVentasService, getMenuPlatilloService, 
+import { getIngredientesDeTipoService, getIngresosVentasService, getMenuPlatilloService, 
     getUtensiliosDeTipoService, getVentasPlatilloService } from "../services/graph.service.js"
 import { tipo_utensilioQueryValidation, tipo_utensilioValidation, 
     utensilioQueryValidation, utensilioValidation } from "../validations/utensilio.validation.js"
 
 export async function getStockIngrediente(req, res) {
+    console.log("getStockIngredientes");
+    const { body } = req;
+    try {
+        const [datos_ingrediente, errorIngrediente] = 
+            await getIngredientesDeTipoService(body);
+        if(errorIngrediente) {
+            return handleErrorClient(res, 400, errorIngrediente.message)
+        }
+        return handleSuccess(res, 200, datos_ingrediente);
+
+    }catch(error) {
+        console.log(error)
+        return handleErrorServer(res, 500, error.message);
+    }
 }
+
 
 export async function getStockUtensilio(req, res) {
     console.log("stock utensilio")
@@ -55,13 +70,17 @@ export async function getVentasPlatillo(req, res) {
         console.log(error)
     }
 }
-export async function getPlatillosMenu() {
+export async function getPlatillosMenu(req, res) {
     //consigue una lista de platillos y su relacion con el menu
     try {
         const [menu_platillos, error] = await getMenuPlatilloService();
-        if (error) return handleErrorClient(res, 404, error);
-        handleSuccess(res, 200, "menu platillo obtenido exitosamente", menu_platillos);
+        if (error) {
+            console.log(error)
+            return handleErrorClient(res, 404, error);
+        } 
+        return handleSuccess(res, 200, "menu platillo obtenido exitosamente", menu_platillos);
     } catch (error) {
-        handleErrorServer(res, 500, error.message);
+        console.log(error)
+        return handleErrorServer(res, 500, error.message);
     }
 }

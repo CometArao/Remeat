@@ -15,6 +15,10 @@ export async function createMermaService(query) {
             dataInfo,
             message
         });
+        const today = new Date().setHours(0, 0, 0, 0);
+        if(fecha > today) {
+            return [null, "La fecha no es posterior al dia de hoy"];
+        }
         const nuevaMerma = mermasRepository.create({
             fecha_merma: fecha,
             cantidad_perdida: cantidad_perdida 
@@ -32,7 +36,7 @@ export async function getMermaService(id_merma) {
         //verificar que es una id
 
         const mermaEncontrada = await mermasRepository.findOne({
-            where: {id_merma: id_merma}
+            where: { id_merma: id_merma }
         })
         if(!mermaEncontrada) {
             return [null, "Error no se encontro la merma"]
@@ -66,7 +70,7 @@ export async function updateMermaService(body) {
     try {
         const mermasRepository = AppDataSource.getRepository(Mermas);
         const mermaEncontrada = await mermasRepository.findOne({
-            where: {id_merma : body.id_merma}
+            where: { id_merma : body.id_merma }
         })
         if(!mermaEncontrada) {
             return [null, "No se encontro la merma a editar"]
@@ -78,7 +82,7 @@ export async function updateMermaService(body) {
         }
         console.log(mermaEditada)
         await mermasRepository.update(
-            {id_merma: body.id_merma},
+            { id_merma: body.id_merma },
             mermaEditada
         );
         return [mermaEditada, null]
@@ -91,7 +95,7 @@ export async function deleteMermaService(id) {
     try {
         const mermasRepository = AppDataSource.getRepository(Mermas);
         const mermaEncontrada = await mermasRepository.findOne({
-            where: { id_merma: id}
+            where: { id_merma: id }
         })
         if(!mermaEncontrada) {
             return [null, "No se encontro la merma especificada"]
