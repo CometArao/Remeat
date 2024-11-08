@@ -3,8 +3,6 @@ import { AppDataSource } from "../config/configDb.js";
 import Pedido from "../entity/pedido.entity.js";
 import Ingrediente from "../entity/ingrediente.entity.js";
 import Utensilio from "../entity/utensilio.entity.js";
-//import CompuestoIngrediente from "../entity/compuesto_ingrediente.entity.js";
-//import CompuestoUtensilio from "../entity/compuesto_utensilio.entity.js";
 import Usuario from "../entity/usuario.entity.js";
 
 export async function createPedidoService(data) {
