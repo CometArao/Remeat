@@ -27,6 +27,6 @@ router
     .use("/comandas", comandaRoutes)
     .use("/pedidos", pedidoRoutes)
     .use("/mermas", mermaRoutes)
-    .use("/ingredientes", ingredienteRoutes); // Añadir las rutas de ingrediente y tipo_ingrediente
+    .use("/ingredientes", ingredienteRoutes); // Añadir las rutas de ingrediente , tipo_ingrediente y unidad_medida
 
 export default router;

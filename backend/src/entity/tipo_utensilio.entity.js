@@ -1,6 +1,5 @@
 "use strict"
-import { EntitySchema} from "typeorm";
-import usuario from "./usuario.entity.js"
+import { EntitySchema } from "typeorm";
 
 const tipo_utensilio = new EntitySchema({
     name:"tipo_utensilio",
