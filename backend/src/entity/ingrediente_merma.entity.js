@@ -6,7 +6,7 @@ const ingrediente_merma = new EntitySchema({
     name: "ingrediente_merma",
     tableName: "ingrediente_merma",
     columns: {
-        id_utensilio: {
+        id_ingrediente: {
             type: "int",
             primary: true,
         },
@@ -23,14 +23,14 @@ const ingrediente_merma = new EntitySchema({
             type: "many-to-one", // Una comanda puede tener múltiples platillos
             target: "merma",
             joinColumn: {
-                name: "id_comanda"
+                name: "id_merma"
             }
         },
         ingrediente: {
             type: "many-to-one", // Un platillo puede estar en múltiples comandas
             target: "ingrediente",
             joinColumn: {
-                name: "id_utensilio"
+                name: "id_ingrediente"
             }
         }
     }

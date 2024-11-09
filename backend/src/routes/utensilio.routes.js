@@ -3,14 +3,14 @@ import { Router } from "express";
 import { 
   createTipoUtensilioController,
   createUtensilioController,
-  getTipoUtensilioController, 
+  deleteTipoUtensilioController, 
+  deleteUtensilioController, 
   getTiposUtensilioController, 
-  updateTipoUtensilioController, 
-  deleteTipoUtensilioController,
+  getTipoUtensilioController,
   getUtensilioController,
   getUtensiliosController,
-  updateUtensilioController,
-  deleteUtensilioController
+  updateTipoUtensilioController,
+  updateUtensilioController
 } from "../controllers/utensilio.controller.js";
 
 const router = Router();

@@ -114,60 +114,80 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
   //en principio con el anterior se deberia arreglar este
 }
 export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
-  let result = {}
-  let inventarioDelTipo = []
-  const { ids } = ids_tipo_ingrediente;
-  const tipo_ingredienteRepositorio = AppDataSource.getRepository(TipoIngrediente);
-  //Por cada tipo de ingrediente mirar el ingrediente
-  for (let i = 0; i < ids.length; i++) {
-    let inventarioDelTipo = [];
-    const id_tipo_ingrediente = ids[i];
-    const tipoIngredienteEncontrado = await tipo_ingredienteRepositorio.findOne({
-      where: { id_tipo_ingrediente: id_tipo_ingrediente }
-    });
-    if (!tipoIngredienteEncontrado) {
-      return [null,
-        "El tipo de ingrediente con id: " + id_tipo_ingrediente + "no existe"]
-    }
-    const ingredientes = await AppDataSource.query(`
+  try {
+    let result = {}
+    let inventarioDelTipo = []
+    const { ids } = ids_tipo_ingrediente;
+    let tipoIngredienteEncontrado = null;
+    const tipo_ingredienteRepositorio = AppDataSource.getRepository(TipoIngrediente);
+    //Por cada tipo de ingrediente mirar el ingrediente
+    for (let i = 0; i < ids.length; i++) {
+      let inventarioDelTipo = [];
+      const id_tipo_ingrediente = ids[i];
+      tipoIngredienteEncontrado = await tipo_ingredienteRepositorio.findOne({
+        where: { id_tipo_ingrediente: id_tipo_ingrediente }
+      });
+      if (!tipoIngredienteEncontrado) {
+        return [null,
+          "El tipo de ingrediente con id: " + id_tipo_ingrediente + "no existe"]
+      }
+      const ingredientes = await AppDataSource.query(`
     SELECT * 
     FROM tipo_ingrediente ti
     INNER JOIN ingrediente i ON i.id_tipo_ingrediente = ti.id_tipo_ingrediente
     INNER JOIN pedido p ON p.id_pedido = i.id_pedido
     WHERE ti.id_tipo_ingrediente = $1
     `, [id_tipo_ingrediente])
-    if (!ingredientes || ingredientes.length == 0) {
-      return [null, "No se encontraron ingredientes asociados a ese tipo"]
-    }
-    //Por cada ingrediente mirar mermas y pedidos
-    for (let i = 0; i < ingredientes.length; i++) {
-      const ingrediente = ingredientes[i];
-      const par_cantidad_fecha_pedido = {
-        fecha: ingrediente.fecha_compra_pedido,
-        cantidad_ingrediente: ingrediente.cantidad_ingrediente
+      console.log("ingredientes");
+      console.log(ingredientes);
+      if (!ingredientes || ingredientes.length == 0) {
+        return [null, "No se encontraron ingredientes asociados a ese tipo"]
       }
-      inventarioDelTipo.push(par_cantidad_fecha_pedido);
-      const listaInfoMermas = await getInfoMermasDeIngrediente(ingrediente.id_ingrediente);
-      //a considerar
-      //push apply es mas eficiente que el operador ...
-      inventarioDelTipo = [...inventarioDelTipo, ...listaInfoMermas];
+      //Por cada ingrediente mirar mermas y pedidos
+      for (let i = 0; i < ingredientes.length; i++) {
+        const ingrediente = ingredientes[i];
+        const par_cantidad_fecha_pedido = {
+          fecha: ingrediente.fecha_compra_pedido,
+          cantidad_ingrediente: ingrediente.cantidad_ingrediente,
+          tipo: "pedido"
+        }
+        inventarioDelTipo.push(par_cantidad_fecha_pedido);
+        //TODO let
+        let listaInfoMermas = await getInfoMermasDeIngrediente(ingrediente.id_ingrediente);
+        //a considerar
+        //push apply es mas eficiente que el operador ...
+        inventarioDelTipo = [...inventarioDelTipo, ...listaInfoMermas];
 
+      }
+      //Mirar comandas
+      const listInfoComandas = await getInfoComandasDeTipoIngrediente(id_tipo_ingrediente);
+      inventarioDelTipo = [...inventarioDelTipo, ...listInfoComandas]
+      //Barajar comandas con pedidos y mermas
+      //TODO que tipo de dato llegan las fechas
+      inventarioDelTipo.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+      if(tipoIngredienteEncontrado == null) {
+        return [null, "Deberia ser imposible llegar aqui; El tipo de ingrediente es nulo"];
+      }
+      //Ahora que tenemos todos los cambios y en orden de fecha calcular el stock total
+      let cantidad_total = 0;
+      for(let i = 0; i < inventarioDelTipo.length; i++) {
+        cantidad_total += inventarioDelTipo[i]["cantidad_ingrediente"];
+        inventarioDelTipo[i]["cantidad_total"] = cantidad_total;
+      }
+      result[tipoIngredienteEncontrado.nombre_tipo_ingrediente] = inventarioDelTipo;
     }
-    //Mirar comandas
-    const listInfoComandas = await getInfoComandasDeTipoIngrediente(ids_tipo_ingrediente);
-    inventarioDelTipo = [...inventarioDelTipo, ...listInfoComandas]
-    //Barajar comandas con pedidos y mermas
-    //TODO que tipo de dato llegan las fechas
-    inventarioDelTipo.sort((a,b) => new Date(a.fecha) - new Date(b.fecha));
-    result[id_tipo_ingrediente] = inventarioDelTipo;
+    return [result, null];
+    /**
+     * Para realizar esta parte nesesito tener claro como se realiza el descuento
+     * de los ingredientes. ¿Deberia existir una relacion entre ingredientes y comandas para
+     * saber cuando se consumio? O solo usar el tipo de ingrediente para ver
+     * que platillos usan ese ingrediente y cuando se consumieron.
+     */
+
+  }catch (error) {
+    console.log(error);
+    return [null, "Error en el service"]
   }
-  return result;
-  /**
-   * Para realizar esta parte nesesito tener claro como se realiza el descuento
-   * de los ingredientes. ¿Deberia existir una relacion entre ingredientes y comandas para
-   * saber cuando se consumio? O solo usar el tipo de ingrediente para ver
-   * que platillos usan ese ingrediente y cuando se consumieron.
-   */
 
 }
 //retorna lista de pares cantidad_fecha_merma en una lista
@@ -176,17 +196,18 @@ async function getInfoMermasDeIngrediente(id_ingrediente) {
   let result = [];
   //TODO: remplazar nombre de merma (relacion cantidad ¿?)
   const mermas = await AppDataSource.query(`
-      SELECT *
-      FROM mermas m
-      INNER JOIN ingrediente_merma_merma um on um."mermaIdMerma" = m.id_merma
-      INNER JOIN ingrediente i ON ingrediente_merma_merma.id_ingrediente = i.ingrediente
+      SELECT m.fecha_merma, im.cantidad_perdida_ingrediente
+      FROM merma m
+      INNER JOIN ingrediente_merma im on im.id_merma = m.id_merma
+      INNER JOIN ingrediente i ON im.id_ingrediente = i.id_ingrediente
       WHERE i.id_ingrediente = $1
       `, [id_ingrediente]);
   for (let i = 0; i < mermas.length; i++) {
     const merma = mermas[i];
     const par_cantidad_fecha_merma = {
       fecha: merma.fecha_merma,
-      cantidad_ingrediente: merma.cantidad_perdida
+      cantidad_ingrediente: -merma.cantidad_perdida_ingrediente,
+      tipo: "merma"
     }
     result.push(par_cantidad_fecha_merma);
   }
@@ -200,28 +221,30 @@ async function getInfoMermasDeIngrediente(id_ingrediente) {
  */
 async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
   let result = [];
+  console.log(id_tipo_ingrediente)
   //Me importa la cantidad de platillos
   //que pasa con cantidad
   const comandas = await AppDataSource.query(`
-    SELECT *
+    SELECT c.fecha_compra_comanda, cc.cantidad_platillo, cp.porcion_ingrediente_platillo
     FROM comanda c
-    INNER JOIN conforma_comanda cc ON c.id_comanda = conforma_comanda.id_comanda
+    INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
     INNER JOIN platillo p ON p.id_platillo = cc.id_platillo
     INNER JOIN compuesto_platillo cp ON cp.id_platillo = p.id_platillo
-    INNER JOIN tipo_ingrediente ti ON ti.id_tipo_platillo = cp.id_tipo_platillo
+    INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = cp.id_tipo_ingrediente
     WHERE ti.id_tipo_ingrediente = $1
     `, [id_tipo_ingrediente])
-    for(let i = 0; i < comandas.length; i++) {
-      const comanda = comandas[i];
-      //Para calcular la cantidad de la comanda se usa
-      //porcion del ingrediente * cantidad de platillos
-      const par_cantidad_fecha_merma = {
-        fecha: comanda.fecha_compra_comanda,
-        cantidad_ingrediente: "¿?"
-      }
-      result.push(par_cantidad_fecha_merma);
+  for (let i = 0; i < comandas.length; i++) {
+    const comanda = comandas[i];
+    //Para calcular la cantidad de la comanda se usa
+    //porcion del ingrediente * cantidad de platillos
+    const par_cantidad_fecha_comanda = {
+      fecha: comanda.fecha_compra_comanda,
+      cantidad_ingrediente: -comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo,
+      tipo: "comanda"
     }
-    return result;
+    result.push(par_cantidad_fecha_comanda);
+  }
+  return result;
 }
 //Para grafico de barras y circular
 //Listo pero sin probar

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 "use strict";
 import { AppDataSource } from "../config/configDb.js";
 import Utensilio from "../entity/utensilio.entity.js";
@@ -73,10 +74,16 @@ export async function createUtensilioService(data) {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
     const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
     try {
-        const { cantidad_utensilio, id_tipo_utensilio } = data;
+        const { cantidad_utensilio, id_tipo_utensilio, costo_utensilio } = data;
         const tipoUtensilio = await tipoUtensilioRepository.findOneBy({ id_tipo_utensilio });
-        if (!tipoUtensilio) return [null, `El tipo de utensilio con ID ${id_tipo_utensilio} no existe`];
-        const newUtensilio = utensilioRepository.create({ cantidad_utensilio, tipo_utensilio: tipoUtensilio });
+        if (!tipoUtensilio) {
+            return [null, `El tipo de utensilio con ID ${id_tipo_utensilio} no existe`];
+        }
+        const newUtensilio = utensilioRepository.create({
+            cantidad_utensilio: cantidad_utensilio, 
+            tipo_utensilio: tipoUtensilio, 
+            costo_utensilio: costo_utensilio
+            });
         await utensilioRepository.save(newUtensilio);
         return [newUtensilio, null];
     } catch (error) {

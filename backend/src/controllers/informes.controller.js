@@ -12,9 +12,11 @@ export async function getStockIngrediente(req, res) {
         const [datos_ingrediente, errorIngrediente] = 
             await getIngredientesDeTipoService(body);
         if(errorIngrediente) {
+            console.log(errorIngrediente)
             return handleErrorClient(res, 400, errorIngrediente.message)
         }
-        return handleSuccess(res, 200, datos_ingrediente);
+        console.log(datos_ingrediente)
+        return handleSuccess(res, 200, "Consulta stock inventarios resuelta con exito", datos_ingrediente);
 
     }catch(error) {
         console.log(error)
