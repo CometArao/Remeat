@@ -40,33 +40,16 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
       return [null, "El utensilio de id: " + id_tipo_utensilio + " no existe"]
     }
 
-    //Se usa "" en una columna cuando el nombre de esa columna tiene que ser *case-sensitive*
-    //AppDataSource.query(`
-    //SELECT *
-    //FROM tipo_utensilio tu
-    //INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
-    //INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
-    //INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
-    //INNER JOIN utensilio_merma_merma um ON um."utensilioIdUtensilio" = u.id_utensilio
-    //INNER JOIN merma m ON um."mermaIdMerma" = m.id_merma
-    //WHERE tu.id_tipo_utensilio = $1;
-    //ORDER BY 
-    //`, [id_tipo_utensilio])
     //Creo que tiene mas sentido consultar los utensilios, despues consultar separadamente los pedidos y las mermas
     const utensilios = await AppDataSource.query(`
       SELECT *
       FROM tipo_utensilio tu
       INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
-      INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
-      INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
+      INNER JOIN pedido p ON p.id_pedido = u.id_pedido
       WHERE tu.id_tipo_utensilio = $1
       ORDER BY p.fecha_entrega_pedido ASC
       `, [id_tipo_utensilio])
-    console.log("id: " + id_tipo_utensilio)
-    console.log("utensilios")
-    console.log(utensilios)
     //TODO: se usa fecha entrega o fecha compra
-    //TODO: comprobar si pedido deberia ser muchos a muchos o no
     //por cada utensilio restarle las mermas a la cantidad
     /*
       Para cada utensilio contar su cantidad menos las mermas de ese ingrediente. Contar por fechas, cada vez que se usa 
@@ -79,27 +62,29 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
       cantidad_total += utensilio.cantidad_utensilio
       const par_cantidad_fecha_pedido = {
         fecha: utensilio.fecha_compra_pedido,
-        cantidad_utensilios: cantidad_total
+        cantidad_utensilio: utensilio.cantidad_utensilio,
+        cantidad_total: cantidad_total
       }
       console.log("par_cantidad_fecha")
       console.log(cantidad_total)
       console.log(par_cantidad_fecha_pedido)
       inventarioDelTipo.push(par_cantidad_fecha_pedido)
       const mermas = await AppDataSource.query(`
-        SELECT *
+        SELECT um.cantidad_perdida_utensilio, m.fecha_merma
         FROM merma m
-        INNER JOIN utensilio_merma_merma um on um."mermaIdMerma" = m.id_merma
-        WHERE um."utensilioIdUtensilio" = $1
+        INNER JOIN utensilio_merma um ON um.id_merma = m.id_merma
+        WHERE um."id_utensilio" = $1
         `, [utensilio["id_utensilio"]])
       console.log("merma");
       console.log(mermas);
       //aqui se añaden las cantidades de las mermas
       for (let i = 0; i < mermas.length; i++) {
         const merma = mermas[i];
-        cantidad_total -= merma.cantidad_perdida;
+        cantidad_total -= merma.cantidad_perdida_utensilio;
         const par_cantidad_fecha_merma = {
           fecha: merma.fecha_merma,
-          cantidad_utensilios: cantidad_total
+          cantidad_utensilio: merma.cantidad_perdida_utensilio,
+          cantidad_total: cantidad_total
         }
         inventarioDelTipo.push(par_cantidad_fecha_merma)
       }
@@ -152,8 +137,7 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
           tipo: "pedido"
         }
         inventarioDelTipo.push(par_cantidad_fecha_pedido);
-        //TODO let
-        let listaInfoMermas = await getInfoMermasDeIngrediente(ingrediente.id_ingrediente);
+        const listaInfoMermas = await getInfoMermasDeIngrediente(ingrediente.id_ingrediente);
         //a considerar
         //push apply es mas eficiente que el operador ...
         inventarioDelTipo = [...inventarioDelTipo, ...listaInfoMermas];
@@ -163,7 +147,6 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
       const listInfoComandas = await getInfoComandasDeTipoIngrediente(id_tipo_ingrediente);
       inventarioDelTipo = [...inventarioDelTipo, ...listInfoComandas]
       //Barajar comandas con pedidos y mermas
-      //TODO que tipo de dato llegan las fechas
       inventarioDelTipo.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
       if(tipoIngredienteEncontrado == null) {
         return [null, "Deberia ser imposible llegar aqui; El tipo de ingrediente es nulo"];

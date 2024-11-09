@@ -34,7 +34,7 @@ const tipo_ingrediente = new EntitySchema({
             },
             onDelete: "SET NULL"
         },
-        //TODO: Como hacer atributos en una relacion
+       
     }
 });
 export default tipo_ingrediente;
