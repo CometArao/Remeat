@@ -52,7 +52,7 @@ async function verificarHorarioLaboral(idUsuario) {
 
 
 
-export async function obtenerComandasConPlatillos() {
+export async function obtenerComandasConPlatillos() { 
   const comandaRepository = AppDataSource.getRepository(Comanda);
 
   const comandas = await comandaRepository
@@ -65,6 +65,7 @@ export async function obtenerComandasConPlatillos() {
       'comanda.fecha_compra_comanda', 
       'conforma.id_platillo', 
       'conforma.cantidad_platillo', // Incluir la cantidad del platillo
+      'conforma.estado_platillo',   // Incluir el estado del platillo
       'usuario.id_usuario', 
       'platillo.nombre_platillo'
     ])
@@ -75,14 +76,15 @@ export async function obtenerComandasConPlatillos() {
   for (const comanda of comandas) {
     try {
       // Verifica el horario laboral del usuario asignado a la comanda
-      //await verificarHorarioLaboral(comanda.usuario_id_usuario);
+      // await verificarHorarioLaboral(comanda.usuario_id_usuario);
       comandasEnHorario.push({
         idComanda: comanda.comanda_id_comanda,
         fecha: format(new Date(comanda.comanda_fecha_compra_comanda), 'yyyy-MM-dd'), // Formato legible de fecha
         tienePlatillos: comanda.conforma_id_platillo !== null,
         cantidad: comanda.conforma_cantidad_platillo, // Agregar cantidad del platillo
         nombrePlatillo: comanda.platillo_nombre_platillo,
-        idPlatillo: comanda.conforma_id_platillo
+        idPlatillo: comanda.conforma_id_platillo,
+        estadoPlatillo: comanda.conforma_estado_platillo // Agregar estado del platillo
       });
     } catch (error) {
       console.log(`Comanda ${comanda.id_comanda} omitida: ${error.message}`);
@@ -95,6 +97,7 @@ export async function obtenerComandasConPlatillos() {
     data: comandasEnHorario
   };
 }
+
 
 
 
