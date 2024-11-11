@@ -148,12 +148,12 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
       inventarioDelTipo = [...inventarioDelTipo, ...listInfoComandas]
       //Barajar comandas con pedidos y mermas
       inventarioDelTipo.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-      if(tipoIngredienteEncontrado == null) {
+      if (tipoIngredienteEncontrado == null) {
         return [null, "Deberia ser imposible llegar aqui; El tipo de ingrediente es nulo"];
       }
       //Ahora que tenemos todos los cambios y en orden de fecha calcular el stock total
       let cantidad_total = 0;
-      for(let i = 0; i < inventarioDelTipo.length; i++) {
+      for (let i = 0; i < inventarioDelTipo.length; i++) {
         cantidad_total += inventarioDelTipo[i]["cantidad_ingrediente"];
         inventarioDelTipo[i]["cantidad_total"] = cantidad_total;
       }
@@ -167,7 +167,7 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
      * que platillos usan ese ingrediente y cuando se consumieron.
      */
 
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     return [null, "Error en el service"]
   }
@@ -208,7 +208,8 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
   //Me importa la cantidad de platillos
   //que pasa con cantidad
   const comandas = await AppDataSource.query(`
-    SELECT c.fecha_compra_comanda, cc.cantidad_platillo, cp.porcion_ingrediente_platillo
+    SELECT c.fecha_compra_comanda, cc.cantidad_platillo, cp.porcion_ingrediente_platillo, 
+      p.precio_platillo
     FROM comanda c
     INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
     INNER JOIN platillo p ON p.id_platillo = cc.id_platillo
@@ -216,6 +217,9 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
     INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = cp.id_tipo_ingrediente
     WHERE ti.id_tipo_ingrediente = $1
     `, [id_tipo_ingrediente])
+  if (!comandas) {
+    return null;
+  }
   for (let i = 0; i < comandas.length; i++) {
     const comanda = comandas[i];
     //Para calcular la cantidad de la comanda se usa
@@ -223,7 +227,7 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
     const par_cantidad_fecha_comanda = {
       fecha: comanda.fecha_compra_comanda,
       cantidad_ingrediente: -comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo,
-      tipo: "comanda"
+      tipo: "comanda",
     }
     result.push(par_cantidad_fecha_comanda);
   }
@@ -512,110 +516,333 @@ export async function getGraficoLinea(dependiente, independiente, ingrediente, p
 //console.log("ventas_platillo: " + result);
 //return [result, null]
 //}
-export async function getIngresosVentasService() {
-  const platillosRepository = AppDataSource.getRepository(Platillo);
-  const platillosEncontrados = await platillosRepository.find();
-
-  if (!platillosEncontrados) {
-    return [null, "El platillo seleccionado no existe"];
+export async function getIngresosVentasService(ids_platillo) {
+  const { ids } = ids_platillo
+  if (!ids) {
+    return [null, "No se enviaron platillos a consultar"];
   }
-
-  console.log(platillosEncontrados);
-
-  let result = {};
-
-  for (let j = 0; j < platillosEncontrados.length; j++) {
-    const id_platillo = platillosEncontrados[j].id_platillo;
-    console.log("id_platillo:", id_platillo);
-
-    // Obtiene todas las comandas asociadas al platillo
+  console.log("ids")
+  console.log(ids)
+  let result = {}
+  const platillosRepository = AppDataSource.getRepository(Platillo);
+  for (let i = 0; i < ids.length; i++) {
+    const id_platillo = ids[i];
+    const platillo = await platillosRepository.findOne({
+      where: { id_platillo: id_platillo }
+    })
+    if (!platillo) {
+      return [null, "El platillo buscado no se encuentra"]
+    }
+    console.log(platillo)
     const comandas_platillo = await AppDataSource.query(`
-          SELECT c.id_comanda, cc.id_platillo, c.fecha_compra_comanda, c.hora_compra_comanda
+          SELECT c.fecha_compra_comanda, c.hora_compra_comanda,
+          cc.cantidad_platillo
           FROM comanda c
           INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
           WHERE cc.id_platillo = $1
       `, [id_platillo]);
 
-    console.log("comandas_platillo:", comandas_platillo);
-
-    // Verificar que existan comandas asociadas al platillo
+    console.log(comandas_platillo)
     if (!comandas_platillo || comandas_platillo.length === 0) {
-      continue; // Si no hay comandas, pasa al siguiente platillo
+      continue;
     }
-
-    // Estructura para almacenar ventas por comanda
-    let cantidadVentasPlatillos = [];
-
-    // Recorre cada comanda para contar las ventas del platillo en esa comanda
+    let cantidadVentasPlatillos = []
     for (let i = 0; i < comandas_platillo.length; i++) {
       const comanda = comandas_platillo[i];
       let dict_ventas_platillo = {
         fecha_compra: comanda.fecha_compra_comanda,
-        hora_compra: comanda.hora_compra_comanda
+        hora_compra: comanda.hora_compra_comanda,
+        cantidad_platillo: comanda.cantidad_platillo,
+        ingresos_platillo: comanda.cantidad_platillo * platillo.precio_platillo
       };
 
-      // Contar la cantidad de veces que el platillo fue vendido en esta comanda
-      const ventas_platillo_result = await AppDataSource.query(`
-              SELECT COUNT(1) as count 
-              FROM conforma_comanda
-              WHERE id_comanda = $1 AND id_platillo = $2
-          `, [comanda.id_comanda, id_platillo]);
-
-      dict_ventas_platillo["cantidad_ventas"] = ventas_platillo_result[0].count;
       cantidadVentasPlatillos.push(dict_ventas_platillo);
     }
 
-    result[id_platillo] = {
-      platillo: id_platillo,
+    result[platillo.nombre_platillo] = {
       ventas_por_comanda: cantidadVentasPlatillos
     };
-  }
 
-  console.log("ventas_platillo:", result);
+  }
   return [result, null];
 }
-//para despues del miercoles
-export async function getCostos() {
-  /**
-   * Resultado = [
-   *  {
-   *    comandas: {
-      *    comanda: {
-      *      costo: costo_comanda
-      *      fecha_compra: fecha
-   *      }
-    *    mermas: {
-    *       mermas: {
-    *         tipo: "ingrediente"/"utensilio"
-    *         costo_por_merma
-    *         fecha_merma: fecha
-    *       }
-    *    }
-    *    
-   *    }
-   *  }
-   * ]
-   * 
-   * 
-   * 
-   */
-  comandas = AppDataSource.query(`
+
+/**
+ 
+  result = {
+    "nombre_tipo_ingrediente": [
+      {
+        costo: costo_de_evento
+        tipo: merma o comanda
+      }
+    "nombre_tipo_utensilio": [
+      {
+        costo: costo_de_vento
+        tipo: merma 
+      }
+      "Quizas total ¿?"
+    ]
+    
+    ]
+  }
+  
+ */
+export async function getCostosService(body) {
+  const tipo_ingredienteRepositorio = AppDataSource.getRepository(TipoIngrediente)
+  const tipo_utensilioRepositorio = AppDataSource.getRepository(TipoUtensilio)
+  const { ids_ti, ids_tu } = body;
+  const [comandas, errorComandas] = await ExtraerComandas();
+  if (errorComandas) {
+    return [null, "Error en extraer comandas"]
+  }
+  console.log(comandas)
+  const [pedidos, errorPedidos] = await ExtraerPedido();
+  if (errorPedidos) {
+    return [null, "Error en extraer Pedidos"]
+  }
+  console.log("comandas")
+  console.log(comandas)
+  console.log("pedidos")
+  console.log(pedidos)
+  //TODO: Si FIFO ya fue calculado una vez no calcularlo denuevo
+  //a menos que se especifique (ej: un boton recalcular)
+  const costos_en_comandas = costoFIFO(comandas, pedidos);
+  console.log("costos")
+  console.log(costos);
+  return [null, "en construccion"];
+}
+//TODO: Como se que ingrediente pertenece a que comanda, solo asi puedo saber
+//el costo por ingrediente
+//Solucion parcial: 1. No hacer costos por ingrediente
+//2. Usar costo promedio.
+
+/**
+ descripcion: Calcula el costo de las comandas describiendo cuanto costo cada ingrediente
+ usado por unidad y su costo total. Entonces se calcula el costo de todas las comandas y solo 
+ entonces se separa.
+ comandas: Una lista de todas las comandas
+ ingrediente: Lista de ingredientes y pedidos ordenados de forma ascendente
+ este deberia tener la forma
+ ingredientes: {
+  id_pedido: {
+    fecha: fecha
+
+  }
+ }
+  //si hago un join pedido->ingrediente->tipo_ingrediente
+  //y luego guardo un indice por ingrediente
+ retorna: 
+ result = {
+  id_comanda: {
+    fecha: fecha_comanda,
+    hora: hora_comanda
+    ingrediente: {
+      costo_unitario: x
+      unidades: y
+      costo_total: x * y
+    }...(otros ingredientes)
+  }
+ }
+ */
+/*
+    SELECT c.fecha_compra_comanda, cc.cantidad_platillo, cp.porcion_ingrediente_platillo, 
+      p.precio_platillo
+*/
+//Crear comandas para costoFIFO
+async function ExtraerComandas() {
+  //console.log("extraer comandas");
+  let result = []
+  let ingredientes = {}
+  //buscar todas las comandas
+  const comandas = await AppDataSource.query(`
+  SELECT c.id_comanda, c.fecha_compra_comanda, c.hora_compra_comanda, c.estado_comanda
+  FROM comanda c 
+  `)
+  if (!comandas || comandas.lenght === 0) {
+    return [null, "No hay comandas"];
+  }
+  //por cada comanda buscar los platillos para ver que ingredientes usa la comanda
+  for (let i = 0; i < comandas.length; i++) {
+    const comanda = comandas[i];
+    //Se agregan los datos de la comanda al diccionario de la comanda
+    let comanda_diccionario = {}
+    comanda_diccionario["id_comanda"] = comanda.id_comanda
+    comanda_diccionario["fecha_compra_comanda"] = comanda.fecha_compra_comanda;
+    comanda_diccionario["hora_compra_comanda"] = comanda.hora_compra_comanda;
+    comanda_diccionario["estado_comanda"] = comanda.estado_comanda;
+    const platillos = await AppDataSource.query(`
     SELECT *
-    FROM comanda c
-    INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
-    INNER JOIN 
-    `)
+    FROM platillo p
+    INNER JOIN conforma_comanda cc ON cc.id_platillo = p.id_platillo   
+    WHERE cc.id_comanda = $1
+    `, [comanda.id_comanda])
+    if (!platillos || platillos.length === 0) {
+      return [null, "No existen platillos para la comanda; Esto deberia ser imposible"];
+    }
+    for (let ii = 0; ii < platillos.length; ii++) {
+      const platillo = platillos[ii];
+      //console.log(platillo)
+      //ver que ingredientes usa el platillo para realizar la cuenta.
+      //Se hacen en consultas separadas para que no queden multiples fillas del mismo plato
+      const ingredientes_platillo = await AppDataSource.query(`
+      SELECT *
+      FROM compuesto_platillo cp
+      INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = cp.id_tipo_ingrediente
+      WHERE cp.id_platillo = $1
+      `, [platillo.id_platillo])
+      if (!ingredientes_platillo || ingredientes_platillo.length === 0) {
+        return [null, "El platillo no tiene ingredientes; Esto deberia ser imposible"];
+      }
+      //En base a la informacion anterior se crea agregan elementos a el
+      //diccionario de ingredientes tal que ingredientes se vea:
+      /* ingredientes = {
 
-
+        }
+      */
+      for (let iii = 0; iii < ingredientes_platillo.length; iii++) {
+        const tipo_ingrediente = ingredientes_platillo[iii];
+        let elemento;
+        const costo_platillo =
+          tipo_ingrediente.porcion_ingrediente_platillo * platillo.cantidad_platillo
+        if (!ingredientes[tipo_ingrediente.nombre_tipo_ingrediente]) {
+          elemento = {};
+          elemento["cantidad"] = costo_platillo
+          ingredientes[tipo_ingrediente.nombre_tipo_ingrediente] = elemento;
+        } else {
+          elemento = ingrediente[tipo_ingrediente.nombre_tipo_ingrediente]
+          elemento["cantidad"] += costo_platillo
+        }
+      }
+    }
+    comanda_diccionario["ingredientes"] = ingredientes;
+    result.push(comanda_diccionario)
+  }
+  return [result, null];
 }
 
+async function ExtraerPedido() {
+  let result = []
+  const pedidos = await AppDataSource.query(`
+  SELECT p.id_pedido, p.fecha_compra_pedido
+  FROM pedido p
+  `);
+  if (!pedidos || pedidos.length === 0) {
+    return [null, "No hay pedidos"]
+  }
+  console.log(pedidos)
+  for (let i = 0; i < pedidos.length; i++) {
+    const pedido = pedidos[i];
+    console.log("pedido")
+    console.log(pedido);
+    //Aqui se guarda la informacion del pedido que luego se envia
+    let pedido_diccionario = {}
+    pedido_diccionario["fecha_compra"] = pedido.fecha_compra_pedido
+    const ingredientes_de_pedido = await AppDataSource.query(`
+    SELECT *
+    FROM ingrediente i
+    INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = i.id_tipo_ingrediente
+    WHERE i.id_pedido = $1
+    `, [pedido.id_pedido])
+    console.log(ingredientes_de_pedido)
+    if (!ingredientes_de_pedido || ingredientes_de_pedido.length === 0) {
+      //Seguir con el proximo pedido
+      continue;
+    }
+    console.log("ingredientes pedido")
+    console.log(ingredientes_de_pedido)
+    let ingredientes = {}
+    //TODO: para cada pedido ¿solo una tabla de ingredientes por tipo?
+    for (let ii = 0; ii < ingredientes_de_pedido.length; ii++) {
+      const ingrediente_pedido = ingredientes_de_pedido[ii];
+      let ingrediente = {}
+      ingrediente["cantidad"] = ingrediente_pedido.cantidad_ingrediente;
+      ingrediente["costo_unitario"] = ingrediente_pedido.costo_ingrediente;
+      ingrediente["costo_total"] =
+        ingrediente_pedido.costo_ingrediente * ingrediente_pedido.cantidad_ingrediente;
+      ingredientes[ingrediente_pedido.nombre_tipo_ingrediente] = ingrediente;
+    }
+    pedido_diccionario["ingredientes"] = ingredientes;
+    result.push(pedido_diccionario)
+  }
+  return [result, null];
+}
+function costoFIFO(comandas, pedidos) {
+  let indices = {}
+  console.log("costo FIFO")
+  console.log(comandas)
+  console.log(pedidos)
+  for (let i = 0; i < comandas.length; i++) {
+    const comanda = comandas[i];
+    console.log(comanda)
+    const ingredientes_keys = Object.keys(comanda.ingredientes);
+    for (let ii = 0; ii < ingredientes_keys.length; ii++) {
+      //console.log("descontar pedidos")
+      descontarPedidos(comanda.ingredientes[ingredientes_keys[ii]], ingredientes_keys[ii], indices, pedidos);
+    }
+  }
+  return comandas
+}
+/*
+  Descuenta el ingrediente teniendo en cuenta los pedidos, a los cuales 
+  se accede con un diccionario de indices para evitar una busqueda lineal
+  cada vez que miro se revisa una comanda nueva
+*/
+function descontarPedidos(ingrediente, tipo_ingrediente, indices, pedidos) {
+  if (!ingrediente.consumido) {
+    ingrediente.consumido = 0;
+    ingrediente.costo_total = 0;
+    ingrediente.costo_unitario = 0;
+  }
+  //console.log(pedidos)
+  if (!indices[tipo_ingrediente]) {
+    indices[tipo_ingrediente] = 0
+  }
+  //console.log(indices[tipo_ingrediente])
+  while (ingrediente.consumido < ingrediente.cantidad) {
+    const rc = descontarIngredientePedido(ingrediente,
+      pedidos[indices[tipo_ingrediente]]["ingredientes"][tipo_ingrediente])
+    if (rc == 1) {
+      indices[tipo_ingrediente]++;
+    }
+  }
+  //calcular costo unitario
+  ingrediente.costo_unitario = ingrediente.costo_total / ingrediente.cantidad;
+}
+/*
+  Cambia los objetos ingrediente y ingrediente_pedido segun corresponda
+  Se descuentan los ingredientes
 
-//inventario actual
-//`
-//SELECT *
-//FROM comanda c
-//INNER JOIN conforma comanda cc
-//INNER JOIN platillo p
-//INNER JOIN tipo_ingrediente ti
-//INNER JOIN 
-//`
+  retorna 1 si se tiene que cambiar el ingrediente_pedido y 0 si no
+*/
+function descontarIngredientePedido(ingrediente, ingrediente_pedido) {
+  if (!ingrediente.consumido) {
+    ingrediente_pedido.consumido = 0;
+  }
+  console.log("input")
+  console.log(ingrediente)
+  console.log(ingrediente_pedido)
+  if (ingrediente_pedido === null) {
+    console.log("output")
+    console.log(ingrediente)
+    console.log(ingrediente_pedido)
+    return 1;
+  }
+  if ((ingrediente_pedido.cantidad - ingrediente_pedido.consumido) <= ingrediente.cantidad) {
+    ingrediente_pedido.consumido = ingrediente_pedido.cantidad;//Se consume todo
+    ingrediente.consumido += ingrediente_pedido.cantidad; //Queda por descontar una cantidad menor
+    ingrediente.costo_total += ingrediente_pedido.costo_total //se usa total porque se consume todo
+    console.log("output")
+    console.log(ingrediente)
+    console.log(ingrediente_pedido)
+    return 1;
+  } else {//Caso los ingredientes que quedan en este pedido son mas que los de la comanda
+    const cantidad_consumir = ingrediente.cantidad - ingrediente.consumido;
+    ingrediente_pedido.consumido += cantidad_consumir; //se consume toda la cantidad
+    ingrediente.consumido = cantidad_consumir;//No queda por descontar
+    ingrediente.costo_total += cantidad_consumir * ingrediente_pedido.costo_unitario;
+    console.log("output")
+    console.log(ingrediente)
+    console.log(ingrediente_pedido)
+    return 0;
+  }
+}

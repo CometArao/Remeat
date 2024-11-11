@@ -1,6 +1,6 @@
 "use strict";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { getIngredientesDeTipoService, getIngresosVentasService, getMenuPlatilloService, 
+import { getCostosService, getIngredientesDeTipoService, getIngresosVentasService, getMenuPlatilloService, 
     getUtensiliosDeTipoService, getVentasPlatilloService } from "../services/graph.service.js"
 import { tipo_utensilioQueryValidation, tipo_utensilioValidation, 
     utensilioQueryValidation, utensilioValidation } from "../validations/utensilio.validation.js"
@@ -49,7 +49,8 @@ export async function getStockUtensilio(req, res) {
 export async function getIngresosPorVentas(req, res) {
     console.log("getIngresosPorVentas()")
     try {
-        const [ingresos_ventas, error] = await getIngresosVentasService();
+        const { body } = req;
+        const [ingresos_ventas, error] = await getIngresosVentasService(body);
         if (error) return handleErrorClient(res, 404, error);
 
         console.log(ingresos_ventas)
@@ -76,6 +77,20 @@ export async function getPlatillosMenu(req, res) {
     //consigue una lista de platillos y su relacion con el menu
     try {
         const [menu_platillos, error] = await getMenuPlatilloService();
+        if (error) {
+            console.log(error)
+            return handleErrorClient(res, 404, error);
+        } 
+        return handleSuccess(res, 200, "menu platillo obtenido exitosamente", menu_platillos);
+    } catch (error) {
+        console.log(error)
+        return handleErrorServer(res, 500, error.message);
+    }
+}
+export async function getCostos(req, res) {
+    try {
+        const { body } = req;
+        const [costos, error] = await getCostosService(body);
         if (error) {
             console.log(error)
             return handleErrorClient(res, 404, error);
