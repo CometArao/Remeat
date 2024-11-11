@@ -51,6 +51,16 @@ export const addPlatilloToComandaValidation = Joi.object({
     .default("pendiente")
     .messages({
       "any.only": "El estado debe ser 'pendiente', 'preparando' o 'completado'."
+    }),
+  cantidad: Joi.number()
+    .integer()
+    .positive()
+    .required()
+    .messages({
+      "number.base": "La cantidad debe ser un número.",
+      "number.integer": "La cantidad debe ser un número entero.",
+      "number.positive": "La cantidad debe ser un número positivo.",
+      "any.required": "La cantidad es obligatoria."
     })
 });
 

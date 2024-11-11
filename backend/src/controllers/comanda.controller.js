@@ -21,12 +21,13 @@ import {
 
 export async function getComandasConPlatillosController(req, res) {
   try {
-      const comandas = await obtenerComandasConPlatillos();
-      handleSuccess(res, 200, 'Comandas obtenidas con estado de platillos', comandas);
+      const respuesta = await obtenerComandasConPlatillos();
+      handleSuccess(res, 200, 'Comandas obtenidas con estado de platillos', respuesta.data); // Usa respuesta.data
   } catch (error) {
       handleErrorServer(res, 500, error.message);
   }
 }
+
 
 
 

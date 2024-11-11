@@ -5,6 +5,7 @@ import Platillo from '../entity/platillo.entity.js';
 import ConformaComanda from '../entity/conforma_comanda.entity.js';
 import HorarioLaboral from '../entity/horario_laboral.entity.js';
 import { AppDataSource } from '../config/configDb.js';
+import { format } from 'date-fns';
 
 /*
 async function verificarHorarioLaboral(idUsuario) {
@@ -50,6 +51,7 @@ async function verificarHorarioLaboral(idUsuario) {
 */
 
 
+
 export async function obtenerComandasConPlatillos() {
   const comandaRepository = AppDataSource.getRepository(Comanda);
 
@@ -57,7 +59,15 @@ export async function obtenerComandasConPlatillos() {
     .createQueryBuilder('comanda')
     .leftJoinAndSelect(ConformaComanda, 'conforma', 'conforma.id_comanda = comanda.id_comanda')
     .leftJoinAndSelect('comanda.usuario', 'usuario') // Incluimos la relación del usuario
-    .select(['comanda.id_comanda', 'comanda.fecha_compra_comanda', 'conforma.id_platillo', 'usuario.id_usuario'])
+    .leftJoinAndSelect(Platillo, 'platillo', 'conforma.id_platillo = platillo.id_platillo') // Agregar la relación con platillo
+    .select([
+      'comanda.id_comanda', 
+      'comanda.fecha_compra_comanda', 
+      'conforma.id_platillo', 
+      'conforma.cantidad_platillo', // Incluir la cantidad del platillo
+      'usuario.id_usuario', 
+      'platillo.nombre_platillo'
+    ])
     .getRawMany();
 
   const comandasEnHorario = [];
@@ -67,17 +77,26 @@ export async function obtenerComandasConPlatillos() {
       // Verifica el horario laboral del usuario asignado a la comanda
       //await verificarHorarioLaboral(comanda.usuario_id_usuario);
       comandasEnHorario.push({
-        id: comanda.comanda_id_comanda,
-        fecha: comanda.comanda_fecha_compra_comanda,
-        tienePlatillos: comanda.conforma_id_platillo !== null
+        idComanda: comanda.comanda_id_comanda,
+        fecha: format(new Date(comanda.comanda_fecha_compra_comanda), 'yyyy-MM-dd'), // Formato legible de fecha
+        tienePlatillos: comanda.conforma_id_platillo !== null,
+        cantidad: comanda.conforma_cantidad_platillo, // Agregar cantidad del platillo
+        nombrePlatillo: comanda.platillo_nombre_platillo,
+        idPlatillo: comanda.conforma_id_platillo
       });
     } catch (error) {
       console.log(`Comanda ${comanda.id_comanda} omitida: ${error.message}`);
     }
   }
 
-  return comandasEnHorario;
+  return {
+    status: "Success",
+    message: "Comandas obtenidas con estado de platillos",
+    data: comandasEnHorario
+  };
 }
+
+
 
 
 export async function addPlatilloToComanda(comandaId, platilloData) {
@@ -101,11 +120,15 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
     comanda: comanda,
     platillo: platillo,
     estado_platillo: platilloData.estado || 'pendiente',
+    cantidad_platillo: platilloData.cantidad || 1 // Default a 1 si no se especifica cantidad
   });
 
   await conformaRepository.save(newConforma);
   return newConforma;
 }
+
+
+
 
 
 // Función para crear una comanda
