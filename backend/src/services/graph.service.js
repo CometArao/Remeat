@@ -600,16 +600,81 @@ export async function getCostosService(body) {
   if (errorPedidos) {
     return [null, "Error en extraer Pedidos"]
   }
-  console.log("comandas")
-  console.log(comandas)
-  console.log("pedidos")
-  console.log(pedidos)
   //TODO: Si FIFO ya fue calculado una vez no calcularlo denuevo
   //a menos que se especifique (ej: un boton recalcular)
-  const costos_en_comandas = costoFIFO(comandas, pedidos);
+  const CostoComanda = costoFIFO(comandas, pedidos);
   console.log("costos")
-  console.log(costos);
-  return [null, "en construccion"];
+  console.log(CostoComanda);
+  console.log("ids_ti")
+  console.log(ids_ti)
+  CalcularCostoVentaDeComandasEnBaseAFiltro(ids_ti, CostoComanda)
+  //TODO: calcular utensilios y mermas
+
+  return [CostoComanda, null];
+}
+/*
+mermas = {
+  id_merma
+  fecha_merma
+  utensilios: {
+
+  }
+}
+*/
+//Opcion 1 extraer todas las mermas con un diccionario de utensilios
+//y al momento de ver la consulta solo tener en cuenta los utensilios seleccionados
+//Opcion 2 extraer los tipos de utensilios seleccionados y ver las mermas de ese tipo
+
+async function getMermasDelTipo(id_tipo_utensilio) {
+  //get Mermas, ordenadas
+  mermas_del_tipo_utensilio = AppDataSource.query(`
+  SELECT *
+  FROM tipo_utensilio tu
+  INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio
+  INNER JOIN utensilio_merma um ON um.id_merma = u.id_utensilio
+  INNER JOIN merma m ON um.id_merma = m.id_merma
+  `)
+
+}
+/**
+ CostoEnComandas {
+    id_comanda: 1,
+    fecha_compra_comanda: 2024-11-20T03:00:00.000Z,
+    hora_compra_comanda: '14:00:00',
+    estado_comanda: 'pendiente',
+    ingredientes: { zanahoria: {
+      costo_total: ,
+      costo_unitario:,
+      cantidad_ingrediente:, 
+    } }
+ }
+ */
+//Modifica el diccionario CostoEnComandas agregando el costo de la comanda
+//pero solo de los tipos de ingredientes seleccionados anteriormente
+function CalcularCostoVentaDeComandasEnBaseAFiltro(ids_ti, CostoEnComandas) {
+  //TODO: validationQuery
+  //TODO: agregar calculo de ventas al costo FIFO
+  for(let i = 0; i < CostoEnComandas.length; i++) {
+    const CostoComanda = CostoEnComandas[i];
+    const ingredientes = CostoComanda.ingredientes;
+    const costo_de_comanda = CalcularCostoVentaDeComanda(ids_ti, ingredientes);
+    console.log("costo_de_comanda")
+    console.log(costo_de_comanda)
+    CostoComanda.costo_comanda = costo_de_comanda;
+  }
+}
+
+//TODO: prueba unitaria
+function CalcularCostoVentaDeComanda(ids_ti, ingredientes) {
+  //iterar por claves
+  let costo_comanda_de_ingredientes_seleccionados = 0;
+  for(let i = 0; i < ids_ti.length; i++) {
+    const id_tipo_ingrediente = ids_ti[i];
+    if(ingredientes[id_tipo_ingrediente]) {
+      costo_comanda_de_ingredientes_seleccionados += ingredientes[id_tipo_ingrediente].costo_total
+    }
+  }
+  return costo_comanda_de_ingredientes_seleccionados;
 }
 //TODO: Como se que ingrediente pertenece a que comanda, solo asi puedo saber
 //el costo por ingrediente
@@ -704,12 +769,12 @@ async function ExtraerComandas() {
         let elemento;
         const costo_platillo =
           tipo_ingrediente.porcion_ingrediente_platillo * platillo.cantidad_platillo
-        if (!ingredientes[tipo_ingrediente.nombre_tipo_ingrediente]) {
+        if (!ingredientes[tipo_ingrediente.id_tipo_ingrediente]) {
           elemento = {};
           elemento["cantidad"] = costo_platillo
-          ingredientes[tipo_ingrediente.nombre_tipo_ingrediente] = elemento;
+          ingredientes[tipo_ingrediente.id_tipo_ingrediente] = elemento;
         } else {
-          elemento = ingrediente[tipo_ingrediente.nombre_tipo_ingrediente]
+          elemento = ingrediente[tipo_ingrediente.id_tipo_ingrediente]
           elemento["cantidad"] += costo_platillo
         }
       }
@@ -759,13 +824,14 @@ async function ExtraerPedido() {
       ingrediente["costo_unitario"] = ingrediente_pedido.costo_ingrediente;
       ingrediente["costo_total"] =
         ingrediente_pedido.costo_ingrediente * ingrediente_pedido.cantidad_ingrediente;
-      ingredientes[ingrediente_pedido.nombre_tipo_ingrediente] = ingrediente;
+      ingredientes[ingrediente_pedido.id_tipo_ingrediente] = ingrediente;
     }
     pedido_diccionario["ingredientes"] = ingredientes;
     result.push(pedido_diccionario)
   }
   return [result, null];
 }
+//TODO: test unitario
 function costoFIFO(comandas, pedidos) {
   let indices = {}
   console.log("costo FIFO")
@@ -787,22 +853,27 @@ function costoFIFO(comandas, pedidos) {
   se accede con un diccionario de indices para evitar una busqueda lineal
   cada vez que miro se revisa una comanda nueva
 */
-function descontarPedidos(ingrediente, tipo_ingrediente, indices, pedidos) {
+//TODO: test unitario
+function descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos) {
+  console.log("ingrediente")
+  console.log(ingrediente)
+  console.log("pedidos")
+  console.log(pedidos)
   if (!ingrediente.consumido) {
     ingrediente.consumido = 0;
     ingrediente.costo_total = 0;
     ingrediente.costo_unitario = 0;
   }
   //console.log(pedidos)
-  if (!indices[tipo_ingrediente]) {
-    indices[tipo_ingrediente] = 0
+  if (!indices[id_tipo_ingrediente]) {
+    indices[id_tipo_ingrediente] = 0
   }
   //console.log(indices[tipo_ingrediente])
   while (ingrediente.consumido < ingrediente.cantidad) {
     const rc = descontarIngredientePedido(ingrediente,
-      pedidos[indices[tipo_ingrediente]]["ingredientes"][tipo_ingrediente])
+      pedidos[indices[id_tipo_ingrediente]]["ingredientes"][id_tipo_ingrediente])
     if (rc == 1) {
-      indices[tipo_ingrediente]++;
+      indices[id_tipo_ingrediente]++;
     }
   }
   //calcular costo unitario
@@ -814,9 +885,12 @@ function descontarPedidos(ingrediente, tipo_ingrediente, indices, pedidos) {
 
   retorna 1 si se tiene que cambiar el ingrediente_pedido y 0 si no
 */
+//TODO: test unitario
 function descontarIngredientePedido(ingrediente, ingrediente_pedido) {
+  console.log("ingrediente pedido")
+  console.log(ingrediente_pedido)
   if (!ingrediente.consumido) {
-    ingrediente_pedido.consumido = 0;
+    ingrediente_pedido["consumido"] = 0;
   }
   console.log("input")
   console.log(ingrediente)

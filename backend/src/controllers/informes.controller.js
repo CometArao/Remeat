@@ -95,7 +95,7 @@ export async function getCostos(req, res) {
             console.log(error)
             return handleErrorClient(res, 404, error);
         } 
-        return handleSuccess(res, 200, "menu platillo obtenido exitosamente", menu_platillos);
+        return handleSuccess(res, 200, "menu platillo obtenido exitosamente", costos);
     } catch (error) {
         console.log(error)
         return handleErrorServer(res, 500, error.message);
