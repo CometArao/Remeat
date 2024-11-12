@@ -22,15 +22,38 @@ import{
 }
 from "../handlers/responseHandlers.js";
 
+
+
+/**
+ * 
+ * @param {Object} req 
+ * @param {Object} res 
+ */
 export async function getMenuQRCodeController(req, res) {
     try {
-      const qrCode = await generateMenuQRCode();
-      // eslint-disable-next-line quotes
-      handleSuccess(res, 200, 'QR del menú generado exitosamente', { qrCode });
+      // Obtenemos el menú del día (o el primer menú disponible)
+      const [menus, errorMenus] = await getMenusService();
+  
+      if (errorMenus || menus.length === 0) {
+        return handleErrorServer(res, 404, "No se encontró el menú del día");
+      }
+  
+      const menuDelDia = menus[0]; // Tomamos el primer menú como el menú del día
+  
+      // Generamos el código QR solo con la información de los platillos
+      const qrCode = await generateMenuQRCode(menuDelDia);
+  
+      // Enviamos el código QR como respuesta
+      handleSuccess(res, 200, "QR de los platillos del menú generado exitosamente", { qrCode });
     } catch (error) {
       handleErrorServer(res, 500, error.message);
     }
   }
+
+
+
+
+
 
 export async function createMenuController(req, res) {
     try {
