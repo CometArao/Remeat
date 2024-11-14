@@ -1,12 +1,12 @@
 "use strict";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { getCostosService, getIngredientesDeTipoService, getIngresosVentasService, getMenuPlatilloService, 
-    getUtensiliosDeTipoService, getVentasPlatilloService } from "../services/graph.service.js"
+import { getIngredientesDeTipoService, getIngresosVentasService, getMenuPlatilloService, 
+    getUtensiliosDeTipoService, getVentasPlatilloService } from "../services/informes.service.js"
+import { getCostosService } from "../services/costo.service.js";
 import { tipo_utensilioQueryValidation, tipo_utensilioValidation, 
     utensilioQueryValidation, utensilioValidation } from "../validations/utensilio.validation.js"
 
 export async function getStockIngrediente(req, res) {
-    console.log("getStockIngredientes");
     const { body } = req;
     try {
         const [datos_ingrediente, errorIngrediente] = 
@@ -26,7 +26,6 @@ export async function getStockIngrediente(req, res) {
 
 
 export async function getStockUtensilio(req, res) {
-    console.log("stock utensilio")
     const { body } = req
     console.log(body)
     try {
@@ -37,8 +36,6 @@ export async function getStockUtensilio(req, res) {
         //}
         const [datos_utensilios, errorTipoUtensilio] =
             await getUtensiliosDeTipoService(body);
-        console.log("datos_utensilio")
-        console.log(datos_utensilios);
         return handleSuccess(res, 201, "Datos stock utensilio consultados exitosamente", datos_utensilios)
     } catch (error) {
         console.log(error)
@@ -47,7 +44,6 @@ export async function getStockUtensilio(req, res) {
 }
 
 export async function getIngresosPorVentas(req, res) {
-    console.log("getIngresosPorVentas()")
     try {
         const { body } = req;
         const [ingresos_ventas, error] = await getIngresosVentasService(body);
