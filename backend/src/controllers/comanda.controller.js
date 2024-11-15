@@ -11,12 +11,18 @@ import {
 } from '../services/comanda.service.js';
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
 
+import {
+  createComandaValidation,
+  addPlatilloToComandaValidation,
+  updateComandaValidation
+} from '../validations/comanda.validation.js';
+
 
 
 export async function getComandasConPlatillosController(req, res) {
   try {
-      const comandas = await obtenerComandasConPlatillos();
-      handleSuccess(res, 200, 'Comandas obtenidas con estado de platillos', comandas);
+      const respuesta = await obtenerComandasConPlatillos();
+      handleSuccess(res, 200, 'Comandas obtenidas con estado de platillos', respuesta.data); // Usa respuesta.data
   } catch (error) {
       handleErrorServer(res, 500, error.message);
   }
@@ -25,12 +31,14 @@ export async function getComandasConPlatillosController(req, res) {
 
 
 
-export async function addPlatilloToComandaController(req, res) {
-  const comandaId = req.params.id;
-  const platilloData = req.body;
 
+export async function addPlatilloToComandaController(req, res) {
+  const { error } = addPlatilloToComandaValidation.validate(req.body);
+  if (error) return handleErrorClient(res, 400, error.details[0].message);
+
+  const comandaId = req.params.id;
   try {
-    const addedPlatillo = await addPlatilloToComanda(comandaId, platilloData);
+    const addedPlatillo = await addPlatilloToComanda(comandaId, req.body);
     handleSuccess(res, 201, 'Platillo añadido a la comanda', addedPlatillo);
   } catch (error) {
     if (error.message.includes('no encontrado')) {
@@ -43,15 +51,20 @@ export async function addPlatilloToComandaController(req, res) {
 
 
 export async function createComandaController(req, res) {
-  const data = req.body;
+  const { error } = createComandaValidation.validate(req.body);
+  if (error) return handleErrorClient(res, 400, error.details[0].message);
 
   try {
-      const newComanda = await createComanda(data);
-      handleSuccess(res, 201, 'Comanda creada', newComanda);
+    const newComanda = await createComanda(req.body);
+    handleSuccess(res, 201, 'Comanda creada', newComanda);
   } catch (error) {
-      handleErrorServer(res, 500, error.message);
+    handleErrorServer(res, 500, error.message);
   }
 }
+
+
+
+
 
 export async function getAllComandasController(req, res) {
   try {
@@ -77,15 +90,18 @@ export async function getComandaByIdController(req, res) {
   }
 }
 
-export async function updateComandaController(req, res) {
-  const comandaId = req.params.id;
-  const data = req.body;
 
+
+export async function updateComandaController(req, res) {
+  const { error } = updateComandaValidation.validate(req.body);
+  if (error) return handleErrorClient(res, 400, error.details[0].message);
+
+  const comandaId = req.params.id;
   try {
-      const updatedComanda = await updateComanda(comandaId, data);
-      handleSuccess(res, 200, 'Comanda actualizada', updatedComanda);
+    const updatedComanda = await updateComanda(comandaId, req.body);
+    handleSuccess(res, 200, 'Comanda actualizada', updatedComanda);
   } catch (error) {
-      handleErrorClient(res, 400, error.message);
+    handleErrorClient(res, 400, error.message);
   }
 }
 
