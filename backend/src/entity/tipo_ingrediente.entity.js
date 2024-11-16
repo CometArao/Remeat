@@ -14,7 +14,8 @@ const tipo_ingrediente = new EntitySchema({
         nombre_tipo_ingrediente: {
             type: "varchar",
             length: "255",
-            nullable: false
+            nullable: false,
+            unique: true
         },
         cantidad_alerta_tipo_ingrediente: {
             type: "int",
@@ -34,7 +35,7 @@ const tipo_ingrediente = new EntitySchema({
             },
             onDelete: "SET NULL"
         },
-        //TODO: Como hacer atributos en una relacion
+       
     }
 });
 export default tipo_ingrediente;
