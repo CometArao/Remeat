@@ -1,11 +1,6 @@
 "use strict"
-<<<<<<< HEAD
 import { EntitySchema, JoinColumn } from "typeorm";
 
-=======
-import { EntitySchema } from "typeorm";
-import usuario from "./usuario.entity.js"
->>>>>>> origin/main
 
 const ingrediente = new EntitySchema({
     name:"ingrediente",
