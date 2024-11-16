@@ -6,10 +6,38 @@ import Usuario from "../entity/usuario.entity.js";
 
 import QRCode from "qrcode";
 
-export async function generateMenuQRCode() {
-  const menuUrl = `${process.env.BASE_URL}/menu`;
-  return QRCode.toDataURL(menuUrl);
-}
+
+
+/**
+ * 
+ * @param {Object} menuData 
+ * @returns {Promise<string>} 
+ */
+export async function generateMenuQRCode(menuData) {
+    // Extraemos solo la información de los platillos
+    const platillosData = menuData.platillo.map(platillo => ({
+      nombre_platillo: platillo.nombre_platillo,
+      precio_platillo: platillo.precio_platillo,
+      disponible: platillo.disponible
+    }));
+  
+    const dataString = JSON.stringify({ platillos: platillosData });
+  
+    try {
+      // Generamos el código QR
+      const qrCode = await QRCode.toDataURL(dataString);
+      return qrCode; // Devolvemos el código QR en formato Base64
+    } catch (error) {
+      console.error("Error generando el QR del menú:", error);
+      throw new Error("Error al generar el código QR del menú");
+    }
+  }
+
+
+
+
+
+
 
 export async function createMenuService(data) {
     const menuRepository = AppDataSource.getRepository(Menu);
@@ -43,6 +71,10 @@ export async function createMenuService(data) {
         return [null, error.message];
     }
 }
+
+
+
+
 export async function getMenusService() {
     try {
         const menuRepository = AppDataSource.getRepository(Menu);
