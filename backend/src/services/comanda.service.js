@@ -7,7 +7,7 @@ import HorarioLaboral from '../entity/horario_laboral.entity.js';
 import { AppDataSource } from '../config/configDb.js';
 import { format } from 'date-fns';
 
-/*
+
 async function verificarHorarioLaboral(idUsuario) {
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
@@ -16,8 +16,6 @@ async function verificarHorarioLaboral(idUsuario) {
     where: { id_usuario: idUsuario },
     relations: ['horario_laboral', 'horario_laboral.horario_dia'] // Correcto uso de la relación horario_dia
   });
-
-  console.log("Usuario obtenido:", usuario); // Depuración para verificar datos del usuario
 
   if (!usuario) {
     throw new Error("Usuario no encontrado.");
@@ -31,7 +29,6 @@ async function verificarHorarioLaboral(idUsuario) {
   const diaSemana = new Date().toLocaleDateString("es-ES", { weekday: "long" }).toLowerCase();
   const horaActual = new Date().toLocaleTimeString("es-ES", { hour12: false });
 
-  console.log(`Verificando horario para el día: ${diaSemana}, Hora actual: ${horaActual}`); // Depuración de fecha y hora
 
   // Buscar el horario del día correspondiente dentro del horario laboral del usuario
   const horarioDia = usuario.horario_laboral.horario_dia.find(horario => horario.dia_semana === diaSemana);
@@ -41,14 +38,13 @@ async function verificarHorarioLaboral(idUsuario) {
   }
 
   // Verificar si la hora actual está dentro del rango de inicio y fin de horario laboral
-  console.log(`Horario para ${diaSemana}: ${horarioDia.hora_inicio} - ${horarioDia.hora_fin}`); // Depuración de horario
   if (horaActual >= horarioDia.hora_inicio && horaActual <= horarioDia.hora_fin) {
     return true;
   }
 
   throw new Error("El usuario no está en su horario laboral.");
 }
-*/
+
 
 
 
@@ -76,7 +72,7 @@ export async function obtenerComandasConPlatillos() {
   for (const comanda of comandas) {
     try {
       // Verifica el horario laboral del usuario asignado a la comanda
-      // await verificarHorarioLaboral(comanda.usuario_id_usuario);
+      //await verificarHorarioLaboral(comanda.usuario_id_usuario);
       comandasEnHorario.push({
         idComanda: comanda.comanda_id_comanda,
         fecha: format(new Date(comanda.comanda_fecha_compra_comanda), 'yyyy-MM-dd'), // Formato legible de fecha
@@ -97,8 +93,6 @@ export async function obtenerComandasConPlatillos() {
     data: comandasEnHorario
   };
 }
-
-
 
 
 
@@ -133,8 +127,6 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
 
 
-
-// Función para crear una comanda
 export async function createComanda(data) {
   //await verificarHorarioLaboral(data.id_usuario);
   const comandaRepository = AppDataSource.getRepository(Comanda);
@@ -161,6 +153,7 @@ export async function createComanda(data) {
 }
 
 
+
 export async function getAllComandas() {
   const comandaRepository = AppDataSource.getRepository(Comanda);
 
@@ -173,7 +166,7 @@ export async function getAllComandas() {
   for (const comanda of comandas) {
     try {
       // Verificar el horario laboral del usuario asociado a la comanda
-      //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+     await verificarHorarioLaboral(comanda.usuario.id_usuario);
       // Si el usuario está en horario laboral, agregar la comanda a la lista
       comandasEnHorario.push(comanda);
     } catch (error) {
@@ -197,7 +190,7 @@ export async function getAllComandas() {
     data: comandasEnHorario
   };
 }
-
+ 
 
 export async function getComandaById(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
