@@ -6,6 +6,8 @@ import ConformaComanda from '../entity/conforma_comanda.entity.js';
 import HorarioLaboral from '../entity/horario_laboral.entity.js';
 import { AppDataSource } from '../config/configDb.js';
 import { format } from 'date-fns';
+import Menu from '../entity/menu.entity.js';
+
 
 
 async function verificarHorarioLaboral(idUsuario) {
@@ -72,7 +74,7 @@ export async function obtenerComandasConPlatillos() {
   for (const comanda of comandas) {
     try {
       // Verifica el horario laboral del usuario asignado a la comanda
-      //await verificarHorarioLaboral(comanda.usuario_id_usuario);
+      await verificarHorarioLaboral(comanda.usuario_id_usuario);
       comandasEnHorario.push({
         idComanda: comanda.comanda_id_comanda,
         fecha: format(new Date(comanda.comanda_fecha_compra_comanda), 'yyyy-MM-dd'), // Formato legible de fecha
@@ -96,31 +98,50 @@ export async function obtenerComandasConPlatillos() {
 
 
 
+
 export async function addPlatilloToComanda(comandaId, platilloData) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const platilloRepository = AppDataSource.getRepository(Platillo);
   const conformaRepository = AppDataSource.getRepository(ConformaComanda);
+  const menuRepository = AppDataSource.getRepository(Menu);
 
+  // Verificar si la comanda existe
   const comanda = await comandaRepository.findOne({
     where: { id_comanda: comandaId },
-    relations: ['usuario'] // Relación con usuario para obtener su ID
+    relations: ['usuario']
   });
   if (!comanda) throw new Error('Comanda no encontrada.');
 
-  // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+   // Verificación de horario laboral del usuario asignado a la comanda
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
-  const platillo = await platilloRepository.findOne({ where: { id_platillo: platilloData.id_platillo } });
+  // Verificar si el platillo existe
+  const platillo = await platilloRepository.findOne({
+    where: { id_platillo: platilloData.id_platillo }
+  });
   if (!platillo) throw new Error('Platillo no encontrado.');
 
+  // Verificar si el platillo está en un menú activo
+  const menu = await menuRepository.findOne({
+    where: { id_menu: platilloData.menuIdMenu, disponibilidad: true },
+    relations: ['platillo'] // Carga los platillos del menú
+  });
+
+  if (!menu || !menu.platillo.some(p => p.id_platillo === platilloData.id_platillo)) {
+    throw new Error('El platillo no está en el menú activo.');
+  }
+
+  // Crear la relación en ConformaComanda
   const newConforma = conformaRepository.create({
     comanda: comanda,
     platillo: platillo,
     estado_platillo: platilloData.estado || 'pendiente',
-    cantidad_platillo: platilloData.cantidad || 1 // Default a 1 si no se especifica cantidad
+    cantidad_platillo: platilloData.cantidad || 1
   });
 
+  // Guardar la relación en la base de datos
   await conformaRepository.save(newConforma);
+
   return newConforma;
 }
 
@@ -128,7 +149,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
 
 export async function createComanda(data) {
-  //await verificarHorarioLaboral(data.id_usuario);
+  await verificarHorarioLaboral(data.id_usuario);
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
@@ -202,7 +223,7 @@ export async function getComandaById(comandaId) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   return comanda;
 }
@@ -218,7 +239,7 @@ export async function updateComanda(comandaId, data) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   if (comanda.estado_comanda !== 'pendiente') {
     throw new Error('La comanda no se puede modificar porque ya está completada o en otro estado.');
@@ -255,7 +276,7 @@ export async function deleteComanda(comandaId) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   await conformaRepository.delete({ id_comanda: comandaId });
   await comandaRepository.remove(comanda);
@@ -263,23 +284,45 @@ export async function deleteComanda(comandaId) {
   return comanda;
 }
 
+
+
+
 export async function completeComanda(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
+
+  // Buscar la comanda por ID
   const comanda = await comandaRepository.findOne({
     where: { id_comanda: comandaId },
-    relations: ['usuario'] // Relación con usuario
+    relations: ['usuario']
   });
 
-  if (!comanda) throw new Error('Comanda no encontrada.');
-
-  // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
-
-  if (comanda.estado_comanda === 'pendiente') {
-    comanda.estado_comanda = 'completada';
-    await comandaRepository.save(comanda);
-    return comanda;
+  if (!comanda) {
+    throw new Error('Comanda no encontrada.');
   }
-  
-  throw new Error('La comanda no se puede completar.');
+
+  // Verificar el horario laboral del usuario
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
+
+  // Validar que el estado sea 'pendiente'
+  if (comanda.estado_comanda !== 'pendiente') {
+    throw new Error(`La comanda no se puede completar porque está en estado '${comanda.estado_comanda}'.`);
+  }
+
+  // Cambiar el estado de la comanda directamente
+  const result = await comandaRepository.update(comandaId, { estado_comanda: 'completada' });
+
+  if (result.affected === 0) {
+    throw new Error('Error al actualizar el estado de la comanda.');
+  }
+
+  // Retornar la comanda actualizada
+  const updatedComanda = await comandaRepository.findOne({
+    where: { id_comanda: comandaId },
+    relations: ['usuario']
+  });
+
+  return updatedComanda;
 }
+
+
+

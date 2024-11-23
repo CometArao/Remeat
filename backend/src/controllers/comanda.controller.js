@@ -127,9 +127,13 @@ export async function completeComandaController(req, res) {
   const comandaId = req.params.id;
 
   try {
-      const completedComanda = await completeComanda(comandaId);
-      handleSuccess(res, 200, 'Comanda completada', completedComanda);
+    const completedComanda = await completeComanda(comandaId);
+    handleSuccess(res, 200, 'Comanda completada', completedComanda);
   } catch (error) {
+    if (error.message.includes('no encontrada')) {
+      handleErrorClient(res, 404, error.message);
+    } else {
       handleErrorClient(res, 400, error.message);
+    }
   }
 }
