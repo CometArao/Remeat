@@ -2,9 +2,11 @@
 import { Router } from "express";
 import { getCostos, getIngresosPorVentas, getPlatillosMenu, 
     getStockIngrediente, getStockUtensilio, getVentasPlatillo } from "../controllers/informes.controller.js"
+import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 const router = Router();
 
 router
+    .use(authenticateJwt)  // Aplicar autenticación a todas las rutas
     .get("/get_stock_ingrediente", getStockIngrediente)
     /*grafico de linea
     recibe un json(body) una lista de todos los ingredientes que
