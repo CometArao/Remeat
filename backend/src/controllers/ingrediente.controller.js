@@ -2,15 +2,15 @@
 import { 
     createTipoIngredienteService, 
     getTipoIngredientesService,
-    getTipoIngredienteService, 
+    getTipoIngredienteByIdService, 
     updateTipoIngredienteService,
     deleteTipoIngredienteService,
     createIngredienteService,
     getIngredientesService,
-    getIngredienteService,
+    getIngredienteByIdService,
     updateIngredienteService,
     deleteIngredienteService 
-       } from "../services/tipoIngrediente.service.js";
+       } from "../services/ingrediente.service.js";
 
 import { 
       tipoIngredienteBodyValidation,
@@ -61,7 +61,7 @@ export async function getTipoIngrediente(req, res) {
     if (error) {
       return handleErrorClient(res, 400, "Error de validación", error.message);
     }
-    const [tipoIngrediente, errorTipoIngrediente] = await getTipoIngredienteService(id_tipo_ingrediente);
+    const [tipoIngrediente, errorTipoIngrediente] = await getTipoIngredienteByIdService(id_tipo_ingrediente);
     if (errorTipoIngrediente) {
       return handleErrorClient(res, 404, "Error obteniendo tipo de ingrediente", errorTipoIngrediente);
     }
@@ -149,7 +149,7 @@ export async function getIngrediente(req, res) {
     if (error) {
       return handleErrorClient(res, 400, "Error de validación", error.message);
     }
-    const [ingrediente, errorIngrediente] = await getIngredienteService(id_ingrediente);
+    const [ingrediente, errorIngrediente] = await getIngredienteByIdService(id_ingrediente);
     if (errorIngrediente) {
       return handleErrorClient(res, 404, "Error obteniendo ingrediente", errorIngrediente);
     }

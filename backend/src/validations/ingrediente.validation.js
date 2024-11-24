@@ -7,7 +7,6 @@ export const ingredienteBodyValidation = Joi.object({
 
     fecha_vencimiento: Joi.date()
         .iso()
-        .custom(dateValidator, "Validación de fecha")
         .messages({
             "date.base": "La fecha de vencimiento debe ser una fecha válida.",
             "date.iso": "La fecha de vencimiento debe estar en formato ISO 8601.",
