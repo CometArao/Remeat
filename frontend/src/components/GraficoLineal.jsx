@@ -11,12 +11,12 @@ const MyResponsiveLine = ({ data /* see data tab */ }) => (
     <ResponsiveLine
         data={data}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
-        xScale={{ type: 'point' }}
+        xScale={{ type: 'linear' }}
         yScale={{
             type: 'linear',
             min: 'auto',
             max: 'auto',
-            stacked: true,
+            stacked: false,
             reverse: false
         }}
         yFormat=" >-.2f"
@@ -31,15 +31,15 @@ const MyResponsiveLine = ({ data /* see data tab */ }) => (
             legendPosition: 'middle',
             truncateTickAt: 0
         }}
-        axisLeft={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            legend: 'count',
-            legendOffset: -40,
-            legendPosition: 'middle',
-            truncateTickAt: 0
-        }}
+        //axisLeft={{
+            //tickSize: 5,
+            //tickPadding: 5,
+            //tickRotation: 0,
+            //legend: 'count',
+            //legendOffset: -40,
+            //legendPosition: 'middle',
+            //truncateTickAt: 0
+        //}}
         pointSize={10}
         pointColor={{ theme: 'background' }}
         pointBorderWidth={2}

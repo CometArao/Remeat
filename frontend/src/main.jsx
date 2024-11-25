@@ -13,6 +13,7 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Informes from '@pages/Informes'
+import Grafico from './pages/Grafico';
 
 const data_lineal = [
   {
@@ -393,6 +394,30 @@ const data_barra = [
     "donutColor": "hsl(199, 70%, 50%)"
   }
 ]
+const color_barra = "hsl(299, 70%, 50%)"
+const mdata_barra = [
+  {
+    "nombre_platillo": "hallulla",
+    "hallulla": 194,
+    "color_barra": color_barra,
+  },
+  {
+    //Los tilde dan problemas
+    "nombre_platillo": "pan frances",
+    "pan frances": 184,
+    "color_barra": color_barra
+  },
+  {
+    "nombre_platillo": "pan de ajo",
+    "pan de ajo": 53,
+    "color_barra": color_barra
+  },
+  {
+    "nombre_platillo": "pan integral",
+    "pan integral": 154,
+    "color_barra": color_barra
+  }
+]
 const data_circular = [
   {
     "id": "go",
@@ -451,11 +476,20 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      //TODO: porque la navbar se sube en las pestañas de graficos
+      {
+        path: '/grafico',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Grafico/>
+          </ProtectedRoute>
+        ),
+      },
       {
         path: '/grafico1',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
-            <div style={{height: '80vh', marginTop:'10vh'}}>
+            <div style={{ height: '80vh', marginTop: '10vh' }}>
               <GraficoLineal data={data_lineal} />
             </div>
           </ProtectedRoute>
@@ -465,8 +499,19 @@ const router = createBrowserRouter([
         path: '/grafico2',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
-            <div style={{height: '80vh', marginTop:'10vh'}}>
-              <GraficoBarra data={data_barra} />
+            <div style={{ height: '80vh', marginTop: '10vh' }}>
+              <GraficoBarra data={mdata_barra} keys= {
+                ['hallulla', 'pan frances', 'pan de ajo', 'pan integral']
+              }
+              //[
+                //'hot dog',
+                //'burger',
+                //'sandwich',
+                //'kebab',
+                //'fries',
+                //'donut'
+              //]}
+              />
             </div>
           </ProtectedRoute>
         ),
@@ -475,14 +520,30 @@ const router = createBrowserRouter([
         path: '/grafico3',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
-            <div style={{height: '80vh', marginTop:'10vh'}}>
-              <GraficoCircular data={data_circular} />
+            <div style={{ height: '80vh', marginTop: '10vh' }}>
+              <GraficoCircular data={data_circular} keys={
+              [
+                'hot dog',
+                'burger',
+                'sandwich',
+                'kebab',
+                'fries',
+                'donut'
+              ]
+}/>
             </div>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/informes',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Informes />
           </ProtectedRoute>
         ),
       }
 
-//TODO: porque la navbar se sube en las pestañas de graficos
 
     ]
   },
@@ -494,10 +555,6 @@ const router = createBrowserRouter([
     path: '/register',
     element: <Register />
   },
-  {
-    path: '/informes',
-    element: <Informes />
-  }
 ])
 
 ReactDOM.createRoot(document.getElementById('root')).render(
