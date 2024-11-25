@@ -9,9 +9,15 @@ import {
     updateMenuController,
 } from "../controllers/menu.controller.js";
 
+import { authenticateJwt } from '../middlewares/authentication.middleware.js';
+import {isMesero} from '../middlewares/authorization.middleware.js';
+
+
 const router = Router();
+
+router.use(authenticateJwt);
 router
-    .get("/menu/qr", getMenuQRCodeController)
+    .get("/menu/qr",isMesero, getMenuQRCodeController)
     .get("/", getMenusController)
     .get("/:id_menu", getMenuByIdController)
     .post("/", createMenuController)

@@ -1,4 +1,3 @@
-// backend/src/routes/comanda.routes.js
 import express from 'express';
 import {
   createComandaController,
@@ -8,27 +7,24 @@ import {
   completeComandaController,
   getComandaByIdController,
   addPlatilloToComandaController,
-  getComandasConPlatillosController ,
+  getComandasConPlatillosController,
 } from '../controllers/comanda.controller.js';
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
-
+import {isMesero} from '../middlewares/authorization.middleware.js';
 
 const router = express.Router();
 
+// Aplica el middleware de autenticación a todas las rutas
 router.use(authenticateJwt);
 
-router.post('/', createComandaController);
-router.get('/', getAllComandasController);
-router.get('/:id', getComandaByIdController);
-router.put('/:id', updateComandaController);
-router.delete('/:id', deleteComandaController);
-router.patch('/:id/complete', completeComandaController);
-
-
-// Nueva ruta para añadir platillos a la comanda
-router.post('/:id/platillos', addPlatilloToComandaController);
-
-
-router.get('/comandas/platillos', getComandasConPlatillosController );
+// Rutas protegidas por el middleware de autorización
+router.post('/', isMesero, createComandaController); // Crear una comanda
+router.get('/', isMesero, getAllComandasController); // Obtener todas las comandas
+router.get('/:id', isMesero, getComandaByIdController); // Obtener una comanda por ID
+router.put('/:id', isMesero, updateComandaController); // Actualizar una comanda
+router.delete('/:id', isMesero, deleteComandaController); // Eliminar una comanda (solo admins)
+router.patch('/:id/complete', isMesero, completeComandaController); // Completar una comanda
+router.post('/:id/platillos', isMesero, addPlatilloToComandaController); // Añadir un platillo a una comanda
+router.get('/comandas/platillos', isMesero, getComandasConPlatillosController); // Obtener comandas con platillos
 
 export default router;
