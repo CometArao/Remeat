@@ -53,7 +53,7 @@ export async function isChef(req, res, next) {
   }
 }
 
-export async function isWaiter(req, res, next) {
+export async function isMesero(req, res, next) {
   try {
     const userRepository = AppDataSource.getRepository(User);
     const userFound = await userRepository.findOneBy({ correo_usuario: req.user.correo_usuario });
@@ -74,4 +74,5 @@ export async function isWaiter(req, res, next) {
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
+
 }
