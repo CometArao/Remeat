@@ -77,8 +77,6 @@ const Informes = () => {
         setSelectedTime(selectedTime)
         return selectedTime;
     }
-
-
     //Este metodo se ejecuta al presionar el boton de ventas platillo
     //Este metodo llama a la backend por la informacion de ventas platillo
     const handleClickVentasPlatilloLineal = async () => {
@@ -171,6 +169,7 @@ const Informes = () => {
         for (let i = 0; i < selectedItems.length; i++) {
             ids.push(selectedItems[i].id)
         }
+        //llamar dependiendo del tipo de grafico TODO:
         const ventas_platillo =
             await getVentasPlatillo(ids);
         console.log("selectedTime")
@@ -212,7 +211,6 @@ const Informes = () => {
                 <SelectTime ref={SelectedTimeRef} data={datosIndependientes} />
             </div>
             <button onClick={handleNavigation}>Crear Informe</button>
-            {/* redireccion ¿? */}
         </div>
     );
 };

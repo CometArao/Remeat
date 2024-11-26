@@ -1,5 +1,6 @@
 import GraficoLineal from '@components/GraficoLineal.jsx'
 import GraficoBarra from "@components/GraficoBarra.jsx"
+import GraficoCircular from "@components/GraficoCircular.jsx"
 import { useLocation } from 'react-router-dom'
 //Los datos x de 1 tienen que aparecer en los otros, pero estos pueden aparecer
 //como nulos
@@ -83,6 +84,38 @@ const mdata_barra = [
     "color_barra": color_barra
   }
 ]
+const data_circular = [
+  {
+    "id": "go",
+    "label": "go",
+    "value": 36,
+    "color": "hsl(332, 70%, 50%)"
+  },
+  {
+    "id": "php",
+    "label": "php",
+    "value": 542,
+    "color": "hsl(297, 70%, 50%)"
+  },
+  {
+    "id": "lisp",
+    "label": "lisp",
+    "value": 21,
+    "color": "hsl(54, 70%, 50%)"
+  },
+  {
+    "id": "elixir",
+    "label": "elixir",
+    "value": 354,
+    "color": "hsl(140, 70%, 50%)"
+  },
+  {
+    "id": "python",
+    "label": "python",
+    "value": 558,
+    "color": "hsl(233, 70%, 50%)"
+  }
+]
 //Este componente prepara todo para mostrar el grafico lineal
 const Grafico = () => {
   const location = useLocation();
@@ -109,6 +142,13 @@ const Grafico = () => {
     console.log("keys")
     console.log(keys)
   }
+  if (data.tipo.tipoGrafico == "circular") {
+    if (data.independiente == "Hora") {
+      //Mostrar interfaz para elegir hora
+    }
+    console.log("CIRCULAR")
+    formatedData = construirCircular(data.dependientes);
+  }
 
   return (
     <div>
@@ -123,7 +163,7 @@ const Grafico = () => {
             keys={keys} legendX={null} legendY={data.tipo.variable} />
         }
         {data.tipo.tipoGrafico == "circular" &&
-          <GraficoLineal data={formatedData}
+          <GraficoCircular data={formatedData}
             legendX={data.independientes.name} legendY={data.tipo.variable} />
         }
       </div>
@@ -186,4 +226,25 @@ function construirBarra(datos) {
   return [result, keys];
 }
 
+function construirCircular(datos) {
+  const color_circular = "hsl(299, 70%, 50%)" //TODO: agregar una funcion para generar colores
+  const keys = Object.keys(datos)
+  let result = [];
+  for(let i = 0; i < keys.length; i++) {
+    const ventas = datos[keys[i]]["ventas_por_comanda"];
+    let total = 0;
+    for(let ii = 0; ii < ventas.length; ii++) {
+      const venta = ventas[ii];
+      total += venta.ingresos_platillo
+    }
+    const itemCircular = {
+      "id": keys[i],
+      "label": keys[i],
+      "value": total,
+      "color": color_circular
+    }
+    result.push(itemCircular)
+  }
+  return result;
+}
 export default Grafico
