@@ -13,7 +13,7 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Informes from '@pages/Informes'
-import Grafico from './pages/Grafico';
+import Grafico from './pages/Grafico.jsx';
 
 const data_lineal = [
   {

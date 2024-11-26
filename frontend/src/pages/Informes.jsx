@@ -7,22 +7,25 @@ import { showErrorAlert } from '@helpers/sweetAlert.js';
 import { useNavigate } from 'react-router-dom';
 import { getVentasPlatillo } from '@services/informes.service.js'
 
+/**
+ * Esta pagina para seleccionar el grafico y las variables a usar
+ */
 
 const tiempo_lineal = [
     {
-        id: 1,
+        id: 0,
         name: "fecha"
     },
     {
-        id: 2,
+        id: 1,
         name: "Hora"
     },
     {
-        id: 3,
+        id: 2,
         name: "Mes"
     },
     {
-        id: 4,
+        id: 3,
         name: "Año"
     },
 ]
@@ -44,7 +47,7 @@ const tiempo_circular = [
         name: "Total"
     },
 ]
-    
+
 
 
 const Informes = () => {
@@ -57,7 +60,7 @@ const Informes = () => {
         useState(null)
     const [selectedItems, setSelectedItems] =
         useState(["item"])
-    const [selectedTime, setSelectedTime] = 
+    const [selectedTime, setSelectedTime] =
         useState(["time"])
     const SelectedItemsRef = useRef();
     const SelectedTimeRef = useRef();
@@ -75,9 +78,10 @@ const Informes = () => {
         return selectedTime;
     }
 
+
     //Este metodo se ejecuta al presionar el boton de ventas platillo
     //Este metodo llama a la backend por la informacion de ventas platillo
-    const handleClickVentasPlatillo = async () => {
+    const handleClickVentasPlatilloLineal = async () => {
         try {
             const ventasPlatillos = await getPlatillos();
             //No se envia un pop con la alerta porque queda feo
@@ -93,12 +97,56 @@ const Informes = () => {
             }
             console.log(formatedPlatillos)
             setDatosDependientes(formatedPlatillos);
-            setTipoGrafico({tipoGrafico: "lineal", variable: "ventas_platillo"})
+            setTipoGrafico({ tipoGrafico: "lineal", variable: "ventas_platillo" })
             setDatosIndependientes(tiempo_lineal)
         } catch (error) {
             console.log(error)
             console.error('Error al buscar los platos:', error);
             showErrorAlert('Error, No se pudieron encontrar los platos');
+        }
+    }
+    const handleClickVentasPlatilloBarra = async () => {
+        try {
+            const ventasPlatillos = await getPlatillos();
+            let formatedPlatillos = [];
+            for (let i = 0; i < ventasPlatillos.length; i++) {
+                const ventaPlatillo = ventasPlatillos[i];
+                const formatedPlatillo = {
+                    id: ventaPlatillo.id_platillo,
+                    name: ventaPlatillo.nombre_platillo
+                }
+                formatedPlatillos.push(formatedPlatillo);
+            }
+            console.log(formatedPlatillos)
+            setDatosDependientes(formatedPlatillos);
+            setTipoGrafico({ tipoGrafico: "barra", variable: "ventas_platillo" })
+            setDatosIndependientes([{ id: 1, name: "No Aplica" }])
+        } catch (error) {
+            console.log(error);
+            console.error('Error al buscar los platos:', error)
+            showErrorAlert("Error, No se pudieron encontrar los platos")
+        }
+    }
+    const handleClickVentasPlatilloCircular = async () => {
+        try {
+            const ventasPlatillos = await getPlatillos();
+            let formatedPlatillos = [];
+            for (let i = 0; i < ventasPlatillos.length; i++) {
+                const ventaPlatillo = ventasPlatillos[i];
+                const formatedPlatillo = {
+                    id: ventaPlatillo.id_platillo,
+                    name: ventaPlatillo.nombre_platillo
+                }
+                formatedPlatillos.push(formatedPlatillo);
+            }
+            console.log(formatedPlatillos)
+            setDatosDependientes(formatedPlatillos);
+            setTipoGrafico({ tipoGrafico: "circular", variable: "ventas_platillo" })
+            setDatosIndependientes(tiempo_circular)
+        } catch (error) {
+            console.log(error);
+            console.error('Error al buscar los platos:', error)
+            showErrorAlert("Error, No se pudieron encontrar los platos")
         }
     }
     const handleNavigation = async () => {
@@ -111,26 +159,30 @@ const Informes = () => {
         console.log("selected items")
         console.log(selectedItems)
         //Comprobar elementos seleccionados
-        if(!selectedItems || selectedItems[0].id == -1) {
+        if (!selectedItems || selectedItems[0].id == -1) {
             showErrorAlert('Error, Debe seleccionar en la checklist de items')
             return;
         }
-        if(!selectedTime || selectedTime.id == -1) {
+        if ((!selectedTime || selectedTime.id == -1) && tipoGrafico.tipoGrafico != "barra") {
             showErrorAlert('Error, Debe seleccionar en la checklist de tiempo')
             return;
         }
         let ids = []
-        for(let i = 0; i < selectedItems.length; i++) {
+        for (let i = 0; i < selectedItems.length; i++) {
             ids.push(selectedItems[i].id)
         }
-        const ventas_platillo = 
+        const ventas_platillo =
             await getVentasPlatillo(ids);
+        console.log("selectedTime")
+        console.log(selectedTime)
         const datos = {
-            indendientes: selectedTime,
+            independientes: selectedTime,
             dependientes: ventas_platillo,
             tipo: tipoGrafico
         }
-        navigate('/grafico', {state: datos});
+        console.log("antes de enviar")
+        console.log(datos)
+        navigate('/grafico', { state: datos });
     }
 
     return (
@@ -144,12 +196,12 @@ const Informes = () => {
                 <button>Stock Utensilios</button>
                 <button>Stock Ingredientes</button>
                 {/*Recordatorio el metodo no debe tener parentesis al final  */}
-                <button onClick={handleClickVentasPlatillo}>Ventas Platillos</button>
+                <button onClick={handleClickVentasPlatilloLineal}>Ventas Platillos</button>
                 <h2>Barra</h2>
-                <button onClick={handleClickVentasPlatillo}>Ventas Platillos</button>
+                <button onClick={handleClickVentasPlatilloBarra}>Ventas Platillos</button>
                 <button>Platillos en el Menu</button>
                 <h2>Circular</h2>
-                <button onClick={handleClickVentasPlatillo}>Ventas Platillos</button>
+                <button onClick={handleClickVentasPlatilloCircular}>Ventas Platillos</button>
                 <button>Platillos en el Menu</button>
             </div>
             <h1>Seleccione Las Variables</h1>

@@ -12,6 +12,8 @@ const TableWithSingleCheckbox = forwardRef((data, ref) => {
     // Handle checkbox change
     const handleCheckboxChange = (id) => {
         setCheckedId((prevId) => (prevId === id ? null : id)); // Toggle checkbox or uncheck if it's already checked
+        console.log("checkedId")
+        console.log(id)
     };
     const getSelectedTime = () => {
         return data[checkedId];

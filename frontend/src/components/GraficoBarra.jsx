@@ -121,7 +121,7 @@ const MyResponsiveBar = ({ data, /* see data tab */ keys}) => (
             barAriaLabel={e => e.id + ": " + e.formattedValue + " in country: " + e.indexValue}
         />
 )
-const mMyResponsiveBar = ({ data, /* see data tab */ keys}) => (
+const mMyResponsiveBar = ({ data, /* see data tab */ keys, legendX, legendY}) => (
         <ResponsiveBar
             data={data}
             keys={keys}
@@ -180,7 +180,7 @@ const mMyResponsiveBar = ({ data, /* see data tab */ keys}) => (
                 tickSize: 5,
                 tickPadding: 5,
                 tickRotation: 0,
-                legend: 'platillo',
+                legend: legendX,
                 legendPosition: 'middle',
                 legendOffset: 32,
                 truncateTickAt: 0
@@ -189,7 +189,7 @@ const mMyResponsiveBar = ({ data, /* see data tab */ keys}) => (
                 tickSize: 5,
                 tickPadding: 5,
                 tickRotation: 0,
-                legend: 'Veces Vendido',
+                legend: legendY,
                 legendPosition: 'middle',
                 legendOffset: -40,
                 truncateTickAt: 0
