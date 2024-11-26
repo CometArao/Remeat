@@ -10,10 +10,18 @@ export async function createIngredienteService(data) {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
-        const { fecha_vencimiento, cantidad_ingrediente, id_tipo_ingrediente } = data;
+        const { fecha_vencimiento,
+             cantidad_ingrediente,
+             cantidad_original_ingrediente,
+             costo_ingrediente,
+             id_tipo_ingrediente
+             } = data;
 
         // Verificar que el tipo de ingrediente existe
-        const tipoIngrediente = await tipoIngredienteRepository.findOneBy({ id_tipo_ingrediente });
+        const tipoIngrediente = await tipoIngredienteRepository.findOne({
+            where: { id_tipo_ingrediente },
+            relations: ["unidad_medida"],
+         });
         if (!tipoIngrediente) {
             return [null, "El tipo de ingrediente especificado no existe"];
         }
@@ -22,11 +30,25 @@ export async function createIngredienteService(data) {
         const newIngrediente = ingredienteRepository.create({
             fecha_vencimiento,
             cantidad_ingrediente,
+            cantidad_original_ingrediente,
+            costo_ingrediente,
             tipo_ingrediente: tipoIngrediente,
         });
         await ingredienteRepository.save(newIngrediente);
 
-        return [newIngrediente, null];
+          // Formatear la respuesta para ocultar atributos innecesarios
+          const formattedIngrediente = {
+            id_ingrediente: newIngrediente.id_ingrediente,
+            fecha_vencimiento: newIngrediente.fecha_vencimiento,
+            cantidad_ingrediente: newIngrediente.cantidad_ingrediente,
+            tipo_ingrediente: {
+                id_tipo_ingrediente: tipoIngrediente.id_tipo_ingrediente,
+                nombre_tipo_ingrediente: tipoIngrediente.nombre_tipo_ingrediente,
+                unidad_medida: tipoIngrediente.unidad_medida?.nombre_unidad_medida || null,
+            },
+        };
+
+        return [formattedIngrediente, null];
     } catch (error) {
         console.error("Error al crear el ingrediente:", error);
         return [null, error.message];
@@ -38,7 +60,8 @@ export async function getIngredientesService() {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
-        const ingredientes = await ingredienteRepository.find({ relations: { tipo_ingrediente: true } });
+        const ingredientes = await ingredienteRepository.find
+        ({ relations: { tipo_ingrediente: { unidad_medida: true } } });
         return [ingredientes, null];
     } catch (error) {
         console.error("Error al obtener los ingredientes:", error);
@@ -52,7 +75,7 @@ export async function getIngredienteByIdService(id_ingrediente) {
 
     try {
         const ingrediente = await ingredienteRepository.findOneBy(
-            { id_ingrediente }, { relations: { tipo_ingrediente: true } });
+            { id_ingrediente }, { relations: { tipo_ingrediente: { unidad_medida: true } } });
 
         if (!ingrediente) {
             return [null, `El ingrediente con ID ${id_ingrediente} no existe.`];
