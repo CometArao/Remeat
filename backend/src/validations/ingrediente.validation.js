@@ -50,6 +50,7 @@ export const ingredienteBodyValidation = Joi.object({
     id_pedido: Joi.number()
         .integer()
         .positive()
+        .optional()
         .messages({
             "number.base": "El ID del pedido debe ser un número.",
             "number.integer": "El ID del pedido debe ser un número entero.",
