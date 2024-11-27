@@ -47,10 +47,8 @@ export const platilloBodyValidation = Joi.object({
 })
   .or("nombre_platillo", "precio_platillo", "disponible", "id_usuario", "ingredientes")
   .min(1)
-  .unknown(false)
   .messages({
     "object.min": "Debes proporcionar al menos un campo en el cuerpo de la solicitud.",
-    "object.unknown": "No se permiten propiedades adicionales.",
   });
 
 // Validación para las consultas de platillo (por query params)
