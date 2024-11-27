@@ -4,7 +4,7 @@ import { EntitySchema, JoinColumn } from "typeorm";
 
 const ingrediente = new EntitySchema({
     name:"ingrediente",
-    tablename:"ingrediente",
+    tableName:"ingrediente",
     columns: {
         id_ingrediente: {
             type: "int",

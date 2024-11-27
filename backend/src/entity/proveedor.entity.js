@@ -1,10 +1,9 @@
-"use strict"
+"use strict";
 import { EntitySchema } from "typeorm";
 
-
 const proveedor = new EntitySchema({
-    name:"proveedor",
-    tablename:"proveedor",
+    name: "proveedor",
+    tableName: "proveedor",
     columns: {
         id_proveedor: {
             type: "int",
@@ -17,18 +16,20 @@ const proveedor = new EntitySchema({
             nullable: false
         },
         nombre_proveedor: {
-            type: "varchar"
+            type: "varchar",
+            nullable: false // Asegúrate de que este campo sea requerido
         },
         correo_proveedor: {
-            type: "varchar"
+            type: "varchar",
+            nullable: false // Asegúrate de que este campo sea requerido
         }
     },
     relations: {
-        pedido: {
-            type: "many-to-many",
-            target: "pedido",
-            joinTable: true,
-            cascade: true
+        pedidos: { // Cambia el nombre a plural para reflejar que un proveedor puede tener múltiples pedidos
+            type: "one-to-many", // Cambia a one-to-many
+            target: "pedido", // Relación con la entidad Pedido
+            mappedBy: "proveedor", // Indica que esta relación es mapeada por el campo proveedor en Pedido
+            cascade: true // Si deseas que las operaciones en proveedor se propaguen a los pedidos
         }
     }
 });

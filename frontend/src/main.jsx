@@ -12,9 +12,10 @@ import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
-import Informes from '@pages/Informes'
+import Informes from '@pages/Informes';
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
+import Pedidos from '@pages/Pedidos';
 
 const data_lineal = [
   {
@@ -551,9 +552,15 @@ const router = createBrowserRouter([
             <Informes />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: '/pedidos', // Nueva ruta para pedidos
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Pedidos />
+          </ProtectedRoute>
+        ),
       }
-
-
     ]
   },
   {
@@ -565,6 +572,10 @@ const router = createBrowserRouter([
     element: <Register />
   },
 ])
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <RouterProvider router={router} />
+)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <RouterProvider router={router} />
