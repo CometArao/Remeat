@@ -37,6 +37,10 @@ const pedido = new EntitySchema({
             type: "int",
             nullable: false
         },
+        id_proveedor:{ // Agregar el ID del proveedor
+            type:"int",
+            nullable:true // Puede ser nulo si no hay proveedor asignado inicialmente
+        }
     },
     relations: {
         usuario: {
@@ -47,6 +51,24 @@ const pedido = new EntitySchema({
             },
             onDelete: "SET NULL",
         },
+        proveedor:{ // Agregar la relación con el proveedor
+            type:"many-to-one", // Un pedido tiene un solo proveedor
+            target:"proveedor",
+            joinColumn:{
+                name:"id_proveedor"
+            }, 
+            onDelete:"SET NULL" // O 'CASCADE' según tu lógica de negocio
+        },
+        utensilios:{
+            type:"one-to-many",
+            target:"utensilio",
+            inverseSide:"pedido"
+        },
+        utensilios:{
+            type:"one-to-many",
+            target:"utensilio",
+            inverseSide:"pedido"
+        }
     }
 });
 
