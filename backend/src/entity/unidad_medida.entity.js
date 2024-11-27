@@ -4,7 +4,7 @@ import { EntitySchema } from "typeorm";
 
 const unidad_medida = new EntitySchema({
     name:"unidad_medida",
-    tablename:"unidad_medida",
+    tableName:"unidad_medida",
     columns: {
         id_unidad_medida: {
             type: "int",

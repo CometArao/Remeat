@@ -42,15 +42,17 @@ export async function createMedidaController(req, res) {
 
 export async function getMedidasController(req, res) {
     try {
-        const [medidas, errorMedidas] = await getUnidadesMedidasService();
-
-        if (errorMedidas) return handleErrorClient(res, 404, errorMedidas);
-
-        handleSuccess(res, 200, "Medidas obtenidas exitosamente", medidas);
+      const [medidas, errorMedidas] = await getUnidadesMedidasService();
+  
+      if (errorMedidas) {
+        return handleErrorClient(res, 404, errorMedidas);
+      }
+  
+      handleSuccess(res, 200, "Medidas obtenidas exitosamente", medidas);
     } catch (error) {
-        handleErrorServer(res, 500, error.message);
+      handleErrorServer(res, 500, error.message);
     }
-}
+  }
 
 export async function getMedidaByIdController(req, res) {
     try {
@@ -80,7 +82,7 @@ export async function updateMedidaController(req, res) {
         if (error) return handleErrorClient(res, 400, error.message);
 
         const [updatedMedida, errorMedida] = await
-        updateUnidadMedidaService({ id, nombre_unidad_medida });
+        updateUnidadMedidaService( id,{ nombre_unidad_medida });
 
         if (errorMedida) return handleErrorClient(res, 404, errorMedida);
 
