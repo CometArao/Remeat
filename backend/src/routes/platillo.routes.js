@@ -1,12 +1,12 @@
 "use strict";
 import { Router } from "express";
 import {
+    assignPriceToPlatilloController,
     createPlatilloController,
     deletePlatilloController,
     getPlatilloByIdController,
     getPlatillosController,
-    updatePlatilloController,
-    assignPriceToPlatilloController, // Nueva ruta para asignar precio
+    updatePlatilloController, // Nueva ruta para asignar precio
 } from "../controllers/platillo.controller.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 

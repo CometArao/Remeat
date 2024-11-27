@@ -18,7 +18,7 @@ router
     }
     */
     .get("/get_stock_utensilio", getStockUtensilio)
-    .get("/get_ingresos_venta", getIngresosPorVentas)
+    .post("/get_ingresos_venta", getIngresosPorVentas)
     .get("/get_costos", getCostos)
     .get("/get_utilidades")
     .get("/get_utilidades")
