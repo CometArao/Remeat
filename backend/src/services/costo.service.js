@@ -263,6 +263,7 @@ async function ExtraerComandas() {
   FROM comanda c 
   `)
   if (!comandas || comandas.lenght === 0) {
+    console.log("Error 3")
     return [null, "No hay comandas"];
   }
   //por cada comanda buscar los platillos para ver que ingredientes usa la comanda
@@ -280,8 +281,11 @@ async function ExtraerComandas() {
     INNER JOIN conforma_comanda cc ON cc.id_platillo = p.id_platillo   
     WHERE cc.id_comanda = $1
     `, [comanda.id_comanda])
+    console.log(platillos)
     if (!platillos || platillos.length === 0) {
-      return [null, "No existen platillos para la comanda; Esto deberia ser imposible"];
+      console.log("Error 2")
+      continue
+      //return [null, "No existen platillos para la comanda; Esto deberia ser imposible"];
     }
     for (let ii = 0; ii < platillos.length; ii++) {
       const platillo = platillos[ii];
@@ -294,6 +298,7 @@ async function ExtraerComandas() {
       WHERE cp.id_platillo = $1
       `, [platillo.id_platillo])
       if (!ingredientes_platillo || ingredientes_platillo.length === 0) {
+        console.log("Error 1")
         return [null, "El platillo no tiene ingredientes; Esto deberia ser imposible"];
       }
       //En base a la informacion anterior se crea agregan elementos a el
@@ -312,7 +317,7 @@ async function ExtraerComandas() {
           elemento["cantidad"] = costo_platillo
           ingredientes[tipo_ingrediente.id_tipo_ingrediente] = elemento;
         } else {
-          elemento = ingrediente[tipo_ingrediente.id_tipo_ingrediente]
+          elemento = ingredientes[tipo_ingrediente.id_tipo_ingrediente]
           elemento["cantidad"] += costo_platillo
         }
       }
@@ -320,6 +325,7 @@ async function ExtraerComandas() {
     comanda_diccionario["ingredientes"] = ingredientes;
     result.push(comanda_diccionario)
   }
+  console.log(result)
   return [result, null];
 }
 
@@ -345,8 +351,14 @@ async function ExtraerPedido() {
     `, [pedido.id_pedido])
     if (!ingredientes_de_pedido || ingredientes_de_pedido.length === 0) {
       //Seguir con el proximo pedido
+      console.log("no")
       continue;
+    } else {
+      console.log("si")
+      console.log(pedido.id_pedido)
     }
+    console.log("que tipo tiene id_tipo_ingrediente");
+    console.log(ingredientes_de_pedido)
     let ingredientes = {}
     //TODO: para cada pedido ¿solo una tabla de ingredientes por tipo?
     for (let ii = 0; ii < ingredientes_de_pedido.length; ii++) {
@@ -356,24 +368,37 @@ async function ExtraerPedido() {
       ingrediente["costo_unitario"] = ingrediente_pedido.costo_ingrediente;
       ingrediente["costo_total"] =
         ingrediente_pedido.costo_ingrediente * ingrediente_pedido.cantidad_ingrediente;
-      ingredientes[ingrediente_pedido.id_tipo_ingrediente] = ingrediente;
+      console.log("ingredientes pedido")
+      console.log(ingrediente_pedido)
+      const id_tipo_ingrediente = ingrediente_pedido["id_tipo_ingrediente"]
+      console.log(id_tipo_ingrediente)
+      ingredientes[id_tipo_ingrediente] = ingrediente;
+      console.log(ingredientes)
     }
     pedido_diccionario["ingredientes"] = ingredientes;
     result.push(pedido_diccionario)
   }
+  console.log("pedidos")
+  console.log(result)
   return [result, null];
 }
 //TODO: test unitario
 function costoFIFO(comandas, pedidos) {
+  console.log("comandas")
+  console.log(comandas)
+  console.log("pedidos")
+  console.log(pedidos)
   let indices = {}
   for (let i = 0; i < comandas.length; i++) {
     const comanda = comandas[i];
+    console.log("comanda")
+    console.log(comanda)
     const ingredientes_keys = Object.keys(comanda.ingredientes);
     for (let ii = 0; ii < ingredientes_keys.length; ii++) {
       descontarPedidos(comanda.ingredientes[ingredientes_keys[ii]], ingredientes_keys[ii], indices, pedidos);
     }
   }
-  return comandas
+  return comandas;
 }
 /*
   Descuenta el ingrediente teniendo en cuenta los pedidos, a los cuales 
@@ -382,20 +407,34 @@ function costoFIFO(comandas, pedidos) {
 */
 //TODO: test unitario
 function descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos) {
+  console.log(ingrediente)
+  console.log(id_tipo_ingrediente)
+  console.log(indices)
+  console.log(pedidos)
   if (!ingrediente.consumido) {
     ingrediente.consumido = 0;
     ingrediente.costo_total = 0;
     ingrediente.costo_unitario = 0;
   }
-  //console.log(pedidos)
   if (!indices[id_tipo_ingrediente]) {
     indices[id_tipo_ingrediente] = 0
   }
-  //console.log(indices[tipo_ingrediente])
   while (ingrediente.consumido < ingrediente.cantidad) {
-    const rc = descontarIngredientePedido(ingrediente,
-      pedidos[indices[id_tipo_ingrediente]]["ingredientes"][id_tipo_ingrediente])
-    if (rc == 1) {
+    const indice = indices[id_tipo_ingrediente];
+    const pedido = pedidos[indice];
+    const ingredientes = pedido["ingredientes"]
+    const ingrediente_pedido = ingredientes[id_tipo_ingrediente]
+    if (ingrediente_pedido) {
+      const rc = descontarIngredientePedido(ingrediente,
+        ingrediente_pedido)
+      console.log("rc")
+      console.log(rc)
+      if (rc == 1) {
+        indices[id_tipo_ingrediente]++;
+        console.log(indices)
+      }
+    }else {
+      //El pedido no tenia ese ingrediente
       indices[id_tipo_ingrediente]++;
     }
   }
@@ -410,11 +449,11 @@ function descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos) {
 */
 //TODO: test unitario
 function descontarIngredientePedido(ingrediente, ingrediente_pedido) {
+  //if (!ingrediente_pedido) {
+  //return 1;
+  //}
   if (!ingrediente.consumido) {
     ingrediente_pedido["consumido"] = 0;
-  }
-  if (ingrediente_pedido === null) {
-    return 1;
   }
   if ((ingrediente_pedido.cantidad - ingrediente_pedido.consumido) <= ingrediente.cantidad) {
     ingrediente_pedido.consumido = ingrediente_pedido.cantidad;//Se consume todo
@@ -424,8 +463,10 @@ function descontarIngredientePedido(ingrediente, ingrediente_pedido) {
   } else {//Caso los ingredientes que quedan en este pedido son mas que los de la comanda
     const cantidad_consumir = ingrediente.cantidad - ingrediente.consumido;
     ingrediente_pedido.consumido += cantidad_consumir; //se consume toda la cantidad
+    //no deberia ser += porque se añade a lo anterior en caso de que hayan anteriores TODO:
     ingrediente.consumido = cantidad_consumir;//No queda por descontar
     ingrediente.costo_total += cantidad_consumir * ingrediente_pedido.costo_unitario;
+    console.log("what")
     return 0;
   }
 }
