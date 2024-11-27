@@ -1,10 +1,10 @@
 "use strict";
 import {
-  createUserService,
-  deleteUserService,
-  getUserService,
-  getUsersService,
-  updateUserService,
+    createUserService,
+    deleteUserService,
+    getUserService,
+    getUsersService,
+    updateUserService,
 } from "../services/usuario.service.js";
 
 import {
@@ -79,7 +79,7 @@ export async function updateUser(req, res) {
             return handleErrorClient(res, 400, errorValidation.details[0].message);
         }
 
-        const [updatedUser, errorUpdateUser ] = await updateUserService({ id_usuario: id }, body);
+        const [updatedUser, errorUpdateUser] = await updateUserService({ id_usuario: id }, body);
         if (errorUpdateUser) return handleErrorClient(res, 400, errorUpdateUser);
         
         // Preparar la respuesta excluyendo la contraseña

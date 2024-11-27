@@ -1,5 +1,6 @@
 "use strict";
 import User from "../entity/usuario.entity.js";
+import Horario_laboral from "../entity/horario_laboral.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
 
@@ -73,54 +74,75 @@ export async function getUsersService() {
    }
 }
 
-// Actualizar un usuario
 export async function updateUserService(query, body) {
-   try {
-      const { id_usuario } = query;
+    try {
+        const { id_usuario } = query;
 
-      const userRepository = AppDataSource.getRepository(User);
+        const userRepository = AppDataSource.getRepository(User);
+        const horarioLaboralRepository = AppDataSource.getRepository(Horario_laboral);
 
-      const userFound = await userRepository.findOne({
-          where: { id_usuario },
-          relations: ["horario_laboral"],
-      });
+        // Buscar el usuario por ID
+        const userFound = await userRepository.findOne({
+            where: { id_usuario },
+            relations: ["horario_laboral"],
+        });
 
-      if (!userFound) return [null,"Usuario no encontrado"];
+        if (!userFound) return [null, "Usuario no encontrado"];
 
-      // Validar que el email no esté duplicado
-      if (body.correo_usuario) {
-          const existingUser = await userRepository.findOne({
-              where: { correo_usuario: body.correo_usuario },
-          });
+        // Validar que el email no esté duplicado
+        if (body.correo_usuario) {
+            const existingUser = await userRepository.findOne({
+                where: { correo_usuario: body.correo_usuario },
+            });
 
-          if (existingUser && existingUser.id_usuario !== userFound.id_usuario) {
-              return [null,"Ya existe un usuario con el mismo correo electrónico"];
-          }
-      }
+            if (existingUser && existingUser.id_usuario !== userFound.id_usuario) {
+                return [null, "Ya existe un usuario con el mismo correo electrónico"];
+            }
+        }
 
-      // Actualizar solo los campos permitidos
-      Object.assign(userFound,{
-          nombre_usuario: body.nombre_usuario,
-          apellido_usuario: body.apellido_usuario,
-          correo_usuario: body.correo_usuario,
-          id_horario_laboral: body.id_horario_laboral,
-      });
+        // Verificar si se intenta cambiar el rol
+        if (body.rol_usuario) {
+            return [null, "No se puede cambiar el rol del usuario."];
+        }
 
-      // Comparar y actualizar la contraseña si se proporciona una nueva
-      if (body.newPassword && body.newPassword.trim() !== "") {
-          userFound.contrasena_usuario = await encryptPassword(body.newPassword);
-      }
+        // Verificar si se intenta cambiar el horario laboral
+        if (body.id_horario_laboral) {
+            // Comprobar si el nuevo id_horario_laboral existe
+            const horarioLaboralExists = await horarioLaboralRepository.findOne({
+                where: { id_horario_laboral: body.id_horario_laboral }
+            });
 
-      await userRepository.save(userFound); // Guarda los cambios
+            if (!horarioLaboralExists) {
+                return [null, "El horario laboral especificado no existe."];
+            }
+            
+            // Actualizar el id_horario_laboral
+            userFound.id_horario_laboral = body.id_horario_laboral; 
+        }
 
-      // Excluir la contraseña en el retorno
-      const { contrasena_usuario,...userUpdated } = userFound;
+        // Actualizar solo los campos permitidos
+        Object.assign(userFound, {
+            nombre_usuario: body.nombre_usuario,
+            apellido_usuario: body.apellido_usuario,
+            correo_usuario: body.correo_usuario,
+            // No se actualiza rol_usuario
+        });
 
-      return [userUpdated,null];
-   } catch (error) {
-       console.error("Error al modificar un usuario:", error);
-       return [null,"Error interno del servidor"];
-   }
+        // Comparar y actualizar la contraseña si se proporciona una nueva
+        if (body.newPassword && body.newPassword.trim() !== "") {
+            userFound.contrasena_usuario = await encryptPassword(body.newPassword);
+        }
+
+        await userRepository.save(userFound); // Guarda los cambios
+
+        // Excluir la contraseña en el retorno
+        const { contrasena_usuario, ...userUpdated } = userFound;
+
+        return [userUpdated, null];
+    } catch (error) {
+        console.error("Error al modificar un usuario:", error);
+        return [null, "Error interno del servidor"];
+    }
 }
 
 // Eliminar un usuario
