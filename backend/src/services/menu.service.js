@@ -7,31 +7,41 @@ import Usuario from "../entity/usuario.entity.js";
 import QRCode from "qrcode";
 
 
-
-/**
- * 
- * @param {Object} menuData 
- * @returns {Promise<string>} 
- */
 export async function generateMenuQRCode(menuData) {
-    // Extraemos solo la información de los platillos
-    const platillosData = menuData.platillo.map(platillo => ({
-      nombre_platillo: platillo.nombre_platillo,
-      precio_platillo: platillo.precio_platillo,
-      disponible: platillo.disponible
-    }));
-  
-    const dataString = JSON.stringify({ platillos: platillosData });
-  
     try {
-      // Generamos el código QR
-      const qrCode = await QRCode.toDataURL(dataString);
-      return qrCode; // Devolvemos el código QR en formato Base64
+        // Validar si menuData tiene la propiedad platillos
+        if (!menuData || !menuData.platillos) {
+            console.error("Error: menuData no contiene la propiedad 'platillos'. Datos recibidos:", menuData);
+            throw new Error("El menú no contiene información válida de platillos.");
+        }
+
+        if (!Array.isArray(menuData.platillos) || menuData.platillos.length === 0) {
+            console.error("Error: la propiedad 'platillos' no es un arreglo o está vacía.");
+            throw new Error("El menú no contiene platillos disponibles.");
+        }
+
+        // Extraer la información de los platillos
+        const platillosData = menuData.platillos.map(platillo => ({
+            nombre_platillo: platillo.nombre_platillo,
+            precio_platillo: platillo.precio_platillo,
+            disponible: platillo.disponible,
+        }));
+
+        const dataString = JSON.stringify({ platillos: platillosData });
+
+        // Generar el código QR
+        const qrCode = await QRCode.toDataURL(dataString);
+        return qrCode;
     } catch (error) {
-      console.error("Error generando el QR del menú:", error);
-      throw new Error("Error al generar el código QR del menú");
+        console.error("Error generando el QR del menú:", error);
+        throw new Error("Error al generar el código QR del menú");
     }
-  }
+}
+
+
+
+
+
 
 
 

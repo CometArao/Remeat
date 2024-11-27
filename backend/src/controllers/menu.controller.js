@@ -24,31 +24,36 @@ from "../handlers/responseHandlers.js";
 
 
 
-/**
- * 
- * @param {Object} req 
- * @param {Object} res 
- */
 export async function getMenuQRCodeController(req, res) {
     try {
-      // Obtenemos el menú del día (o el primer menú disponible)
-      const [menus, errorMenus] = await getMenusService();
-  
-      if (errorMenus || menus.length === 0) {
-        return handleErrorServer(res, 404, "No se encontró el menú del día");
-      }
-  
-      const menuDelDia = menus[0]; // Tomamos el primer menú como el menú del día
-  
-      // Generamos el código QR solo con la información de los platillos
-      const qrCode = await generateMenuQRCode(menuDelDia);
-  
-      // Enviamos el código QR como respuesta
-      handleSuccess(res, 200, "QR de los platillos del menú generado exitosamente", { qrCode });
+        // Obtener los menús desde el servicio
+        const [menus, errorMenus] = await getMenusService();
+
+        if (errorMenus || menus.length === 0) {
+            return handleErrorServer(res, 404, "No se encontró el menú del día");
+        }
+
+        const menuDelDia = menus[0]; // Tomar el primer menú como el menú del día
+
+        // Log para verificar la estructura de los datos del menú
+        console.log("Datos del menú recibido:", menuDelDia);
+
+        try {
+            // Generar el código QR con la información de los platillos
+            const qrCode = await generateMenuQRCode(menuDelDia);
+
+            // Enviar el código QR como respuesta
+            handleSuccess(res, 200, "QR de los platillos del menú generado exitosamente", { qrCode });
+        } catch (error) {
+            // Manejar errores específicos de la generación del QR
+            console.error("Error al generar el QR:", error.message);
+            return handleErrorServer(res, 500, error.message);
+        }
     } catch (error) {
-      handleErrorServer(res, 500, error.message);
+        console.error("Error en getMenuQRCodeController:", error.message);
+        handleErrorServer(res, 500, error.message);
     }
-  }
+}
 
 
 
