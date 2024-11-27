@@ -1,15 +1,26 @@
 import React from 'react';
+import useGetComandas from '../../hooks/Comandas/useGetComandas';
 import ComandaItem from './ComandaItem';
 
-const ComandaList = ({ comandas, onDelete }) => {
-  if (!Array.isArray(comandas) || comandas.length === 0) {
-    return <p>No se encontraron comandas.</p>; 
+const ComandaList = () => {
+  const { comandas, loading, error } = useGetComandas();
+
+  if (loading) {
+    return <p>Cargando comandas...</p>;
+  }
+
+  if (error) {
+    return <p style={{ color: 'red' }}>Error al cargar comandas: {error.message}</p>;
+  }
+
+  if (!comandas.length) {
+    return <p>No se encontraron comandas.</p>;
   }
 
   return (
     <ul>
       {comandas.map((comanda) => (
-        <ComandaItem key={comanda.id} {...comanda} onDelete={onDelete} />
+        <ComandaItem key={comanda.id_comanda} comanda={comanda} />
       ))}
     </ul>
   );

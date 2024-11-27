@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { generateMenuQRCode } from '../../services/menu.service';
-import cookies from 'js-cookie';
+import axios from 'axios';
 
 const useGenerateMenuQRCode = () => {
   const [qrCode, setQrCode] = useState(null);
@@ -8,20 +7,19 @@ const useGenerateMenuQRCode = () => {
   const [error, setError] = useState(null);
 
   const generateQRCode = async () => {
-    if (loading) return; 
     setLoading(true);
-    setError(null); 
-    const token = cookies.get('jwt-auth');
+    setError(null);
     try {
-      console.log('Solicitando QR desde el backend...');
-      const data = await generateMenuQRCode(token); 
-      console.log('Respuesta del backend:', data);
-      setQrCode(data.qrCode); 
+      const response = await axios.get('http://localhost:3000/api/menus/menu/qr');
+      if (response.data.status === 'Success' && response.data.data.qrCode) {
+        setQrCode(response.data.data.qrCode); // Aquí se almacena el base64 del QR.
+      } else {
+        throw new Error(response.data.message || 'Error al generar el código QR');
+      }
     } catch (err) {
-      console.error('Error generando el QR:', err.response || err.message);
       setError(err);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
