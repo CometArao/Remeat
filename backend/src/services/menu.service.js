@@ -65,7 +65,27 @@ export async function createMenuService(data) {
             platillo: platillosValidos // Relacionar con los platillos validados
         });
         await menuRepository.save(newMenu);
-        return [newMenu, null];
+
+        // Construir la respuesta sin la contraseña del usuario
+        const formattedMenu = {
+            id_menu: newMenu.id_menu,
+            fecha: newMenu.fecha,
+            disponibilidad: newMenu.disponibilidad,
+            platillos: platillosValidos.map((platillo) => ({
+                id_platillo: platillo.id_platillo,
+                nombre_platillo: platillo.nombre_platillo,
+                precio_platillo: platillo.precio_platillo,
+                disponible: platillo.disponible,
+            })),
+            usuario: {
+                id_usuario: usuarioExistente.id_usuario,
+                nombre_usuario: usuarioExistente.nombre_usuario,
+                rol_usuario: usuarioExistente.rol_usuario,
+            },
+        };
+
+        return [formattedMenu, null];
+      
     } catch (error) {
         console.error("Error al crear el menú:", error);
         return [null, error.message];
@@ -83,7 +103,25 @@ export async function getMenusService() {
             relations: ["platillo", "usuario"],
         });
 
-        return [menus, null];
+        // Formatear los menús con los datos requeridos
+        const formattedMenus = menus.map((menu) => ({
+            id_menu: menu.id_menu,
+            fecha: menu.fecha,
+            disponibilidad: menu.disponibilidad,
+            platillos: menu.platillo.map((platillo) => ({
+                id_platillo: platillo.id_platillo,
+                nombre_platillo: platillo.nombre_platillo,
+                precio_platillo: platillo.precio_platillo,
+                disponible: platillo.disponible,
+            })),
+            usuario: {
+                id_usuario: menu.usuario.id_usuario,
+                nombre_usuario: menu.usuario.nombre_usuario,
+                rol_usuario: menu.usuario.rol_usuario,
+            },
+        }));
+
+        return [formattedMenus, null];
     } catch (error) {
         console.error("Error al obtener los menús", error);
         return [null, "Error interno del servidor"];
@@ -104,7 +142,25 @@ export async function getMenuByIdService(id_menu) {
             return [null, { dataInfo: "id_menu", message: `El menú con ID ${id_menu} no existe.` }];
         }
 
-        return [menuItem, null];
+         // Formatear el menú con los datos requeridos
+         const formattedMenu = {
+            id_menu: menuItem.id_menu,
+            fecha: menuItem.fecha,
+            disponibilidad: menuItem.disponibilidad,
+            platillos: menuItem.platillo.map((platillo) => ({
+                id_platillo: platillo.id_platillo,
+                nombre_platillo: platillo.nombre_platillo,
+                precio_platillo: platillo.precio_platillo,
+                disponible: platillo.disponible,
+            })),
+            usuario: {
+                id_usuario: menuItem.usuario.id_usuario,
+                nombre_usuario: menuItem.usuario.nombre_usuario,
+                rol_usuario: menuItem.usuario.rol_usuario,
+            },
+        };
+
+        return [formattedMenu, null];
     } catch (error) {
         console.error("Error al obtener el menú", error);
         return [null, "Error interno del servidor"];
@@ -112,62 +168,86 @@ export async function getMenuByIdService(id_menu) {
 }
 
 
-export async function updateMenuService() {
+export async function updateMenuService(id_menu, menuData) {
+    const menuRepository = AppDataSource.getRepository(Menu);
+    const platilloRepository = AppDataSource.getRepository(Platillo);
+    const usuarioRepository = AppDataSource.getRepository(Usuario);
+
+    const { fecha, disponibilidad, id_usuario, platillos } = menuData;
+
     try {
-        const menuRepository = AppDataSource.getRepository(Menu);
-        const { id_menu, fecha, disponibilidad, id_usuario, platilloIds } = query;
-
-        const createErrorMessage = (dataInfo, message) => ({
-            dataInfo,
-            message,
-        });
-
+        // Buscar el menú existente
         const menuFound = await menuRepository.findOne({
-            where: { id: id_menu },
+            where: { id_menu },
             relations: ["platillo", "usuario"],
         });
 
-        if (!menuFound) return [null, createErrorMessage("id_menu", `El menú con ID ${id_menu} no existe.`)];
+        if (!menuFound) {
+            return [null, `El menú con ID ${id_menu} no existe.`];
+        }
 
+        // Actualizar los campos básicos del menú
+        if (fecha !== undefined) menuFound.fecha = fecha;
+        if (disponibilidad !== undefined) menuFound.disponibilidad = disponibilidad;
 
-        menuFound.fecha = fecha;
-        menuFound.disponibilidad = disponibilidad;
-
-        // Si se proporciona un nuevo id_usuario, validamos y actualizamos
-        if (id_usuario) {
-            const usuarioExistente = await usuarioRepository.findOne(id_usuario);
-            if (!usuarioExistente) {
-                return [
-                    null,
-                    createErrorMessage("id_usuario", "El usuario no existe."),
-                ];
+        // Validar y actualizar el usuario asociado si se proporciona un nuevo id_usuario
+        if (id_usuario !== undefined) {
+            const usuarioFound = await usuarioRepository.findOneBy({ id_usuario });
+            if (!usuarioFound) {
+                return [null, `El usuario con ID ${id_usuario} no existe.`];
             }
-            menuFound.usuario = usuarioExistente;
-
+            menuFound.usuario = usuarioFound;
         }
 
-        // Actualizar las relaciones many-to-many con platillo
-        if (platilloIds) {
-            menuToUpdate.platillo = platilloIds.map((id) => ({
-                id_platillo: id,
-            }));
+        // Validar y actualizar los platillos asociados si se proporciona el array `platillos`
+        if (platillos && platillos.length > 0) {
+            const platilloIds = platillos.map((p) => p.id_platillo);
+
+            const platillosValidos = await platilloRepository.findByIds(platilloIds);
+
+            if (platillosValidos.length !== platilloIds.length) {
+                return [null, "Uno o más IDs de platillos proporcionados no existen."];
+            }
+
+            // Actualizar la relación many-to-many
+            menuFound.platillo = platillosValidos;
         }
 
-        await menuRepository.save(menuFound);
-        return [menuFound, null];
+        // Guardar el menú actualizado en la base de datos
+        const updatedMenu = await menuRepository.save(menuFound);
 
+        // Construir la estructura de respuesta para mayor claridad
+        const response = {
+            id_menu: updatedMenu.id_menu,
+            fecha: updatedMenu.fecha,
+            disponibilidad: updatedMenu.disponibilidad,
+            usuario: {
+                id_usuario: updatedMenu.usuario.id_usuario,
+                nombre_usuario: updatedMenu.usuario.nombre_usuario,
+                correo_usuario: updatedMenu.usuario.correo_usuario,
+            },
+            platillos: updatedMenu.platillo.map((platillo) => ({
+                id_platillo: platillo.id_platillo,
+                nombre_platillo: platillo.nombre_platillo,
+                precio_platillo: platillo.precio_platillo,
+                disponible: platillo.disponible,
+            })),
+        };
+
+        return [response, null];
     } catch (error) {
-        console.error("Error al actualizar el menú", error);
+        console.error("Error al actualizar el menú:", error);
         return [null, "Error interno del servidor"];
     }
 }
+
 
 export async function deleteMenuByIdService(id_menu) {
     try {
         const menuRepository = AppDataSource.getRepository(Menu);
 
         const menuFound = await menuRepository.findOne({
-            where: { id: id_menu },
+            where: {  id_menu },
             relations: ["platillo", "usuario"],
         });
 

@@ -1,6 +1,7 @@
 "use strtict"
 import {
     assignPriceToPlatilloService,
+    confirmarPlatilloService,
     createPlatilloService,
     deletePlatilloByIdService,  
     getPlatilloByIdService,
@@ -98,14 +99,14 @@ export async function getPlatilloByIdController(req, res){
 export async function updatePlatilloController(req, res){
     try{
         const { id_platillo } = req.params;
-        const { nombre, precio, id_usuario } = req.body;
+        const { nombre_platillo, id_usuario } = req.body;
 
-        const { error } = platilloBodyValidation.validate({ nombre_platillo, precio_platillo, id_usuario });
+        const { error } = platilloBodyValidation.validate({ nombre_platillo, id_usuario });
 
         if(error) return handleErrorClient(res, 400, error.message);
 
         // eslint-disable-next-line max-len
-        const [updatedPlatillo, errorPlatillo] = await updatePlatilloByIdService(id_platillo, { nombre, descripcion, precio, id_categoria });
+        const [updatedPlatillo, errorPlatillo] = await updatePlatilloByIdService(id_platillo, { nombre_platillo, id_usuario });
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
 
@@ -130,3 +131,26 @@ export async function deletePlatilloController(req, res){
         handleErrorServer(res, 500, error.message);
     }
 }
+
+export async function confirmarPlatilloController(req, res) {
+    try {
+      const {  nuevo_estado } = req.body;
+        const { id_platillo, id_comanda } = req.params;
+  
+      // Validar parámetros obligatorios
+      if (!nuevo_estado) {
+        return handleErrorClient(res, 400, "Se requiere el campo nuevo_estado.");
+      }
+  
+      // Llamar al servicio para confirmar el platillo
+      const [resultado, resultadoError] = await confirmarPlatilloService( id_platillo, id_comanda, nuevo_estado)
+      if (resultadoError) {
+        return handleErrorClient(res, 404, resultadoError);
+      }
+   
+  
+      handleSuccess(res, 200, "Estado del platillo actualizado con éxito.", resultado);
+    } catch (error) {
+      handleErrorServer(res, 500, error.message);
+    }
+  }
