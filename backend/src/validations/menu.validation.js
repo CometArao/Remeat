@@ -20,7 +20,7 @@ const dateValidator = (value, helper) => {
 export const menuBodyValidation = Joi.object({
   fecha: Joi.date()
     .iso()
-    .custom(dateValidator, "Validación de fecha")
+    //.custom(dateValidator, "Validación de fecha")
     .messages({
       "date.base": "La fecha debe ser una fecha válida.",
       "date.iso": "La fecha debe estar en formato ISO 8601.",
