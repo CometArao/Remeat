@@ -14,6 +14,7 @@ import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Informes from '@pages/Informes'
 import Grafico from './pages/Grafico.jsx';
+import Mermas from '@pages/Mermas.jsx';
 
 const data_lineal = [
   {
@@ -473,6 +474,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <TipoUtensilio />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/mermas',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Mermas />
           </ProtectedRoute>
         ),
       },

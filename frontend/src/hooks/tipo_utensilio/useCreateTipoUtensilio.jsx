@@ -9,7 +9,6 @@ import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 const useTipoUtensilio = (setTipoUtensilio) => {
     //Funcion para el boton de crear
     const [isCreatePopUpOpen, setIsCreatePopUpOpen] = useState(false)
-    //No se porque esta linea tiene un [] pero asi estaba en useEditUser
     const [dataTipoUtensilio, setDataTipoUtensilio] = useState([])
     const handleClickCreate = () => {
         setIsCreatePopUpOpen(true)
@@ -33,7 +32,6 @@ const useTipoUtensilio = (setTipoUtensilio) => {
             }
         }
     }
-
     return {
         handleClickCreate,
         handleCreate,
