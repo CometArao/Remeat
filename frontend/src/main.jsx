@@ -13,6 +13,7 @@ import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
 import Informes from '@pages/Informes'
+import Pedidos from '@pages/Pedidos'
 
 const data_lineal = [
   {
@@ -480,7 +481,15 @@ const router = createBrowserRouter([
             </div>
           </ProtectedRoute>
         ),
-      }
+      },
+      {
+        path: '/pedidos', // Nueva ruta para pedidos
+        element: (
+            <ProtectedRoute allowedRoles={['administrador']}>
+                <Pedidos />
+            </ProtectedRoute>
+        )
+    }
 
 //TODO: porque la navbar se sube en las pestañas de graficos
 

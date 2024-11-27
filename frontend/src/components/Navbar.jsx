@@ -7,8 +7,7 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const user = JSON.parse(sessionStorage.getItem('usuario')) || '';
-    console.log("user")
-    console.log(user)
+    console.log("user", user);
     const userRole = user?.rol_usuario;
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -85,6 +84,20 @@ const Navbar = () => {
                             activeClassName="active"
                         >
                            Utensilios 
+                        </NavLink>
+                    </li>
+                    )}
+                    {userRole === 'administrador' && (
+                    <li>
+                        <NavLink 
+                            to="/pedidos" // Nueva ruta para pedidos
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Pedidos
                         </NavLink>
                     </li>
                     )}
