@@ -3,138 +3,151 @@ import User from "../entity/usuario.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
 
+// Crear un nuevo usuario
+export async function createUserService(data) {
+    try {
+        const userRepository = AppDataSource.getRepository(User);
+
+        // Comprobar si el correo ya existe
+        const existingUser = await userRepository.findOne({
+            where: { correo_usuario: data.correo_usuario },
+        });
+
+        if (existingUser) return [null,"Ya existe un usuario con ese correo electrónico"];
+
+        // Encriptar la contraseña antes de guardar
+        data.contrasena_usuario = await encryptPassword(data.contrasena_usuario);
+
+        const newUser = userRepository.create(data); // Crea una nueva instancia del usuario
+        await userRepository.save(newUser); // Guarda el nuevo usuario en la base de datos
+
+        return [newUser,null];
+    } catch (error) {
+         console.error("Error al crear el usuario:", error);
+         return [null,"Error interno del servidor"];
+     }
+}
+
+// Obtener un usuario específico por ID
 export async function getUserService(query) {
-  try {
-    const { id_usuario } = query;
+    try {
+       const { id_usuario } = query;
 
-    const userRepository = AppDataSource.getRepository(User);
+       const userRepository = AppDataSource.getRepository(User);
 
-    const userFound = await userRepository.findOne({
-      where: { id_usuario },
-      relations: ["horario_laboral"],
-    });
+       const userFound = await userRepository.findOne({
+           where: { id_usuario },
+           relations: ["horario_laboral"],
+       });
 
-    if (!userFound) return [null, "Usuario no encontrado"];
+       if (!userFound) return [null,"Usuario no encontrado"];
 
-    // Excluye la contraseña en el retorno
-    const { contrasena_usuario, ...userData } = userFound;
+       // Excluye la contraseña en el retorno
+       const { contrasena_usuario,...userData } = userFound;
 
-    return [userData, null];
-  } catch (error) {
-    console.error("Error al obtener el usuario:", error);
-    return [null, "Error interno del servidor"];
-  }
+       return [userData,null];
+   } catch (error) {
+       console.error("Error al obtener el usuario:", error);
+       return [null,"Error interno del servidor"];
+   }
 }
 
+// Obtener todos los usuarios
 export async function getUsersService() {
-  try {
-    const userRepository = AppDataSource.getRepository(User);
+    try {
+       const userRepository = AppDataSource.getRepository(User);
 
-    const users = await userRepository.find({
-      relations: ["horario_laboral"],
-    });
+       const users = await userRepository.find({
+           relations: ["horario_laboral"],
+       });
 
-    if (!users || users.length === 0) return [null, "No hay usuarios"];
+       if (!users || users.length === 0) return [null,"No hay usuarios"];
 
-    const usersData = users.map(({ contrasena_usuario, ...user }) => user);
+       // Excluir contraseñas en los datos retornados
+       const usersData = users.map(({ contrasena_usuario,...user }) => user);
 
-    return [usersData, null];
-  } catch (error) {
-    console.error("Error al obtener a los usuarios:", error);
-    return [null, "Error interno del servidor"];
-  }
+       return [usersData,null];
+   } catch (error) {
+       console.error("Error al obtener a los usuarios:", error);
+       return [null,"Error interno del servidor"];
+   }
 }
 
+// Actualizar un usuario
 export async function updateUserService(query, body) {
-  try {
-    const { id_usuario } = query;
+   try {
+      const { id_usuario } = query;
 
-    const userRepository = AppDataSource.getRepository(User);
+      const userRepository = AppDataSource.getRepository(User);
 
-    const userFound = await userRepository.findOne({
-      where: { id_usuario },
-      relations: ["horario_laboral"],
-    });
-
-    if (!userFound) return [null, "Usuario no encontrado"];
-
-    // Validar que el email o rol no están duplicados
-    if (body.correo_usuario) {
-      const existingUser = await userRepository.findOne({
-        where: { correo_usuario: body.correo_usuario },
+      const userFound = await userRepository.findOne({
+          where: { id_usuario },
+          relations: ["horario_laboral"],
       });
 
-      if (existingUser && existingUser.id_usuario !== userFound.id_usuario) {
-        return [null, "Ya existe un usuario con el mismo correo electrónico"];
+      if (!userFound) return [null,"Usuario no encontrado"];
+
+      // Validar que el email no esté duplicado
+      if (body.correo_usuario) {
+          const existingUser = await userRepository.findOne({
+              where: { correo_usuario: body.correo_usuario },
+          });
+
+          if (existingUser && existingUser.id_usuario !== userFound.id_usuario) {
+              return [null,"Ya existe un usuario con el mismo correo electrónico"];
+          }
       }
-    }
 
-    // Comparar y actualizar la contraseña
-    if (body.contrasena_usuario) {
-      const isMatch = await comparePassword(
-        body.contrasena_usuario,
-        userFound.contrasena_usuario
-      );
+      // Actualizar solo los campos permitidos
+      Object.assign(userFound,{
+          nombre_usuario: body.nombre_usuario,
+          apellido_usuario: body.apellido_usuario,
+          correo_usuario: body.correo_usuario,
+          id_horario_laboral: body.id_horario_laboral,
+      });
 
-      if (!isMatch) return [null, "La contraseña actual no coincide"];
-    }
+      // Comparar y actualizar la contraseña si se proporciona una nueva
+      if (body.newPassword && body.newPassword.trim() !== "") {
+          userFound.contrasena_usuario = await encryptPassword(body.newPassword);
+      }
 
-    const dataUserUpdate = {
-      nombre_usuario: body.nombre_usuario,
-      apellido_usuario: body.apellido_usuario,
-      correo_usuario: body.correo_usuario,
-      rol_usuario: body.rol_usuario,
-      id_horario_laboral: body.id_horario_laboral,
-    };
+      await userRepository.save(userFound); // Guarda los cambios
 
-    if (body.newPassword && body.newPassword.trim() !== "") {
-      dataUserUpdate.contrasena_usuario = await encryptPassword(body.newPassword);
-    }
+      // Excluir la contraseña en el retorno
+      const { contrasena_usuario,...userUpdated } = userFound;
 
-    await userRepository.update({ id_usuario: userFound.id_usuario }, dataUserUpdate);
-
-    // Obtener usuario actualizado para retornar
-    const userData = await userRepository.findOne({
-      where: { id_usuario: userFound.id_usuario },
-      relations: ["horario_laboral"],
-    });
-
-    if (!userData) {
-      return [null, "Usuario no encontrado después de actualizar"];
-    }
-
-    const { contrasena_usuario, ...userUpdated } = userData;
-
-    return [userUpdated, null];
-  } catch (error) {
-    console.error("Error al modificar un usuario:", error);
-    return [null, "Error interno del servidor"];
-  }
+      return [userUpdated,null];
+   } catch (error) {
+       console.error("Error al modificar un usuario:", error);
+       return [null,"Error interno del servidor"];
+   }
 }
 
+// Eliminar un usuario
 export async function deleteUserService(query) {
-  try {
-    const { id_usuario } = query;
+   try {
+      const { id_usuario } = query;
 
-    const userRepository = AppDataSource.getRepository(User);
+      const userRepository = AppDataSource.getRepository(User);
 
-    const userFound = await userRepository.findOne({
-      where: { id_usuario },
-    });
+      const userFound = await userRepository.findOne({
+          where: { id_usuario },
+      });
 
-    if (!userFound) return [null, "Usuario no encontrado"];
+      if (!userFound) return [null,"Usuario no encontrado"];
 
-    if (userFound.rol_usuario === "administrador") {
-      return [null, "No se puede eliminar un usuario con rol de administrador"];
-    }
+      if (userFound.rol_usuario === "administrador") {
+          return [null,"No se puede eliminar un usuario con rol de administrador"];
+      }
 
-    await userRepository.remove(userFound);
+      await userRepository.remove(userFound); // Elimina el usuario
 
-    const { contrasena_usuario, ...dataUser } = userFound;
+      // Excluir la contraseña en el retorno
+      const { contrasena_usuario,...dataUser } = userFound;
 
-    return [dataUser, null];
-  } catch (error) {
-    console.error("Error al eliminar un usuario:", error);
-    return [null, "Error interno del servidor"];
-  }
+      return [dataUser,null];
+   } catch (error) {
+       console.error("Error al eliminar un usuario:", error);
+       return [null,"Error interno del servidor"];
+   }
 }
