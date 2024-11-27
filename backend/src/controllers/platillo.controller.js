@@ -1,6 +1,7 @@
 "use strtict"
 import {
     assignPriceToPlatilloService,
+    confirmarPlatilloService,
     createPlatilloService,
     deletePlatilloByIdService,  
     getPlatilloByIdService,
@@ -130,3 +131,26 @@ export async function deletePlatilloController(req, res){
         handleErrorServer(res, 500, error.message);
     }
 }
+
+export async function confirmarPlatilloController(req, res) {
+    try {
+      const {  nuevo_estado } = req.body;
+        const { id_platillo, id_comanda } = req.params;
+  
+      // Validar parámetros obligatorios
+      if (!nuevo_estado) {
+        return handleErrorClient(res, 400, "Se requiere el campo nuevo_estado.");
+      }
+  
+      // Llamar al servicio para confirmar el platillo
+      const [resultado, resultadoError] = await confirmarPlatilloService( id_platillo, id_comanda, nuevo_estado)
+      if (resultadoError) {
+        return handleErrorClient(res, 404, resultadoError);
+      }
+   
+  
+      handleSuccess(res, 200, "Estado del platillo actualizado con éxito.", resultado);
+    } catch (error) {
+      handleErrorServer(res, 500, error.message);
+    }
+  }
