@@ -88,6 +88,34 @@ const Navbar = () => {
                         </NavLink>
                     </li>
                     )}
+                    {userRole === 'administrador' && (
+                    <li>
+                        <NavLink 
+                            to="/informes" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Informes
+                        </NavLink>
+                    </li>
+                    )}
+                    {userRole === 'administrador' && (
+                    <li>
+                        <NavLink 
+                            to="/mermas" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Mermas 
+                        </NavLink>
+                    </li>
+                    )}
                     <li>
                         <NavLink 
                             to="/auth" 

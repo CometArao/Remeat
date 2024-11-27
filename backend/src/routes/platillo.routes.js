@@ -7,7 +7,6 @@ import {
     getPlatilloByIdController,
     getPlatillosController,
     updatePlatilloController,
-    // Nueva ruta para asignar precio
 } from "../controllers/platillo.controller.js";
 import { isChef } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";

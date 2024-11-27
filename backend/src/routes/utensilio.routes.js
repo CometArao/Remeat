@@ -1,5 +1,6 @@
 "use strict";
 import { Router } from "express";
+import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { 
   createTipoUtensilioController,
   createUtensilioController,
@@ -17,6 +18,7 @@ const router = Router();
 
 // Rutas para tipo_utensilio
 router
+  .use(authenticateJwt)  // Aplicar autenticación a todas las rutas
   .post("/tipo", createTipoUtensilioController)            // Crear tipo de utensilio
   .get("/tipo/:id", getTipoUtensilioController)            // Obtener un tipo de utensilio específico por ID
   .get("/tipo", getTiposUtensilioController)               // Obtener todos los tipos de utensilios
