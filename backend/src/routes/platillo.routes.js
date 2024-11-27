@@ -2,6 +2,7 @@
 import { Router } from "express";
 import {
     assignPriceToPlatilloController,
+    confirmarPlatilloController,
     createPlatilloController,
     deletePlatilloController,
     getPlatilloByIdController,
@@ -19,6 +20,7 @@ router
     .get("/:id_platillo", getPlatilloByIdController)    // Obtener un platillo específico por ID
     .post("/", isChef, createPlatilloController)                // Crear platillo (sin precio)
     .patch("/:id_platillo", isChef, updatePlatilloController)   // Actualizar platillo
+    .post("/confirmar/:id_platillo/:id_comanda", isChef, confirmarPlatilloController) // Confirmar estado de platillo
     .put("/cambiar-precio", assignPriceToPlatilloController) // Asignar precio al platillo (solo admin)
     .delete("/:id_platillo", deletePlatilloController); // Eliminar un platillo
 
