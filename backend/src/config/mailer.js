@@ -10,7 +10,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Función para enviar correos electrónicos
 export const sendEmail = async (to, subject, pedido) => {
     const mailOptions = {
         from: process.env.MAIL_USERNAME,
@@ -26,6 +25,10 @@ export const sendEmail = async (to, subject, pedido) => {
                 <li><strong>Fecha de Entrega:</strong> ${pedido.fecha_entrega_pedido}</li>
                 <li><strong>Nombre del Usuario:</strong> ${pedido.nombre_usuario}</li>
                 <li><strong>Costo:</strong> $${pedido.costo_pedido}</li>
+                <li><strong>Ingredientes:</strong> ${pedido.ingredientes.map(ing => 
+                    `<span>${ing}</span>`).join(", ") || "Ninguno"}</li>
+                <li><strong>Utensilios:</strong> ${pedido.utensilios.map(ut => 
+                    `<span>${ut}</span>`).join(", ") || "Ninguno"}</li>
             </ul>
             <p>Gracias por su atención.</p>
         `,

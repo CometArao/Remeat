@@ -3,11 +3,15 @@ import { AppDataSource } from "../config/configDb.js";
 import Pedido from "../entity/pedido.entity.js";
 import Usuario from "../entity/usuario.entity.js";
 import Proveedor from "../entity/proveedor.entity.js"; // Importa la entidad Proveedor
+import Ingrediente from "../entity/ingrediente.entity.js"; // Importa la entidad Ingrediente
+import Utensilio from "../entity/utensilio.entity.js"; // Importa la entidad Utensilio
 
 export async function createPedidoService(data) {
     const pedidoRepository = AppDataSource.getRepository(Pedido);
     const usuarioRepository = AppDataSource.getRepository(Usuario);
-    const proveedorRepository = AppDataSource.getRepository(Proveedor); // Asegúrate de importar Proveedor
+    const proveedorRepository = AppDataSource.getRepository(Proveedor); 
+    const ingredienteRepository = AppDataSource.getRepository(Ingrediente); // Importa Ingrediente
+    const utensilioRepository = AppDataSource.getRepository(Utensilio); // Importa Utensilio
 
     try {
         const { 
@@ -17,7 +21,9 @@ export async function createPedidoService(data) {
             fecha_entrega_pedido,
             costo_pedido,
             id_usuario,
-            id_proveedor // Asegúrate de incluir este campo
+            id_proveedor,
+            ingredientes, // Asegúrate de incluir este campo
+            utensilios // Asegúrate de incluir este campo
          } = data;
 
          // Verificar que el usuario exista y sea administrador
@@ -42,6 +48,15 @@ export async function createPedidoService(data) {
              usuario,
              proveedor // Asignar el proveedor al nuevo pedido
          });
+
+         // Si hay ingredientes o utensilios, asignarlos al pedido
+         if (ingredientes && ingredientes.length > 0) {
+             newPedido.ingredientes = await ingredienteRepository.findByIds(ingredientes);
+         }
+
+         if (utensilios && utensilios.length > 0) {
+             newPedido.utensilios = await utensilioRepository.findByIds(utensilios);
+         }
         
          await pedidoRepository.save(newPedido);
 
@@ -50,6 +65,27 @@ export async function createPedidoService(data) {
          console.error("Error al crear el pedido:", error);
          return [null,error.message];
      }
+}
+
+export async function validateIngredientesYUtensilios(ingredientes, utensilios) {
+    const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
+    const utensilioRepository = AppDataSource.getRepository(Utensilio);
+
+    if (ingredientes && ingredientes.length > 0) {
+        const foundIngredientes = await ingredienteRepository.findByIds(ingredientes);
+        if (foundIngredientes.length !== ingredientes.length) {
+            return ["Algunos ingredientes no existen."];
+        }
+    }
+
+    if (utensilios && utensilios.length > 0) {
+        const foundUtensilios = await utensilioRepository.findByIds(utensilios);
+        if (foundUtensilios.length !== utensilios.length) {
+            return ["Algunos utensilios no existen."];
+        }
+    }
+
+    return [null]; // No hay errores
 }
 
 export async function getAllPedidosService() {

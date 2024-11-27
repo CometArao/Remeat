@@ -73,4 +73,18 @@ export const pedidoValidation = Joi.object({
             "number.positive": "El id del proveedor debe ser un número positivo.",
             "any.required": "El id del proveedor es obligatorio."
         }),
+    ingredientes: Joi.array() // Validación para ingredientes
+        .items(Joi.number().integer().positive())
+        .optional() // Este campo es opcional
+        .messages({
+            "array.base": "Los ingredientes deben ser un arreglo.",
+            "array.includesRequiredUnknowns": "Algunos ingredientes no son válidos."
+        }),
+    utensilios: Joi.array() // Validación para utensilios
+        .items(Joi.number().integer().positive())
+        .optional() // Este campo es opcional
+        .messages({
+            "array.base": "Los utensilios deben ser un arreglo.",
+            "array.includesRequiredUnknowns": "Algunos utensilios no son válidos."
+        }),
 });

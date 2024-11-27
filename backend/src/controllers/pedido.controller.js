@@ -3,7 +3,8 @@ import { createPedidoService,
     deletePedidoService, 
     getAllPedidosService, 
     getPedidoByIdService, 
-    updatePedidoService } from "../services/pedido.service.js";
+    updatePedidoService,
+    validateIngredientesYUtensilios } from "../services/pedido.service.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import { pedidoValidation } from "../validations/pedido.validation.js"; // Importa las validaciones
 import { sendEmail } from "../config/mailer.js"; // Importa la función para enviar correos
@@ -13,6 +14,14 @@ export async function createPedido(req, res) {
         const { error } = pedidoValidation.validate(req.body);
         if (error) {
             return handleErrorClient(res, 400, error.details[0].message);
+        }
+
+        const { ingredientes, utensilios } = req.body;
+
+        // Verificar que los ingredientes y utensilios existan
+        const [validationError] = await validateIngredientesYUtensilios(ingredientes, utensilios);
+        if (validationError) {
+            return handleErrorClient(res, 400, validationError);
         }
 
         const [newPedido, serviceError] = await createPedidoService(req.body);
@@ -33,8 +42,10 @@ export async function createPedido(req, res) {
                     descripcion_pedido: newPedido.descripcion_pedido,
                     fecha_compra_pedido: newPedido.fecha_compra_pedido,
                     fecha_entrega_pedido: newPedido.fecha_entrega_pedido,
-                    nombre_usuario: newPedido.usuario.nombre_usuario, // Asegúrate de que este campo esté disponible
+                    nombre_usuario: newPedido.usuario.nombre_usuario,
                     costo_pedido: newPedido.costo_pedido,
+                    ingredientes: newPedido.ingredientes || [], // Asegúrate de incluir los ingredientes
+                    utensilios: newPedido.utensilios || []      // Asegúrate de incluir los utensilios
                 }
             );
         }
@@ -48,7 +59,7 @@ export async function createPedido(req, res) {
             fecha_entrega_pedido: newPedido.fecha_entrega_pedido,
             costo_pedido: newPedido.costo_pedido,
             id_usuario: newPedido.usuario.id_usuario,
-            id_proveedor: newPedido.proveedor ? newPedido.proveedor.id_proveedor : null // Incluir ID del proveedor
+            id_proveedor: newPedido.proveedor ? newPedido.proveedor.id_proveedor : null
         };
 
         handleSuccess(res, 201, "Pedido creado exitosamente", responseData);
