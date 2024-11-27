@@ -16,6 +16,7 @@ import Informes from '@pages/Informes';
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
 import Pedidos from '@pages/Pedidos';
+import Ingredientes from '@pages/Ingredientes';
 
 const data_lineal = [
   {
@@ -475,6 +476,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <TipoUtensilio />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/ingredientes',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Ingredientes />
           </ProtectedRoute>
         ),
       },
