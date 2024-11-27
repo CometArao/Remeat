@@ -11,7 +11,8 @@ import horariosDias from "./horario_dia.routes.js"
 import comandaRoutes from "./comanda.routes.js"
 import pedidoRoutes from "./pedido.routes.js";
 import ingredienteRoutes from "./ingrediente.routes.js"; // Importar las rutas de ingrediente y tipo_ingrediente
-import utensilioRoutes from "./utensilio.routes.js"; // Importar las rutas de utensilio y tipo_utensilio
+import utensilioRoutes from "./utensilio.routes.js";
+import unidadMedidaRoutes from "./unidad_medida.routes.js"; // Importar las rutas de utensilio y tipo_utensilio
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router
     .use("/comandas", comandaRoutes)
     .use("/pedidos", pedidoRoutes)
     .use("/mermas", mermaRoutes)
-    .use("/ingredientes", ingredienteRoutes); // Añadir las rutas de ingrediente y tipo_ingrediente
+    .use("/ingredientes", ingredienteRoutes) // Añadir las rutas de ingrediente , tipo_ingrediente
+    .use("/unidades-medidas", unidadMedidaRoutes); // Añadir las rutas de unidad de medida
 
 export default router;
