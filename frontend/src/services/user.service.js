@@ -3,17 +3,19 @@ import { formatUserData } from '@helpers/formatData.js';
 
 export async function getUsers() {
     try {
-        const { data } = await axios.get('/user/');
-        const formattedData = data.data.map(formatUserData);
+        const { data } = await axios.get('/usuarios/'); // Endpoint actualizado
+        console.log('Respuesta del backend:', data); // Verifica qué devuelve
+        const formattedData = data.data.map(formatUserData); // Asegúrate de que `data` existe
         return formattedData;
     } catch (error) {
-        return error.response.data;
+        console.error('Error en getUsers:', error);
+        return [];
     }
 }
 
 export async function updateUser(data, rut) {
     try {
-        const response = await axios.patch(`/user/detail/?rut=${rut}`, data);
+        const response = await axios.patch(`/usuarios/detail/?rut=${rut}`, data);
         console.log(response);
         return response.data.data;
     } catch (error) {
@@ -24,7 +26,7 @@ export async function updateUser(data, rut) {
 
 export async function deleteUser(rut) {
     try {
-        const response = await axios.delete(`/user/detail/?rut=${rut}`);
+        const response = await axios.delete(`/usuarios/detail/?rut=${rut}`);
         return response.data;
     } catch (error) {
         return error.response.data;

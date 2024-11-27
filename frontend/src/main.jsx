@@ -15,7 +15,7 @@ import '@styles/styles.css';
 import Informes from '@pages/Informes';
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
-import Pedidos from '@pages/Pedidos';
+//import Pedidos from '@pages/Pedidos';
 
 const data_lineal = [
   {
@@ -553,6 +553,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      /*
       {
         path: '/pedidos', // Nueva ruta para pedidos
         element: (
@@ -560,7 +561,7 @@ const router = createBrowserRouter([
             <Pedidos />
           </ProtectedRoute>
         ),
-      }
+      }*/
     ]
   },
   {

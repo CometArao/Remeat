@@ -91,7 +91,7 @@ const Navbar = () => {
                     <>
                         <li>
                             <NavLink 
-                                to="/pedidos" // Nueva ruta para pedidos
+                                to="/pedidos"
                                 onClick={() => { 
                                     setMenuOpen(false); 
                                     addActiveClass();
