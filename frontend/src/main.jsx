@@ -12,10 +12,13 @@ import Error404 from '@pages/Error404';
 import Root from '@pages/Root';
 import ProtectedRoute from '@components/ProtectedRoute';
 import '@styles/styles.css';
-import Informes from '@pages/Informes';
+import Informes from '@pages/Informes'
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
-import Pedidos from '@pages/Pedidos';
+
+
+import Comandas from '@pages/Comandas'; 
+import GenerateQRCode from '@pages/GenerateQRCode'; 
 
 const data_lineal = [
   {
@@ -452,6 +455,8 @@ const data_circular = [
     "color": "hsl(233, 70%, 50%)"
   }
 ]
+
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -513,14 +518,7 @@ const router = createBrowserRouter([
               <GraficoBarra data={mdata_barra} keys= {
                 ['hallulla', 'pan frances', 'pan de ajo', 'pan integral']
               }
-              //[
-                //'hot dog',
-                //'burger',
-                //'sandwich',
-                //'kebab',
-                //'fries',
-                //'donut'
-              //]}
+              //[ 'hot dog', 'burger', 'sandwich', 'kebab', 'fries', 'donut' ]}
               />
             </div>
           </ProtectedRoute>
@@ -540,7 +538,7 @@ const router = createBrowserRouter([
                 'fries',
                 'donut'
               ]
-}/>
+              }/>
             </div>
           </ProtectedRoute>
         ),
@@ -554,13 +552,21 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/pedidos', // Nueva ruta para pedidos
+        path: '/comandas', // Ruta para comandas, accesible solo para mesero
         element: (
-          <ProtectedRoute allowedRoles={['administrador']}>
-            <Pedidos />
+          <ProtectedRoute allowedRoles={['mesero']}>
+            <Comandas />
           </ProtectedRoute>
         ),
-      }
+      },
+      {
+        path: '/menu/generate-qr', // Ruta para generar QR, accesible solo para mesero
+        element: (
+          <ProtectedRoute allowedRoles={['mesero']}>
+            <GenerateQRCode />
+          </ProtectedRoute>
+        ),
+      },
     ]
   },
   {
@@ -571,11 +577,8 @@ const router = createBrowserRouter([
     path: '/register',
     element: <Register />
   },
-])
+]);
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <RouterProvider router={router} />
-)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <RouterProvider router={router} />

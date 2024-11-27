@@ -7,7 +7,8 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const user = JSON.parse(sessionStorage.getItem('usuario')) || '';
-    console.log("user", user);
+    console.log("user")
+    console.log(user)
     const userRole = user?.rol_usuario;
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -88,32 +89,18 @@ const Navbar = () => {
                     </li>
                     )}
                     {userRole === 'administrador' && (
-                    <>
-                        <li>
-                            <NavLink 
-                                to="/pedidos" // Nueva ruta para pedidos
-                                onClick={() => { 
-                                    setMenuOpen(false); 
-                                    addActiveClass();
-                                }} 
-                                activeClassName="active"
-                            >
-                                Pedidos
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink 
-                                to="/informes" 
-                                onClick={() => { 
-                                    setMenuOpen(false); 
-                                    addActiveClass();
-                                }} 
-                                activeClassName="active"
-                            >
-                                Informes
-                            </NavLink>
-                        </li>
-                    </>
+                    <li>
+                        <NavLink 
+                            to="/informes" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Informes
+                        </NavLink>
+                    </li>
                     )}
                     {userRole === 'administrador' && (
                     <li>
@@ -126,6 +113,35 @@ const Navbar = () => {
                             activeClassName="active"
                         >
                             Mermas 
+                        </NavLink>
+                    </li>
+                    )}
+                    {/* Nuevas rutas para mesero */}
+                    {userRole === 'mesero' && (
+                    <li>
+                        <NavLink 
+                            to="/comandas" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Comandas
+                        </NavLink>
+                    </li>
+                    )}
+                    {userRole === 'mesero' && (
+                    <li>
+                        <NavLink 
+                            to="/menu/generate-qr" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Generar QR
                         </NavLink>
                     </li>
                     )}
