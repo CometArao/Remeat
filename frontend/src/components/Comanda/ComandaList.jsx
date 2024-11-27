@@ -3,7 +3,7 @@ import ComandaItem from './ComandaItem';
 
 const ComandaList = ({ comandas, onDelete }) => {
   if (!Array.isArray(comandas) || comandas.length === 0) {
-    return <p>No se encontraron comandas.</p>; // Mensaje amigable si no hay comandas
+    return <p>No se encontraron comandas.</p>; 
   }
 
   return (

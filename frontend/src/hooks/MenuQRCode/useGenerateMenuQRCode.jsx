@@ -7,17 +7,21 @@ const useGenerateMenuQRCode = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const generateQRCode = async (menuId) => {
+  const generateQRCode = async () => {
+    if (loading) return; 
     setLoading(true);
+    setError(null); 
     const token = cookies.get('jwt-auth');
     try {
-      const data = await generateMenuQRCode(menuId, token);
-      setQrCode(data.qrCode); // Ajusta según el backend
+      console.log('Solicitando QR desde el backend...');
+      const data = await generateMenuQRCode(token); 
+      console.log('Respuesta del backend:', data);
+      setQrCode(data.qrCode); 
     } catch (err) {
-      console.error('Error generando el QR:', err);
+      console.error('Error generando el QR:', err.response || err.message);
       setError(err);
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
   };
 

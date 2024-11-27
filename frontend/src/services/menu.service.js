@@ -1,8 +1,11 @@
 import axios from 'axios';
 
-export const generateMenuQRCode = async (menuId, token) => {
-  const response = await axios.post(`http://localhost:3000/api/menu/${menuId}/generateQRCode`, {}, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const generateMenuQRCode = async (token) => {
+  const response = await axios.get(
+    `http://localhost:3000/api/menus/menu/qr`, 
+    {
+      headers: { Authorization: `Bearer ${token}` }, 
+    }
+  );
   return response.data;
 };
