@@ -43,7 +43,7 @@ export async function getMerma(req, res) {
 
 export async function getMermas(req, res) {
     try {
-        const [MermaEncontradas, errorMerma] = await deleteMermasService();
+        const [MermaEncontradas, errorMerma] = await getMermasService();
         if(errorMerma) {
             return handleErrorClient(res, 400, "Error en la consulta", errorMerma);
         }

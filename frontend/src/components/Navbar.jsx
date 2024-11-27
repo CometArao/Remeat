@@ -88,16 +88,44 @@ const Navbar = () => {
                     </li>
                     )}
                     {userRole === 'administrador' && (
+                    <>
+                        <li>
+                            <NavLink 
+                                to="/pedidos" // Nueva ruta para pedidos
+                                onClick={() => { 
+                                    setMenuOpen(false); 
+                                    addActiveClass();
+                                }} 
+                                activeClassName="active"
+                            >
+                                Pedidos
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink 
+                                to="/informes" 
+                                onClick={() => { 
+                                    setMenuOpen(false); 
+                                    addActiveClass();
+                                }} 
+                                activeClassName="active"
+                            >
+                                Informes
+                            </NavLink>
+                        </li>
+                    </>
+                    )}
+                    {userRole === 'administrador' && (
                     <li>
                         <NavLink 
-                            to="/pedidos" // Nueva ruta para pedidos
+                            to="/mermas" 
                             onClick={() => { 
                                 setMenuOpen(false); 
                                 addActiveClass();
                             }} 
                             activeClassName="active"
                         >
-                            Pedidos
+                            Mermas 
                         </NavLink>
                     </li>
                     )}
