@@ -54,7 +54,6 @@ export async function getMenuQRCodeController(req, res) {
 
 
 
-
 export async function createMenuController(req, res) {
     try {
        const { fecha, disponibilidad, id_usuario, platillos } = req.body;
@@ -132,14 +131,16 @@ export async function deleteMenuController(req, res){
 
 export async function updateMenuController(req, res){
     try{
-        const { fecha, disponibilidad, id_usuario,platillos } = req.body;
+        const { id_menu } = req.params;
+
+        const { fecha, disponibilidad, id_usuario, platillos } = req.body;
 
         const { error } = menuBodyValidation.validate({ fecha, disponibilidad, id_usuario, platillos });
 
         if(error) return handleErrorClient(res, 400, error.message);
 
      
-        const [menu, errorMenu] = await updateMenuService({ id_menu, fecha, disponibilidad, id_usuario, platillos });
+        const [menu, errorMenu] = await updateMenuService(id_menu, { fecha, disponibilidad, id_usuario, platillos } );
 
         if(errorMenu) return handleErrorClient(res, 404, errorMenu);
 
