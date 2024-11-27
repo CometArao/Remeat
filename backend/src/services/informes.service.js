@@ -130,6 +130,7 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
         }
         inventarioDelTipo.push(par_cantidad_fecha_pedido);
         const listaInfoMermas = await getInfoMermasDeIngrediente(ingrediente.id_ingrediente);
+        console.log(listaInfoMermas)
         //a considerar
         //push apply es mas eficiente que el operador ...
         inventarioDelTipo = [...inventarioDelTipo, ...listaInfoMermas];
@@ -152,12 +153,6 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
       result[tipoIngredienteEncontrado.nombre_tipo_ingrediente] = inventarioDelTipo;
     }
     return [result, null];
-    /**
-     * Para realizar esta parte nesesito tener claro como se realiza el descuento
-     * de los ingredientes. ¿Deberia existir una relacion entre ingredientes y comandas para
-     * saber cuando se consumio? O solo usar el tipo de ingrediente para ver
-     * que platillos usan ese ingrediente y cuando se consumieron.
-     */
 
   } catch (error) {
     console.log(error);
@@ -217,7 +212,7 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
     //porcion del ingrediente * cantidad de platillos
     const par_cantidad_fecha_comanda = {
       fecha: comanda.fecha_compra_comanda,
-      cantidad_ingrediente: -comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo,
+      cantidad_ingrediente: comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo,
       tipo: "comanda",
     }
     result.push(par_cantidad_fecha_comanda);

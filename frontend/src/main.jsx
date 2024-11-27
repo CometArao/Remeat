@@ -19,6 +19,7 @@ import Mermas from '@pages/Mermas.jsx';
 
 import Comandas from '@pages/Comandas'; 
 import GenerateQRCode from '@pages/GenerateQRCode'; 
+import Ingredientes from '@pages/Ingredientes';
 
 const data_lineal = [
   {
@@ -480,6 +481,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <TipoUtensilio />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/ingredientes',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Ingredientes />
           </ProtectedRoute>
         ),
       },

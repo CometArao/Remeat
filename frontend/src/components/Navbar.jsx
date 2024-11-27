@@ -15,7 +15,7 @@ const Navbar = () => {
     const logoutSubmit = () => {
         try {
             logout();
-            navigate('/auth'); 
+            navigate('/auth');
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
         }
@@ -49,12 +49,12 @@ const Navbar = () => {
             <div className={`nav-menu ${menuOpen ? 'activado' : ''}`}>
                 <ul>
                     <li>
-                        <NavLink 
-                            to="/home" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
+                        <NavLink
+                            to="/home"
+                            onClick={() => {
+                                setMenuOpen(false);
                                 addActiveClass();
-                            }} 
+                            }}
                             activeClassName="active"
                         >
                             Inicio
@@ -74,6 +74,23 @@ const Navbar = () => {
                         </NavLink>
                     </li>
                     )}
+
+                    {userRole === 'administrador' && (
+                        <li>
+                            <NavLink
+                                to="/ingredientes"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Ingredientes
+                            </NavLink>
+                        </li>
+                    )}
+
+
                     {userRole === 'administrador' && (
                     <li>
                         <NavLink 
@@ -102,17 +119,89 @@ const Navbar = () => {
                         </NavLink>
                     </li>
                     )}
+
+
                     {userRole === 'administrador' && (
+                        <li>
+                            <NavLink
+                                to="/tipo_utensilio"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Utensilios
+                            </NavLink>
+                        </li>
+                    )}
+
+                    <li>
+                        <NavLink
+                            to="/pedidos" // Nueva ruta para pedidos
+                            onClick={() => {
+                                setMenuOpen(false);
+                                addActiveClass();
+                            }}
+                            activeClassName="active"
+                        >
+                            Pedidos
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink
+                            to="/informes"
+                            onClick={() => {
+                                setMenuOpen(false);
+                                addActiveClass();
+                            }}
+                            activeClassName="active"
+                        >
+                            Informes
+                        </NavLink>
+                    </li>
+
+
+                    {userRole === 'administrador' && (
+                        <li>
+                            <NavLink
+                                to="/mermas"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Mermas
+                            </NavLink>
+                        </li>
+                    )}
+                    {/* Nuevas rutas para mesero */}
+                    {userRole === 'mesero' && (
                     <li>
                         <NavLink 
-                            to="/mermas" 
+                            to="/comandas" 
                             onClick={() => { 
                                 setMenuOpen(false); 
                                 addActiveClass();
                             }} 
                             activeClassName="active"
                         >
-                            Mermas 
+                            Comandas
+                        </NavLink>
+                    </li>
+                    )}
+                    {userRole === 'mesero' && (
+                    <li>
+                        <NavLink 
+                            to="/menu/generate-qr" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Generar QR
                         </NavLink>
                     </li>
                     )}
@@ -146,12 +235,12 @@ const Navbar = () => {
                     </li>
                     )}
                     <li>
-                        <NavLink 
-                            to="/auth" 
-                            onClick={() => { 
-                                logoutSubmit(); 
-                                setMenuOpen(false); 
-                            }} 
+                        <NavLink
+                            to="/auth"
+                            onClick={() => {
+                                logoutSubmit();
+                                setMenuOpen(false);
+                            }}
                             activeClassName="active"
                         >
                             Cerrar sesión
