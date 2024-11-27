@@ -12,6 +12,7 @@ import comandaRoutes from "./comanda.routes.js"
 import pedidoRoutes from "./pedido.routes.js";
 import ingredienteRoutes from "./ingrediente.routes.js"; // Importar las rutas de ingrediente y tipo_ingrediente
 import utensilioRoutes from "./utensilio.routes.js"; // Importar las rutas de utensilio y tipo_utensilio
+import proveedorRoutes from "./proveedor.routes.js"; // Importar las rutas de proveedor y tipo_proveedor
 
 const router = Router();
 
@@ -27,6 +28,7 @@ router
     .use("/comandas", comandaRoutes)
     .use("/pedidos", pedidoRoutes)
     .use("/mermas", mermaRoutes)
-    .use("/ingredientes", ingredienteRoutes); // Añadir las rutas de ingrediente y tipo_ingrediente
+    .use("/ingredientes", ingredienteRoutes) // Añadir las rutas de ingrediente y tipo_ingrediente
+    .use("/proveedores", proveedorRoutes); // Añadir las rutas de proveedor y tipo_proveedor
 
 export default router;

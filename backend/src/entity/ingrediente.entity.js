@@ -4,7 +4,7 @@ import usuario from "./usuario.entity.js"
 
 const ingrediente = new EntitySchema({
     name:"ingrediente",
-    tablename:"ingrediente",
+    tableName:"ingrediente",
     columns: {
         id_ingrediente: {
             type: "int",
