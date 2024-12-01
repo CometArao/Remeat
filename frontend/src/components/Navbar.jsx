@@ -89,38 +89,6 @@ const Navbar = () => {
                             </NavLink>
                         </li>
                     )}
-
-
-                    {userRole === 'administrador' && (
-                    <li>
-                        <NavLink 
-                            to="/tipo_utensilio" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                           Utensilios 
-                        </NavLink>
-                    </li>
-                    )}
-                    {userRole === 'administrador' && (
-                    <li>
-                        <NavLink 
-                            to="/informes" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Informes
-                        </NavLink>
-                    </li>
-                    )}
-
-
                     {userRole === 'administrador' && (
                         <li>
                             <NavLink
@@ -138,7 +106,7 @@ const Navbar = () => {
 
                     <li>
                         <NavLink
-                            to="/pedidos" // Nueva ruta para pedidos
+                            to="/pedido" // Nueva ruta para pedidos
                             onClick={() => {
                                 setMenuOpen(false);
                                 addActiveClass();
@@ -176,34 +144,19 @@ const Navbar = () => {
                             </NavLink>
                         </li>
                     )}
-                    {/* Nuevas rutas para mesero */}
-                    {userRole === 'mesero' && (
-                    <li>
-                        <NavLink 
-                            to="/comandas" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Comandas
-                        </NavLink>
-                    </li>
-                    )}
-                    {userRole === 'mesero' && (
-                    <li>
-                        <NavLink 
-                            to="/menu/generate-qr" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Generar QR
-                        </NavLink>
-                    </li>
+                    {userRole === 'administrador' && (
+                        <li>
+                            <NavLink
+                                to="/ingredientes2"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                               Ingredientes 
+                            </NavLink>
+                        </li>
                     )}
                     {/* Nuevas rutas para mesero */}
                     {userRole === 'mesero' && (

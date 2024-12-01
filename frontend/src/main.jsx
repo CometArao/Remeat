@@ -16,10 +16,11 @@ import Informes from '@pages/Informes'
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
 
-
+import Pedidos from './pages/Pedidos.jsx';
 import Comandas from '@pages/Comandas'; 
 import GenerateQRCode from '@pages/GenerateQRCode'; 
 import Ingredientes from '@pages/Ingredientes';
+import Ingredientes2 from '@pages/Ingredientes2';
 
 const data_lineal = [
   {
@@ -514,7 +515,7 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <div style={{ height: '80vh', marginTop: '10vh' }}>
-              <GraficoLineal data={data_lineal} />
+              <GraficoLineal data={data_lineal} legendX = {"test"} legendY = {"testy"}/>
             </div>
           </ProtectedRoute>
         ),
@@ -573,6 +574,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['mesero']}>
             <GenerateQRCode />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/pedido', // Ruta para generar QR, accesible solo para mesero
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Pedidos />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/ingredientes2', // Ruta para generar QR, accesible solo para mesero
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Ingredientes2 />
           </ProtectedRoute>
         ),
       },
