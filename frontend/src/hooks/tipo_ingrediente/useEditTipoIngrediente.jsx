@@ -8,6 +8,7 @@ const useEditTipoIngrediente = (setTiposIngrediente) => {
 
     const handleClickUpdate = () => {
         if (dataTipoIngrediente.length > 0) {
+            console.log('Seleccionado para actualizar:', dataTipoIngrediente[0]);
             setIsPopupOpen(true);
         }
     };
@@ -15,34 +16,42 @@ const useEditTipoIngrediente = (setTiposIngrediente) => {
     const handleUpdate = async (updatedDataTipoIngrediente) => {
         if (updatedDataTipoIngrediente) {
             try {
+                // Verificar que dataTipoIngrediente contiene datos válidos
+                if (!dataTipoIngrediente[0]?.id_tipo_ingrediente) {
+                    throw new Error("El tipo de ingrediente seleccionado no contiene un ID válido.");
+                }
+    
                 const updatedTipoIngrediente = await updateTipoIngrediente(
                     updatedDataTipoIngrediente,
-                    dataTipoIngrediente[0].id_tipo_ingrediente
+                    dataTipoIngrediente[0].id_tipo_ingrediente // Evitar acceder si no está definido
                 );
-
+    
                 showSuccessAlert(
                     '¡Actualizado!',
                     'El tipo de ingrediente ha sido actualizado correctamente.'
                 );
-
+    
                 setIsPopupOpen(false);
-
-                // Actualiza el estado
-                setTiposIngrediente((prev) =>
-                    prev.map((tipo) =>
-                        tipo.id_tipo_ingrediente === updatedTipoIngrediente.data.id_tipo_ingrediente
-                            ? updatedTipoIngrediente.data
-                            : tipo
-                    )
-                );
-
-                setDataTipoIngrediente([]);
+    
+                // Actualiza el estado, validando que `updatedTipoIngrediente.data` exista
+                if (updatedTipoIngrediente?.id_tipo_ingrediente) {
+                    setTiposIngrediente((prev) =>
+                        prev.map((tipo) =>
+                            tipo.id_tipo_ingrediente === updatedTipoIngrediente.id_tipo_ingrediente
+                                ? updatedTipoIngrediente
+                                : tipo
+                        )
+                    );
+                }
+    
+                setDataTipoIngrediente([]); // Resetear datos seleccionados
             } catch (error) {
                 console.error('Error al actualizar el tipo de ingrediente:', error);
-                showErrorAlert('Error', 'Ocurrió un error al actualizar el tipo de ingrediente.');
+                showErrorAlert('Error', error.message || 'Ocurrió un error al actualizar el tipo de ingrediente.');
             }
         }
     };
+    
 
     return {
         handleClickUpdate,
