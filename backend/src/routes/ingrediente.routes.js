@@ -24,9 +24,10 @@ const router = Router();
 router
   .post("/tipo", createTipoIngredienteController)          // Crear un nuevo tipo de ingrediente
   .get("/tipo", getTipoIngredientesController)             // Obtener todos los tipos de ingredientes
-  .get("/tipo/:id", getTipoIngredienteController)          // Obtener un tipo de ingrediente por id
-  .put("/tipo/:id", updateTipoIngredienteController)       // Actualizar un tipo de ingrediente por ID
-  .delete("/tipo/:id", deleteTipoIngredienteController);   // Eliminar un tipo de ingrediente por ID
+  .get("/tipo/:id_tipo_ingrediente", getTipoIngredienteController)          // Obtener un tipo de ingrediente por id
+  .patch("/tipo/:id_tipo_ingrediente", 
+    updateTipoIngredienteController)       // Actualizar un tipo de ingrediente por ID
+  .delete("/tipo/:id_tipo_ingrediente", deleteTipoIngredienteController);   // Eliminar un tipo de ingrediente por ID
 
 // Rutas para Ingrediente
 router

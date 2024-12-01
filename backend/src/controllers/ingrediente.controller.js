@@ -99,9 +99,15 @@ export async function updateTipoIngredienteController(req, res) {
 export async function deleteTipoIngredienteController(req, res) {
   try {
     const { id_tipo_ingrediente } = req.params;
+
+    if (!id_tipo_ingrediente) {
+      return handleErrorClient(res, 400, "ID del tipo de ingrediente no proporcionado.");
+    }
+
     const [deletedTipoIngrediente, errorTipoIngrediente] = await deleteTipoIngredienteService(id_tipo_ingrediente);
+
     if (errorTipoIngrediente) {
-      return handleErrorClient(res, 404, "Error eliminando tipo de ingrediente", errorTipoIngrediente);
+      return handleErrorClient(res, 400, "Error eliminando tipo de ingrediente", errorTipoIngrediente);
     }
 
     handleSuccess(res, 200, "Tipo de ingrediente eliminado exitosamente", deletedTipoIngrediente);
@@ -109,6 +115,7 @@ export async function deleteTipoIngredienteController(req, res) {
     handleErrorServer(res, 500, error.message);
   }
 }
+
 
 // Controlador para crear un ingrediente
 export async function createIngredienteController(req, res) {

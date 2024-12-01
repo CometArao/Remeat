@@ -70,15 +70,19 @@ export async function createTipoIngrediente(tipoIngrediente) {
     }
 }
 
+
 export async function updateTipoIngrediente(tipoIngrediente, id) {
     try {
-        const { data } = await axios.patch(`/ingredientes/tipo/${id}`, tipoIngrediente);
+        const { data } = await axios.patch(`/ingredientes/tipo/${id}`, tipoIngrediente, {
+            headers: { 'Cache-Control': 'no-cache' },
+        });
         return data.data;
     } catch (error) {
         console.error('Error updating tipo ingrediente:', error);
-        return error.response.data;
+        return error.response?.data || { error: 'Error desconocido' };
     }
 }
+
 
 export async function deleteTipoIngrediente(id) {
     try {

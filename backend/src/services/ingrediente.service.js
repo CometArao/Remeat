@@ -285,15 +285,32 @@ export async function updateTipoIngredienteService(id_tipo_ingrediente, data) {
     }
 }
 
-// Servicio para eliminar un tipo de ingrediente
 export async function deleteTipoIngredienteService(id) {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
+        // Verificar que el tipo de ingrediente existe
+        const tipoIngredienteExistente = await tipoIngredienteRepository.findOne({
+            where: { id_tipo_ingrediente: id },
+        });
+
+        if (!tipoIngredienteExistente) {
+            return [null, `El tipo de ingrediente con ID ${id} no existe.`];
+        }
+
+        // Intentar eliminar el tipo de ingrediente
         await tipoIngredienteRepository.delete(id);
         return [true, null];
     } catch (error) {
+        // Verificar si el error es de clave foránea
+        if (error.code === "23503") { // Código de error para violación de clave foránea en PostgreSQL
+            return [null, `No se puede eliminar este tipo de ingrediente porque está siendo utilizado
+                en uno o más platillos.`];
+                
+        }
         console.error("Error al eliminar el tipo de ingrediente:", error);
         return [null, error.message];
     }
 }
+
+
