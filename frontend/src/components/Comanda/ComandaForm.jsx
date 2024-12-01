@@ -5,6 +5,7 @@ const ComandaForm = ({ onSubmit }) => {
     fecha_compra_comanda: '',
     hora_compra_comanda: '',
     id_usuario: '',
+    estado_comanda: 'pendiente', // Valor predeterminado
   });
 
   const handleChange = (e) => {
@@ -42,6 +43,15 @@ const ComandaForm = ({ onSubmit }) => {
         onChange={handleChange}
         required
       />
+      <label>Estado de la Comanda:</label>
+      <select
+        name="estado_comanda"
+        value={formData.estado_comanda}
+        onChange={handleChange}
+        required
+      >
+        <option value="pendiente">Pendiente</option>
+      </select>
       <button type="submit">Crear Comanda</button>
     </form>
   );
