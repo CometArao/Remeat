@@ -26,6 +26,22 @@ import UnidadesMedida from '@pages/UnidadMedida';
 
 
 
+const data_lineal2 = [
+  {
+    "id": "platillo_prueba1",
+    "color": "hsl(308, 70%, 50%)",
+    "data": [
+      {
+        "x": 14,
+        "y": 100
+      },
+      {
+        "x": 15,
+        "y": 100
+      }
+    ]
+  }
+]
 const data_lineal = [
   {
     "id": "japan",
@@ -528,7 +544,7 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <div style={{ height: '80vh', marginTop: '10vh' }}>
-              <GraficoLineal data={data_lineal} legendX = {"test"} legendY = {"testy"}/>
+              <GraficoLineal data={data_lineal2} legendX = {"test"} legendY = {"testy"}/>
             </div>
           </ProtectedRoute>
         ),
