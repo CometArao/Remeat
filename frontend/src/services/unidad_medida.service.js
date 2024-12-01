@@ -1,9 +1,9 @@
 import axios from './root.service.js';
 
 
-export async function getUnidadMedida() {
+export async function getUnidadesMedidas() {
     try {
-        const { data } = await axios.get('api/unidades-medidas/');
+        const { data } = await axios.get('unidades-medidas/');
         console.log(data.data)
         //const formattedData = data.data.map(formatUserData);
         return data.data;
@@ -11,20 +11,34 @@ export async function getUnidadMedida() {
         return error.response.data;
     }
 }
-
-export async function updateUnidadMedida(data, id) {
+export async function getUnidadMedidaById(id) {
     try {
-        const response = await axios.patch(`api/unidades-medidas/${id}`, data);
+        const response = await axios.get(`unidades-medidas/${id}`);
         return response.data.data;
     } catch (error) {
-        console.log(error);
         return error.response.data;
     }
 }
 
+export async function updateUnidadMedida(data, id) {
+    try {
+        const response = await axios.patch(`unidades-medidas/${id}`, data, {
+            headers: { 'Cache-Control': 'no-cache' },
+        });
+        console.log('Respuesta del backend:', response.data); // Debug
+        return response.data.data;
+    } catch (error) {
+        console.error('Error al enviar PATCH:', error.response || error);
+        throw new Error(
+            error.response?.data?.message || 'Error desconocido al actualizar la unidad de medida.'
+        );
+    }
+}
+
+
 export async function deleteUnidadMedida(id) {
     try {
-        const response = await axios.delete(`api/unidades-medidas/${id}`);
+        const response = await axios.delete(`unidades-medidas/${id}`);
         return response.data;
     } catch (error) {
         return error.response.data;
@@ -32,7 +46,7 @@ export async function deleteUnidadMedida(id) {
 }
 export async function createUnidadMedida(data) {
     try {
-        const response = await axios.post(`api/unidades-medidas/`, data)
+        const response = await axios.post(`unidades-medidas/`, data)
         return response.data
     }catch (error) {
         console.log(error)

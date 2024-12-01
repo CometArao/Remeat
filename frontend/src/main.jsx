@@ -20,7 +20,8 @@ import Pedidos from './pages/Pedidos.jsx';
 import Comandas from '@pages/Comandas'; 
 import GenerateQRCode from '@pages/GenerateQRCode'; 
 import Ingredientes from '@pages/Ingredientes';
-import Ingredientes2 from '@pages/Ingredientes2';
+import TipoIngrediente from '@pages/TipoIngrediente';
+import UnidadesMedida from '@pages/UnidadMedida';
 
 
 
@@ -489,11 +490,19 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: '/ingredientes',
+       {
+        path: '/ingredientes/', 
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Ingredientes />
+          </ProtectedRoute>
+       ),
+      },
+      {
+        path: '/tipos_ingredientes',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <TipoIngrediente />
           </ProtectedRoute>
         ),
       },
@@ -588,14 +597,14 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/ingredientes2', // Ruta para generar QR, accesible solo para mesero
+        path: '/unidades_medidas',
         element: (
-          <ProtectedRoute allowedRoles={['administrador']}>
-            <Ingredientes2 />
-          </ProtectedRoute>
+            <ProtectedRoute allowedRoles={['administrador']}>
+                <UnidadesMedida />
+            </ProtectedRoute>
         ),
-      },
-      
+    },
+    
     ]
   },
   {

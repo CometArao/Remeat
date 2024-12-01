@@ -161,7 +161,78 @@ const Navbar = () => {
                         </NavLink>
                     </li>
 
-                    {/* Cerrar sesión */}
+
+                    {userRole === 'administrador' && (
+                        <li>
+                            <NavLink
+                                to="/mermas"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Mermas
+                            </NavLink>
+                        </li>
+                    )}
+                    {userRole === 'administrador' && (
+                        <li>
+                            <NavLink
+                                to="/tipos_ingredientes"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Tipos de ingredientes
+                            </NavLink>
+                        </li>
+                    )}
+                    {userRole === 'administrador' && (
+                        <li>
+                            <NavLink
+                                to="/unidades_medidas"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Unidades
+                            </NavLink>
+                        </li>
+                    )}
+                    {/* Nuevas rutas para mesero */}
+                    {userRole === 'mesero' && (
+                    <li>
+                        <NavLink 
+                            to="/comandas" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Comandas
+                        </NavLink>
+                    </li>
+                    )}
+                    {userRole === 'mesero' && (
+                    <li>
+                        <NavLink 
+                            to="/menu/generate-qr" 
+                            onClick={() => { 
+                                setMenuOpen(false); 
+                                addActiveClass();
+                            }} 
+                            activeClassName="active"
+                        >
+                            Generar QR
+                        </NavLink>
+                    </li>
+                    )}
                     <li>
                         <NavLink
                             to="/auth"

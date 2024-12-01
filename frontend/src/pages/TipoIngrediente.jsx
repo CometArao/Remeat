@@ -1,11 +1,11 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Table from '@components/Table';
 import useGetTiposIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
-import useGetIngredientes from '../hooks/ingredientes/useGetIngredientes';
-import useCreateIngrediente from '../hooks/ingredientes/useCreateIngredientes';
-import useEditIngrediente from '../hooks/ingredientes/useEditIngredientes';
-import useDeleteIngrediente from '../hooks/ingredientes/useDeletedIngredientes';
-import PopupIngrediente from '../hooks/ingredientes/PopupIngrediente';
+import useUnidadMedida from '../hooks/unidad_medida/useGetUnidadMedida';
+import useCreateTipoIngrediente from '../hooks/tipo_ingrediente/useCreateTipoIngrediente';
+import useEditTipoIngrediente from '../hooks/tipo_ingrediente/useEditTipoIngrediente';
+import useDeleteTipoIngrediente from '../hooks/tipo_ingrediente/useDeleteTipoIngrediente';
+import PopupTipoIngrediente from '@hooks/tipo_ingrediente/PopupTipoIngrediente';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
@@ -13,66 +13,63 @@ import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import '@styles/users.css';
 
-const Ingredientes = () => {
-    const { ingredientes, fetchIngredientes, setIngredientes } = useGetIngredientes();
-    const { tiposIngrediente, fetchTiposIngrediente } = useGetTiposIngrediente();
+const TiposIngrediente = () => {
+    const { tiposIngrediente, fetchTiposIngrediente, setTiposIngrediente } = useGetTiposIngrediente();
+    const { unidadMedidas, fetchUnidadMedida } = useUnidadMedida();
 
     useEffect(() => {
-        fetchIngredientes();
         fetchTiposIngrediente();
-    }
-    , []);
+        fetchUnidadMedida();
+    }, []);
 
     const {
         handleClickCreate,
         handleCreate,
         isCreatePopupOpen,
         setIsCreatePopupOpen,
-        dataIngrediente: dataIngredienteCreate,
-        setDataIngrediente: setDataIngredienteCreate,
-    } = useCreateIngrediente(setIngredientes);
+        dataTipoIngrediente: dataTipoIngredienteCreate,
+        setDataTipoIngrediente: setDataTipoIngredienteCreate,
+    } = useCreateTipoIngrediente(setTiposIngrediente);
 
     const {
         handleClickUpdate,
         handleUpdate,
         isPopupOpen,
         setIsPopupOpen,
-        dataIngrediente,
-        setDataIngrediente,
-    } = useEditIngrediente(setIngredientes);
+        dataTipoIngrediente,
+        setDataTipoIngrediente,
+    } = useEditTipoIngrediente(setTiposIngrediente);
 
-    const { handleDelete } = useDeleteIngrediente(fetchIngredientes, setDataIngrediente);
+    const { handleDelete } = useDeleteTipoIngrediente(fetchTiposIngrediente, setDataTipoIngrediente);
 
     const handleSelectionChange = useCallback(
         (selectedItems) => {
             if (selectedItems.length > 0) {
-                setDataIngrediente(selectedItems);
+                setDataTipoIngrediente(selectedItems);
             } else {
-                setDataIngrediente([]);
+                setDataTipoIngrediente([]);
             }
         },
-        [setDataIngrediente]
+        [setDataTipoIngrediente]
     );
+    
 
     const columns = [
-      { title: 'Fecha de Vencimiento', field: 'fecha_vencimiento', width: 200 },
-      { title: 'Cantidad', field: 'cantidad_ingrediente', width: 150 },
-      { title: 'Cantidad Original', field: 'cantidad_original_ingrediente', width: 200 },
-      { title: 'Costo', field: 'costo_ingrediente', width: 150 },
-      { title: 'Tipo de Ingrediente', field: 'tipo_ingrediente.nombre_tipo_ingrediente', width: 200 },
+        { title: 'Nombre', field: 'nombre_tipo_ingrediente', width: 500, responsive: 0 },
+        { title: 'Unidad de Medida', field: 'unidad_medida.nombre_unidad_medida', width: 300 },
     ];
 
     return (
         <div className="main-container">
             <div className="table-container">
                 <div className="top-table">
-                    <h1 className="title-table">Ingredientes</h1>
+                    <h1 className="title-table">Tipos de Ingrediente</h1>
                     <div className="filter-actions">
                         <button className="create-button" onClick={handleClickCreate}>
                             <img src={CreateIcon} alt="Crear" />
                         </button>
-                        <button onClick={handleClickUpdate} disabled={dataIngrediente.length === 0}>
-                            {dataIngrediente.length === 0 ? (
+                        <button onClick={handleClickUpdate} disabled={dataTipoIngrediente.length === 0}>
+                            {dataTipoIngrediente.length === 0 ? (
                                 <img src={UpdateIconDisable} alt="edit-disabled" />
                             ) : (
                                 <img src={UpdateIcon} alt="edit" />
@@ -80,10 +77,10 @@ const Ingredientes = () => {
                         </button>
                         <button
                             className="delete-user-button"
-                            disabled={dataIngrediente.length === 0}
-                            onClick={() => handleDelete(dataIngrediente)}
+                            disabled={dataTipoIngrediente.length === 0}
+                            onClick={() => handleDelete(dataTipoIngrediente)}
                         >
-                            {dataIngrediente.length === 0 ? (
+                            {dataTipoIngrediente.length === 0 ? (
                                 <img src={DeleteIconDisable} alt="delete-disabled" />
                             ) : (
                                 <img src={DeleteIcon} alt="delete" />
@@ -92,30 +89,30 @@ const Ingredientes = () => {
                     </div>
                 </div>
                 <Table
-                    data={ingredientes}
+                    data={tiposIngrediente}
                     columns={columns}
-                    initialSortName="nombre_ingrediente"
+                    initialSortName="nombre_tipo_ingrediente"
                     onSelectionChange={handleSelectionChange}
                 />
             </div>
-            <PopupIngrediente
+            <PopupTipoIngrediente
                 show={isPopupOpen}
                 setShow={setIsPopupOpen}
-                data={dataIngrediente}
+                data={dataTipoIngrediente}
                 action={handleUpdate}
-                tiposIngrediente={tiposIngrediente}
-                isEdit={true}
+                unidadesMedida={unidadMedidas}
+                isEdit = {true}
             />
-            <PopupIngrediente
+            <PopupTipoIngrediente
                 show={isCreatePopupOpen}
                 setShow={setIsCreatePopupOpen}
-                data={dataIngredienteCreate}
+                data={dataTipoIngredienteCreate}
                 action={handleCreate}
-                tiposIngrediente={tiposIngrediente}
-                isEdit={false}
+                unidadesMedida={unidadMedidas}
+                isEdit = {false}
             />
         </div>
     );
 };
 
-export default Ingredientes;
+export default TiposIngrediente;
