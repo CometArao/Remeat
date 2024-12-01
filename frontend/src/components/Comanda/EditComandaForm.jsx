@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 
-const ComandaForm = ({ onSubmit }) => {
+const EditComandaForm = ({ comanda, onSubmit }) => {
   const [formData, setFormData] = useState({
-    fecha_compra_comanda: '',
-    hora_compra_comanda: '',
-    id_usuario: '',
-    estado_comanda: 'pendiente', // Valor predeterminado
+    fecha_compra_comanda: comanda.fecha_compra_comanda || '',
+    hora_compra_comanda: comanda.hora_compra_comanda || '',
+    estado_comanda: comanda.estado_comanda || 'pendiente',
   });
 
   const handleChange = (e) => {
@@ -14,11 +13,11 @@ const ComandaForm = ({ onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit(comanda.id_comanda, formData); // Llama a la función `onSubmit` con los datos actualizados
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="edit-comanda-form">
       <label>Fecha:</label>
       <input
         type="date"
@@ -35,14 +34,6 @@ const ComandaForm = ({ onSubmit }) => {
         onChange={handleChange}
         required
       />
-      <label>ID Usuario:</label>
-      <input
-        type="number"
-        name="id_usuario"
-        value={formData.id_usuario}
-        onChange={handleChange}
-        required
-      />
       <label>Estado de la Comanda:</label>
       <select
         name="estado_comanda"
@@ -51,10 +42,12 @@ const ComandaForm = ({ onSubmit }) => {
         required
       >
         <option value="pendiente">Pendiente</option>
+        <option value="en proceso">En Proceso</option>
+        <option value="completada">Completada</option>
       </select>
-      <button type="submit">Crear Comanda</button>
+      <button type="submit">Guardar Cambios</button>
     </form>
   );
 };
 
-export default ComandaForm;
+export default EditComandaForm;

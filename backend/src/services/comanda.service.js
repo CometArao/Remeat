@@ -10,7 +10,7 @@ import Menu from '../entity/menu.entity.js';
 
 
 
-async function verificarHorarioLaboral(idUsuario) {
+/* async function verificarHorarioLaboral(idUsuario) {
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
   // Obtener el usuario junto con su horario laboral y los días del horario
@@ -46,7 +46,7 @@ async function verificarHorarioLaboral(idUsuario) {
 
   throw new Error("El usuario no está en su horario laboral.");
 }
-
+*/
 
 
 
@@ -74,7 +74,7 @@ export async function obtenerComandasConPlatillos() {
   for (const comanda of comandas) {
     try {
       // Verifica el horario laboral del usuario asignado a la comanda
-      await verificarHorarioLaboral(comanda.usuario_id_usuario);
+      //await verificarHorarioLaboral(comanda.usuario_id_usuario);
       comandasEnHorario.push({
         idComanda: comanda.comanda_id_comanda,
         fecha: format(new Date(comanda.comanda_fecha_compra_comanda), 'yyyy-MM-dd'), // Formato legible de fecha
@@ -113,7 +113,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
    // Verificación de horario laboral del usuario asignado a la comanda
-  await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   // Verificar si el platillo existe
   const platillo = await platilloRepository.findOne({
@@ -149,7 +149,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
 
 export async function createComanda(data) {
-  await verificarHorarioLaboral(data.id_usuario);
+ // await verificarHorarioLaboral(data.id_usuario);
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
@@ -187,7 +187,7 @@ export async function getAllComandas() {
   for (const comanda of comandas) {
     try {
       // Verificar el horario laboral del usuario asociado a la comanda
-     await verificarHorarioLaboral(comanda.usuario.id_usuario);
+     //await verificarHorarioLaboral(comanda.usuario.id_usuario);
       // Si el usuario está en horario laboral, agregar la comanda a la lista
       comandasEnHorario.push(comanda);
     } catch (error) {
@@ -223,7 +223,7 @@ export async function getComandaById(comandaId) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   return comanda;
 }
@@ -239,7 +239,7 @@ export async function updateComanda(comandaId, data) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   if (comanda.estado_comanda !== 'pendiente') {
     throw new Error('La comanda no se puede modificar porque ya está completada o en otro estado.');
@@ -276,7 +276,7 @@ export async function deleteComanda(comandaId) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   await conformaRepository.delete({ id_comanda: comandaId });
   await comandaRepository.remove(comanda);
@@ -301,7 +301,7 @@ export async function completeComanda(comandaId) {
   }
 
   // Verificar el horario laboral del usuario
-  await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   // Validar que el estado sea 'pendiente'
   if (comanda.estado_comanda !== 'pendiente') {
