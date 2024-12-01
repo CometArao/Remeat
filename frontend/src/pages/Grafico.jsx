@@ -122,11 +122,18 @@ const Grafico = () => {
   const data = location.state;
   let formatedData = null;
   let keys = null;
+  console.log("data en Grafico")
+  console.log(data)
   if (data.tipo.tipoGrafico == "lineal") {
-    if (data.independiente == "Hora") {
-      //Mostrar interfaz para elegir hora
-    }
     formatedData = construirLineal(data.dependientes);
+    console.log("formatedData")
+    console.log(formatedData)
+    if (data.independientes.name == "Hora") {
+      //Mostrar interfaz para elegir hora
+      console.log("hora")
+      formatedData.sort()
+
+    }
   }
   if (data.tipo.tipoGrafico == "barra") {
     if (data.independiente == "Hora") {
@@ -177,6 +184,8 @@ function construirLineal(datos) {
     "hsl(200, 70%, 50%)"
   ]
   for (let i = 0; i < keys.length; i++) {
+    console.log("datos")
+    console.log(datos)
     const ventas = datos[keys[i]]['ventas_por_comanda'];
     let indice_color = 0;
     //if(/*independiente*/) {
@@ -186,7 +195,7 @@ function construirLineal(datos) {
     for (let ii = 0; ii < ventas.length; ii++) {
       const obj = {
         "x": ventas[ii].hora_compra,
-        "y": ventas[ii].ingresos_platillo
+        "y": ventas[ii].cantidad_platillo
       }
       formatedVentas.push(obj);
     }
@@ -196,7 +205,7 @@ function construirLineal(datos) {
       "data": formatedVentas
     }
     indice_color++;
-    if(indice_color === colores.length) {
+    if (indice_color === colores.length) {
       indice_color = 0;
     }
     result.push(obj);
@@ -218,7 +227,7 @@ function construirBarra(datos) {
       const venta = ventas[ii];
       console.log("total")
       console.log(total)
-      total += venta.ingresos_platillo;
+      total += venta.cantidad_platillo;
     }
     console.log("total")
     console.log(total)
@@ -236,12 +245,14 @@ function construirCircular(datos) {
   const color_circular = "hsl(299, 70%, 50%)" //TODO: agregar una funcion para generar colores
   const keys = Object.keys(datos)
   let result = [];
-  for(let i = 0; i < keys.length; i++) {
+  for (let i = 0; i < keys.length; i++) {
+    console.log("datos")
+    console.log(datos)
     const ventas = datos[keys[i]]["ventas_por_comanda"];
     let total = 0;
-    for(let ii = 0; ii < ventas.length; ii++) {
+    for (let ii = 0; ii < ventas.length; ii++) {
       const venta = ventas[ii];
-      total += venta.ingresos_platillo
+      total += venta.cantidad_platillo
     }
     const itemCircular = {
       "id": keys[i],
