@@ -1,82 +1,101 @@
 import axios from './root.service.js';
 
-export const getIngredientes = async () => {
- try {
-    const response = await axios.get('/api/ingredientes');
-    return response.data;
- } catch (error) {
-    console.error('Error fetching ingredientes:', error);
-    
- }
-};
-
-
-
-export const createIngrediente = async (ingredienteData) => {
-try {
-    const response = await axios.post('/api/ingredientes', ingredienteData);
-    return response.data;
-  } catch (error) {
-    console.error('Error creating ingrediente:', error);
-  }
-};
-
-export const updateIngrediente = async (ingredienteData) => {
+export async function getIngredientes() {
     try {
-        const response = await axios.put(`/api/ingredientes/${ingredienteData.id}`, ingredienteData);
-        return response.data;
+        const { data } = await axios.get('/ingredientes/');
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching ingredientes:', error);
+        return error.response.data || [];
+    }
+}
+
+export async function createIngrediente(ingrediente) {
+    try {
+        const { data } = await axios.post('/ingredientes/', ingrediente, {
+            headers: {
+                'Cache-Control': 'no-cache', // Desactiva el uso de caché
+                'Pragma': 'no-cache', // Asegura compatibilidad
+            },
+        });
+        
+        return data.data;
+    } catch (error) {
+        console.error('Error creating ingrediente:', error);
+        return error.response.data;
+    }
+}
+
+export async function updateIngrediente(ingrediente, id) {
+    try {
+        const { data } = await axios.put(`/ingredientes/${id}`, ingrediente);
+        return data.data;
     } catch (error) {
         console.error('Error updating ingrediente:', error);
-        
+        return error.response.data;
     }
+}
 
-};
-
-export const deleteIngrediente = async (ingredienteId) => {
+export async function deleteIngrediente(id) {
     try {
-        const response =  await axios.delete(`/api/ingredientes/${ingredienteId}`);
-        return response.data;
+        if (!id) throw new Error('ID no válida para eliminar el ingrediente.');
+
+        const { data } = await axios.delete(`/ingredientes/${id}`, {
+            headers: { 'Cache-Control': 'no-cache' },
+        });
+        return data;
     } catch (error) {
         console.error('Error deleting ingrediente:', error);
-        
-    }
-
-};
-
-export const getTipoIngrediente = async (tipoIngredienteId) => {
-    try {
-        const response = await axios.get(`/ingredientes/tipo/${tipoIngredienteId}`)
-        console.log(response)
-        return response.data;
-    }catch (error) {
-        console.error('Error borrando ingrediente:', error);
+        return error.response?.data || { status: 'Client error', details: error.message };
     }
 }
 
-export const getTiposIngrediente = async () => {
+export async function getTiposIngrediente() {
     try {
-        console.log("getTiposIngredientes")
-        const response = await axios.get(`/ingredientes/tipo/`)
-        console.log("response")
-        console.log(response)
-        return response.data;
-    }catch (error) {
-        console.error('Error borrando ingrediente:', error);
+        const { data } = await axios.get('/ingredientes/tipo/');
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching tipos de ingrediente:', error);
+        return error.response.data;
     }
 }
-export const updateTipoIngrediente = async (tipoIngredienteId) => {
+
+export async function createTipoIngrediente(tipoIngrediente) {
     try {
-        const response = await axios.patch(`/api/ingredientes/tipo/${tipoIngredienteId}`)
-        return response.data;
-    }catch (error) {
-        console.error('Error borrando ingrediente:', error);
+        const { data } = await axios.post('/ingredientes/tipo/', tipoIngrediente);
+        return data.data;
+    } catch (error) {
+        console.error('Error creating tipo ingrediente:', error);
+        return error.response.data;
     }
 }
-export const deleteTipoIngrediente = async (tipoIngredienteId) => {
+
+
+export async function updateTipoIngrediente(tipoIngrediente, id) {
     try {
-        const response = await axios.delete(`/api/ingredientes/tipo/${tipoIngredienteId}`)
-        return response.data;
-    }catch (error) {
-        console.error('Error borrando ingrediente:', error);
+        const { data } = await axios.patch(`/ingredientes/tipo/${id}`, tipoIngrediente, {
+            headers: { 'Cache-Control': 'no-cache' },
+        });
+        return data.data;
+    } catch (error) {
+        console.error('Error updating tipo ingrediente:', error);
+        return error.response?.data || { error: 'Error desconocido' };
     }
 }
+
+
+export async function deleteTipoIngrediente(id) {
+    try {
+      if (!id) throw new Error('ID no válida para eliminar el tipo de ingrediente.');
+  
+      // Envía la solicitud DELETE con encabezados mínimos
+      const { data } = await axios.delete(`/ingredientes/tipo/${id}`, {
+        headers: { 'Cache-Control': 'no-cache' }, // Evita el uso de caché
+      });
+      return data;
+    } catch (error) {
+      console.error('Error deleting tipo ingrediente:', error);
+      return error.response?.data || { status: 'Client error', details: error.message };
+    }
+  }
+  

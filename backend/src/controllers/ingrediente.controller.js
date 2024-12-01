@@ -33,7 +33,7 @@ export async function createTipoIngredienteController(req, res) {
     ({ nombre_tipo_ingrediente, cantidad_alerta_tipo_ingrediente, id_unidad_medida });
 
     if (errorTipoIngrediente) {
-      return handleErrorClient(res, 400, "Error creando tipo de ingrediente", errorTipoIngrediente);
+      return handleErrorClient(res, 404, "Error creando tipo de ingrediente", errorTipoIngrediente);
     }
     handleSuccess(res, 201, "Tipo de ingrediente creado exitosamente", newTipoIngrediente);
   } catch (error) {
@@ -86,7 +86,7 @@ export async function updateTipoIngredienteController(req, res) {
     const [updatedTipoIngrediente, errorTipoIngrediente] = await updateTipoIngredienteService
     (id_tipo_ingrediente, { nombre_tipo_ingrediente, cantidad_alerta_tipo_ingrediente, id_unidad_medida });
     if (errorTipoIngrediente) {
-      return handleErrorClient(res, 400, "Error actualizando tipo de ingrediente", errorTipoIngrediente);
+      return handleErrorClient(res, 404, "Error actualizando tipo de ingrediente", errorTipoIngrediente);
     }
 
     handleSuccess(res, 200, "Tipo de ingrediente actualizado exitosamente", updatedTipoIngrediente);
@@ -99,7 +99,13 @@ export async function updateTipoIngredienteController(req, res) {
 export async function deleteTipoIngredienteController(req, res) {
   try {
     const { id_tipo_ingrediente } = req.params;
+
+    if (!id_tipo_ingrediente) {
+      return handleErrorClient(res, 400, "ID del tipo de ingrediente no proporcionado.");
+    }
+
     const [deletedTipoIngrediente, errorTipoIngrediente] = await deleteTipoIngredienteService(id_tipo_ingrediente);
+
     if (errorTipoIngrediente) {
       return handleErrorClient(res, 404, "Error eliminando tipo de ingrediente", errorTipoIngrediente);
     }
@@ -109,6 +115,7 @@ export async function deleteTipoIngredienteController(req, res) {
     handleErrorServer(res, 500, error.message);
   }
 }
+
 
 // Controlador para crear un ingrediente
 export async function createIngredienteController(req, res) {
@@ -132,7 +139,7 @@ export async function createIngredienteController(req, res) {
     });
 
     if (errorIngrediente) {
-      return handleErrorClient(res, 400, "Error creando ingrediente", errorIngrediente);
+      return handleErrorClient(res, 404, "Error creando ingrediente", errorIngrediente);
     }
 
     // Preparar la respuesta con la información del tipo de ingrediente
@@ -210,7 +217,7 @@ export async function updateIngredienteController(req, res) {
     (id_ingrediente, { fecha_vencimiento, cantidad_ingrediente,
        cantidad_original_ingrediente, costo_ingrediente, id_tipo_ingrediente });	
     if (errorIngrediente) {
-      return handleErrorClient(res, 400, "Error actualizando ingrediente", errorIngrediente);
+      return handleErrorClient(res, 404, "Error actualizando ingrediente", errorIngrediente);
     }
     handleSuccess(res, 200, "Ingrediente actualizado exitosamente", newIngrediente);
   } catch (error) {
