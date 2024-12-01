@@ -16,7 +16,7 @@ import useGetTipoIngrediente from '../hooks/ingredientes/useGetIngredientes';
 //TODO: Revisar si en el backend se ingresan datos solo en minuscula
 //Se define componente tipo utensilio
 const Ingredientes = () => {
-  const { tipoIngrediente, fetchTipoIngrediente, setTipoIngredientes }
+  const { ingredientes, fetchTipoIngrediente, setTipoIngredientes }
     = useGetTipoIngrediente();
   //No entiendo esta linea del todo asi que no la voy a borrar todavia
   //const [filterRut, setFilterRut] = useState('');
@@ -26,14 +26,14 @@ const Ingredientes = () => {
     //isPopupOpen,
     //setIsPopupOpen,
     //dataTipoUtensilio,
-    //setDataTipoUtensilio
-  //} = useEditTipoUtensilio(setTipoUtensilio);
+    //setDataTipoIngrediente
+  //} = useEditTipoIngrediente(setTipoUtensilio);
 
   //const { handleDelete } = useDeleteTipoUtensilio(fetchTipoUtensilio, setDataTipoUtensilio);
 
   //const handleSelectionChange = useCallback((selectedItems) => {
-    //setDataTipoUtensilio(selectedItems);
-  //}, [setDataTipoUtensilio]);
+    //setDataTipoIngrediente(selectedItems);
+  //}, [setDataTipoIngrediente]);
 
   //const {
     //handleClickCreate,
@@ -48,6 +48,7 @@ const Ingredientes = () => {
     { title: "Nombre", field: "nombre_tipo_ingrediente", width: 500, responsive: 0 },
   ];
 
+  console.log(ingredientes)
   return (
     <div className='main-container'>
       <div className='table-container'>
@@ -57,7 +58,8 @@ const Ingredientes = () => {
           </div>
         </div>
         <Table
-          data={tipoIngrediente}
+          data={ingredientes}
+          initialSortName={'nombre_tipo_ingrediente'}
           columns={columns}
         />
       </div>

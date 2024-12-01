@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from './root.service.js';
 
 export const getIngredientes = async () => {
  try {
@@ -45,7 +45,8 @@ export const deleteIngrediente = async (ingredienteId) => {
 
 export const getTipoIngrediente = async (tipoIngredienteId) => {
     try {
-        const response = await axios.get(`/api/ingredientes/tipo/${tipoIngredienteId}`)
+        const response = await axios.get(`/ingredientes/tipo/${tipoIngredienteId}`)
+        console.log(response)
         return response.data;
     }catch (error) {
         console.error('Error borrando ingrediente:', error);
@@ -54,7 +55,10 @@ export const getTipoIngrediente = async (tipoIngredienteId) => {
 
 export const getTiposIngrediente = async () => {
     try {
-        const response = await axios.get(`/api/ingredientes/tipo/`)
+        console.log("getTiposIngredientes")
+        const response = await axios.get(`/ingredientes/tipo/`)
+        console.log("response")
+        console.log(response)
         return response.data;
     }catch (error) {
         console.error('Error borrando ingrediente:', error);

@@ -154,7 +154,7 @@ const Navbar = () => {
                                 }}
                                 activeClassName="active"
                             >
-                                Mermas
+                               Ingredientes 
                             </NavLink>
                         </li>
                     )}
