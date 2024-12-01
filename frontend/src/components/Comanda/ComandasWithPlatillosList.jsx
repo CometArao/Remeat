@@ -5,8 +5,6 @@ import '../../styles/Comandas.css';
 const ComandasWithPlatillosList = () => {
   const { comandasWithPlatillos, loading, error } = useGetComandasWithPlatillos();
 
-  console.log('Datos de comandas con platillos:', comandasWithPlatillos);
-
   if (loading) return <p>Cargando comandas con platillos...</p>;
   if (error) return <p style={{ color: 'red' }}>Error: {error.message}</p>;
 
@@ -15,19 +13,19 @@ const ComandasWithPlatillosList = () => {
   }
 
   return (
-    <div className="comandas-with-platillos-container">
+    <div className="comandas-container"> {/* Usa la misma clase principal */}
       <h2>Listado de Comandas con Platillos</h2>
       {comandasWithPlatillos.map((comanda) => (
-        <div key={comanda.idComanda} className="comanda-with-platillos-item">
+        <div key={comanda.idComanda} className="comanda-item"> {/* Clase compartida */}
           <h3>Comanda ID: {comanda.idComanda}</h3>
           <p>Fecha: {comanda.fecha}</p>
           <p>Tiene Platillos: {comanda.tienePlatillos ? 'Sí' : 'No'}</p>
           {comanda.tienePlatillos && (
-            <div>
+            <div className="platillos-container"> {/* Clase compartida si es relevante */}
               <p>Platillos:</p>
               {Array.isArray(comanda.platillos) ? (
                 comanda.platillos.map((platillo, index) => (
-                  <p key={index}>
+                  <p key={index} className="platillo-item">
                     {platillo.nombrePlatillo} - Cantidad: {platillo.cantidad} - Estado: {platillo.estadoPlatillo}
                   </p>
                 ))
