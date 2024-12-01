@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import useGetComandasWithPlatillos from '../../hooks/Comandas/useGetComandasWithPlatillos'; // Hook para obtener comandas con platillos
+import React from 'react';
+import useGetComandasWithPlatillos from '../../hooks/Comandas/useGetComandasWithPlatillos';
 import '../../styles/Comandas.css';
 
 const ComandasWithPlatillosList = () => {
@@ -7,6 +7,10 @@ const ComandasWithPlatillosList = () => {
 
   if (loading) return <p>Cargando comandas con platillos...</p>;
   if (error) return <p style={{ color: 'red' }}>Error: {error.message}</p>;
+
+  if (comandasWithPlatillos.length === 0) {
+    return <p>No hay comandas con platillos disponibles.</p>;
+  }
 
   return (
     <div className="comandas-with-platillos-container">
@@ -16,13 +20,16 @@ const ComandasWithPlatillosList = () => {
           <h3>Comanda ID: {comanda.idComanda}</h3>
           <p>Fecha: {comanda.fecha}</p>
           <p>Tiene Platillos: {comanda.tienePlatillos ? 'Sí' : 'No'}</p>
-          <div>
-            {comanda.platillos.map((platillo) => (
-              <p key={platillo.idPlatillo}>
-                {platillo.nombrePlatillo} - Cantidad: {platillo.cantidad}
-              </p>
-            ))}
-          </div>
+          {comanda.tienePlatillos && (
+            <div>
+              <h4>Platillos:</h4>
+              <ul>
+                <li>Nombre: {comanda.nombrePlatillo || 'No especificado'}</li>
+                <li>Cantidad: {comanda.cantidad || 0}</li>
+                <li>Estado: {comanda.estadoPlatillo || 'Desconocido'}</li>
+              </ul>
+            </div>
+          )}
         </div>
       ))}
     </div>

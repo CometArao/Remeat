@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getComandasWithPlatillos } from '../../services/comanda.service';
+import cookies from 'js-cookie'; // Asegúrate de importar js-cookie
 
 const useGetComandasWithPlatillos = () => {
   const [comandasWithPlatillos, setComandasWithPlatillos] = useState([]);
@@ -9,17 +10,21 @@ const useGetComandasWithPlatillos = () => {
   useEffect(() => {
     const fetchComandasWithPlatillos = async () => {
       setLoading(true);
+      const token = cookies.get('jwt-auth'); // Obtiene el token
       try {
-        const response = await getComandasWithPlatillos();
-        setComandasWithPlatillos(response.data || []);
+        const response = await getComandasWithPlatillos(token);
+        console.log('Respuesta del servidor:', response.data); // Inspecciona los datos que retorna el backend
+        setComandasWithPlatillos(response.data.data || []);
+        console.log('Estado actualizado:', response.data.data || []); // Verifica que el estado se actualiza correctamente
       } catch (err) {
+        console.error('Error al obtener comandas con platillos:', err); // Imprime errores en consola
         setError(err);
-        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchComandasWithPlatillos();
+
+    fetchComandasWithPlatillos(); // Llama a la función
   }, []);
 
   return { comandasWithPlatillos, loading, error };

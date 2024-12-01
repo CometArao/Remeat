@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { addPlatilloToComanda } from '../../services/comanda.service';
+import cookies from 'js-cookie';
 
 const useAddPlatilloToComanda = () => {
   const [loading, setLoading] = useState(false);

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { updateComanda } from '../../services/comanda.service';
+import cookies from 'js-cookie';
 
 const useUpdateComanda = () => {
   const [loading, setLoading] = useState(false);
