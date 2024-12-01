@@ -126,9 +126,7 @@ const Grafico = () => {
     if (data.independiente == "Hora") {
       //Mostrar interfaz para elegir hora
     }
-    const formatedData = construirLineal(data.dependientes);
-    console.log("formated Data")
-    console.log(formatedData)
+    formatedData = construirLineal(data.dependientes);
   }
   if (data.tipo.tipoGrafico == "barra") {
     if (data.independiente == "Hora") {
@@ -137,10 +135,6 @@ const Grafico = () => {
     const [f, k] = construirBarra(data.dependientes);
     formatedData = f;
     keys = k;
-    console.log("formated Data")
-    console.log(formatedData)
-    console.log("keys")
-    console.log(keys)
   }
   if (data.tipo.tipoGrafico == "circular") {
     if (data.independiente == "Hora") {
@@ -175,8 +169,16 @@ const Grafico = () => {
 function construirLineal(datos) {
   let result = [];
   const keys = Object.keys(datos)
+  const colores = [
+    "hsl(308, 70%, 50%)",
+    "hsl(149, 70%, 50%)",
+    "hsl(63, 70%, 50%)",
+    "hsl(155, 70%, 50%)",
+    "hsl(200, 70%, 50%)"
+  ]
   for (let i = 0; i < keys.length; i++) {
     const ventas = datos[keys[i]]['ventas_por_comanda'];
+    let indice_color = 0;
     //if(/*independiente*/) {
     ////comprobar indenpendiente
     //}
@@ -190,8 +192,12 @@ function construirLineal(datos) {
     }
     const obj = {
       "id": keys[i],
-      "color": "hsl(308, 70%, 50%)",
+      "color": colores[indice_color],
       "data": formatedVentas
+    }
+    indice_color++;
+    if(indice_color === colores.length) {
+      indice_color = 0;
     }
     result.push(obj);
   }

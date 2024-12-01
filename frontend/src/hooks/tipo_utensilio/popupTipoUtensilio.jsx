@@ -3,7 +3,7 @@ import '@styles/popup.css';
 import CloseIcon from '@assets/XIcon.svg';
 import QuestionIcon from '@assets/QuestionCircleIcon.svg';
 
-export default function Popup({ show, setShow, data, action }) {
+export default function Popup({ show, setShow, data, action, titulo }) {
     const utensilioData = data && data.length > 0 ? data[0] : {};
 
     const handleSubmit = (formData) => {
@@ -18,7 +18,7 @@ export default function Popup({ show, setShow, data, action }) {
                         <img src={CloseIcon} />
                     </button>
                     <Form
-                        title="Editar usuario"
+                        title={titulo}
                         fields={[
                             {
                                 label: "Nombre Utensilio",
@@ -35,7 +35,7 @@ export default function Popup({ show, setShow, data, action }) {
                             },
                         ]}
                         onSubmit={handleSubmit}
-                        buttonText="Editar Tipo Utensilio"
+                        buttonText={titulo}
                         backgroundColor={'#fff'}
                     />
                 </div>

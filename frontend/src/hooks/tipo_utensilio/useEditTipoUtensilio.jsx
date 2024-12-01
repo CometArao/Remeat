@@ -3,7 +3,7 @@ import { updateTipoUtensilio } from '../../services/utensilio.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 import { formatPostUpdate } from '@helpers/formatData.js';
 
-const useEditTipoUtensilio = (setTipoUtensilio) => {
+const useEditTipoUtensilio = (setTipoUtensilio, fetchTipoUtensilio) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [dataTipoUtensilio, setDataTipoUtensilio] = useState([]);
     
@@ -22,22 +22,15 @@ const useEditTipoUtensilio = (setTipoUtensilio) => {
             console.log(dataTipoUtensilio)
             const updatedTipoUtensilio = await updateTipoUtensilio(updatedTipoUtensilioData, dataTipoUtensilio[0].id_tipo_utensilio);
             showSuccessAlert('¡Actualizado!','El tipo de utensilio ha sido actualizado correctamente.');
-            setIsPopupOpen(false);
-            const formattedUser = formatPostUpdate(updatedTipoUtensilio);
 
-            setTipoUtensilio(prevUsers => prevUsers.map(tipo_utensilio => {
-                console.log("tipo_utensilio")
-                console.log(tipo_utensilio)
-                console.log("Utensilio actual:", tipo_utensilio);
-                if (tipo_utensilio.id_tipo_utensilio === formattedUser.id_tipo_utensilio) {
-                    console.log("Reemplazando con:", updatedTipoUtensilio);
-                }
-                return updatedTipoUtensilio;
-            }));
+            setIsPopupOpen(false);
+
+            await fetchTipoUtensilio();
+            setIsPopupOpen(false);
             setDataTipoUtensilio([]);
             } catch (error) {
-                console.error('Error al actualizar el usuario:', error);
-                showErrorAlert('Cancelado','Ocurrió un error al actualizar el usuario.');
+                console.error('Error al actualizar el Tipo Utensilio:', error);
+                showErrorAlert('Cancelado','Ocurrió un error al actualizar el Tipo Utensilio.');
             }
         }
     };
