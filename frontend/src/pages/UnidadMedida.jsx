@@ -6,13 +6,13 @@ import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
 import { useCallback, useState } from 'react';
 import '@styles/users.css';
+import Search from '@components/Search';
 import useDeleteUnidadMedida from '@hooks/unidad_medida/useDeleteUnidadMedida';
 import useEditUnidadMedida from '@hooks/unidad_medida/useEditUnidadMedida';
 import useCreateUnidadMedida from '@hooks/unidad_medida/useCreateUnidadMedida';
 
 const UnidadesMedida = () => {
     const { unidadMedidas, fetchUnidadMedida, setUnidadMedida } = useUnidadMedida();
-    const [filterRut, setFilterRut] = useState('');
 
     const {
         handleClickUpdate,
@@ -41,12 +41,24 @@ const UnidadesMedida = () => {
 
     const columns = [{ title: 'Nombre', field: 'nombre_unidad_medida', width: 500, responsive: 0 }];
 
+    const [searchTerm, setSearchTerm] = useState("");
+
+     // Filtrar datos según el término de búsqueda
+     const filteredUnidadMedidas = unidadMedidas.filter((unidad) =>
+        unidad.nombre_unidad_medida.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className='main-container'>
             <div className='table-container'>
                 <div className='top-table'>
                     <h1 className='title-table'>Unidades de Medida</h1>
                     <div className='filter-actions'>
+                        <Search
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder='Buscar por nombre'
+                        />
                         <button className='create-button' onClick={handleClickCreate}>
                             <img src={CreateIcon} alt='Crear' />
                         </button>
@@ -63,9 +75,8 @@ const UnidadesMedida = () => {
                     </div>
                 </div>
                 <Table
-                    data={unidadMedidas}
+                    data={filteredUnidadMedidas}
                     columns={columns}
-                    filter={filterRut}
                     initialSortName='nombre_unidad_medida'
                     onSelectionChange={handleSelectionChange}
                 />

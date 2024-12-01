@@ -485,7 +485,7 @@ const router = createBrowserRouter([
       {
         path: '/tipo_utensilio',
         element: (
-          <ProtectedRoute allowedRoles={['administrador']}>
+          <ProtectedRoute allowedRoles={['administrador','cocinero']}>
             <TipoUtensilio />
           </ProtectedRoute>
         ),
@@ -493,7 +493,7 @@ const router = createBrowserRouter([
        {
         path: '/ingredientes/', 
         element: (
-          <ProtectedRoute allowedRoles={['administrador']}>
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
             <Ingredientes />
           </ProtectedRoute>
        ),
@@ -501,7 +501,7 @@ const router = createBrowserRouter([
       {
         path: '/tipos_ingredientes',
         element: (
-          <ProtectedRoute allowedRoles={['administrador']}>
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
             <TipoIngrediente />
           </ProtectedRoute>
         ),
@@ -599,7 +599,7 @@ const router = createBrowserRouter([
       {
         path: '/unidades_medidas',
         element: (
-            <ProtectedRoute allowedRoles={['administrador']}>
+            <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
                 <UnidadesMedida />
             </ProtectedRoute>
         ),
