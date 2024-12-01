@@ -13,12 +13,15 @@ const useGetComandasWithPlatillos = () => {
       const token = cookies.get('jwt-auth'); // Obtiene el token
       try {
         const response = await getComandasWithPlatillos(token);
-        console.log('Respuesta del servidor:', response.data); // Inspecciona los datos que retorna el backend
-        setComandasWithPlatillos(response.data.data || []);
-        console.log('Estado actualizado:', response.data.data || []); // Verifica que el estado se actualiza correctamente
+        console.log('Respuesta del servidor:', response.data);
+        if (response.data && Array.isArray(response.data)) {
+          setComandasWithPlatillos(response.data);
+        } else {
+          setComandasWithPlatillos([]);
+        }
       } catch (err) {
-        console.error('Error al obtener comandas con platillos:', err); // Imprime errores en consola
         setError(err);
+        console.error('Error al obtener comandas con platillos:', err);
       } finally {
         setLoading(false);
       }
