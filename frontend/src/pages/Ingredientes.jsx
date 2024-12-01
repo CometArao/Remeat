@@ -1,5 +1,6 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Table from '@components/Table';
+import Search from '@components/Search';
 import useGetTiposIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
 import useGetIngredientes from '../hooks/ingredientes/useGetIngredientes';
 import useCreateIngrediente from '../hooks/ingredientes/useCreateIngredientes';
@@ -61,6 +62,14 @@ const Ingredientes = () => {
       { title: 'Costo', field: 'costo_ingrediente', width: 150 },
       { title: 'Tipo de Ingrediente', field: 'tipo_ingrediente.nombre_tipo_ingrediente', width: 200 },
     ];
+  const [searchTerm, setSearchTerm] = useState("");
+  
+     // Filtrar ingredientes por término de búsqueda en nombre_tipo_ingrediente
+     const filteredIngredientes = ingredientes.filter((ingrediente) =>
+        ingrediente.tipo_ingrediente.nombre_tipo_ingrediente
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className="main-container">
@@ -68,6 +77,11 @@ const Ingredientes = () => {
                 <div className="top-table">
                     <h1 className="title-table">Ingredientes</h1>
                     <div className="filter-actions">
+                        <Search
+                            value={searchTerm}
+                           onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Buscar por tipo de ingrediente"
+                        />
                         <button className="create-button" onClick={handleClickCreate}>
                             <img src={CreateIcon} alt="Crear" />
                         </button>
@@ -92,9 +106,9 @@ const Ingredientes = () => {
                     </div>
                 </div>
                 <Table
-                    data={ingredientes}
+                    data={filteredIngredientes}
                     columns={columns}
-                    initialSortName="nombre_ingrediente"
+                    initialSortName="nombre_tipo_ingrediente"
                     onSelectionChange={handleSelectionChange}
                 />
             </div>

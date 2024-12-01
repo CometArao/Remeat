@@ -76,3 +76,11 @@ export async function isMesero(req, res, next) {
   }
 
 }
+
+export const authorizeRoles = (roles) => (req, res, next) => {
+  if (roles.includes(req.user.rol_usuario)) {
+    next();
+  } else {
+    return res.status(403).json({ message: "No tienes permisos para acceder." });
+  }
+};
