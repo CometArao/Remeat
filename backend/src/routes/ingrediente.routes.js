@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { isAdmin, isChef } from "../middlewares/authorization.middleware.js";
+import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   createIngredienteController,
@@ -18,7 +18,7 @@ import {
 const router = Router();
 
 // Autenticación y autorización para todas las rutas de ingredientes
-//router.use(authenticateJwt).use(isChef);
+router.use(authenticateJwt).use(authorizeRoles(["administrador", "cocinero"]));
 
 // Rutas para Tipo Ingrediente
 router
