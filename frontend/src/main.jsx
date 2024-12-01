@@ -15,8 +15,8 @@ import '@styles/styles.css';
 import Informes from '@pages/Informes'
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
-
 import Pedidos from './pages/Pedidos.jsx';
+import Proveedores from '@pages/Proveedores';
 import Comandas from '@pages/Comandas'; 
 import GenerateQRCode from '@pages/GenerateQRCode'; 
 import Ingredientes from '@pages/Ingredientes';
@@ -561,7 +561,6 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      /*
       {
         path: '/comandas', // Ruta para comandas, accesible solo para mesero
         element: (
@@ -579,15 +578,15 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/pedido', // Ruta para generar QR, accesible solo para mesero
+        path: '/proveedores',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
-            <Pedidos />
+            <Proveedores />
           </ProtectedRoute>
         ),
       },
       {
-        path: '/ingredientes2', // Ruta para generar QR, accesible solo para mesero
+        path: '/ingredientes2',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Ingredientes2 />

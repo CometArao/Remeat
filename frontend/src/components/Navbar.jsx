@@ -106,14 +106,14 @@ const Navbar = () => {
 
                     <li>
                         <NavLink
-                            to="/pedido" // Nueva ruta para pedidos
+                            to="/proveedores"
                             onClick={() => {
                                 setMenuOpen(false);
                                 addActiveClass();
                             }}
                             activeClassName="active"
                         >
-                            Pedidos
+                            Proveedores
                         </NavLink>
                     </li>
                     <li>
