@@ -2,7 +2,7 @@
 import useGetIngrediente from '../hooks/ingredientes/useGetIngredientes';
 import useCreateIngrediente from '../hooks/ingredientes/useCreateIngredientes';
 import Table from '@components/Table';
-import CreateIngredientePopup from '@components/PopupIngrediente';
+import CreateIngredientePopup from '../hooks/ingredientes/PopupIngrediente';
 
 const Ingredientes = () => {
   const { ingredientes, setIngredientes } = useGetIngrediente(); // Para obtener y actualizar la lista de ingredientes.

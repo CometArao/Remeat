@@ -158,6 +158,20 @@ const Navbar = () => {
                             </NavLink>
                         </li>
                     )}
+                    {userRole === 'administrador' && (
+                        <li>
+                            <NavLink
+                                to="/unidades_medidas"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    addActiveClass();
+                                }}
+                                activeClassName="active"
+                            >
+                                Unidades
+                            </NavLink>
+                        </li>
+                    )}
                     {/* Nuevas rutas para mesero */}
                     {userRole === 'mesero' && (
                     <li>

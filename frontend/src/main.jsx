@@ -21,6 +21,7 @@ import Comandas from '@pages/Comandas';
 import GenerateQRCode from '@pages/GenerateQRCode'; 
 import Ingredientes from '@pages/Ingredientes';
 import Ingredientes2 from '@pages/Ingredientes2';
+import UnidadesMedida from '@pages/UnidadMedida';
 
 const data_lineal = [
   {
@@ -593,6 +594,15 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: '/unidades_medidas',
+        element: (
+            <ProtectedRoute allowedRoles={['administrador']}>
+                <UnidadesMedida />
+            </ProtectedRoute>
+        ),
+    },
+    
     ]
   },
   {

@@ -1,5 +1,5 @@
 import Table from '@components/Table';
-import Popup from '@hooks/tipo_utensilio/popupTipoUtensilio.jsx'
+import Popup from '@hooks/ingredientes/popupIngrediente';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
@@ -7,9 +7,6 @@ import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import { useCallback, useState } from 'react';
 import '@styles/users.css';
-import useDeleteTipoUtensilio from '@hooks/tipo_utensilio/useDeleteTipoUtensilio';
-import useEditTipoUtensilio from '../hooks/tipo_utensilio/useEditTipoUtensilio';
-import useCreateTipoUtensilio from '@hooks/tipo_utensilio/useCreateTipoUtensilio';
 import useGetTipoIngrediente from '../hooks/ingredientes/useGetIngredientes';
 
 //TODO: Que todas las palabras empiecen en minuscula
@@ -63,6 +60,7 @@ const Ingredientes = () => {
           columns={columns}
         />
       </div>
+      
     </div>
   );
 };
