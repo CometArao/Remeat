@@ -2,7 +2,7 @@ import Form from '@components/Form';
 import '@styles/popup.css';
 import CloseIcon from '@assets/XIcon.svg';
 
-export default function PopupTipoIngrediente({ show, setShow, data, action, unidadesMedida = [] }) {
+export default function PopupTipoIngrediente({ show, setShow, data, action, unidadesMedida = [], isEdit }) {
     const tipoIngredienteData = data && data.length > 0 ? data[0] : {};
 
     const handleSubmit = (formData) => {
@@ -18,7 +18,7 @@ export default function PopupTipoIngrediente({ show, setShow, data, action, unid
                             <img src={CloseIcon} alt="Cerrar" />
                         </button>
                         <Form
-                            title="Editar Tipo Ingrediente"
+                            title={isEdit ? "Editar Tipo Ingrediente" : "Crear Tipo Ingrediente"}
                             fields={[
                                 {
                                     label: "Nombre Tipo Ingrediente",
@@ -52,7 +52,7 @@ export default function PopupTipoIngrediente({ show, setShow, data, action, unid
                                 },
                             ]}
                             onSubmit={handleSubmit}
-                            buttonText="Guardar Tipo Ingrediente"
+                            buttonText={isEdit ? "Guardar Cambios" : "Crear Tipo Ingrediente"}
                             backgroundColor="#fff"
                         />
                     </div>

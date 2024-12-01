@@ -75,10 +75,16 @@ export async function updateTipoIngrediente(tipoIngrediente, id) {
 
 export async function deleteTipoIngrediente(id) {
     try {
-        const { data } = await axios.delete(`/ingredientes/tipo/${id}`);
-        return data;
+      if (!id) throw new Error('ID no válida para eliminar el tipo de ingrediente.');
+  
+      // Envía la solicitud DELETE con encabezados mínimos
+      const { data } = await axios.delete(`/ingredientes/tipo/${id}`, {
+        headers: { 'Cache-Control': 'no-cache' }, // Evita el uso de caché
+      });
+      return data;
     } catch (error) {
-        console.error('Error deleting tipo ingrediente:', error);
-        return error.response.data;
+      console.error('Error deleting tipo ingrediente:', error);
+      return error.response?.data || { status: 'Client error', details: error.message };
     }
-}
+  }
+  

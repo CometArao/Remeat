@@ -43,9 +43,16 @@ const TiposIngrediente = () => {
     const { handleDelete } = useDeleteTipoIngrediente(fetchTiposIngrediente, setDataTipoIngrediente);
 
     const handleSelectionChange = useCallback(
-        (selectedItems) => setDataTipoIngrediente(selectedItems),
+        (selectedItems) => {
+            if (selectedItems.length > 0) {
+                setDataTipoIngrediente(selectedItems);
+            } else {
+                setDataTipoIngrediente([]);
+            }
+        },
         [setDataTipoIngrediente]
     );
+    
 
     const columns = [
         { title: 'Nombre', field: 'nombre_tipo_ingrediente', width: 500, responsive: 0 },
@@ -94,6 +101,7 @@ const TiposIngrediente = () => {
                 data={dataTipoIngrediente}
                 action={handleUpdate}
                 unidadesMedida={unidadMedidas}
+                isEdit = {true}
             />
             <PopupTipoIngrediente
                 show={isCreatePopupOpen}
@@ -101,6 +109,7 @@ const TiposIngrediente = () => {
                 data={dataTipoIngredienteCreate}
                 action={handleCreate}
                 unidadesMedida={unidadMedidas}
+                isEdit = {false}
             />
         </div>
     );
