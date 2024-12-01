@@ -7,36 +7,21 @@ const useUsers = () => {
         try {
             const response = await getUsers();
             const formattedData = response.map(user => ({
-                nombreCompleto: user.nombreCompleto,
-                rut: user.rut,
-                email: user.email,
-                rol: user.rol,
-                createdAt: user.createdAt
+                id_usuario: user.id_usuario, // Asegúrate de incluir id_usuario
+                nombre_usuario: user.nombre_usuario,
+                apellido_usuario: user.apellido_usuario,
+                correo_usuario: user.correo_usuario,
+                rol_usuario: user.rol_usuario,
             }));
-            dataLogged(formattedData);
             setUsers(formattedData);
         } catch (error) {
-            console.error("Error: ", error);
+            console.error('Error al obtener usuarios:', error);
         }
     };
 
     useEffect(() => {
         fetchUsers();
     }, []);
-
-    const dataLogged = (formattedData) => {
-        try {
-            const { rut } = JSON.parse(sessionStorage.getItem('usuario'));
-            for(let i = 0; i < formattedData.length ; i++) {
-                if(formattedData[i].rut === rut) {
-                    formattedData.splice(i, 1);
-                    break;
-                }
-            }
-        } catch (error) {
-            console.error("Error: ", error)
-        }
-    };
 
     return { users, fetchUsers, setUsers };
 };
