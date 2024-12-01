@@ -75,12 +75,14 @@ const UnidadesMedida = () => {
                 setShow={setIsPopupOpen}
                 data={dataUnidadMedida}
                 action={handleUpdate}
+                isEdit = {true}
             />
             <Popup
                 show={isCreatePopUpOpen}
                 setShow={setIsCreatePopUpOpen}
                 data={dataUnidadMedidaCreate}
                 action={handleCreate}
+                isEdit = {false}
             />
         </div>
     );

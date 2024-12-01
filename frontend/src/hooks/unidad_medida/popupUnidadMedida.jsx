@@ -2,11 +2,12 @@ import Form from '@components/Form';
 import '@styles/popup.css';
 import CloseIcon from '@assets/XIcon.svg';
 
-export default function PopupTipoIngrediente({ show, setShow, data, action, unidadesMedida = [] }) {
-    const tipoIngredienteData = data && data.length > 0 ? data[0] : {};
+export default function Popup({ show, setShow, data, action, isEdit }) {
+    // Obtener los datos de la unidad de medida o inicializar un objeto vacío
+    const unidadMedidaData = data && data.length > 0 ? data[0] : {};
 
     const handleSubmit = (formData) => {
-        action(formData);
+        action(formData); // Llama a la acción correspondiente (crear o editar)
     };
 
     return (
@@ -14,45 +15,31 @@ export default function PopupTipoIngrediente({ show, setShow, data, action, unid
             {show && (
                 <div className="bg">
                     <div className="popup">
+                        {/* Botón para cerrar el popup */}
                         <button className="close" onClick={() => setShow(false)}>
                             <img src={CloseIcon} alt="Cerrar" />
                         </button>
+
+                        {/* Formulario dinámico según si es creación o edición */}
                         <Form
-                            title="Editar Tipo Ingrediente"
+                            title={isEdit ? "Editar Unidad de Medida" : "Crear Unidad de Medida"}
                             fields={[
                                 {
-                                    label: "Nombre Tipo Ingrediente",
-                                    name: "nombre_tipo_ingrediente",
-                                    defaultValue: tipoIngredienteData.nombre_tipo_ingrediente || "",
-                                    placeholder: "Harina, Azúcar...",
+                                    label: "Nombre de la Unidad de Medida",
+                                    name: "nombre_unidad_medida",
+                                    defaultValue: unidadMedidaData.nombre_unidad_medida || "",
+                                    placeholder: "Kilogramo",
                                     fieldType: "input",
                                     type: "text",
                                     required: true,
-                                },
-                                {
-                                    label: "Cantidad Alerta",
-                                    name: "cantidad_alerta_tipo_ingrediente",
-                                    defaultValue: tipoIngredienteData.cantidad_alerta_tipo_ingrediente || "",
-                                    placeholder: "10, 50...",
-                                    fieldType: "input",
-                                    type: "number",
-                                    required: true,
-                                    min: 1,
-                                },
-                                {
-                                    label: "Unidad de Medida",
-                                    name: "id_unidad_medida",
-                                    defaultValue: tipoIngredienteData.id_unidad_medida || "",
-                                    fieldType: "select",
-                                    options: unidadesMedida.map((unidad) => ({
-                                        value: unidad.id_unidad_medida,
-                                        label: unidad.nombre_unidad_medida,
-                                    })),
-                                    required: true,
+                                    minLength: 3,
+                                    maxLength: 50,
+                                    pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+                                    patternMessage: "Debe contener solo letras y espacios",
                                 },
                             ]}
                             onSubmit={handleSubmit}
-                            buttonText="Guardar Tipo Ingrediente"
+                            buttonText={isEdit ? "Guardar Cambios" : "Crear Unidad de Medida"}
                             backgroundColor="#fff"
                         />
                     </div>

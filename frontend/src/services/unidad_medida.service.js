@@ -22,13 +22,19 @@ export async function getUnidadMedidaById(id) {
 
 export async function updateUnidadMedida(data, id) {
     try {
-        const response = await axios.patch(`unidades-medidas/${id}`, data);
+        const response = await axios.patch(`unidades-medidas/${id}`, data, {
+            headers: { 'Cache-Control': 'no-cache' },
+        });
+        console.log('Respuesta del backend:', response.data); // Debug
         return response.data.data;
     } catch (error) {
-        console.log(error);
-        return error.response.data;
+        console.error('Error al enviar PATCH:', error.response || error);
+        throw new Error(
+            error.response?.data?.message || 'Error desconocido al actualizar la unidad de medida.'
+        );
     }
 }
+
 
 export async function deleteUnidadMedida(id) {
     try {
