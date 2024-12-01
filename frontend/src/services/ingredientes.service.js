@@ -43,40 +43,42 @@ export const deleteIngrediente = async (ingredienteId) => {
 
 };
 
-export const getTipoIngrediente = async (tipoIngredienteId) => {
+export async function getTiposIngrediente() {
     try {
-        const response = await axios.get(`/ingredientes/tipo/${tipoIngredienteId}`)
-        console.log(response)
-        return response.data;
-    }catch (error) {
-        console.error('Error borrando ingrediente:', error);
+        const { data } = await axios.get('/ingredientes/tipo/');
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching tipos de ingrediente:', error);
+        return error.response.data;
     }
 }
 
-export const getTiposIngrediente = async () => {
+export async function createTipoIngrediente(tipoIngrediente) {
     try {
-        console.log("getTiposIngredientes")
-        const response = await axios.get(`/ingredientes/tipo/`)
-        console.log("response")
-        console.log(response)
-        return response.data;
-    }catch (error) {
-        console.error('Error borrando ingrediente:', error);
+        const { data } = await axios.post('/ingredientes/tipo/', tipoIngrediente);
+        return data.data;
+    } catch (error) {
+        console.error('Error creating tipo ingrediente:', error);
+        return error.response.data;
     }
 }
-export const updateTipoIngrediente = async (tipoIngredienteId) => {
+
+export async function updateTipoIngrediente(tipoIngrediente, id) {
     try {
-        const response = await axios.patch(`/api/ingredientes/tipo/${tipoIngredienteId}`)
-        return response.data;
-    }catch (error) {
-        console.error('Error borrando ingrediente:', error);
+        const { data } = await axios.patch(`/ingredientes/tipo/${id}`, tipoIngrediente);
+        return data.data;
+    } catch (error) {
+        console.error('Error updating tipo ingrediente:', error);
+        return error.response.data;
     }
 }
-export const deleteTipoIngrediente = async (tipoIngredienteId) => {
+
+export async function deleteTipoIngrediente(id) {
     try {
-        const response = await axios.delete(`/api/ingredientes/tipo/${tipoIngredienteId}`)
-        return response.data;
-    }catch (error) {
-        console.error('Error borrando ingrediente:', error);
+        const { data } = await axios.delete(`/ingredientes/tipo/${id}`);
+        return data;
+    } catch (error) {
+        console.error('Error deleting tipo ingrediente:', error);
+        return error.response.data;
     }
 }
