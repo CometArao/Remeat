@@ -1,47 +1,54 @@
 import axios from './root.service.js';
 
-export const getIngredientes = async () => {
- try {
-    const response = await axios.get('/api/ingredientes');
-    return response.data;
- } catch (error) {
-    console.error('Error fetching ingredientes:', error);
-    
- }
-};
-
-
-
-export const createIngrediente = async (ingredienteData) => {
-try {
-    const response = await axios.post('/api/ingredientes', ingredienteData);
-    return response.data;
-  } catch (error) {
-    console.error('Error creating ingrediente:', error);
-  }
-};
-
-export const updateIngrediente = async (ingredienteData) => {
+export async function getIngredientes() {
     try {
-        const response = await axios.put(`/api/ingredientes/${ingredienteData.id}`, ingredienteData);
-        return response.data;
+        const { data } = await axios.get('/ingredientes/');
+        return data.data;
+    } catch (error) {
+        console.error('Error fetching ingredientes:', error);
+        return error.response.data || [];
+    }
+}
+
+export async function createIngrediente(ingrediente) {
+    try {
+        const { data } = await axios.post('/ingredientes/', ingrediente, {
+            headers: {
+                'Cache-Control': 'no-cache', // Desactiva el uso de caché
+                'Pragma': 'no-cache', // Asegura compatibilidad
+            },
+        });
+        
+        return data.data;
+    } catch (error) {
+        console.error('Error creating ingrediente:', error);
+        return error.response.data;
+    }
+}
+
+export async function updateIngrediente(ingrediente, id) {
+    try {
+        const { data } = await axios.put(`/ingredientes/${id}`, ingrediente);
+        return data.data;
     } catch (error) {
         console.error('Error updating ingrediente:', error);
-        
+        return error.response.data;
     }
+}
 
-};
-
-export const deleteIngrediente = async (ingredienteId) => {
+export async function deleteIngrediente(id) {
     try {
-        const response =  await axios.delete(`/api/ingredientes/${ingredienteId}`);
-        return response.data;
+        if (!id) throw new Error('ID no válida para eliminar el ingrediente.');
+
+        const { data } = await axios.delete(`/ingredientes/${id}`, {
+            headers: { 'Cache-Control': 'no-cache' },
+        });
+        return data;
     } catch (error) {
         console.error('Error deleting ingrediente:', error);
-        
+        return error.response?.data || { status: 'Client error', details: error.message };
     }
-
-};
+}
 
 export async function getTiposIngrediente() {
     try {

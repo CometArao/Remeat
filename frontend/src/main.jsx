@@ -19,7 +19,7 @@ import Mermas from '@pages/Mermas.jsx';
 import Pedidos from './pages/Pedidos.jsx';
 import Comandas from '@pages/Comandas'; 
 import GenerateQRCode from '@pages/GenerateQRCode'; 
-//import Ingredientes from '@pages/Ingredientes';
+import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
 
@@ -486,6 +486,14 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+       {
+        path: '/ingredientes/', 
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Ingredientes />
+          </ProtectedRoute>
+       ),
+      },
       {
         path: '/tipos_ingredientes',
         element: (
@@ -586,14 +594,6 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-     // {
-       // path: '/ingredientes/tipo', // Ruta para generar QR, accesible solo para mesero
-        //element: (
-          //<ProtectedRoute allowedRoles={['administrador']}>
-           // <TipoIngrediente />
-          //</ProtectedRoute>
-       // ),
-     // },
       {
         path: '/unidades_medidas',
         element: (
