@@ -1,28 +1,31 @@
-import React from 'react';
-import useGetComandas from '../../hooks/Comandas/useGetComandas';
-import ComandaItem from './ComandaItem';
+import React, { useEffect, useState } from 'react'; // Asegura la importación de React y hooks de estado si es necesario
+import useDeleteComanda from '../../hooks/Comandas/useDeleteComanda'; // Hook para eliminar comandas
+import '../../styles/Comandas.css'; 
 
-const ComandaList = () => {
-  const { comandas, loading, error } = useGetComandas();
+const ComandaList = ({ comandas, onDelete }) => {
+  const { remove, loading: deleting } = useDeleteComanda(); // Hook para manejar la eliminación de comandas
 
-  if (loading) {
-    return <p>Cargando comandas...</p>;
-  }
-
-  if (error) {
-    return <p style={{ color: 'red' }}>Error al cargar comandas: {error.message}</p>;
-  }
-
-  if (!comandas.length) {
-    return <p>No se encontraron comandas.</p>;
-  }
+  const handleDelete = async (id) => {
+    if (window.confirm(`¿Estás seguro de eliminar la comanda con ID ${id}?`)) {
+      await remove(id);
+      onDelete(); // Notifica al componente padre para refrescar el listado
+    }
+  };
 
   return (
-    <ul>
+    <div className="comandas-container">
+      <h2>Listado de Comandas</h2>
       {comandas.map((comanda) => (
-        <ComandaItem key={comanda.id_comanda} comanda={comanda} />
+        <div key={comanda.id_comanda} className="comanda-item">
+          <h3>Comanda ID: {comanda.id_comanda}</h3>
+          <p>Fecha: {comanda.fecha_compra_comanda}</p>
+          <p>Hora: {comanda.hora_compra_comanda}</p>
+          <button onClick={() => handleDelete(comanda.id_comanda)} disabled={deleting}>
+            {deleting ? 'Eliminando...' : 'Eliminar'}
+          </button>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 };
 

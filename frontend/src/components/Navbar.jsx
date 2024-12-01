@@ -7,8 +7,6 @@ const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const user = JSON.parse(sessionStorage.getItem('usuario')) || '';
-    console.log("user")
-    console.log(user)
     const userRole = user?.rol_usuario;
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -55,185 +53,109 @@ const Navbar = () => {
                                 setMenuOpen(false);
                                 addActiveClass();
                             }}
-                            activeClassName="active"
                         >
                             Inicio
                         </NavLink>
                     </li>
+
                     {userRole === 'administrador' && (
-                    <li>
-                        <NavLink 
-                            to="/users" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Usuarios
-                        </NavLink>
-                    </li>
+                        <>
+                            <li>
+                                <NavLink
+                                    to="/users"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Usuarios
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/ingredientes"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Ingredientes
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/tipo_utensilio"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Utensilios
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/informes"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Informes
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/mermas"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Mermas
+                                </NavLink>
+                            </li>
+                        </>
                     )}
 
-                    {userRole === 'administrador' && (
-                        <li>
-                            <NavLink
-                                to="/ingredientes"
-                                onClick={() => {
-                                    setMenuOpen(false);
-                                    addActiveClass();
-                                }}
-                                activeClassName="active"
-                            >
-                                Ingredientes
-                            </NavLink>
-                        </li>
-                    )}
-
-
-                    {userRole === 'administrador' && (
-                    <li>
-                        <NavLink 
-                            to="/tipo_utensilio" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                           Utensilios 
-                        </NavLink>
-                    </li>
-                    )}
-                    {userRole === 'administrador' && (
-                    <li>
-                        <NavLink 
-                            to="/informes" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Informes
-                        </NavLink>
-                    </li>
-                    )}
-
-
-                    {userRole === 'administrador' && (
-                        <li>
-                            <NavLink
-                                to="/tipo_utensilio"
-                                onClick={() => {
-                                    setMenuOpen(false);
-                                    addActiveClass();
-                                }}
-                                activeClassName="active"
-                            >
-                                Utensilios
-                            </NavLink>
-                        </li>
+                    {userRole === 'mesero' && (
+                        <>
+                            <li>
+                                <NavLink
+                                    to="/comandas"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Comandas
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/menu/generate-qr"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Generar QR
+                                </NavLink>
+                            </li>
+                        </>
                     )}
 
                     <li>
                         <NavLink
-                            to="/pedidos" // Nueva ruta para pedidos
+                            to="/pedidos"
                             onClick={() => {
                                 setMenuOpen(false);
                                 addActiveClass();
                             }}
-                            activeClassName="active"
                         >
                             Pedidos
                         </NavLink>
                     </li>
-                    <li>
-                        <NavLink
-                            to="/informes"
-                            onClick={() => {
-                                setMenuOpen(false);
-                                addActiveClass();
-                            }}
-                            activeClassName="active"
-                        >
-                            Informes
-                        </NavLink>
-                    </li>
-
-
-                    {userRole === 'administrador' && (
-                        <li>
-                            <NavLink
-                                to="/mermas"
-                                onClick={() => {
-                                    setMenuOpen(false);
-                                    addActiveClass();
-                                }}
-                                activeClassName="active"
-                            >
-                                Mermas
-                            </NavLink>
-                        </li>
-                    )}
-                    {/* Nuevas rutas para mesero */}
-                    {userRole === 'mesero' && (
-                    <li>
-                        <NavLink 
-                            to="/comandas" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Comandas
-                        </NavLink>
-                    </li>
-                    )}
-                    {userRole === 'mesero' && (
-                    <li>
-                        <NavLink 
-                            to="/menu/generate-qr" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Generar QR
-                        </NavLink>
-                    </li>
-                    )}
-                    {/* Nuevas rutas para mesero */}
-                    {userRole === 'mesero' && (
-                    <li>
-                        <NavLink 
-                            to="/comandas" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Comandas
-                        </NavLink>
-                    </li>
-                    )}
-                    {userRole === 'mesero' && (
-                    <li>
-                        <NavLink 
-                            to="/menu/generate-qr" 
-                            onClick={() => { 
-                                setMenuOpen(false); 
-                                addActiveClass();
-                            }} 
-                            activeClassName="active"
-                        >
-                            Generar QR
-                        </NavLink>
-                    </li>
-                    )}
                     <li>
                         <NavLink
                             to="/auth"
@@ -241,7 +163,6 @@ const Navbar = () => {
                                 logoutSubmit();
                                 setMenuOpen(false);
                             }}
-                            activeClassName="active"
                         >
                             Cerrar sesión
                         </NavLink>
