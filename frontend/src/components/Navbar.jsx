@@ -6,14 +6,14 @@ import { useState } from "react";
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const user = JSON.parse(sessionStorage.getItem('usuario')) || '';
-    const userRole = user?.rol_usuario;
+    const user = JSON.parse(sessionStorage.getItem('usuario')) || ''; // Obtener el usuario de sessionStorage
+    const userRole = user?.rol_usuario; // Rol del usuario
     const [menuOpen, setMenuOpen] = useState(false);
 
     const logoutSubmit = () => {
         try {
-            logout();
-            navigate('/auth');
+            logout(); // Llamar al servicio de logout
+            navigate('/auth'); // Redirigir a la página de autenticación
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
         }
@@ -46,6 +46,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className={`nav-menu ${menuOpen ? 'activado' : ''}`}>
                 <ul>
+                    {/* Ruta de inicio */}
                     <li>
                         <NavLink
                             to="/home"
@@ -58,6 +59,7 @@ const Navbar = () => {
                         </NavLink>
                     </li>
 
+                    {/* Rutas para administrador */}
                     {userRole === 'administrador' && (
                         <>
                             <li>
@@ -118,6 +120,7 @@ const Navbar = () => {
                         </>
                     )}
 
+                    {/* Rutas para mesero */}
                     {userRole === 'mesero' && (
                         <>
                             <li>
@@ -145,6 +148,7 @@ const Navbar = () => {
                         </>
                     )}
 
+                    {/* Ruta de pedidos (visible para todos) */}
                     <li>
                         <NavLink
                             to="/pedidos"
@@ -156,6 +160,8 @@ const Navbar = () => {
                             Pedidos
                         </NavLink>
                     </li>
+
+                    {/* Cerrar sesión */}
                     <li>
                         <NavLink
                             to="/auth"
@@ -169,6 +175,8 @@ const Navbar = () => {
                     </li>
                 </ul>
             </div>
+
+            {/* Botón hamburguesa para menú colapsable */}
             <div className="hamburger" onClick={toggleMenu}>
                 <span className="bar"></span>
                 <span className="bar"></span>

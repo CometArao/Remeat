@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/client'; 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
@@ -16,10 +16,14 @@ import Informes from '@pages/Informes'
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
 
-
+import Pedidos from './pages/Pedidos.jsx';
 import Comandas from '@pages/Comandas'; 
 import GenerateQRCode from '@pages/GenerateQRCode'; 
 import Ingredientes from '@pages/Ingredientes';
+import Ingredientes2 from '@pages/Ingredientes2';
+
+
+
 
 const data_lineal = [
   {
@@ -458,7 +462,8 @@ const data_circular = [
 ]
 
 
-const router = createBrowserRouter([
+
+const router = createBrowserRouter([ 
   {
     path: '/',
     element: <Root />,
@@ -514,7 +519,7 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <div style={{ height: '80vh', marginTop: '10vh' }}>
-              <GraficoLineal data={data_lineal} />
+              <GraficoLineal data={data_lineal} legendX = {"test"} legendY = {"testy"}/>
             </div>
           </ProtectedRoute>
         ),
@@ -538,16 +543,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <div style={{ height: '80vh', marginTop: '10vh' }}>
-              <GraficoCircular data={data_circular} keys={
-              [
+              <GraficoCircular data={data_circular} keys={[
                 'hot dog',
                 'burger',
                 'sandwich',
                 'kebab',
                 'fries',
                 'donut'
-              ]
-              }/>
+              ]}/>
             </div>
           </ProtectedRoute>
         ),
@@ -576,6 +579,23 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: '/pedido', // Ruta para generar QR, accesible solo para mesero
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Pedidos />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/ingredientes2', // Ruta para generar QR, accesible solo para mesero
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Ingredientes2 />
+          </ProtectedRoute>
+        ),
+      },
+      
     ]
   },
   {
@@ -591,4 +611,4 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <RouterProvider router={router} />
-)
+);
