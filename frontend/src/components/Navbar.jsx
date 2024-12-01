@@ -147,8 +147,7 @@ const Navbar = () => {
                             </li>
                         </>
                     )}
-
-                    {/* Ruta de pedidos (visible para todos) */}
+                    {userRole === 'administrador' && (
                     <li>
                         <NavLink
                             to="/proveedores"
@@ -160,7 +159,7 @@ const Navbar = () => {
                             Proveedores
                         </NavLink>
                     </li>
-
+                    )}
                     {/* Cerrar sesión */}
                     <li>
                         <NavLink
