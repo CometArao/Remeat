@@ -401,8 +401,9 @@ export async function getIngresosVentasService(ids_platillo) {
           INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
           WHERE cc.id_platillo = $1
       `, [id_platillo]);
-
+    console.log("comandas_platillo")
     console.log(comandas_platillo)
+    console.log(id_platillo)
     if (!comandas_platillo || comandas_platillo.length === 0) {
       continue;
     }

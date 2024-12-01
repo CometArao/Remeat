@@ -25,6 +25,8 @@ const Comandas = () => {
       {creating && <p>Creando comanda...</p>}
       <ComandaList comandas={comandas} onDelete={handleDeleteComanda} />
       {deleting && <p>Eliminando comanda...</p>}
+      <Popup show={isPopupOpen} setShow={setIsPopupOpen} data={dataTipoUtensilio} action={handleUpdate} />
+      <Popup show={isCreatePopUpOpen} setShow={setIsCreatePopUpOpen} data={dataTipoUtensilioCreate} action={handleCreate} />
     </div>
   );
 };

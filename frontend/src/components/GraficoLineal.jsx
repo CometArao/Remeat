@@ -21,7 +21,7 @@ const MyResponsiveLine = ({ data /* see data tab */ , legendX, legendY}) => (
         }}
         yFormat=" >-.2f"
         axisTop={null}
-        axisRight={null}
+        alxisRight={null}
         axisBottom={{
             tickSize: 5,
             tickPadding: 5,

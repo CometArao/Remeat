@@ -1,5 +1,5 @@
 import React from 'react';
-import useGetComandas from '../../hooks/Comandas/useGetComandas';
+import useGetComandas from '../../hooks/comandas/useGetComandas';
 import ComandaItem from './ComandaItem';
 
 const ComandaList = () => {
