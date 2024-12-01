@@ -20,20 +20,32 @@ const Pedidos = () => {
 
     // Renderizar pedidos
     return (
-        <div className="pedidos">
-            <h1>Gestión de Pedidos</h1>
-            {error && <p>Error: {error}</p>}
-            <ul>
-                {pedidos.map((pedido) => (
-                    <li key={pedido.id_pedido}>
-                        <p><strong>ID:</strong> {pedido.id_pedido}</p>
-                        <p><strong>Descripción:</strong> {pedido.descripcion_pedido}</p>
-                        <p><strong>Estado:</strong> {pedido.estado_pedido}</p>
-                        <p><strong>Costo:</strong> ${pedido.costo_pedido}</p>
-                    </li>
-                ))}
-            </ul>
+        <div>
+            <Table
+                data={tipoUtensilios}
+                columns={columns}
+                filter={filterRut}
+                initialSortName={'nombre_tipo_utensilio'}
+                onSelectionChange={handleSelectionChange}
+            />
+            <Popup show={isPopupOpen} setShow={setIsPopupOpen} data={dataTipoUtensilio} action={handleUpdate} />
+            <Popup show={isCreatePopUpOpen} setShow={setIsCreatePopUpOpen} data={dataTipoUtensilioCreate} action={handleCreate} />
         </div>
+            
+        //<div className="pedidos">
+            //<h1>Gestión de Pedidos</h1>
+            //{error && <p>Error: {error}</p>}
+            //<ul>
+                //{pedidos.map((pedido) => (
+                    //<li key={pedido.id_pedido}>
+                        //<p><strong>ID:</strong> {pedido.id_pedido}</p>
+                        //<p><strong>Descripción:</strong> {pedido.descripcion_pedido}</p>
+                        //<p><strong>Estado:</strong> {pedido.estado_pedido}</p>
+                        //<p><strong>Costo:</strong> ${pedido.costo_pedido}</p>
+                    //</li>
+                //))}
+            //</ul>
+        //</div>
     );
 };
 
