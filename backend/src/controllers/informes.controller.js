@@ -13,7 +13,7 @@ export async function getStockIngrediente(req, res) {
             await getIngredientesDeTipoService(body);
         if(errorIngrediente) {
             console.log(errorIngrediente)
-            return handleErrorClient(res, 400, errorIngrediente.message)
+            return handleErrorClient(res, 400, errorIngrediente)
         }
         console.log(datos_ingrediente)
         return handleSuccess(res, 200, "Consulta stock inventarios resuelta con exito", datos_ingrediente);
@@ -36,6 +36,9 @@ export async function getStockUtensilio(req, res) {
         //}
         const [datos_utensilios, errorTipoUtensilio] =
             await getUtensiliosDeTipoService(body);
+        if(errorTipoUtensilio) {
+            return handleErrorClient(res, 400, errorIngrediente)
+        }
         return handleSuccess(res, 201, "Datos stock utensilio consultados exitosamente", datos_utensilios)
     } catch (error) {
         console.log(error)
@@ -52,6 +55,7 @@ export async function getIngresosPorVentas(req, res) {
         console.log(ingresos_ventas)
         handleSuccess(res, 200, "Ingresos obtenidos exitosamente", ingresos_ventas);
     } catch (error) {
+        console.log(error)
         handleErrorServer(res, 500, error.message);
         console.log(error)
     }
@@ -65,6 +69,7 @@ export async function getVentasPlatillo(req, res) {
 
         handleSuccess(res, 200, "Usuario obtenido exitosamente", ventas_platillo);
     } catch (error) {
+        console.log(error)
         handleErrorServer(res, 500, error.message);
         console.log(error)
     }
@@ -88,6 +93,7 @@ export async function getCostos(req, res) {
         const { body } = req;
         const [costos, error] = await getCostosService(body);
         if (error) {
+            console.log(error)
             console.log(error)
             return handleErrorClient(res, 404, error);
         } 

@@ -71,6 +71,9 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
         INNER JOIN utensilio_merma um ON um.id_merma = m.id_merma
         WHERE um."id_utensilio" = $1
         `, [utensilio["id_utensilio"]])
+      if(!mermas || mermas.length === 0) {
+        continue
+      }
       //aqui se añaden las cantidades de las mermas
       for (let i = 0; i < mermas.length; i++) {
         const merma = mermas[i];
