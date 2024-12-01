@@ -1,0 +1,60 @@
+.comandas-container {
+    margin: 20px auto;
+    max-width: 800px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .comanda-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  
+  .comanda-item h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+  
+  .comanda-item p {
+    margin: 8px 0;
+  }
+  
+  .comanda-item button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .comanda-item button:hover {
+    background-color: #c9302c;
+  }
+  
+  .comanda-form {
+    margin-bottom: 20px;
+  }
+  
+  .comanda-form input,
+  .comanda-form button {
+    margin: 8px 0;
+    padding: 8px;
+    width: 100%;
+    font-size: 16px;
+  }
+  
+  .comanda-form button {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .comanda-form button:hover {
+    background-color: #4cae4c;
+  }
+  

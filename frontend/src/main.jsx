@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/client'; 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
@@ -22,6 +22,9 @@ import GenerateQRCode from '@pages/GenerateQRCode';
 import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
+
+
+
 
 const data_lineal = [
   {
@@ -460,7 +463,8 @@ const data_circular = [
 ]
 
 
-const router = createBrowserRouter([
+
+const router = createBrowserRouter([ 
   {
     path: '/',
     element: <Root />,
@@ -548,16 +552,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <div style={{ height: '80vh', marginTop: '10vh' }}>
-              <GraficoCircular data={data_circular} keys={
-              [
+              <GraficoCircular data={data_circular} keys={[
                 'hot dog',
                 'burger',
                 'sandwich',
                 'kebab',
                 'fries',
                 'donut'
-              ]
-              }/>
+              ]}/>
             </div>
           </ProtectedRoute>
         ),
@@ -618,4 +620,4 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <RouterProvider router={router} />
-)
+);
