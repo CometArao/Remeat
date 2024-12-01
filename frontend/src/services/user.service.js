@@ -1,32 +1,32 @@
 import axios from './root.service.js';
-import { formatUserData } from '@helpers/formatData.js';
 
 export async function getUsers() {
     try {
-        const { data } = await axios.get('/user/');
-        const formattedData = data.data.map(formatUserData);
-        return formattedData;
+        const { data } = await axios.get('/usuarios/');
+        return data.data; // Asegúrate de que el backend envía esta estructura
     } catch (error) {
-        return error.response.data;
+        console.error('Error en getUsers:', error);
+        return [];
     }
 }
 
-export async function updateUser(data, rut) {
+export async function updateUser(data, id) {
     try {
-        const response = await axios.patch(`/user/detail/?rut=${rut}`, data);
-        console.log(response);
-        return response.data.data;
-    } catch (error) {
-        console.log(error);
-        return error.response.data;
-    }
-}
-
-export async function deleteUser(rut) {
-    try {
-        const response = await axios.delete(`/user/detail/?rut=${rut}`);
+        const response = await axios.patch(`/usuarios/${id}`, data); // Usar id_usuario
         return response.data;
     } catch (error) {
+        console.error('Error en updateUser:', error);
         return error.response.data;
+    }
+}
+
+export async function deleteUser(id_usuario) {
+    try {
+        // Asegurarse de que id_usuario se pase como parte de la ruta
+        const response = await axios.delete(`/usuarios/${id_usuario}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error en deleteUser:', error);
+        throw error; // Lanza el error al frontend
     }
 }
