@@ -11,8 +11,21 @@ const AddPlatilloForm = ({ comandaId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addPlatillo(comandaId, platilloData);
-    setPlatilloData({ id_platillo: '', cantidad: '', estado: 'pendiente' }); // Limpiar formulario
+
+    // Convertir los datos al tipo correcto
+    const formattedData = {
+      id_platillo: parseInt(platilloData.id_platillo, 10), // Convertir a número entero
+      cantidad: parseInt(platilloData.cantidad, 10), // Convertir a número entero
+      estado: platilloData.estado, // Mantener como string
+    };
+
+
+    try {
+      await addPlatillo(comandaId, formattedData);
+      setPlatilloData({ id_platillo: '', cantidad: '', estado: 'pendiente' }); // Limpiar formulario
+    } catch (error) {
+      console.error('Error al añadir platillo:', error);
+    }
   };
 
   return (
