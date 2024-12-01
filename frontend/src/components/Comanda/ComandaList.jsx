@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useDeleteComanda from '../../hooks/Comandas/useDeleteComanda';
+import useDeleteComanda from '../../hooks/comandas/useDeleteComanda';
 import AddPlatilloForm from './AddPlatilloForm'; // Importamos AddPlatilloForm
 import '../../styles/Comandas.css';
 

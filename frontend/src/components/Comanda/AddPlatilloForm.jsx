@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useAddPlatilloToComanda from '../../hooks/Comandas/useAddPlatilloToComanda';
+import useAddPlatilloToComanda from '../../hooks/comandas/useAddPlatilloToComanda';
 
 const AddPlatilloForm = ({ comandaId }) => {
   const { addPlatillo, loading, error } = useAddPlatilloToComanda();

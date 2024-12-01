@@ -1,5 +1,5 @@
 import React from 'react';
-import useGetComandasWithPlatillos from '../../hooks/Comandas/useGetComandasWithPlatillos'; // Hook para obtener comandas con platillos
+import useGetComandasWithPlatillos from '../../hooks/comandas/useGetComandasWithPlatillos'; // Hook para obtener comandas con platillos
 import '../../styles/Comandas.css';
 
 const ComandasWithPlatillosList = () => {
