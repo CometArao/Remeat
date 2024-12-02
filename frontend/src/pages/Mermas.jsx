@@ -1,9 +1,9 @@
 import Table from '@components/Table';
 import useTipoUtensilio from '../hooks/tipo_utensilio/useGetTipoUtensilio';
+import Popup from '@hooks/tipo_utensilio/popupTipoUtensilio.jsx'
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
-import { useNavigate } from 'react-router-dom';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import { useCallback, useState } from 'react';
@@ -15,7 +15,8 @@ import useCreateMerma from '@hooks/mermas/useCreateMermas.jsx'
 //Se define componente tipo utensilio
 const Mermas = () => {
   const { mermas, fetchMermas, setMermas } = getMermas();
-  const [filterName, setFilterName] = useState('');
+  console.log("Mermas")
+  console.log(mermas)
   const columns = [
     { title: "Fecha", field: "fecha_merma", width: 500, responsive: 0 },
   ];
@@ -28,12 +29,6 @@ const Mermas = () => {
     dataMerma,
     setDataMerma
   } = useCreateMerma(setMermas)
-  const navigate = useNavigate();
-  const handleNavigation = async () => {
-    const today = Date()
-
-    navigate('/crear_mermas', { state: today });
-  }
   //Para editar
   //Para borrar
   return (
@@ -44,7 +39,7 @@ const Mermas = () => {
           <div className='filter-actions'>
             {/* tmp style. la clase esta en users.css*/}
             <button className='create-button' onClick={handleClickCreate}>
-              <img src={CreateIcon} alt="Crear" />
+                <img src={CreateIcon} alt="Crear" />
             </button>
           </div>
         </div>
@@ -53,6 +48,7 @@ const Mermas = () => {
           columns={columns}
         />
       </div>
+      <Popup show={isCreatePopUpOpen} setShow={setIsCreatePopUpOpen} data={dataMerma} action={handleCreate} />
     </div>
   );
 };
