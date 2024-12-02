@@ -119,6 +119,17 @@ const Navbar = () => {
                             </li>
                             <li>
                                 <NavLink
+                                    to="/pedidos"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Pedidos
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
                                     to="/proveedores"
                                     onClick={() => {
                                         setMenuOpen(false);
