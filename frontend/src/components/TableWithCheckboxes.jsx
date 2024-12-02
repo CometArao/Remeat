@@ -1,4 +1,4 @@
-import { useState, useImperativeHandle, forwardRef } from 'react';
+import { useState, useImperativeHandle, forwardRef} from 'react';
 
 const TableWithCheckboxes = forwardRef((data, ref) => {
   // Sample data with names
@@ -8,7 +8,7 @@ const TableWithCheckboxes = forwardRef((data, ref) => {
   const [checkedItems, setCheckedItems] = useState({});
 
   const getSelectedItems = () => {
-    return data.filter(item => checkedItems[item.id]);
+    return data.filter(item => checkedItems[item.id]);   
   };
   // Handle checkbox change
   const handleCheckboxChange = (id) => {
