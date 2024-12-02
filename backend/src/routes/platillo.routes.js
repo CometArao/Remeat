@@ -17,7 +17,7 @@ const router = Router();
 
 router
     .use(authenticateJwt)  // Aplicar autenticación a todas las rutas
-    .get("/", isChef, isMesero, getPlatillosController)                   // Obtener todos los platillos
+    .get("/", getPlatillosController)                   // Obtener todos los platillos
     .get("/:id_platillo",isChef, isMesero, getPlatilloByIdController)    // Obtener un platillo específico por ID
     .post("/", isChef, createPlatilloController)                // Crear platillo (sin precio)
     .patch("/:id_platillo", isChef, updatePlatilloController)   // Actualizar platillo
