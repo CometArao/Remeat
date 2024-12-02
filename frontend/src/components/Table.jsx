@@ -7,5 +7,5 @@ export default function Table({ data, columns, filter, dataToFilter, initialSort
     <div className='table-container'>
       <div ref={tableRef}></div>
     </div>
-  );
+  );  
 }
