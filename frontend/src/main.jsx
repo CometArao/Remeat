@@ -614,6 +614,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: '/pedidos',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Pedidos />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/proveedores',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>

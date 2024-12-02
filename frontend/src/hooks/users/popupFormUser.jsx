@@ -2,7 +2,7 @@ import Form from '@components/Form';
 import '@styles/popup.css';
 import CloseIcon from '@assets/XIcon.svg';
 
-export default function PopupFormUser({ show, setShow, data, action }) {
+export default function PopupFormUser({ show, setShow, data, action, isEdit }) {
     const userData = data && data.length > 0 ? data[0] : {};
 
     const handleSubmit = (formData) => {
@@ -18,7 +18,7 @@ export default function PopupFormUser({ show, setShow, data, action }) {
                             <img src={CloseIcon} alt="Cerrar" />
                         </button>
                         <Form
-                            title="Editar usuario"
+                            title={isEdit ? "Editar Usuario" : "Crear Usuario"}
                             fields={[
                                 {
                                     label: "Nombre",
@@ -52,10 +52,23 @@ export default function PopupFormUser({ show, setShow, data, action }) {
                                     required: true,
                                     maxLength: 100,
                                 },
+                                {
+                                    label: "Rol",
+                                    name: "rol_usuario",
+                                    defaultValue: userData.rol_usuario || "",
+                                    placeholder: "Ej: administrador",
+                                    fieldType: "select",
+                                    options: [
+                                        { value: 'administrador', label: 'Administrador' },
+                                        { value: 'cocinero', label: 'Cocinero' },
+                                        { value: 'mesero', label: 'Mesero' },
+                                    ],
+                                    required: true,
+                                },
                             ]}
                             onSubmit={handleSubmit}
-                            buttonText="Guardar Cambios"
-                            backgroundColor="#fff"
+                            buttonText={isEdit ? "Guardar Cambios" : "Crear Usuario"}
+                            backgroundColor={'#fff'}
                         />
                     </div>
                 </div>

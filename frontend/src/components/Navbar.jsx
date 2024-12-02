@@ -125,6 +125,17 @@ const Navbar = () => {
                             </li>
                             <li>
                                 <NavLink
+                                    to="/pedidos"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Pedidos
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
                                     to="/menu/generate-qr"
                                     onClick={() => {
                                         setMenuOpen(false);
@@ -137,11 +148,11 @@ const Navbar = () => {
                         </>
                     )}
 
-                    {/* Rutas solo para adminitrador */}
+                    {/* Rutas solo para administrador */}
                     {userRole === 'administrador' && (
                         <>
                             <li>
-                            <NavLink
+                                <NavLink
                                     to="/users"
                                     onClick={() => {
                                         setMenuOpen(false);
@@ -186,7 +197,6 @@ const Navbar = () => {
                             </li>
                         </>
                     )}
-
 
                     {/* Cerrar sesión */}
                     <li>

@@ -37,7 +37,6 @@ export const pedidoValidation = Joi.object({
         }),
     estado_pedido: Joi.string()
         .valid("pendiente", "enviado", "recibido")
-        .required()
         .messages({
             "string.base": "El estado del pedido debe ser de tipo string.",
             "any.only": "El estado del pedido debe ser uno de: pendiente, enviado, recibido.",
