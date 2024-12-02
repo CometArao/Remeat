@@ -1,5 +1,3 @@
-// src/components/Form.js
-
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import '@styles/form.css';
@@ -20,17 +18,7 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
     };
 
     const onFormSubmit = (data) => {
-        // Convertir los campos de selección múltiple a arrays si es necesario
-        const processedData = { ...data };
-        fields.forEach((field) => {
-            if (field.fieldType === 'select' && field.multiple) {
-                // Si el campo es múltiple y solo se selecciona una opción, convertirlo en un array
-                if (processedData[field.name] && !Array.isArray(processedData[field.name])) {
-                    processedData[field.name] = [processedData[field.name]];
-                }
-            }
-        });
-        onSubmit(processedData);
+        onSubmit(data);
     };
 
     return (
@@ -48,9 +36,9 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
                         <input
                             {...register(field.name, {
                                 required: field.required ? 'Este campo es obligatorio' : false,
-                                minLength: field.minLength ? { value: field.minLength, message: `Debe tener al menos ${field.minLength} caracteres` } : undefined,
-                                maxLength: field.maxLength ? { value: field.maxLength, message: `Debe tener máximo ${field.maxLength} caracteres` } : undefined,
-                                pattern: field.pattern ? { value: field.pattern, message: field.patternMessage || 'Formato no válido' } : undefined,
+                                minLength: field.minLength ? { value: field.minLength, message: `Debe tener al menos ${field.minLength} caracteres` } : false,
+                                maxLength: field.maxLength ? { value: field.maxLength, message: `Debe tener máximo ${field.maxLength} caracteres` } : false,
+                                pattern: field.pattern ? { value: field.pattern, message: field.patternMessage || 'Formato no válido' } : false,
                                 validate: field.validate || {},
                             })}
                             name={field.name}
@@ -67,9 +55,9 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
                         <textarea
                             {...register(field.name, {
                                 required: field.required ? 'Este campo es obligatorio' : false,
-                                minLength: field.minLength ? { value: field.minLength, message: `Debe tener al menos ${field.minLength} caracteres` } : undefined,
-                                maxLength: field.maxLength ? { value: field.maxLength, message: `Debe tener máximo ${field.maxLength} caracteres` } : undefined,
-                                pattern: field.pattern ? { value: field.pattern, message: field.patternMessage || 'Formato no válido' } : undefined,
+                                minLength: field.minLength ? { value: field.minLength, message: `Debe tener al menos ${field.minLength} caracteres` } : false,
+                                maxLength: field.maxLength ? { value: field.maxLength, message: `Debe tener máximo ${field.maxLength} caracteres` } : false,
+                                pattern: field.pattern ? { value: field.pattern, message: field.patternMessage || 'Formato no válido' } : false,
                                 validate: field.validate || {},
                             })}
                             name={field.name}
@@ -86,12 +74,11 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
                                 validate: field.validate || {},
                             })}
                             name={field.name}
-                            defaultValue={field.defaultValue || (field.multiple ? [] : '')}
+                            defaultValue={field.defaultValue || ''}
                             disabled={field.disabled}
                             onChange={field.onChange}
-                            multiple={field.multiple || false} // Habilita la selección múltiple
                         >
-                            {!field.multiple && <option value="">Seleccionar opción</option>}
+                            <option value="">Seleccionar opción</option>
                             {field.options && field.options.map((option, optIndex) => (
                                 <option className="options-class" key={optIndex} value={option.value}>
                                     {option.label}
@@ -101,12 +88,12 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
                     )}
                     {field.type === 'password' && field.name === 'password' && (
                         <span className="toggle-password-icon" onClick={togglePasswordVisibility}>
-                            <img src={showPassword ? ViewIcon : HideIcon} alt="Toggle Password" />
+                            <img src={showPassword ? ViewIcon : HideIcon} />
                         </span>
                     )}
                     {field.type === 'password' && field.name === 'newPassword' && (
                         <span className="toggle-password-icon" onClick={toggleNewPasswordVisibility}>
-                            <img src={showNewPassword ? ViewIcon : HideIcon} alt="Toggle New Password" />
+                            <img src={showNewPassword ? ViewIcon : HideIcon} />
                         </span>
                     )}
                     <div className={`error-message ${errors[field.name] || field.errorMessageData ? 'visible' : ''}`}>
