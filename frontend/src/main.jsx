@@ -22,6 +22,7 @@ import GenerateQRCode from '@pages/GenerateQRCode';
 import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
+import CrearMermas from './pages/CrearMermas.jsx';
 
 
 
@@ -501,7 +502,7 @@ const router = createBrowserRouter([
       {
         path: '/tipo_utensilio',
         element: (
-          <ProtectedRoute allowedRoles={['administrador']}>
+          <ProtectedRoute allowedRoles={['administrador','cocinero']}>
             <TipoUtensilio />
           </ProtectedRoute>
         ),
@@ -509,7 +510,7 @@ const router = createBrowserRouter([
        {
         path: '/ingredientes/', 
         element: (
-          <ProtectedRoute allowedRoles={['administrador']}>
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
             <Ingredientes />
           </ProtectedRoute>
        ),
@@ -517,7 +518,7 @@ const router = createBrowserRouter([
       {
         path: '/tipos_ingredientes',
         element: (
-          <ProtectedRoute allowedRoles={['administrador']}>
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
             <TipoIngrediente />
           </ProtectedRoute>
         ),
@@ -527,6 +528,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Mermas />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/crear_mermas',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <CrearMermas />
           </ProtectedRoute>
         ),
       },
@@ -623,7 +632,7 @@ const router = createBrowserRouter([
       {
         path: '/unidades_medidas',
         element: (
-            <ProtectedRoute allowedRoles={['administrador']}>
+            <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
                 <UnidadesMedida />
             </ProtectedRoute>
         ),

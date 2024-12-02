@@ -59,20 +59,9 @@ const Navbar = () => {
                         </NavLink>
                     </li>
 
-                    {/* Rutas para administrador */}
-                    {userRole === 'administrador' && (
+                    {/* Rutas para administrador y cocinero */}
+                    {(userRole === 'administrador' || userRole === 'cocinero') && (
                         <>
-                            <li>
-                                <NavLink
-                                    to="/users"
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        addActiveClass();
-                                    }}
-                                >
-                                    Usuarios
-                                </NavLink>
-                            </li>
                             <li>
                                 <NavLink
                                     to="/ingredientes"
@@ -94,51 +83,7 @@ const Navbar = () => {
                                 >
                                     Utensilios
                                 </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/informes"
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        addActiveClass();
-                                    }}
-                                >
-                                    Informes
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/mermas"
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        addActiveClass();
-                                    }}
-                                >
-                                    Mermas
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/pedidos"
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        addActiveClass();
-                                    }}
-                                >
-                                    Pedidos
-                                </NavLink>
-                            </li>
-                            <li>
-                                <NavLink
-                                    to="/proveedores"
-                                    onClick={() => {
-                                        setMenuOpen(false);
-                                        addActiveClass();
-                                    }}
-                                >
-                                    Proveedores
-                                </NavLink>
-                            </li>
+                            </li>  
                             <li>
                                 <NavLink
                                     to="/tipos_ingredientes"
@@ -180,6 +125,17 @@ const Navbar = () => {
                             </li>
                             <li>
                                 <NavLink
+                                    to="/pedidos"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Pedidos
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
                                     to="/menu/generate-qr"
                                     onClick={() => {
                                         setMenuOpen(false);
@@ -187,6 +143,56 @@ const Navbar = () => {
                                     }}
                                 >
                                     Generar QR
+                                </NavLink>
+                            </li>
+                        </>
+                    )}
+
+                    {/* Rutas solo para administrador */}
+                    {userRole === 'administrador' && (
+                        <>
+                            <li>
+                                <NavLink
+                                    to="/users"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Usuarios
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/informes"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Informes
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/mermas"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Mermas
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/proveedores"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Proveedores
                                 </NavLink>
                             </li>
                         </>
