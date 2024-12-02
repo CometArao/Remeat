@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import Table from '@components/Table';
+import Search from '@components/Search';
 import useGetTiposIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
 import useUnidadMedida from '../hooks/unidad_medida/useGetUnidadMedida';
 import useCreateTipoIngrediente from '../hooks/tipo_ingrediente/useCreateTipoIngrediente';
@@ -58,6 +59,12 @@ const TiposIngrediente = () => {
         { title: 'Nombre', field: 'nombre_tipo_ingrediente', width: 500, responsive: 0 },
         { title: 'Unidad de Medida', field: 'unidad_medida.nombre_unidad_medida', width: 300 },
     ];
+    const [searchTerm, setSearchTerm] = useState("");
+    // Filtrar datos según el término de búsqueda
+    const filteredTiposIngredientes = tiposIngrediente.filter((tipo) =>
+        tipo.nombre_tipo_ingrediente.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
 
     return (
         <div className="main-container">
@@ -65,6 +72,11 @@ const TiposIngrediente = () => {
                 <div className="top-table">
                     <h1 className="title-table">Tipos de Ingrediente</h1>
                     <div className="filter-actions">
+                        <Search
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Buscar por nombre"
+                        />
                         <button className="create-button" onClick={handleClickCreate}>
                             <img src={CreateIcon} alt="Crear" />
                         </button>
@@ -89,7 +101,7 @@ const TiposIngrediente = () => {
                     </div>
                 </div>
                 <Table
-                    data={tiposIngrediente}
+                    data={filteredTiposIngredientes}
                     columns={columns}
                     initialSortName="nombre_tipo_ingrediente"
                     onSelectionChange={handleSelectionChange}
