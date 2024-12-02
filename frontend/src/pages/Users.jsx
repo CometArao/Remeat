@@ -1,6 +1,6 @@
 import Table from '@components/Table';
 import useUsers from '@hooks/users/useGetUsers';
-import PopupFormUser from '@hooks/users/PopupFormUser';
+import PopupFormUser from '@hooks/users/popupFormUser';
 import CreateIcon from '@assets/PlusIcon.svg';
 import DeleteIcon from '@assets/deleteIcon.svg';
 import UpdateIcon from '@assets/updateIcon.svg';
