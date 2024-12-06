@@ -15,6 +15,7 @@ import '@styles/styles.css';
 import Informes from '@pages/Informes'
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
+import CrearMermas from './pages/CrearMermas.jsx';
 import Pedidos from './pages/Pedidos.jsx';
 import Proveedores from '@pages/Proveedores';
 import Comandas from '@pages/Comandas'; 
@@ -585,6 +586,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Informes />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/crear_mermas',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <CrearMermas />
           </ProtectedRoute>
         ),
       },

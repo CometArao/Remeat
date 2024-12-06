@@ -1,6 +1,6 @@
 import Table from '@components/Table';
 import Search from '../components/Search';
-import useTipoUtensilio from '../hooks/tipo_utensilio/useGetTipoUtensilio';
+import useGetTipoUtensilio from '../hooks/tipo_utensilio/useGetTipoUtensilio';
 import Popup from '@hooks/tipo_utensilio/popupTipoUtensilio.jsx'
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
@@ -18,9 +18,8 @@ import useCreateTipoUtensilio from '@hooks/tipo_utensilio/useCreateTipoUtensilio
 //TODO: Revisar si en el backend se ingresan datos solo en minuscula
 //Se define componente tipo utensilio
 const TiposUtensilio = () => {
-  const { tipoUtensilios, fetchTipoUtensilio, setTipoUtensilio } = useTipoUtensilio();
+  const { tipoUtensilios, fetchTipoUtensilio, setTipoUtensilio } = useGetTipoUtensilio();
   const [filterName, setFilterName] = useState('');
-  //No entiendo esta linea del todo asi que no la voy a borrar todavia
   const {
     handleClickUpdate,
     handleUpdate,

@@ -2,7 +2,7 @@
 import Joi from "joi";
 
 export const mermaValidation = Joi.object({
-    id_merma: Joi.number()
+  id_merma: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -10,23 +10,49 @@ export const mermaValidation = Joi.object({
       "number.integer": "El id debe ser un número entero.",
       "number.positive": "El id debe ser un número positivo.",
     }),
-  fecha: Joi.date()
-    .iso()
-    .messages({
-      "date.base": "La fecha debe ser una fecha válida.",
-      "date.format": "La fecha debe estar en formato ISO 8601.",
-    }),
-    cantidad_perdida: Joi.number()
-    .integer()
-    .positive()
-    .message({
-      "number.base": "El id debe ser un número.",
-      "number.integer": "El id debe ser un número entero.",
-      "number.positive": "El id debe ser un número positivo.",
+  utensilios: Joi.array().items(
+    Joi.object({
+      id_utensilio: Joi.number()
+      .integer()
+      .positive()
+      .message({
+        "numer.base": "utensilios debe contener las ids de tipos de utensilio",
+        "number.integer": "utensilios solo puede contener enteros",
+        "number.positive": "utensilios solo puede contener numeros positivos"
+      }),
+      cantidad_perdida: Joi.number()
+      .integer()
+      .positive()
+      .message({
+        "numer.base": "utensilios debe contener las ids de tipos de utensilio",
+        "number.integer": "utensilios solo puede contener enteros",
+        "number.positive": "utensilios solo puede contener numeros positivos"
+      })
     })
+  ),
+  ingredientes: Joi.array().items(
+    Joi.object({
+      id_ingrediente: Joi.number()
+      .integer()
+      .positive()
+      .message({
+        "numer.base": "utensilios debe contener las ids de tipos de utensilio",
+        "number.integer": "utensilios solo puede contener enteros",
+        "number.positive": "utensilios solo puede contener numeros positivos"
+      }),
+      cantidad_perdida: Joi.number()
+      .integer()
+      .positive()
+      .message({
+        "numer.base": "utensilios debe contener las ids de tipos de utensilio",
+        "number.integer": "utensilios solo puede contener enteros",
+        "number.positive": "utensilios solo puede contener numeros positivos"
+      })
+    })
+  ),
 })
 export const mermaQueryValidation = Joi.object({
-    id_merma: Joi.number()
+  id_merma: Joi.number()
     .integer()
     .positive()
     .messages({

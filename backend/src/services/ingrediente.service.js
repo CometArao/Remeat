@@ -53,8 +53,11 @@ export async function getIngredientesService() {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
-        const ingredientes = await ingredienteRepository.find
-        ({ relations: { tipo_ingrediente: { unidad_medida: true } } });
+        const ingredientes = await ingredienteRepository.find(
+            { 
+                relations: { tipo_ingrediente: { unidad_medida: true },
+                    pedido: true } 
+            });
 
         return [ingredientes, null];
     } catch (error) {

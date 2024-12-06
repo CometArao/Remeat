@@ -20,14 +20,14 @@ const utensilio_merma = new EntitySchema({
     },
     relations: {
         merma: {
-            type: "many-to-one", // Una comanda puede tener múltiples platillos
+            type: "many-to-one", 
             target: "merma",
             joinColumn: {
-                name: "id_comanda"
+                name: "id_merma"
             }
         },
         utensilio: {
-            type: "many-to-one", // Un platillo puede estar en múltiples comandas
+            type: "many-to-one", 
             target: "utensilio",
             joinColumn: {
                 name: "id_utensilio"
