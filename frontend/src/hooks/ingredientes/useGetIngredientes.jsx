@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getIngredientes } from '@services/ingredientes.service';
 
 const useGetIngredientes = () => {
@@ -10,7 +10,9 @@ const useGetIngredientes = () => {
             setIngredientes(data);
         }
     };
-
+    useEffect(() => {
+        fetchIngredientes();
+    }, [])
     return { ingredientes, fetchIngredientes, setIngredientes };
 };
 

@@ -111,7 +111,7 @@ export async function getUtensilioService(id) {
 export async function getUtensiliosService() {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
     try {
-        const utensilios = await utensilioRepository.find({ relations: ["tipo_utensilio"] });
+        const utensilios = await utensilioRepository.find({ relations: ["tipo_utensilio", "pedido"] });
         return [utensilios, null];
     } catch (error) {
         console.error("Error al obtener los utensilios:", error);
