@@ -6,8 +6,11 @@ const ComandaList = () => {
   const { comandas, loading, error, refetch } = useGetComandas();
 
   const handleDelete = async () => {
-    // Recarga las comandas después de una eliminación
-    await refetch();
+    await refetch(); // Recargar lista después de eliminar
+  };
+
+  const handleComplete = async () => {
+    await refetch(); // Recargar lista después de completar
   };
 
   if (loading) return <p>Cargando comandas...</p>;
@@ -22,6 +25,7 @@ const ComandaList = () => {
             key={comanda.id_comanda}
             comanda={comanda}
             onDelete={handleDelete}
+            onComplete={handleComplete} // Pasa la función para manejar completados
           />
         ))
       ) : (

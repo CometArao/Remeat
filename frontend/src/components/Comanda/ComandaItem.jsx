@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import DeleteComanda from './DeleteComanda';
 import AddPlatilloForm from './AddPlatilloForm';
+import CompleteComandaButton from './CompleteComandaButton';
 
-const ComandaItem = ({ comanda, onDelete }) => {
+const ComandaItem = ({ comanda, onDelete, onComplete }) => {
   const [showAddPlatillo, setShowAddPlatillo] = useState(false);
 
   return (
@@ -12,15 +13,14 @@ const ComandaItem = ({ comanda, onDelete }) => {
       <p>Hora: {comanda.hora_compra_comanda}</p>
       <p>Estado: <strong>{comanda.estado_comanda}</strong></p>
 
-      {/* Botón para eliminar la comanda */}
       <DeleteComanda comandaId={comanda.id_comanda} onDelete={onDelete} />
+      
+      <CompleteComandaButton comandaId={comanda.id_comanda} onComplete={onComplete} />
 
-      {/* Botón para añadir platillo */}
       <button onClick={() => setShowAddPlatillo(!showAddPlatillo)}>
         {showAddPlatillo ? 'Cancelar' : 'Añadir Platillo'}
       </button>
 
-      {/* Formulario para añadir platillos */}
       {showAddPlatillo && <AddPlatilloForm comandaId={comanda.id_comanda} />}
     </div>
   );
