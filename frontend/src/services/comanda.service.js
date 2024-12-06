@@ -67,3 +67,17 @@ export const completeComanda = async (comandaId, token) => {
   );
   return response.data;
 };
+
+
+
+export const getComandaById = async (id, token) => {
+  try {
+    const response = await axios.get(`/comandas/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (err) {
+    console.error('Error obteniendo la comanda por ID:', err.response || err);
+    throw new Error(err.response?.data?.message || 'Error al obtener la comanda.');
+  }
+};

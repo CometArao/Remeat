@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import DeleteComanda from './DeleteComanda';
 import AddPlatilloForm from './AddPlatilloForm';
 import CompleteComandaButton from './CompleteComandaButton';
-import EditComandaForm from './EditComandaForm'; // Importar el formulario de edición
+import EditComandaForm from './EditComandaForm'; 
 
 const ComandaItem = ({ comanda, onDelete, onComplete, onEditComplete }) => {
   const [showAddPlatillo, setShowAddPlatillo] = useState(false);
-  const [showEditForm, setShowEditForm] = useState(false); // Estado para mostrar/ocultar formulario de edición
+  const [showEditForm, setShowEditForm] = useState(false); 
 
   return (
     <div className="comanda-item">
