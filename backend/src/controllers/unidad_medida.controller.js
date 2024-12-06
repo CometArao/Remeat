@@ -102,7 +102,7 @@ export async function deleteMedidaController(req, res) {
 
         const [deletedMedida, errorMedida] = await deleteUnidadMedidaService(id);
 
-        if (errorMedida) return handleErrorClient(res, 404, errorMedida);
+        if (errorMedida) return handleErrorClient(res, 404, "Error eliminando tipo de ingrediente", errorMedida);
 
         handleSuccess(res, 200, "Medida eliminada exitosamente", deletedMedida);
     } catch (error) {

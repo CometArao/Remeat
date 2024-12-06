@@ -1,36 +1,29 @@
-import { useCallback, useEffect, useState } from 'react';
-import Table from '@components/Table';
 import Search from '@components/Search';
-import useGetTiposIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
+import Table from '@components/Table';
 import useUnidadMedida from '../hooks/unidad_medida/useGetUnidadMedida';
-import useCreateTipoIngrediente from '../hooks/tipo_ingrediente/useCreateTipoIngrediente';
-import useEditTipoIngrediente from '../hooks/tipo_ingrediente/useEditTipoIngrediente';
-import useDeleteTipoIngrediente from '../hooks/tipo_ingrediente/useDeleteTipoIngrediente';
+import useGetTiposIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
 import PopupTipoIngrediente from '@hooks/tipo_ingrediente/PopupTipoIngrediente';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
+import { useCallback, useEffect, useState } from 'react';
 import '@styles/users.css';
+import useDeleteTipoIngrediente from '../hooks/tipo_ingrediente/useDeleteTipoIngrediente';
+import useEditTipoIngrediente from '../hooks/tipo_ingrediente/useEditTipoIngrediente';
+import useCreateTipoIngrediente from '../hooks/tipo_ingrediente/useCreateTipoIngrediente';
 
 const TiposIngrediente = () => {
     const { tiposIngrediente, fetchTiposIngrediente, setTiposIngrediente } = useGetTiposIngrediente();
     const { unidadMedidas, fetchUnidadMedida } = useUnidadMedida();
 
+    const [filterName, setFilterName] = useState('');
+
     useEffect(() => {
         fetchTiposIngrediente();
         fetchUnidadMedida();
     }, []);
-
-    const {
-        handleClickCreate,
-        handleCreate,
-        isCreatePopupOpen,
-        setIsCreatePopupOpen,
-        dataTipoIngrediente: dataTipoIngredienteCreate,
-        setDataTipoIngrediente: setDataTipoIngredienteCreate,
-    } = useCreateTipoIngrediente(setTiposIngrediente);
 
     const {
         handleClickUpdate,
@@ -43,27 +36,29 @@ const TiposIngrediente = () => {
 
     const { handleDelete } = useDeleteTipoIngrediente(fetchTiposIngrediente, setDataTipoIngrediente);
 
-    const handleSelectionChange = useCallback(
-        (selectedItems) => {
-            if (selectedItems.length > 0) {
-                setDataTipoIngrediente(selectedItems);
-            } else {
-                setDataTipoIngrediente([]);
-            }
-        },
-        [setDataTipoIngrediente]
-    );
-    
+    const handleSelectionChange = useCallback((selectedItems) => {
+        setDataTipoIngrediente(selectedItems);
+      }, [setDataTipoIngrediente]);
+
+    const {
+        handleClickCreate,
+        handleCreate,
+        isCreatePopupOpen,
+        setIsCreatePopupOpen,
+        dataTipoIngredienteCreate,
+        setDataTipoIngredienteCreate,
+    } = useCreateTipoIngrediente(setTiposIngrediente);
 
     const columns = [
         { title: 'Nombre', field: 'nombre_tipo_ingrediente', width: 500, responsive: 0 },
         { title: 'Unidad de Medida', field: 'unidad_medida.nombre_unidad_medida', width: 300 },
     ];
-    const [searchTerm, setSearchTerm] = useState("");
+    
     // Filtrar datos según el término de búsqueda
-    const filteredTiposIngredientes = tiposIngrediente.filter((tipo) =>
-        tipo.nombre_tipo_ingrediente.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const handleNameFilterChange = (e) => {
+        console.log(e)
+        setFilterName(e.target.value.toLowerCase());
+      };
 
 
     return (
@@ -73,8 +68,8 @@ const TiposIngrediente = () => {
                     <h1 className="title-table">Tipos de Ingrediente</h1>
                     <div className="filter-actions">
                         <Search
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            value={filterName}
+                            onChange={handleNameFilterChange}
                             placeholder="Buscar por nombre"
                         />
                         <button className="create-button" onClick={handleClickCreate}>
@@ -101,8 +96,10 @@ const TiposIngrediente = () => {
                     </div>
                 </div>
                 <Table
-                    data={filteredTiposIngredientes}
+                    data={tiposIngrediente}
                     columns={columns}
+                    filter={filterName}
+                    dataToFilter={'nombre_tipo_ingrediente'}
                     initialSortName="nombre_tipo_ingrediente"
                     onSelectionChange={handleSelectionChange}
                 />

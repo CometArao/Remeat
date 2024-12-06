@@ -1,5 +1,6 @@
 import { AppDataSource } from "../config/configDb.js";
 import UnidadMedida from "../entity/unidad_medida.entity.js";
+import TipoIngrediente from "../entity/tipo_ingrediente.entity.js";
 
 // Servicio para crear una unidad de medida
 export async function createUnidadMedidaService(data) {
@@ -77,14 +78,22 @@ export async function updateUnidadMedidaService(id, data) {
 export async function deleteUnidadMedidaService(id) {
 
     const unidadMedidaRepository = AppDataSource.getRepository(UnidadMedida);
+    const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
         const unidadMedida = await unidadMedidaRepository.findOneBy({ id_unidad_medida: id });
         if (!unidadMedida) {
             return [null, `La unidad de medida con ID ${id} no existe.`];
         }
+        const tipoIngrediente = await tipoIngredienteRepository.findOne({
+             where: { unidad_medida: { id_unidad_medida: id } } });
 
-        await unidadMedidaRepository.delete(id);
+        if (tipoIngrediente) {
+            return [null, `No se puede eliminar esta unidad de medida  porque está siendo utilizado
+            en uno o más tipos de ingredientes.`];
+        }
+        
+          await unidadMedidaRepository.delete(id);
         return [unidadMedida, null];
     } catch (error) {
         console.error("Error al eliminar la unidad de medida:", error);
