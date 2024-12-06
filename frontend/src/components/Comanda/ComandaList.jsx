@@ -1,36 +1,32 @@
-import React, { useState } from 'react';
-import AddPlatilloForm from './AddPlatilloForm'; // Importamos AddPlatilloForm
-import '../../styles/Comandas.css';
+import React from 'react';
+import ComandaItem from './ComandaItem';
+import useGetComandas from '../../hooks/Comandas/useGetComandas';
 
-const ComandaList = ({ comandas, onDelete }) => {
-  const [showAddPlatillo, setShowAddPlatillo] = useState(null);
+const ComandaList = () => {
+  const { comandas, loading, error, refetch } = useGetComandas();
 
-  const handleDelete = async (id) => {
-    if (window.confirm(`¿Estás seguro de eliminar la comanda con ID ${id}?`)) {
-      await onDelete(id);
-    }
+  const handleDelete = async () => {
+    // Recarga las comandas después de una eliminación
+    await refetch();
   };
+
+  if (loading) return <p>Cargando comandas...</p>;
+  if (error) return <p>Error al cargar las comandas: {error.message}</p>;
 
   return (
     <div className="comandas-container">
       <h2>Listado de Comandas</h2>
-      {comandas.map((comanda) => (
-        <div key={comanda.id_comanda} className="comanda-item">
-          <h3>Comanda ID: {comanda.id_comanda}</h3>
-          <p>Fecha: {comanda.fecha_compra_comanda}</p>
-          <p>Hora: {comanda.hora_compra_comanda}</p>
-          <p>Estado: <strong>{comanda.estado_comanda}</strong></p>
-          <button onClick={() => handleDelete(comanda.id_comanda)}>
-            Eliminar
-          </button>
-          <button onClick={() => setShowAddPlatillo(showAddPlatillo === comanda.id_comanda ? null : comanda.id_comanda)}>
-            {showAddPlatillo === comanda.id_comanda ? 'Cancelar' : 'Añadir Platillo'}
-          </button>
-          {showAddPlatillo === comanda.id_comanda && (
-            <AddPlatilloForm comandaId={comanda.id_comanda} />
-          )}
-        </div>
-      ))}
+      {comandas.length > 0 ? (
+        comandas.map((comanda) => (
+          <ComandaItem
+            key={comanda.id_comanda}
+            comanda={comanda}
+            onDelete={handleDelete}
+          />
+        ))
+      ) : (
+        <p>No hay comandas disponibles.</p>
+      )}
     </div>
   );
 };

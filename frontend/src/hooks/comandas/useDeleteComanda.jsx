@@ -16,10 +16,14 @@ const useDeleteComanda = () => {
         throw new Error('Token no encontrado. Por favor, inicia sesión nuevamente.');
       }
 
-      const response = await deleteComanda(id, token); // Llama al servicio
+      await deleteComanda(id, token); // Llama al servicio para eliminar
     } catch (err) {
-      console.error('Error eliminando la comanda:', err.message || err);
-      setError(err.message || 'Error inesperado al eliminar la comanda.');
+      if (err.response?.status === 404) {
+        console.warn('Comanda ya eliminada o no encontrada.');
+      } else {
+        console.error('Error eliminando la comanda:', err.message || err);
+        setError(err.message || 'Error inesperado al eliminar la comanda.');
+      }
     } finally {
       setLoading(false);
     }
