@@ -25,7 +25,7 @@ const useDeleteUnidadMedida = (fetchUnidadMedida, setDataUnidadMedida) => {
                 }
             } catch (error) {
                 console.error('Error al eliminar la unidad de medida:', error);
-                showErrorAlert('Error', 'Ocurrió un error al eliminar la unidad de medida.');
+                showErrorAlert('Error', error.message || 'Ocurrió un error al eliminar la unidad de medida.');
             }
         }
     };
