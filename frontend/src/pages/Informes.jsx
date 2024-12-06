@@ -181,6 +181,14 @@ const Informes = () => {
         }
         console.log("antes de enviar")
         console.log(datos)
+        console.log("dependientes")
+        console.log(datos.dependientes)
+        console.log(datos.dependientes.length)
+        const dependientes_keys = Object.keys(datos.dependientes)
+        if(datos.length == 0 || dependientes_keys.length == 0 || !datos.dependientes) {
+            showErrorAlert('Error, parece que los platillos seleccionados no tienen suficiente informacion')
+            return
+        }
         navigate('/grafico', { state: datos });
     }
 

@@ -297,6 +297,15 @@ export async function deleteTipoIngredienteService(id) {
         if (!tipoIngredienteExistente) {
             return [null, `El tipo de ingrediente con ID ${id} no existe.`];
         }
+        const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
+        const ingrediente = await ingredienteRepository.findOne({
+            where: { tipo_ingrediente: { id_tipo_ingrediente: id } },
+        });
+
+        if (ingrediente) {
+            return [null, `No se puede eliminar este tipo de ingrediente porque está siendo utilizado
+            en uno o más ingredientes.`];
+        }
 
         // Intentar eliminar el tipo de ingrediente
         await tipoIngredienteRepository.delete(id);
