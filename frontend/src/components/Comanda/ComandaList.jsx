@@ -5,12 +5,22 @@ import useGetComandas from '../../hooks/Comandas/useGetComandas';
 const ComandaList = () => {
   const { comandas, loading, error, refetch } = useGetComandas();
 
+  // Manejadores existentes
   const handleDelete = async () => {
-    await refetch(); // Recargar lista después de eliminar
+    await refetch(); // Recarga lista tras eliminar
   };
 
   const handleComplete = async () => {
-    await refetch(); // Recargar lista después de completar
+    await refetch(); // Recarga lista tras completar
+  };
+
+  const handleEditComplete = async () => {
+    await refetch(); // Recarga lista tras editar
+  };
+
+  const handleCustomAction = async () => {
+    console.log('Ejecutando acción personalizada'); // Mantén cualquier lógica adicional
+    await refetch(); // Refrescar lista si necesario
   };
 
   if (loading) return <p>Cargando comandas...</p>;
@@ -24,8 +34,10 @@ const ComandaList = () => {
           <ComandaItem
             key={comanda.id_comanda}
             comanda={comanda}
-            onDelete={handleDelete}
-            onComplete={handleComplete} // Pasa la función para manejar completados
+            onDelete={handleDelete} // Mantener interacción con "Eliminar"
+            onComplete={handleComplete} // Mantener interacción con "Completar"
+            onEditComplete={handleEditComplete} // Añadir interacción para "Editar"
+            onCustomAction={handleCustomAction} // Cualquier otra acción requerida
           />
         ))
       ) : (
