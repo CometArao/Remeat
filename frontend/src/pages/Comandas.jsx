@@ -2,30 +2,36 @@ import React, { useState } from 'react';
 import useGetComandas from '../hooks/comandas/useGetComandas';
 import useCreateComanda from '../hooks/comandas/useCreateComanda';
 import useDeleteComanda from '../hooks/comandas/useDeleteComanda';
-import useGetComandasWithPlatillos from '../hooks/comandas/useGetComandasWithPlatillos'; // Nueva hook para platillos
+import useGetComandasWithPlatillos from '../hooks/comandas/useGetComandasWithPlatillos'; // Hook adicional para platillos
 import ComandaForm from '../components/Comanda/ComandaForm';
 import ComandaList from '../components/Comanda/ComandaList';
 import ComandasWithPlatillosList from '../components/Comanda/ComandasWithPlatillosList';
 import '../styles/Comandas.css';
 
 const Comandas = () => {
-  const { comandas, loading, error, refetch: refetchComandas } = useGetComandas(); // Hook para listar comandas
-  const { create, loading: creating } = useCreateComanda(); // Hook para crear comandas
-  const { remove, loading: deleting } = useDeleteComanda(); // Hook para eliminar comandas
-  const { comandasWithPlatillos, loading: loadingPlatillos, error: errorPlatillos, refetch: refetchPlatillos } = useGetComandasWithPlatillos(); // Hook para comandas con platillos
-  const [showForm, setShowForm] = useState(false); // Controla si el formulario está visible
-  const [view, setView] = useState('default'); // 'default' para comandas normales, 'withPlatillos' para comandas con platillos
+  const { comandas, loading, error, refetch: refetchComandas } = useGetComandas();
+  const { create, loading: creating } = useCreateComanda();
+  const { remove, loading: deleting } = useDeleteComanda();
+  const { comandasWithPlatillos, loading: loadingPlatillos, error: errorPlatillos, refetch: refetchPlatillos } = useGetComandasWithPlatillos();
+  const [showForm, setShowForm] = useState(false);
+  const [view, setView] = useState('default');
 
   const handleCreateComanda = async (comandaData) => {
     await create(comandaData);
-    refetchComandas(); // Refresca la lista tras crear
-    setShowForm(false); // Oculta el formulario
+    refetchComandas();
+    setShowForm(false);
   };
 
   const handleDeleteComanda = async (id) => {
-    await remove(id);
-    refetchComandas(); // Refresca la lista tras eliminar
+    try {
+      await remove(id); // Llama al hook
+      refetchComandas(); // Actualiza la lista de comandas
+    } catch (err) {
+      console.error('Error manejado en la página:', err.message || err);
+      alert(err.message || 'Error inesperado al eliminar la comanda.');
+    }
   };
+  
 
   if (loading || loadingPlatillos) return <p>Cargando datos...</p>;
   if (error || errorPlatillos) return <p style={{ color: 'red' }}>Error: {error?.message || errorPlatillos?.message}</p>;
@@ -33,7 +39,6 @@ const Comandas = () => {
   return (
     <div className="comandas-page">
       <h1>Gestión de Comandas</h1>
-
       <div className="comandas-actions">
         <button onClick={() => setShowForm(!showForm)}>
           {showForm ? 'Ocultar Formulario' : 'Nueva Comanda'}
@@ -49,17 +54,11 @@ const Comandas = () => {
       )}
 
       {view === 'default' && (
-        <ComandaList
-          comandas={comandas}
-          onDelete={handleDeleteComanda} // Refresca la lista tras eliminar
-        />
+        <ComandaList comandas={comandas} onDelete={handleDeleteComanda} />
       )}
 
       {view === 'withPlatillos' && (
-        <ComandasWithPlatillosList
-          comandasWithPlatillos={comandasWithPlatillos}
-          refetch={refetchPlatillos} // Refresca la lista de comandas con platillos
-        />
+        <ComandasWithPlatillosList comandasWithPlatillos={comandasWithPlatillos} refetch={refetchPlatillos} />
       )}
 
       {creating && <p>Creando comanda...</p>}

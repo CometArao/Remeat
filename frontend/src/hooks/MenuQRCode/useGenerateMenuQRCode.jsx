@@ -1,36 +1,43 @@
 import { useState } from 'react';
-import axios from 'axios';
-import cookies from 'js-cookie'; // Asegúrate de tener instalada esta dependencia.
+import apiClient from '../../services/root.service';
+import cookies from 'js-cookie';
 
 const useGenerateMenuQRCode = () => {
-  const [qrCode, setQrCode] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+    const [qrCode, setQrCode] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-  const generateQRCode = async () => {
-    setLoading(true);
-    setError(null);
-    const token = cookies.get('jwt-auth'); // Recuperar el token desde las cookies
-    try {
-      const response = await axios.get('http://localhost:3000/api/menus/menu/qr', {
-        withCredentials: true, // Incluir cookies en la solicitud
-        headers: {
-          Authorization: `Bearer ${token}` // Configurar el token si es necesario
+    const generateQRCode = async () => {
+        setLoading(true);
+        setError(null);
+        const token = cookies.get('jwt-auth');
+
+        try {
+            const response = await apiClient.get('/menus/menu/qr', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const qrCodeFromBackend = response.data.data.qrCode;
+
+            // Validar que no se duplique el prefijo
+            if (!qrCodeFromBackend.startsWith('data:image/png;base64,')) {
+                throw new Error('Formato de QR inválido.');
+            }
+
+            
+
+            setQrCode(qrCodeFromBackend); // Asignar directamente sin modificar
+        } catch (err) {
+            console.error('Error al generar el QR:', err);
+            setError(err.response?.data?.message || 'Error al generar el QR.');
+        } finally {
+            setLoading(false);
         }
-      });
-      if (response.data.status === 'Success' && response.data.data.qrCode) {
-        setQrCode(response.data.data.qrCode);
-      } else {
-        throw new Error(response.data.message || 'Error al generar el código QR');
-      }
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  return { qrCode, generateQRCode, loading, error };
+    return { qrCode, generateQRCode, loading, error };
 };
 
 export default useGenerateMenuQRCode;

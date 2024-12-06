@@ -8,9 +8,17 @@ export const createComanda = async (comandaData, token) => {
 };
 
 export const deleteComanda = async (id, token) => {
-  await axios.delete(`/comandas/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  try {
+    const response = await axios.delete(`/comandas/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Incluye el token en los headers
+      },
+    });
+    return response.data; // Asegúrate de devolver los datos esperados
+  } catch (err) {
+    console.error('Error en la solicitud de eliminación:', err.response || err);
+    throw new Error(err.response?.data?.message || 'Error al eliminar la comanda.');
+  }
 };
 
 export const getComandas = async (token) => {
