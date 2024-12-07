@@ -2,6 +2,16 @@ import { useState, useImperativeHandle, forwardRef } from 'react';
 
 const TableWithCheckboxes = forwardRef((data, ref) => {
     data = data.data
+    console.log("data ingrediente")
+    console.log(data)
+    for(let i = 0; i < data.length; i++) {
+        const item = data[i];
+        if(!item.tipo_utensilio) {
+            data.splice(i, 1); //eliminar el elemento sin datos de tipo
+        }
+    }
+    console.log("data ingrediente revisado")
+    console.log(data)
     const [checkedItems, setCheckedItems] = useState({});
     const [numeroIngrediente, setNumberoIngrediente] = useState({})
 

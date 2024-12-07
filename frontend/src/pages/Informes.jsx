@@ -6,11 +6,14 @@ import SelectTime from '@components/SelectTime'
 import '@styles/informe.css';
 import { showErrorAlert } from '@helpers/sweetAlert.js';
 import { useNavigate } from 'react-router-dom';
-import { getVentasPlatillo, getCostos, 
-         getStockUtensilio, getStockIngrediente,
-         getPlatilloMenu,
-         getVentas, getUtilidades } from '@services/informes.service.js'
+import {
+    getVentasPlatillo, getCostos,
+    getStockUtensilio, getStockIngrediente,
+    getPlatilloMenu,
+    getVentas, getUtilidades
+} from '@services/informes.service.js'
 import { getIngredientes } from '../services/ingredientes.service';
+import { getTiposUtensilio } from '../services/utensilio.service';
 
 /**
  * Esta pagina para seleccionar el grafico y las variables a usar
@@ -90,20 +93,107 @@ const Informes = () => {
 
     */
     const handleClickVentas = async () => {
-        const ingredientes = await getIngredientes();
-        console.log(ingredientes)
-
+        try {
+            const ventasPlatillos = await getPlatillos();
+            //No se envia un pop con la alerta porque queda feo
+            console.log(ventasPlatillos)
+            let formatedPlatillos = [];
+            for (let i = 0; i < ventasPlatillos.length; i++) {
+                const ventaPlatillo = ventasPlatillos[i];
+                const formatedPlatillo = {
+                    id: ventaPlatillo.id_platillo,
+                    name: ventaPlatillo.nombre_platillo
+                }
+                formatedPlatillos.push(formatedPlatillo);
+            }
+            console.log(formatedPlatillos)
+            setDatosDependientes(formatedPlatillos);
+            setTipoGrafico({ tipoGrafico: "lineal", variable: "ingresos_ventas_platillo" })
+            setDatosIndependientes(tiempo_lineal)
+        } catch (error) {
+            console.log(error)
+            console.error('Error al buscar los platos:', error);
+            showErrorAlert('Error, No se pudieron encontrar los platos');
+        }
     }
     const handleClickCosto = async () => {
-        const costos = await getCostos();
-        console.log(costos)
-        let formatedCosto = []
+        try {
+            const ingredientes = await getTiposIngrediente();
+            const utensilios = await getTiposUtensilio();
+            let formatedList = [];
+            for (let i = 0; i < ingredientes.length; i++) {
+                const ingrediente = ingredientes[i];
+                const IngredienteFormatedData = {
+                    id: ingrediente.id_tipo_ingrediente,
+                    name: ingrediente.nombre_tipo_ingrediente,
+                    tipo: "ingrediente"
+                }
+                formatedList.push(IngredienteFormatedData)
+                const utensilio = utensilios[i];
+                const utensilioFormatedData = {
+                    id: utensilio.id_tipo_utensilio,
+                    name: utensilio.nombre_tipo_utensilio,
+                    tipo: "utensilio"
+                }
+                formatedList.push(utensilioFormatedData)
+            }
+            setDatosDependientes(formatedList)
+            setTipoGrafico({ tipoGrafico: "lineal", variable: "costos" })
+            setDatosIndependientes(tiempo_lineal)
+        } catch (error) {
+            console.log(error)
+            showErrorAlert("Error no se pudo encontrar los ingredientes y utensilios")
+        }
     }
     const handleClickUtilidades = async () => {
+        try {
+            const ingredientes = await getTiposIngrediente();
+            const utensilios = await getTiposUtensilio();
+            let formatedList = [];
+            for (let i = 0; i < ingredientes.length; i++) {
+                const ingrediente = ingredientes[i];
+                const IngredienteFormatedData = {
+                    id: ingrediente.id_tipo_ingrediente,
+                    name: ingrediente.nombre_tipo_ingrediente,
+                    tipo: "ingrediente"
+                }
+                formatedList.push(IngredienteFormatedData)
+                const utensilio = utensilios[i];
+                const utensilioFormatedData = {
+                    id: utensilio.id_tipo_utensilio,
+                    name: utensilio.nombre_tipo_utensilio,
+                    tipo: "utensilio"
+                }
+                formatedList.push(utensilioFormatedData)
+            }
+            setDatosDependientes(formatedList)
+            setTipoGrafico({ tipoGrafico: "lineal", variable: "utilidades" })
+            setDatosIndependientes(tiempo_lineal)
+        } catch (error) {
+            console.log(error)
+            showErrorAlert("Error no se pudo encontrarse los ingredientes y utensilios")
+        }
 
     }
     const handleStockUtensilios = async () => {
-
+        try {
+            const utensilios = await getTiposUtensilio();
+            let formatedList = [];
+            for (let i = 0; i < utensilios.length; i++) {
+                const utensilio = utensilios[i];
+                const formatedUtensilio = {
+                    id: utensilio.id_tipo_utensilio,
+                    name: utensilio.nombre_tipo_utensilio
+                }
+                formatedList.push(utensilio)
+            }
+            setDatosDependientes(formatedList)
+            setTipoGrafico({ tipoGrafico: "lineal", variable: "stock_utensilios"})
+            setDatosIndependientes(tiempo_lineal)
+        } catch (error) {
+            console.log(error)
+            showErrorAlert("Error no se pudo encontrar los utensilios")
+        }
     }
     const handleStockIngredientes = async () => {
 
@@ -163,7 +253,7 @@ const Informes = () => {
             showErrorAlert("Error, No se pudieron encontrar los platos")
         }
     }
-    const handlePlatilloMenuBarra = async () =>  {
+    const handlePlatilloMenuBarra = async () => {
 
     }
     /*
@@ -195,7 +285,7 @@ const Informes = () => {
             showErrorAlert("Error, No se pudieron encontrar los platos")
         }
     }
-    const handlePlatilloMenuCircular = async () =>  {
+    const handlePlatilloMenuCircular = async () => {
 
     }
     const handleNavigation = async () => {
