@@ -487,11 +487,11 @@ const router = createBrowserRouter([
     errorElement: <Error404 />,
     children: [
       {
-        path: '/home',
+        path: '/inicio',
         element: <Home />
       },
       {
-        path: '/users',
+        path: '/usuarios',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Users />
@@ -601,6 +601,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['mesero']}>
             <GenerateQRCode />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/pedidos',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Pedidos />
           </ProtectedRoute>
         ),
       },
