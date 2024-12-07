@@ -1,0 +1,55 @@
+/* Estilos para el contenedor principal */
+.graficos-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    align-items: center;
+    text-align: center;
+}
+
+/* Estilo para cada sección */
+.grafico-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+/* Estilos para los botones */
+.botones button {
+    margin-right: 10px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: 1px solid #212121;
+    border-radius: 5px;
+    background-color: #FFEBEE;
+    transition: background-color 0.3s;
+}
+
+.botones button:hover {
+    background-color: #FFC107;
+}
+
+.botones button:active {
+    background-color: #0056b3;
+}
+
+/* Espaciado y disposición */
+.botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.horizontal {
+    display: flex;
+}
+.horizontal div {
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+  @media (max-width: 600px) {
+    .botones {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Coloca más botones por fila en pantallas pequeñas */
+    }
+  } 

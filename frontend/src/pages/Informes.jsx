@@ -2,10 +2,11 @@ import { useState, useRef } from 'react';
 import { getPlatillos } from '../services/platillos.service';
 import TableWithCheckboxes from '@components/TableWithCheckboxes';
 import SelectTime from '@components/SelectTime'
-import '@styles/informes.css';
+import '@styles/informe.css';
 import { showErrorAlert } from '@helpers/sweetAlert.js';
 import { useNavigate } from 'react-router-dom';
 import { getVentasPlatillo } from '@services/informes.service.js'
+import { getCostos } from '@services/informe.service.js'
 
 /**
  * Esta pagina para seleccionar el grafico y las variables a usar
@@ -103,6 +104,9 @@ const Informes = () => {
             showErrorAlert('Error, No se pudieron encontrar los platos');
         }
     }
+    const handleClickCosto = async () => {
+        const costos = await getCostos();
+    }
     const handleClickVentasPlatilloBarra = async () => {
         try {
             const ventasPlatillos = await getPlatillos();
@@ -185,7 +189,7 @@ const Informes = () => {
         console.log(datos.dependientes)
         console.log(datos.dependientes.length)
         const dependientes_keys = Object.keys(datos.dependientes)
-        if(datos.length == 0 || dependientes_keys.length == 0 || !datos.dependientes) {
+        if (datos.length == 0 || dependientes_keys.length == 0 || !datos.dependientes) {
             showErrorAlert('Error, parece que los platillos seleccionados no tienen suficiente informacion')
             return
         }
@@ -195,21 +199,38 @@ const Informes = () => {
     return (
         <div className="main-container">
             <h1>Seleccione El Grafico</h1>
-            <div> {/* Lista de graficos */}
-                <h2>Linea</h2>
-                <button>Ventas</button>
-                <button>Costo</button>
-                <button>Utilidades</button>
-                <button>Stock Utensilios</button>
-                <button>Stock Ingredientes</button>
-                {/*Recordatorio el metodo no debe tener parentesis al final  */}
-                <button onClick={handleClickVentasPlatilloLineal}>Ventas Platillos</button>
-                <h2>Barra</h2>
-                <button onClick={handleClickVentasPlatilloBarra}>Ventas Platillos</button>
-                <button>Platillos en el Menu</button>
-                <h2>Circular</h2>
-                <button onClick={handleClickVentasPlatilloCircular}>Ventas Platillos</button>
-                <button>Platillos en el Menu</button>
+            <div className="graficos-container">
+                {/* Sección de gráficos de línea */}
+                <section className="grafico-section">
+                    <h2>Linea</h2>
+                    <div className="botones">
+                        <button>Ventas</button>
+                        <button>Costo</button>
+                        <button>Utilidades</button>
+                        <button>Stock Utensilios</button>
+                        <button>Stock Ingredientes</button>
+                        {/* Botón con el evento onClick */}
+                        <button onClick={handleClickVentasPlatilloLineal}>Ventas Platillos</button>
+                    </div>
+                </section>
+
+                {/* Sección de gráficos de barra */}
+                <section className="grafico-section">
+                    <h2>Barra</h2>
+                    <div className="botones">
+                        <button onClick={handleClickVentasPlatilloBarra}>Ventas Platillos</button>
+                        <button>Platillos en el Menu</button>
+                    </div>
+                </section>
+
+                {/* Sección de gráficos circulares */}
+                <section className="grafico-section">
+                    <h2>Circular</h2>
+                    <div className="botones">
+                        <button onClick={handleClickVentasPlatilloCircular}>Ventas Platillos</button>
+                        <button>Platillos en el Menu</button>
+                    </div>
+                </section>
             </div>
             <h1>Seleccione Las Variables</h1>
             <div className='horizontal'>
@@ -218,7 +239,9 @@ const Informes = () => {
                 {/* Lista de tiempos */}
                 <SelectTime ref={SelectedTimeRef} data={datosIndependientes} />
             </div>
-            <button onClick={handleNavigation}>Crear Informe</button>
+            <div className="botones">
+                <button onClick={handleNavigation}>Crear Informe</button>
+            </div>
         </div>
     );
 };
