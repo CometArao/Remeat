@@ -27,10 +27,12 @@ const ComandaList = () => {
   };
 
   const handleDelete = async () => {
+    console.log('Eliminando una comanda...');
     await refetch(); 
   };
 
   const handleComplete = async () => {
+    console.log('Completando una comanda...');
     await refetch(); 
   };
 
