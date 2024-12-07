@@ -1,49 +1,38 @@
 import React, { useState } from 'react';
 import ComandaItem from './ComandaItem';
 import useGetComandas from '../../hooks/Comandas/useGetComandas';
-import useGetComandaById from '../../hooks/Comandas/useGetComandaById';
+import ComandaDetail from './ComandaDetail';
 
 const ComandaList = () => {
   const { comandas, loading, error, refetch } = useGetComandas();
-  const { comanda, loading: loadingById, error: errorById, fetchComanda } = useGetComandaById();
+  const [filteredComanda, setFilteredComanda] = useState(null);
 
-  const [searchId, setSearchId] = useState(''); 
-  const [filteredComanda, setFilteredComanda] = useState(null); 
-
-  const handleSearch = async () => {
-    if (!searchId) return; 
-    try {
-      await fetchComanda(searchId); 
-      setFilteredComanda(comanda); 
-    } catch (e) {
-      console.error('Error buscando comanda:', e.message || e);
-      setFilteredComanda(null); 
-    }
+  const handleSearchComplete = (comanda) => {
+    setFilteredComanda(comanda); // Reemplaza el estado con la nueva comanda
   };
 
   const handleClearSearch = () => {
-    setSearchId(''); 
-    setFilteredComanda(null); 
+    setFilteredComanda(null); // Limpia el estado
   };
 
   const handleDelete = async () => {
     console.log('Eliminando una comanda...');
-    await refetch(); 
+    await refetch();
   };
 
   const handleComplete = async () => {
     console.log('Completando una comanda...');
-    await refetch(); 
+    await refetch();
   };
 
   const handleEditComplete = async () => {
     console.log('Editando una comanda...');
-    await refetch(); 
+    await refetch();
   };
 
   const handleCustomAction = async (comandaId) => {
     console.log(`Ejecutando acción personalizada para comanda ${comandaId}`);
-    await refetch(); 
+    await refetch();
   };
 
   if (loading) return <p>Cargando comandas...</p>;
@@ -53,30 +42,18 @@ const ComandaList = () => {
     <div className="comandas-container">
       <h2>Listado de Comandas</h2>
 
-      {/* Buscador de comanda por ID */}
-      <div className="search-container">
-        <input
-          type="text"
-          value={searchId}
-          onChange={(e) => setSearchId(e.target.value)}
-          placeholder="Buscar comanda por ID"
-        />
-        <button onClick={handleSearch} disabled={loadingById}>
-          {loadingById ? 'Buscando...' : 'Buscar'}
-        </button>
-        <button onClick={handleClearSearch} disabled={loadingById}>
-          Limpiar
-        </button>
-        {errorById && <p>Error buscando comanda: {errorById}</p>}
-      </div>
+      {/* Integrar ComandaDetail */}
+      <ComandaDetail
+        onSearchComplete={handleSearchComplete}
+        onClearSearch={handleClearSearch}
+      />
 
-      {/* Mostrar resultado de búsqueda */}
+      {/* Mostrar lista de comandas o resultados filtrados */}
       {filteredComanda ? (
         <div>
-          <h3>Resultado de la Búsqueda:</h3>
           <ComandaItem
-            key={filteredComanda.data.id_comanda}
-            comanda={filteredComanda.data}
+            key={filteredComanda.id_comanda}
+            comanda={filteredComanda}
             onDelete={handleDelete}
             onComplete={handleComplete}
             onEditComplete={handleEditComplete}
