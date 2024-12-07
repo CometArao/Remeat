@@ -247,22 +247,23 @@ export async function getPlatilloByIdService(id_platillo) {
 
 //Función para eliminar un platillo por ID
 export async function deletePlatilloByIdService(id_platillo) {
+    const platilloRepository = AppDataSource.getRepository(Platillo);
+    const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
+
     try {
-        const platilloRepository = AppDataSource.getRepository(Platillo);
+        // Eliminar registros relacionados en la tabla `compuesto_platillo`
+        await componePlatilloRepository.delete({ id_platillo });
 
-        const platilloItem = await platilloRepository.findOne({
-            where: { id_platillo },
-        });
-
+        // Ahora eliminar el platillo
+        const platilloItem = await platilloRepository.findOne({ where: { id_platillo } });
         if (!platilloItem) {
             return [null, `El platillo con ID ${id_platillo} no existe.`];
         }
 
         await platilloRepository.remove(platilloItem);
-
         return [platilloItem, null];
     } catch (error) {
-        console.error("Error al eliminar el platillo", error);
+        console.error("Error al eliminar el platillo:", error);
         return [null, "Error interno del servidor"];
     }
 }

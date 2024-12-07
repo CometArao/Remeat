@@ -2,8 +2,10 @@ import axios from './root.service.js';
 
 export async function getPlatillos() {
     try {
-        const { data } = await axios.get('/platillos/');
-        console.log(data.data)
+        const response = await axios.get('/platillos/');
+        console.log(response);
+        const data = response.data; // Acceder directamente a response.data
+        console.log('Data:', data);
         return data.data;
     } catch (error) {
         return error.response.data;

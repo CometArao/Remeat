@@ -1,0 +1,35 @@
+.platillo-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease;
+    background-color: #fff;
+  }
+  
+  .platillo-card:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  
+  .platillo-card h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+  }
+  
+  .platillo-card h4 {
+    margin: 15px 0 10px;
+    font-size: 1.2em;
+  }
+  
+  .platillo-card ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+  
+  .platillo-card li {
+    margin-bottom: 5px;
+    font-size: 1em;
+  }
+  

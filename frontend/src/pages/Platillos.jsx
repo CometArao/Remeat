@@ -1,5 +1,4 @@
 import Search from '@components/Search';
-import Table from '@components/Table';
 import useTipoIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
 import useGetPlatillos from '../hooks/platillos/useGetPlatillos';
 import PopupPlatillo from '@hooks/platillos/popupPlatillo';
@@ -13,16 +12,21 @@ import '@styles/users.css';
 import useDeletePlatillo from '../hooks/platillos/useDeletePlatillo';
 import useEditPlatillo from '../hooks/platillos/useEditPlatillo';
 import useCreatePlatillo from '../hooks/platillos/useCreatePlatillo';
+import PlatilloCard from '../components/Platillo/PlatilloCard';
+import useUsers from '../hooks/users/useGetUsers';
 
 const Platillos = () => {
     const { platillo, fetchPlatillo, setPlatillo } = useGetPlatillos();
     const { tiposIngrediente, fetchTiposIngrediente } = useTipoIngrediente();
+    const { users, fetchUsers } = useUsers();
 
     const [filterName, setFilterName] = useState('');
 
     useEffect(() => {
         fetchPlatillo();
+        fetchUsers();
         fetchTiposIngrediente();
+        console.log("Datos iniciales de platillos:", platillo);
     }, []);
 
     const {
@@ -36,10 +40,6 @@ const Platillos = () => {
 
     const { handleDelete } = useDeletePlatillo(fetchPlatillo, setDataPlatillo);
 
-    const handleSelectionChange = useCallback((selectedItems) => {
-        setDataPlatillo(selectedItems);
-      }, [setDataPlatillo]);
-
     const {
         handleClickCreate,
         handleCreate,
@@ -47,19 +47,34 @@ const Platillos = () => {
         setIsCreatePopupOpen,
         dataPlatilloCreate,
         setDataPlatilloCreate,
-    } = useCreatePlatillo(setPlatillo);
+    } = useCreatePlatillo(fetchPlatillo, setPlatillo);
 
-    const columns = [
-        { title: 'Nombre', field: 'nombre_platillo', width: 500, responsive: 0 },
-        { title: 'Ingredientes', field: 'tipo_ingrediente.nombre_tipo_ingrediente', width: 300 },
-    ];
-    
-    // Filtrar datos según el término de búsqueda
     const handleNameFilterChange = (e) => {
-        console.log(e)
         setFilterName(e.target.value.toLowerCase());
-      };
+    };
 
+    console.log('platillo:', platillo);
+    const filteredPlatillos = Array.isArray(platillo)
+        ? platillo.filter((p) => p?.nombre_platillo?.toLowerCase().includes(filterName))
+        : [];
+
+
+    // Función para agregar o quitar platillos seleccionados
+    const handleCardSelectionChange = (selectedPlatillo, isChecked) => {
+        if (isChecked) {
+            // Agregar a la selección si no está presente
+            setDataPlatillo(prev => {
+                // Evitamos duplicados
+                if (prev.find(item => item.id_platillo === selectedPlatillo.id_platillo)) {
+                    return prev;
+                }
+                return [...prev, selectedPlatillo];
+            });
+        } else {
+            // Remover de la selección
+            setDataPlatillo(prev => prev.filter(item => item.id_platillo !== selectedPlatillo.id_platillo));
+        }
+    };
 
     return (
         <div className="main-container">
@@ -95,31 +110,47 @@ const Platillos = () => {
                         </button>
                     </div>
                 </div>
-                <Table
-                    data={platillo}
-                    columns={columns}
-                    filter={filterName}
-                    dataToFilter={'nombre_tipo_ingrediente'}
-                    initialSortName="nombre_tipo_ingrediente"
-                    onSelectionChange={handleSelectionChange}
-                />
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: '20px' }}>
+                    {filteredPlatillos.length > 0 ? (
+                        filteredPlatillos.map(p => {
+                            const isSelected = dataPlatillo.some(item => item.id_platillo === p.id_platillo);
+                            return (
+                                <PlatilloCard
+                                    key={p.id_platillo}
+                                    platillo={p}
+                                    isSelected={isSelected}
+                                    onSelectChange={handleCardSelectionChange}
+                                />
+                            );
+                        })
+                    ) : (
+                        <p>No hay platillos disponibles.</p>
+                    )}
+                </div>
             </div>
+
             <PopupPlatillo
                 show={isPopupOpen}
                 setShow={setIsPopupOpen}
                 data={dataPlatillo}
                 action={handleUpdate}
-                unidadesMedida={tiposIngrediente}
-                isEdit = {true}
+                usuario={users}
+                tiposIngrediente={tiposIngrediente}
+                isEdit={true}
             />
-            <PopupPlatillo
-                show={isCreatePopupOpen}
-                setShow={setIsCreatePopupOpen}
-                data={dataPlatilloCreate}
-                action={handleCreate}
-                unidadesMedida={tiposIngrediente}
-                isEdit = {false}
-            />
+            {tiposIngrediente.length > 0 && (
+                <PopupPlatillo
+                    show={isCreatePopupOpen}
+                    setShow={setIsCreatePopupOpen}
+                    data={dataPlatilloCreate || {}}
+                    action={handleCreate}
+                    usuario={users}
+                    tiposIngrediente={tiposIngrediente}
+                    isEdit={false}
+                />
+            )}
+
         </div>
     );
 };
