@@ -74,7 +74,6 @@ export async function updateMerma(req, res) {
     }
 }
 export async function deleteMerma(req, res) {
-    console.log("test")
     try {
         const id_merma = req.params.id;
         const { errorValidacion } = mermaQueryValidation.validate(id_merma);

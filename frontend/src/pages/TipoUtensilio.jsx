@@ -77,7 +77,9 @@ const TiposUtensilio = () => {
                 <img src={UpdateIcon} alt="edit" />
               )}
             </button>
-            <button className='delete-user-button' disabled={dataTipoUtensilio.length === 0} onClick={() => handleDelete(dataTipoUtensilio)}>
+            <button className='delete-user-button' 
+            disabled={dataTipoUtensilio.length === 0} 
+            onClick={() => handleDelete(dataTipoUtensilio)}>
               {dataTipoUtensilio.length === 0 ? (
                 <img src={DeleteIconDisable} alt="delete-disabled" />
               ) : (
