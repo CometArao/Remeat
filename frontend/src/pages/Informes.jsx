@@ -185,10 +185,12 @@ const Informes = () => {
                     id: utensilio.id_tipo_utensilio,
                     name: utensilio.nombre_tipo_utensilio
                 }
-                formatedList.push(utensilio)
+                formatedList.push(formatedUtensilio)
             }
+            console.log("formated List")
+            console.log(formatedList)
             setDatosDependientes(formatedList)
-            setTipoGrafico({ tipoGrafico: "lineal", variable: "stock_utensilios"})
+            setTipoGrafico({ tipoGrafico: "lineal", variable: "stock_utensilios" })
             setDatosIndependientes(tiempo_lineal)
         } catch (error) {
             console.log(error)
@@ -196,6 +198,25 @@ const Informes = () => {
         }
     }
     const handleStockIngredientes = async () => {
+        try {
+            const ingredientes = await getTiposIngrediente();
+            let fomatedList = [];
+            for (let i = 0; i < ingredientes.length; i++) {
+                const ingrediente = ingredientes[i];
+                const formatedIngrediente = {
+                    id: ingrediente.id_tipo_ingrediente,
+                    name: ingrediente.nombre_tipo_ingrediente
+                }
+                formatedList.push(formatedIngrediente)
+            }
+            setDatosDependientes(formatedList)
+            setTipoGrafico({ tipoGrafico: "lineal", variable: "stock_ingredientes" })
+            setDatosIndependientes(tiempo_lineal)
+
+        } catch (error) {
+            console.log(error)
+            showErrorAlert("Error no se pudo encontrar ingredientes")
+        }
 
     }
     //Este metodo se ejecuta al presionar el boton de ventas platillo
@@ -251,10 +272,16 @@ const Informes = () => {
             console.log(error);
             console.error('Error al buscar los platos:', error)
             showErrorAlert("Error, No se pudieron encontrar los platos")
-        }
+         }
     }
     const handlePlatilloMenuBarra = async () => {
+        try {
+            const platillosMenu = await getPlatilloMenu();
+            let formatedList = [];
+            //for(let i = 0; )
+       }catch(error) {
 
+       }
     }
     /*
 
