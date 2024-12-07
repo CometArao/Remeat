@@ -27,6 +27,7 @@ export async function getStockIngrediente(req, res) {
 
 export async function getStockUtensilio(req, res) {
     const { body } = req
+    //const { error } = 
     console.log(body)
     try {
         //const id_tipo_utensilio = req.params.id;
@@ -72,7 +73,9 @@ export async function getVentasPlatillo(req, res) {
 export async function getPlatillosMenu(req, res) {
     //consigue una lista de platillos y su relacion con el menu
     try {
-        const [menu_platillos, error] = await getMenuPlatilloService();
+        const { body } = req;
+
+        const [menu_platillos, error] = await getMenuPlatilloService(body);
         if (error) {
             console.log(error)
             return handleErrorClient(res, 404, error);

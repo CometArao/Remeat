@@ -1,12 +1,16 @@
 import { useState, useRef } from 'react';
 import { getPlatillos } from '../services/platillos.service';
+import { getTiposIngrediente } from '@services/ingredientes.service.js'
 import TableWithCheckboxes from '@components/TableWithCheckboxes';
 import SelectTime from '@components/SelectTime'
 import '@styles/informe.css';
 import { showErrorAlert } from '@helpers/sweetAlert.js';
 import { useNavigate } from 'react-router-dom';
-import { getVentasPlatillo } from '@services/informes.service.js'
-import { getCostos } from '@services/informe.service.js'
+import { getVentasPlatillo, getCostos, 
+         getStockUtensilio, getStockIngrediente,
+         getPlatilloMenu,
+         getVentas, getUtilidades } from '@services/informes.service.js'
+import { getIngredientes } from '../services/ingredientes.service';
 
 /**
  * Esta pagina para seleccionar el grafico y las variables a usar
@@ -78,6 +82,32 @@ const Informes = () => {
         setSelectedTime(selectedTime)
         return selectedTime;
     }
+    /*
+
+    #############################
+    // Handlers de Lineal
+    ############################
+
+    */
+    const handleClickVentas = async () => {
+        const ingredientes = await getIngredientes();
+        console.log(ingredientes)
+
+    }
+    const handleClickCosto = async () => {
+        const costos = await getCostos();
+        console.log(costos)
+        let formatedCosto = []
+    }
+    const handleClickUtilidades = async () => {
+
+    }
+    const handleStockUtensilios = async () => {
+
+    }
+    const handleStockIngredientes = async () => {
+
+    }
     //Este metodo se ejecuta al presionar el boton de ventas platillo
     //Este metodo llama a la backend por la informacion de ventas platillo
     const handleClickVentasPlatilloLineal = async () => {
@@ -104,9 +134,13 @@ const Informes = () => {
             showErrorAlert('Error, No se pudieron encontrar los platos');
         }
     }
-    const handleClickCosto = async () => {
-        const costos = await getCostos();
-    }
+    /*
+
+    #############################
+    // Handlers de Barra
+    ############################
+
+    */
     const handleClickVentasPlatilloBarra = async () => {
         try {
             const ventasPlatillos = await getPlatillos();
@@ -129,6 +163,16 @@ const Informes = () => {
             showErrorAlert("Error, No se pudieron encontrar los platos")
         }
     }
+    const handlePlatilloMenuBarra = async () =>  {
+
+    }
+    /*
+
+    ############################
+    // Handlers de Circular
+    ############################
+
+    */
     const handleClickVentasPlatilloCircular = async () => {
         try {
             const ventasPlatillos = await getPlatillos();
@@ -150,6 +194,9 @@ const Informes = () => {
             console.error('Error al buscar los platos:', error)
             showErrorAlert("Error, No se pudieron encontrar los platos")
         }
+    }
+    const handlePlatilloMenuCircular = async () =>  {
+
     }
     const handleNavigation = async () => {
         if (!tipoGrafico) {
@@ -204,12 +251,11 @@ const Informes = () => {
                 <section className="grafico-section">
                     <h2>Linea</h2>
                     <div className="botones">
-                        <button>Ventas</button>
-                        <button>Costo</button>
-                        <button>Utilidades</button>
-                        <button>Stock Utensilios</button>
-                        <button>Stock Ingredientes</button>
-                        {/* Botón con el evento onClick */}
+                        <button onClick={handleClickVentas}>Ventas</button>
+                        <button onClick={handleClickCosto}>Costo</button>
+                        <button onClick={handleClickUtilidades}>Utilidades</button>
+                        <button onClick={handleStockUtensilios}>Stock Utensilios</button>
+                        <button onClick={handleStockIngredientes}>Stock Ingredientes</button>
                         <button onClick={handleClickVentasPlatilloLineal}>Ventas Platillos</button>
                     </div>
                 </section>
@@ -219,7 +265,7 @@ const Informes = () => {
                     <h2>Barra</h2>
                     <div className="botones">
                         <button onClick={handleClickVentasPlatilloBarra}>Ventas Platillos</button>
-                        <button>Platillos en el Menu</button>
+                        <button onClick={handlePlatilloMenuBarra}>Platillos en el Menu</button>
                     </div>
                 </section>
 
@@ -228,7 +274,7 @@ const Informes = () => {
                     <h2>Circular</h2>
                     <div className="botones">
                         <button onClick={handleClickVentasPlatilloCircular}>Ventas Platillos</button>
-                        <button>Platillos en el Menu</button>
+                        <button onClick={handlePlatilloMenuCircular}>Platillos en el Menu</button>
                     </div>
                 </section>
             </div>

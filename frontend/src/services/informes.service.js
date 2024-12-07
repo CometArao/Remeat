@@ -73,7 +73,6 @@ export async function getVentas(ids_tipo_ingrediente, ids_tipo_utensilio) {
     try {
         const body = {
             ids_ti: ids_tipo_ingrediente,
-            ids_tu: ids_tipo_utensilio
         }
         const { data } = await axios.post(`/informes/ventas`, body)
         return data.data

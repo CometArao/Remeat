@@ -416,19 +416,49 @@ function descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos) {
     ingrediente.costo_total = 0;
     ingrediente.costo_unitario = 0;
   }
+  //Validacion ingrediente
+  if(ingrediente.cantidad < 0) {
+    return [null, "La cantidad no puede ser negativa"]
+  }
+  if(ingrediente.consumido < 0) {
+    return [null, "la cantidad consumida no puede ser negativa"]
+  }
+  if(ingrediente.consumido > ingrediente.cantidad) {
+    return [null, "No se puede consumir mas que la cantidad"]
+  }
+  if(ingrediente.costo_unitario < 0) {
+    return [null, "El costo unitario no puede ser menor a 0"]
+  }
+  if(ingrediente.costo_total < 0) {
+    return [null, "El costo total no puede ser menor a 0"]
+  }
+  //Validacion id_tipo_ingrediente
+  if(id_tipo_ingrediente < 0) {
+    return [null, "no es una id"]
+  }
   if (!indices[id_tipo_ingrediente]) {
     indices[id_tipo_ingrediente] = 0
   }
   while (ingrediente.consumido < ingrediente.cantidad) {
     const indice = indices[id_tipo_ingrediente];
+    console.log("indice")
+    console.log(indice)
+    console.log(pedidos.length)
+    if(indice >= pedidos.length) {
+      console.log("¿Mas ingredientes consumidos qu pedidos");
+      return
+    }
     const pedido = pedidos[indice];
     const ingredientes = pedido["ingredientes"]
     const ingrediente_pedido = ingredientes[id_tipo_ingrediente]
     if (ingrediente_pedido) {
-      const rc = descontarIngredientePedido(ingrediente,
+      const [rc, err] = descontarIngredientePedido(ingrediente,
         ingrediente_pedido)
-      console.log("rc")
-      console.log(rc)
+      if(err) {
+        console.log(err)
+        //TODO: error handle
+        return
+      }
       if (rc == 1) {
         indices[id_tipo_ingrediente]++;
         console.log(indices)
@@ -449,9 +479,42 @@ function descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos) {
 */
 //TODO: test unitario
 function descontarIngredientePedido(ingrediente, ingrediente_pedido) {
+  console.log(ingrediente)
+  console.log(ingrediente_pedido)
   //if (!ingrediente_pedido) {
   //return 1;
   //}
+  //Validacion Ingrediente
+  if(ingrediente.cantidad < 0) {
+    return [null, "El ingrediente tiene una cantidad invalida"];
+  }
+  if(ingrediente.consumido < 0) {
+    return [null, "El ingrediente tiene una cantidad consumida no valida"]
+  }
+  if(ingrediente.consumido > ingrediente.cantidad) {
+    return [null, "El ingrediente tiene una cantidad consumida superior a la cantidad"]
+  }
+  if(ingrediente.costo_unitario < 0) {
+    return [null, "El costo unitario no puede ser negativo"]
+  }
+  if(ingrediente.costo_total < 0) {
+    return [null, "El costo total no puede ser negativo"]
+  }
+  if(ingrediente.costo_total > ingrediente.cantidad * ingrediente.costo_unitario) {
+    return [null, "El costo total no puede ser mayor a la cantidad por el costo unitario"]
+  }
+  // Validacion ingrediente_pedido
+  if(ingrediente_pedido.cantidad < 0) {
+    return [null, "La cantidad de ingrediente_pedido no puede ser negativa"]
+  }
+  if(ingrediente_pedido.costo_total < 0) {
+    return [null, "El costo total no puede ser negativo"]
+  }
+  if(ingrediente_pedido.costo_unitario < 0) {
+    return [null, "El costo unitario no puede ser negativo"]
+  }
+
+
   if (!ingrediente.consumido) {
     ingrediente_pedido["consumido"] = 0;
   }
@@ -459,7 +522,7 @@ function descontarIngredientePedido(ingrediente, ingrediente_pedido) {
     ingrediente_pedido.consumido = ingrediente_pedido.cantidad;//Se consume todo
     ingrediente.consumido += ingrediente_pedido.cantidad; //Queda por descontar una cantidad menor
     ingrediente.costo_total += ingrediente_pedido.costo_total //se usa total porque se consume todo
-    return 1;
+    return [1, null];
   } else {//Caso los ingredientes que quedan en este pedido son mas que los de la comanda
     const cantidad_consumir = ingrediente.cantidad - ingrediente.consumido;
     ingrediente_pedido.consumido += cantidad_consumir; //se consume toda la cantidad
@@ -467,6 +530,6 @@ function descontarIngredientePedido(ingrediente, ingrediente_pedido) {
     ingrediente.consumido = cantidad_consumir;//No queda por descontar
     ingrediente.costo_total += cantidad_consumir * ingrediente_pedido.costo_unitario;
     console.log("what")
-    return 0;
+    return [0, null];
   }
 }

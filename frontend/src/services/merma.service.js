@@ -37,7 +37,7 @@ export async function updateMerma(id, datos) {
 }
 export async function deleteMerma(id) {
     try {
-        const response = await axios.post(`/mermas/delete_merma/${id}`);
+        const response = await axios.delete(`/mermas/delete_merma${id}`);
         return response.data;
     }catch(error) {
         console.log(error);
