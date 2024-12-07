@@ -1,7 +1,7 @@
 import SelectTime from '@components/SelectTime'
 import { useCallback, useState, useRef } from 'react';
 import useGetUtensilios from '../hooks/utensilios/useUtensilio';
-import useGetIngredientes from '../hooks/ingredientes/useGetIngredientes';
+import useGetIngredientesSinTiposNulos from '../hooks/ingredientes/useGetIngredientesSinTipoNulos';
 import Search from '../components/Search';
 import TablaUtensilios from '@hooks/mermas/TablaUtensilios';
 import TablaIngredientes from '@hooks/mermas/TablaIngredientes';
@@ -15,7 +15,7 @@ const crearMermas = () => {
     const [selectedIngredientes, setSelectedIngredientes] = useState([])
     const { utensilios, fetchUtensilios, setUtensilios } = useGetUtensilios();
     const [utensiliosSeleccionados, setSelectedUtensilios] = useState([])
-    const {ingredientes, fetchIngredientes, setIngredientes } = useGetIngredientes();
+    const {ingredientes, fetchIngredientes, setIngredientes } = useGetIngredientesSinTiposNulos();
     const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState([])
     const [filterName, setFilterName] = useState('');
 
@@ -106,9 +106,9 @@ const crearMermas = () => {
                     </div>
                 </div>
                 <div className='horizontal'>
-                    {/* Lista de platillos, utensilios, etc */}
                     <TablaUtensilios ref={SelectedUtensiliosRef} 
                         data={utensilios} />
+                    {/* Lista de platillos, utensilios, etc */}
                     <TablaIngredientes ref={SelectedIngredientesRef} 
                         data={ingredientes} />
                     {/* Lista de tiempos */}
@@ -118,4 +118,8 @@ const crearMermas = () => {
         </div>
     );
 }
+/**
+ * 
+ * 
+ */
 export default crearMermas;
