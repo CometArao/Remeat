@@ -2,7 +2,7 @@ import Search from '@components/Search';
 import Table from '@components/Table';
 import useUnidadMedida from '../hooks/unidad_medida/useGetUnidadMedida';
 import useGetTiposIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
-import PopupTipoIngrediente from '@hooks/tipo_ingrediente/PopupTipoIngrediente';
+import PopupTipoIngrediente from '@hooks/tipo_ingrediente/popupTipoIngrediente';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';

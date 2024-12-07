@@ -64,6 +64,17 @@ const Navbar = () => {
                         <>
                             <li>
                                 <NavLink
+                                    to="/platillos"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Platillos
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
                                     to="/ingredientes"
                                     onClick={() => {
                                         setMenuOpen(false);
