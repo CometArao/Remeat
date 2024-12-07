@@ -32,18 +32,24 @@ export async function createPlatillo(data) {
 
 export async function updatePlatillo(data, id) {
     try {
-        const response = await axios.patch(`platillos/${id}`, data, {
-            headers: { 'Cache-Control': 'no-cache' },
-        });
-        console.log('Respuesta del backend:', response.data); // Debug
-        return response.data.data;
+        console.log('Datos enviados:', data, 'ID:', id);
+
+      // Llama al endpoint relativo (baseURL se aplica automáticamente)
+      const response = await axios.patch(`platillos/${id}`, data, {
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+  
+      console.log('Respuesta del backend:', response.data); // Debug
+      return response.data.data; // Devuelve los datos del backend
     } catch (error) {
-        console.error('Error al enviar PATCH:', error.response || error);
-        throw new Error(
-            error.response?.data?.message || 'Error desconocido al actualizar el platillo.'
-        );
+      console.error('Error al enviar PATCH:', error.response?.data || error.message);
+      // Manejo de errores con un mensaje claro
+      throw new Error(
+        error.response?.data?.message || 'Error desconocido al actualizar el platillo.'
+      );
     }
-}
+  }
+  
 
 export async function deletePlatillo(id) {
     try {

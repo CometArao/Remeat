@@ -268,122 +268,99 @@ export async function deletePlatilloByIdService(id_platillo) {
     }
 }
 
-//Función para actualizar un platillo por ID
 export async function updatePlatilloByIdService(id_platillo, platilloData) {
-  try {
-    const platilloRepository = AppDataSource.getRepository(Platillo);
-    const usuarioRepository = AppDataSource.getRepository(Usuario);
-    const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
-    const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
+    try {
+        const platilloRepository = AppDataSource.getRepository(Platillo);
+        const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
+        const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
 
-    const { nombre_platillo, disponible, id_usuario, ingredientes } = platilloData;
+        const { nombre_platillo, disponible, id_usuario, ingredientes } = platilloData;
 
+        // Buscar el platillo existente
+        const platilloItem = await platilloRepository.findOne({
+            where: { id_platillo },
+            relations: ["creador"],
+        });
 
-
-    // Buscar el platillo existente
-    const platilloItem = await platilloRepository.findOne({
-        where: { id_platillo },
-        relations: ["creador"],
-    });
-
-    if (!platilloItem) {
-        return [
-            null,
-            `El platillo con ID ${id_platillo} no existe.`,
-        ];
-    }
-
-    // Validar que el usuario (creador) existe, si se proporciona un nuevo `id_usuario`
-    let usuarioExistente;
-    if (id_usuario) {
-        usuarioExistente = await usuarioRepository.findOneBy({ id_usuario });
-        if (!usuarioExistente) {
-            return [
-                null,
-                `El usuario con ID ${id_usuario} no existe.`,
-            ];
+        if (!platilloItem) {
+            console.error("Platillo no encontrado.");
+            return [null, `El platillo con ID ${id_platillo} no existe.`];
         }
-        platilloItem.creador = usuarioExistente;
-    }
 
-    // Actualizar los campos del platillo
-    if (nombre_platillo !== undefined) platilloItem.nombre_platillo = nombre_platillo;
-    if (disponible !== undefined) platilloItem.disponible = disponible;
-    
-
-    await platilloRepository.save(platilloItem);
-
-   
-        // Actualizar los campos del platillo
+        // Actualizar campos básicos del platillo
         if (nombre_platillo !== undefined) platilloItem.nombre_platillo = nombre_platillo;
         if (disponible !== undefined) platilloItem.disponible = disponible;
-    
 
         await platilloRepository.save(platilloItem);
 
-        let ingredientesToAdd = [];
+        if (ingredientes && Array.isArray(ingredientes)) {
+            // Obtener los ingredientes actuales del platillo
+            const ingredientesActuales = await componePlatilloRepository.find({
+                where: { id_platillo },
+            });
 
-        // Verificar si se proporcionaron ingredientes para actualizar
-        if (ingredientes && ingredientes.length > 0) {
-            // Eliminar relaciones existentes de ingredientes
-            await componePlatilloRepository.delete({ id_platillo });
+            // Determinar ingredientes a eliminar
+            const idsIngredientesNuevos = ingredientes.map((ing) => ing.id_tipo_ingrediente);
+            const ingredientesAEliminar = ingredientesActuales.filter(
+                (ing) => !idsIngredientesNuevos.includes(ing.id_tipo_ingrediente)
+            );
 
-            // Crear nuevas relaciones con `map`
-            ingredientesToAdd = await Promise.all(
-                ingredientes.map(async (ingrediente) => {
-                    const tipoIngredienteExistente = await tipoIngredienteRepository.findOne({
-                        where: { id_tipo_ingrediente: ingrediente.id_tipo_ingrediente },
-                        relations: ["unidad_medida"], // Incluye la relación de unidad de medida
-                    });
+            // Eliminar ingredientes que no están en la nueva lista
+            for (const ingrediente of ingredientesAEliminar) {
+                await componePlatilloRepository.delete({
+                    id_tipo_ingrediente: ingrediente.id_tipo_ingrediente,
+                    id_platillo,
+                });
+            }
 
-                    if (!tipoIngredienteExistente) {
-                        throw new Error(
-                            `El tipo de ingrediente con ID ${ingrediente.id_tipo_ingrediente} no existe.`
-                        );
-                    }
+            // Actualizar o agregar ingredientes
+            for (const ingrediente of ingredientes) {
+                const tipoIngredienteExistente = await tipoIngredienteRepository.findOne({
+                    where: { id_tipo_ingrediente: ingrediente.id_tipo_ingrediente },
+                    relations: ["unidad_medida"],
+                });
 
-                    // Guardar la relación en la tabla compuesta `compuesto_platillo`
-                    await componePlatilloRepository.save({
+                if (!tipoIngredienteExistente) {
+                    console.error(
+                        `Tipo de ingrediente con ID ${ingrediente.id_tipo_ingrediente} no encontrado.`
+                    );
+                    throw new Error(
+                        `El tipo de ingrediente con ID ${ingrediente.id_tipo_ingrediente} no existe.`
+                    );
+                }
+
+                // Actualizar o agregar relación
+                await componePlatilloRepository.upsert(
+                    {
                         id_tipo_ingrediente: ingrediente.id_tipo_ingrediente,
                         id_platillo: platilloItem.id_platillo,
                         porcion_ingrediente_platillo: ingrediente.porcion_ingrediente_platillo,
-                    });
-
-                    // Estructurar el ingrediente con unidad de medida para la respuesta
-                    return {
-                        id_tipo_ingrediente: tipoIngredienteExistente.id_tipo_ingrediente,
-                        nombre_tipo_ingrediente: tipoIngredienteExistente.nombre_tipo_ingrediente,
-                        porcion_ingrediente_platillo: ingrediente.porcion_ingrediente_platillo,
-                        unidad_medida: tipoIngredienteExistente.unidad_medida
-                            ? {
-                                id_unidad_medida: tipoIngredienteExistente.unidad_medida.id_unidad_medida,
-                                nombre_unidad_medida: tipoIngredienteExistente.unidad_medida.nombre_unidad_medida,
-                            }
-                            : null,
-                    };
-                })
-            );
-        } else {
-            // Obtener los ingredientes actuales del platillo si no se proporcionaron nuevos
-            const ingredientesActuales = await componePlatilloRepository.find({
-                where: { id_platillo },
-                relations: ["tipo_ingrediente", "tipo_ingrediente.unidad_medida"],
-            });
-
-            ingredientesToAdd = ingredientesActuales.map((ingrediente) => ({
-                id_tipo_ingrediente: ingrediente.tipo_ingrediente.id_tipo_ingrediente,
-                nombre_tipo_ingrediente: ingrediente.tipo_ingrediente.nombre_tipo_ingrediente,
-                porcion_ingrediente_platillo: ingrediente.porcion_ingrediente_platillo,
-                unidad_medida: ingrediente.tipo_ingrediente.unidad_medida
-                    ? {
-                        id_unidad_medida: ingrediente.tipo_ingrediente.unidad_medida.id_unidad_medida,
-                        nombre_unidad_medida: ingrediente.tipo_ingrediente.unidad_medida.nombre_unidad_medida,
-                    }
-                    : null,
-            }));
+                    },
+                    ["id_tipo_ingrediente", "id_platillo"]
+                );
+            }
         }
 
-        // Construir la estructura de respuesta
+        // Obtener ingredientes actualizados
+        const ingredientesActualizados = await componePlatilloRepository.find({
+            where: { id_platillo },
+            relations: ["tipo_ingrediente", "tipo_ingrediente.unidad_medida"],
+        });
+
+        const ingredientesToAdd = ingredientesActualizados.map((ingrediente) => ({
+            id_tipo_ingrediente: ingrediente.tipo_ingrediente.id_tipo_ingrediente,
+            nombre_tipo_ingrediente: ingrediente.tipo_ingrediente.nombre_tipo_ingrediente,
+            porcion_ingrediente_platillo: ingrediente.porcion_ingrediente_platillo,
+            unidad_medida: ingrediente.tipo_ingrediente.unidad_medida
+                ? {
+                    id_unidad_medida: ingrediente.tipo_ingrediente.unidad_medida.id_unidad_medida,
+                    nombre_unidad_medida: ingrediente.tipo_ingrediente.unidad_medida.nombre_unidad_medida,
+                }
+                : null,
+        }));
+
+        console.log("Ingredientes actualizados:", ingredientesToAdd);
+
         const responseData = {
             id_platillo: platilloItem.id_platillo,
             nombre_platillo: platilloItem.nombre_platillo,
@@ -399,14 +376,14 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
             ingredientes: ingredientesToAdd,
         };
 
+        console.log("Platillo actualizado con éxito:", responseData);
         return [responseData, null];
+    } catch (error) {
+        console.error("Error al actualizar el platillo:", error.message);
+        return [null, "Error interno del servidor"];
     }
-        
- catch (error) {
-    console.error("Error al actualizar el platillo", error);
-    return [null, "Error interno del servidor"];
-  }
 }
+
 
 export async function verificarDisponibilidadPlatillo(id_platillo) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);

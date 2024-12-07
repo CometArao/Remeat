@@ -1,3 +1,4 @@
+import { useAuth} from '../context/AuthContext';
 import Search from '@components/Search';
 import useTipoIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
 import useGetPlatillos from '../hooks/platillos/useGetPlatillos';
@@ -7,6 +8,7 @@ import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
+import EmptyIcon from '../assets/emptyIcon.svg'; // Asegúrate de tener un ícono representativo
 import { useCallback, useEffect, useState } from 'react';
 import '@styles/users.css';
 import useDeletePlatillo from '../hooks/platillos/useDeletePlatillo';
@@ -16,6 +18,7 @@ import PlatilloCard from '../components/Platillo/PlatilloCard';
 import useUsers from '../hooks/users/useGetUsers';
 
 const Platillos = () => {
+    const { user } = useAuth();
     const { platillo, fetchPlatillo, setPlatillo } = useGetPlatillos();
     const { tiposIngrediente, fetchTiposIngrediente } = useTipoIngrediente();
     const { users, fetchUsers } = useUsers();
@@ -36,7 +39,7 @@ const Platillos = () => {
         setIsPopupOpen,
         dataPlatillo,
         setDataPlatillo,
-    } = useEditPlatillo(setPlatillo);
+    } = useEditPlatillo(setPlatillo, fetchPlatillo);
 
     const { handleDelete } = useDeletePlatillo(fetchPlatillo, setDataPlatillo);
 
@@ -87,9 +90,12 @@ const Platillos = () => {
                             onChange={handleNameFilterChange}
                             placeholder="Buscar por nombre"
                         />
-                        <button className="create-button" onClick={handleClickCreate}>
-                            <img src={CreateIcon} alt="Crear" />
-                        </button>
+                          {user?.rol_usuario === 'cocinero' && (
+                            <button className="create-button" onClick={handleClickCreate}>
+                                <img src={CreateIcon} alt="Crear" />
+                            </button>
+                             )}
+
                         <button onClick={handleClickUpdate} disabled={dataPlatillo.length === 0}>
                             {dataPlatillo.length === 0 ? (
                                 <img src={UpdateIconDisable} alt="edit-disabled" />
@@ -111,9 +117,9 @@ const Platillos = () => {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: '20px' }}>
-                    {filteredPlatillos.length > 0 ? (
-                        filteredPlatillos.map(p => {
+                {filteredPlatillos.length > 0 ? (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: '20px' }}>
+                        {filteredPlatillos.map(p => {
                             const isSelected = dataPlatillo.some(item => item.id_platillo === p.id_platillo);
                             return (
                                 <PlatilloCard
@@ -123,11 +129,17 @@ const Platillos = () => {
                                     onSelectChange={handleCardSelectionChange}
                                 />
                             );
-                        })
-                    ) : (
-                        <p>No hay platillos disponibles.</p>
-                    )}
-                </div>
+                        })}
+                    </div>
+                ) : (
+                    <div className="empty-container">
+                        <img src={EmptyIcon} alt="No hay platillos" className="empty-icon" />
+                        <h2 className="empty-message">No hay platillos disponibles</h2>
+                        <p className="empty-description">
+                            Crea uno nuevo usando el botón <strong>+</strong> en la parte superior.
+                        </p>
+                    </div>
+                )}
             </div>
 
             <PopupPlatillo
