@@ -17,13 +17,13 @@ router
         ] 
     }
     */
-    .get("/get_stock_utensilio", getStockUtensilio)
+    .post("/get_stock_utensilio", getStockUtensilio)
     .post("/get_ingresos_venta", getIngresosPorVentas)
-    .get("/get_costos", getCostos)
-    .get("/get_utilidades")
-    .get("/get_utilidades")
+    //.post("/get_ventas_tipo", )
+    .post("/get_costos", getCostos)
+    .post("/get_utilidades")
     //grafico circular
-    .get("/get_platillos_vendidos", getVentasPlatillo)
-    .get("/get_platillo_menu", getPlatillosMenu)
+    .post("/get_platillos_vendidos", getVentasPlatillo)
+    .post("/get_platillo_menu", getPlatillosMenu)
 
 export default router;

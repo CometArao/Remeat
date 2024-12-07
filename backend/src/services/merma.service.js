@@ -124,6 +124,14 @@ export async function deleteMermaService(id) {
         if(!mermaEncontrada) {
             return [null, "No se encontro la merma especificada"]
         }
+        await AppDataSource.query(`
+            DELETE FROM utensilio_merma
+            where id_merma = $1
+            `, [id])
+        await AppDataSource.query(`
+            DELETE FROM ingrediente_merma 
+            where id_merma = $1
+            `, [id])
         const mermaEliminada = await mermasRepository.remove(mermaEncontrada);
         return [mermaEliminada, null];
     }catch(error) {
