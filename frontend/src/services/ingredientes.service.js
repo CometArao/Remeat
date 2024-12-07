@@ -3,6 +3,9 @@ import axios from './root.service.js';
 export async function getIngredientes() {
     try {
         const { data } = await axios.get('/ingredientes/');
+
+        console.log("fetch ingredientes inner")
+        console.log(data.data)
         return data.data;
     } catch (error) {
         console.error('Error fetching ingredientes:', error);

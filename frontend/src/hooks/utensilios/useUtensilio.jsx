@@ -8,13 +8,26 @@ const useGetUtensilios = () => {
             const response = await getUtensilios();
             console.log("response")
             console.log(response)
-            const formattedData = response.map(utensilio => ({
+            let formattedData = response.map(utensilio => ({
                 id_utensilio: utensilio.id_utensilio,
                 cantidad_utensilio: utensilio.cantidad_utensilio,
                 pedido: utensilio.pedido,
                 tipo_utensilio: utensilio.tipo_utensilio
             }));
-            setUtensilios(formattedData);
+            console.log("!data ingrediente")
+            console.log(formattedData)
+            let data = []
+            for (let i = 0; i < formattedData.length; i++) {
+                const item = formattedData[i];
+                console.log("test")
+                console.log(item.tipo_utensilio)
+                if (item.tipo_utensilio) {
+                    data.push(item)
+                }
+            }
+            console.log("!data ingrediente revisado")
+            console.log(data)
+            setUtensilios(data);
         } catch (error) {
             console.error("Error: ", error);
         }

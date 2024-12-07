@@ -4,17 +4,17 @@ import { useState, useImperativeHandle, forwardRef } from 'react';
 //este argumento luego debe ser destructurado
 const TableWithCheckboxes = forwardRef((data, ref) => {
     data = data.data
-    console.log("data utensilio")
-    console.log(data)
-    //comprobar los nulos en tipo
-    for(let i = 0; i < data.length; i++) {
-        const item = data[i];
-        if(!item.tipo_utensilio) {
-            data.splice(i, 1); //eliminar el elemento sin datos de tipo
-        }
-    }
-    console.log("data utensilio revisado")
-    console.log(data)
+    //console.log("data utensilio")
+    //console.log(data)
+    ////comprobar los nulos en tipo
+    //for(let i = 0; i < data.length; i++) {
+        //const item = data[i];
+        //if(!item.tipo_utensilio) {
+            //data.splice(i, 1); //eliminar el elemento sin datos de tipo
+        //}
+    //}
+    //console.log("data utensilio revisado")
+    //console.log(data)
     const [checkedItems, setCheckedItems] = useState({});
     const [numeroUtensilio, setNumeroUtensilio] = useState({})
 
