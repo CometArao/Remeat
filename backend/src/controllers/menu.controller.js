@@ -33,19 +33,38 @@ export async function getMenuQRCodeController(req, res) {
             return handleErrorServer(res, 404, "No se encontró el menú del día");
         }
 
-        const menuDelDia = menus[0]; // Tomar el primer menú como el menú del día
+        // Ordenar los menús por fecha descendente
+        const menusOrdenados = menus.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
-        // Log para verificar la estructura de los datos del menú
-        console.log("Datos del menú recibido:", menuDelDia);
+        // Seleccionar el primer menú como el menú del día
+        const menuDelDia = menusOrdenados[0];
+
+        if (!menuDelDia) {
+            return handleErrorServer(res, 404, "No se encontró el menú del día");
+        }
+
+        // Validar que el menú contiene los datos necesarios
+        if (
+            !menuDelDia.platillos ||
+            !Array.isArray(menuDelDia.platillos) ||
+            menuDelDia.platillos.length === 0
+        ) {
+            return handleErrorServer(res, 400, "El menú del día no contiene platillos válidos");
+        }
 
         try {
-            // Generar el código QR con la información de los platillos
-            const qrCode = await generateMenuQRCode(menuDelDia);
+            // Codificar los datos del menú para incluirlos en la URL
+            const menuDataEncoded = Buffer.from(JSON.stringify(menuDelDia)).toString('base64');
+             console.log(menuDataEncoded);
+            // Generar la URL pública
+            const qrCodeUrl = `http://localhost:5173/menu-dia?menuData=${menuDataEncoded}`;
+
+            // Generar el código QR con la URL pública
+            const qrCode = await generateMenuQRCode(qrCodeUrl);
 
             // Enviar el código QR como respuesta
             handleSuccess(res, 200, "QR de los platillos del menú generado exitosamente", { qrCode });
         } catch (error) {
-            // Manejar errores específicos de la generación del QR
             console.error("Error al generar el QR:", error.message);
             return handleErrorServer(res, 500, error.message);
         }
@@ -54,6 +73,8 @@ export async function getMenuQRCodeController(req, res) {
         handleErrorServer(res, 500, error.message);
     }
 }
+
+
 
 
 
