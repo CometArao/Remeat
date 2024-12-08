@@ -16,7 +16,13 @@ export async function createUserService(data) {
 
         if (existingUser) return [null,"Ya existe un usuario con ese correo electrónico"];
 
-        // Encriptar la contraseña antes de guardar
+        // **Asignar automáticamente id_horario_laboral a 1**
+        data.id_horario_laboral = 1;
+
+        // **Encriptar la contraseña antes de guardar**
+        if (!data.contrasena_usuario || data.contrasena_usuario.trim() === "") {
+            return [null, "La contraseña es obligatoria"];
+        }
         data.contrasena_usuario = await encryptPassword(data.contrasena_usuario);
 
         const newUser = userRepository.create(data); // Crea una nueva instancia del usuario
@@ -100,11 +106,6 @@ export async function updateUserService(query, body) {
             }
         }
 
-        // Verificar si se intenta cambiar el rol
-        if (body.rol_usuario) {
-            return [null, "No se puede cambiar el rol del usuario."];
-        }
-
         // Verificar si se intenta cambiar el horario laboral
         if (body.id_horario_laboral) {
             // Comprobar si el nuevo id_horario_laboral existe
@@ -125,7 +126,7 @@ export async function updateUserService(query, body) {
             nombre_usuario: body.nombre_usuario,
             apellido_usuario: body.apellido_usuario,
             correo_usuario: body.correo_usuario,
-            // No se actualiza rol_usuario
+            rol_usuario: body.rol_usuario,
         });
 
         // Comparar y actualizar la contraseña si se proporciona una nueva
@@ -141,6 +142,28 @@ export async function updateUserService(query, body) {
         return [userUpdated, null];
     } catch (error) {
         console.error("Error al modificar un usuario:", error);
+        return [null, "Error interno del servidor"];
+    }
+}
+
+export async function updateUserPasswordService(query, newPassword) {
+    try {
+        const { id_usuario } = query;
+        const userRepository = AppDataSource.getRepository(User);
+
+        const userFound = await userRepository.findOne({
+            where: { id_usuario },
+        });
+
+        if (!userFound) return [null, "Usuario no encontrado"];
+
+        // Actualizar la contraseña
+        userFound.contrasena_usuario = await encryptPassword(newPassword);
+        await userRepository.save(userFound);
+
+        return [userFound, null];
+    } catch (error) {
+        console.error("Error al actualizar contraseña del usuario:", error);
         return [null, "Error interno del servidor"];
     }
 }

@@ -1,13 +1,13 @@
 "use strict";
 import Joi from "joi";
 
-// Función personalizada para validar que la fecha no sea anterior a la actual
 const dateValidator = (value, helper) => {
   const fechaActual = new Date();
   const fechaIngresada = new Date(value);
 
-  // Ajuste para considerar solo la fecha sin la hora
-  fechaActual.setHours(0, 0, 0, 0);
+  // Ajustar la fecha actual restando 3 horas (diferencia horaria del servidor)
+  fechaActual.setHours(fechaActual.getHours() - 3);
+  fechaActual.setHours(0, 0, 0, 0); // Ajuste para considerar solo la fecha
   fechaIngresada.setHours(0, 0, 0, 0);
 
   if (fechaIngresada < fechaActual) {
@@ -16,11 +16,12 @@ const dateValidator = (value, helper) => {
   return value;
 };
 
+
 // Validación para el cuerpo de las solicitudes de menú 
 export const menuBodyValidation = Joi.object({
   fecha: Joi.date()
     .iso()
-    //.custom(dateValidator, "Validación de fecha")
+    .custom(dateValidator, "Validación de fecha")
     .messages({
       "date.base": "La fecha debe ser una fecha válida.",
       "date.iso": "La fecha debe estar en formato ISO 8601.",

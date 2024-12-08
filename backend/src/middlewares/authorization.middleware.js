@@ -78,9 +78,14 @@ export async function isMesero(req, res, next) {
 }
 
 export const authorizeRoles = (roles) => (req, res, next) => {
-  if (roles.includes(req.user.rol_usuario)) {
-    next();
+  const userRole = req.user?.rol_usuario;
+
+  if (roles.includes(userRole)) {
+    return next();
   } else {
+    console.warn(
+      `Acceso denegado. Rol del usuario: ${userRole}. Roles permitidos: ${roles.join(", ")}`
+    );
     return res.status(403).json({ message: "No tienes permisos para acceder." });
   }
 };

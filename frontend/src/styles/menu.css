@@ -1,0 +1,56 @@
+.menu-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px;
+    width: 350px; /* Incrementa el ancho de la tarjeta */
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .menu-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+  }
+  
+  .menu-title {
+    font-size: 1.8rem; /* Aumentar el tamaño del texto */
+    font-weight: bold;
+    margin-bottom: 16px;
+    text-align: left;
+    line-height: 1.2; /* Reducir el espacio entre líneas */
+    color: #2c3e50;
+    word-break: break-word; /* Permitir que las palabras largas se dividan */
+    display: inline-block; /* Ajustar al contenido disponible */
+    min-width: 300px; /* Darle un mínimo espacio horizontal */
+  }
+  .menu-details {
+    font-size: 1rem;
+    color: #7f8c8d;
+  }
+  
+  .menu-platillos {
+    margin-top: 10px;
+    list-style: disc;
+    padding-left: 20px;
+  }
+  
+  .menu-platillos li {
+    margin-bottom: 5px;
+    font-size: 1rem;
+    color: #34495e;
+  }
+  
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  

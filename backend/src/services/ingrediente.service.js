@@ -53,8 +53,11 @@ export async function getIngredientesService() {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
-        const ingredientes = await ingredienteRepository.find
-        ({ relations: { tipo_ingrediente: { unidad_medida: true } } });
+        const ingredientes = await ingredienteRepository.find(
+            { 
+                relations: { tipo_ingrediente: { unidad_medida: true },
+                    pedido: true } 
+            });
 
         return [ingredientes, null];
     } catch (error) {
@@ -296,6 +299,15 @@ export async function deleteTipoIngredienteService(id) {
 
         if (!tipoIngredienteExistente) {
             return [null, `El tipo de ingrediente con ID ${id} no existe.`];
+        }
+        const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
+        const ingrediente = await ingredienteRepository.findOne({
+            where: { tipo_ingrediente: { id_tipo_ingrediente: id } },
+        });
+
+        if (ingrediente) {
+            return [null, `No se puede eliminar este tipo de ingrediente porque está siendo utilizado
+            en uno o más ingredientes.`];
         }
 
         // Intentar eliminar el tipo de ingrediente

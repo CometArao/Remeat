@@ -49,7 +49,7 @@ const Navbar = () => {
                     {/* Ruta de inicio */}
                     <li>
                         <NavLink
-                            to="/home"
+                            to="/inicio"
                             onClick={() => {
                                 setMenuOpen(false);
                                 addActiveClass();
@@ -58,10 +58,32 @@ const Navbar = () => {
                             Inicio
                         </NavLink>
                     </li>
+                    <li>
+                                <NavLink
+                                    to="/menus"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Menús
+                                </NavLink>
+                            </li>
 
                     {/* Rutas para administrador y cocinero */}
                     {(userRole === 'administrador' || userRole === 'cocinero') && (
                         <>
+                            <li>
+                                <NavLink
+                                    to="/platillos"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Platillos
+                                </NavLink>
+                            </li>
                             <li>
                                 <NavLink
                                     to="/ingredientes"
@@ -142,7 +164,7 @@ const Navbar = () => {
                         <>
                             <li>
                             <NavLink
-                                    to="/users"
+                                    to="/usuarios"
                                     onClick={() => {
                                         setMenuOpen(false);
                                         addActiveClass();
@@ -171,6 +193,17 @@ const Navbar = () => {
                                     }}
                                 >
                                     Mermas
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/pedidos"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Pedidos
                                 </NavLink>
                             </li>
                             <li>

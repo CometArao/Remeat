@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getTipoUtensilio } from '@services/utensilio.service';
+import { getTiposUtensilio } from '@services/utensilio.service';
 
-const useTipoUtensilio = () => {
+const useGetTipoUtensilio = () => {
     const [tipoUtensilios, setTipoUtensilio] = useState([]);
     const fetchTipoUtensilio = async () => {
         try {
-            const response = await getTipoUtensilio();
+            const response = await getTiposUtensilio();
             const formattedData = response.map(utensilio => ({
                 id_tipo_utensilio: utensilio.id_tipo_utensilio,
                 nombre_tipo_utensilio: utensilio.nombre_tipo_utensilio,
@@ -23,4 +23,4 @@ const useTipoUtensilio = () => {
     return { tipoUtensilios, fetchTipoUtensilio, setTipoUtensilio };
 };
 
-export default useTipoUtensilio;
+export default useGetTipoUtensilio;

@@ -3,7 +3,7 @@ import { EntitySchema } from "typeorm";
 
 const compuestoPlatillo = new EntitySchema({
     name:"compuesto_platillo",
-    tablename:"compuesto_platillo",
+    tableName:"compuesto_platillo",
     columns: {
         id_tipo_ingrediente: {
             type: "int",

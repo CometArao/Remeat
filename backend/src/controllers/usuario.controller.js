@@ -4,6 +4,7 @@ import {
     deleteUserService,
     getUserService,
     getUsersService,
+    updateUserPasswordService,
     updateUserService,
 } from "../services/usuario.service.js";
 
@@ -89,6 +90,30 @@ export async function updateUser(req, res) {
     } catch (error) {
        handleErrorServer(res ,500 ,error.message );
    }
+}
+
+export async function updateUserPassword(req, res) {
+    try {
+        const { id } = req.params;
+        const { newPassword } = req.body;
+
+        if (req.user.rol_usuario !== "administrador") {
+            return handleErrorClient(res, 403, "No tienes permisos para cambiar la contraseña de un usuario.");
+        }
+
+        const [updatedUser, error] = await updateUserPasswordService({ id_usuario: id }, newPassword);
+
+        if (error) {
+            return handleErrorClient(res, 400, error);
+        }
+
+        // Excluir contraseña de la respuesta
+        const { contrasena_usuario, ...userWithoutPass } = updatedUser;
+
+        handleSuccess(res, 200, "Contraseña actualizada exitosamente", userWithoutPass);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+    }
 }
 
 // Eliminar un usuario
