@@ -23,6 +23,8 @@ import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
 import  Platillos from '@pages/Platillos';
+import Menu from './pages/Menu.jsx';
+
 
 
 
@@ -504,6 +506,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador','cocinero']}>
             <TipoUtensilio />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/menus',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
+            <Menu />
           </ProtectedRoute>
         ),
       },
