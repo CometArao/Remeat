@@ -20,3 +20,77 @@ export async function getVentasPlatillo(ids_platillo) {
         return error.response.data
     }
 }
+export async function getCostos(ids_tipo_ingrediente, ids_tipo_utensilio) {
+    try {
+        const body = {
+            ids_ti: ids_tipo_ingrediente,
+            ids_tu: ids_tipo_utensilio
+        }
+        const { data } = await axios.post(`/informes/get_costos`, body);
+        return data.data
+    } catch (error) {
+        console.log(error)
+        return error.response.data
+    }
+}
+export async function getStockUtensilio(ids_tipo_utensilio) {
+    try {
+        const body = {
+            ids: ids_tipo_utensilio
+        }
+        const { data } = await axios.post(`/informes/get_stock_utensilio`, body)
+        return data.data
+    }catch(error) {
+        console.error(error)
+        return error.response.data
+    }
+}
+export async function getStockIngrediente(ids_tipo_ingrediente) {
+    try {
+        const body = {
+            ids: ids_tipo_ingrediente
+        }
+        const { data } = await axios.post(`/informes/get_stock_ingrediente`, body)
+        return data.data
+    }catch(error) {
+        console.error(error)
+        return error.response.data
+    }
+}
+export async function getPlatilloMenu(ids_platillo) {
+    try {
+        const body = {
+            ids: TODO
+        }
+        const { data } = await axios.post(`/informes/get_platillo_menu`, body)
+        return data
+    }catch(error) {
+        console.error(error)
+        return error.response.data
+    }
+}
+export async function getVentas(ids_tipo_ingrediente, ids_tipo_utensilio) {
+    try {
+        const body = {
+            ids_ti: ids_tipo_ingrediente,
+        }
+        const { data } = await axios.post(`/informes/ventas`, body)
+        return data.data
+    }catch(error) {
+        console.error(error)
+        return error.response.data
+    }
+}
+export async function getUtilidades(ids_tipo_ingrediente, ids_tipo_utensilio) {
+    try {
+        const body = {
+            ids_ti: ids_tipo_ingrediente,
+            ids_tu: ids_tipo_utensilio
+        }
+        const { data } = await axios.post(`/informes/get_ventas_tipo`, body)
+        return data.data
+    }catch(error) {
+        console.error(error)
+        return error.response.data
+    }
+}

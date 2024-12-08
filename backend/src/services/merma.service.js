@@ -1,4 +1,6 @@
 import Mermas from "../entity/merma.entity.js"
+import UtensilioMermas from "../entity/utensilio_merma.entity.js"
+import IngredientesMermas from "../entity/ingrediente_merma.entity.js"
 import { AppDataSource } from "../config/configDb.js";
 import { handleErrorServer } from "../handlers/responseHandlers.js";
 import merma from "../entity/merma.entity.js";
@@ -8,25 +10,47 @@ import merma from "../entity/merma.entity.js";
 export async function createMermaService(query) {
     try {
         const mermasRepository = AppDataSource.getRepository(Mermas);
-        const { fecha, cantidad_perdida } = query;
+        const utensilioMermaRepository = AppDataSource.getRepository(UtensilioMermas);
+        const ingredienteMermaRepository = AppDataSource.getRepository(IngredientesMermas);
+        const { utensilios, ingredientes} = query;
 
-        //declara una funcion con dos parametros que devuelve un diccionario(hashset) con esos dos parametros
-        const createErrorMessage = (dataInfo, message) => ({
-            dataInfo,
-            message
-        });
-        const today = new Date().setHours(0, 0, 0, 0);
-        if(fecha > today) {
-            return [null, "La fecha no es posterior al dia de hoy"];
-        }
+        const today = new Date()
+        const formatedDate = today.toISOString()
+        console.log("formatedDate")
+        console.log(formatedDate)
         const nuevaMerma = mermasRepository.create({
-            fecha_merma: fecha,
-            cantidad_perdida: cantidad_perdida 
+            fecha_merma: formatedDate,
         })
-        await mermasRepository.save(nuevaMerma);
+        const mermaCreada = await mermasRepository.save(nuevaMerma);
+        //crear los utensilios y ingredientes
+        for(let i = 0; i < utensilios.length; i++) {
+            const utensilio = utensilios[i]
+            const nuevoUtensilioMerma = utensilioMermaRepository.create({
+                id_utensilio: utensilio.id_utensilio,
+                id_merma: mermaCreada.id_merma,
+                cantidad_perdida_utensilio: utensilio.cantidad_perdida
+            })
+            const UtensilioMermaCreado = await utensilioMermaRepository.save(nuevoUtensilioMerma);
+            if(!UtensilioMermaCreado) {
+                return [null, "Error al crear utensilio Merma"]
+            }
+        }
+        for(let i = 0; i < ingredientes.length; i++) {
+            const ingredientes = ingredientes[i]
+            const nuevoIngredienteMerma = ingredienteMermaRepository.create({
+                id_utensilio: ingredientes.id_utensilio,
+                id_merma: mermaCreada.id_merma,
+                cantidad_perdida_utensilio: ingredientes.cantidad_perdida
+            })
+            const ingredienteMermaCreado = await ingredienteMermaRepository.save(nuevoIngredienteMerma);
+            if(!ingredienteMermaCreado) {
+                return [null, "Error al crear ingrediente merma"]
+            }
+        }
         return [nuevaMerma, null];
     }catch(error) {
         console.error("Error al crear una merma", error)
+        return [null, error.message]
     }
 }
 
@@ -100,6 +124,14 @@ export async function deleteMermaService(id) {
         if(!mermaEncontrada) {
             return [null, "No se encontro la merma especificada"]
         }
+        await AppDataSource.query(`
+            DELETE FROM utensilio_merma
+            where id_merma = $1
+            `, [id])
+        await AppDataSource.query(`
+            DELETE FROM ingrediente_merma 
+            where id_merma = $1
+            `, [id])
         const mermaEliminada = await mermasRepository.remove(mermaEncontrada);
         return [mermaEliminada, null];
     }catch(error) {

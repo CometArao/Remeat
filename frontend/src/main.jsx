@@ -15,6 +15,7 @@ import '@styles/styles.css';
 import Informes from '@pages/Informes'
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
+import CrearMermas from './pages/CrearMermas.jsx';
 import Pedidos from './pages/Pedidos.jsx';
 import Proveedores from '@pages/Proveedores';
 import Comandas from '@pages/Comandas'; 
@@ -490,11 +491,11 @@ const router = createBrowserRouter([
     errorElement: <Error404 />,
     children: [
       {
-        path: '/home',
+        path: '/inicio',
         element: <Home />
       },
       {
-        path: '/users',
+        path: '/usuarios',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Users />
@@ -608,6 +609,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: '/crear_mermas',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <CrearMermas />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/comandas', // Ruta para comandas, accesible solo para mesero
         element: (
           <ProtectedRoute allowedRoles={['mesero']}>
@@ -620,6 +629,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['mesero']}>
             <GenerateQRCode />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/pedidos',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <Pedidos />
           </ProtectedRoute>
         ),
       },

@@ -7,7 +7,8 @@ import {
   deleteUser,
   getUser,
   getUsers,
-  updateUser
+  updateUser,
+  updateUserPassword
 } from "../controllers/usuario.controller.js";
 
 const router = Router();
@@ -20,7 +21,8 @@ router
   .post("/", isAdmin, createUser)        // Crear un nuevo usuario
   .get("/", getUsers)         // Obtener todos los usuarios
   .get("/:id", getUser)        // Obtener un usuario específico por ID
-  .patch("/:id", isAdmin, updateUser)     // Actualizar un usuario específico por ID
-  .delete("/:id", isAdmin, deleteUser); // Eliminar un usuario específico por ID
+  .patch("/:id", updateUser)     // Actualizar un usuario específico por ID
+  .patch("/:id/contrasena", updateUserPassword) // Actualizar contraseña de un usuario específico por ID
+  .delete("/:id", deleteUser); // Eliminar un usuario específico por ID
 
 export default router;
