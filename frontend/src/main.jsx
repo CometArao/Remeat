@@ -25,8 +25,7 @@ import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
 import  Platillos from '@pages/Platillos';
 import Menu from './pages/Menu.jsx';
-
-
+import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
 
 
 
@@ -493,6 +492,14 @@ const router = createBrowserRouter([
       {
         path: '/inicio',
         element: <Home />
+      },
+      {
+        path: '/menu-dia', // Ruta base sin parámetro
+        element: <ListadoDiarioMenuQrPage />,
+    },
+      {
+        path: '/menu-dia/:id_menu', // Nueva ruta para el menú diario
+        element: <ListadoDiarioMenuQrPage />, // Sin protección, accesible para todos
       },
       {
         path: '/usuarios',

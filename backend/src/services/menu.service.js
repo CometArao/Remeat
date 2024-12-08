@@ -7,37 +7,56 @@ import Usuario from "../entity/usuario.entity.js";
 import QRCode from "qrcode";
 
 
-export async function generateMenuQRCode(menuData) {
+export async function generateMenuQRCode(id_menu) {
     try {
-        // Validar si menuData tiene la propiedad platillos
-        if (!menuData || !menuData.platillos) {
-            console.error("Error: menuData no contiene la propiedad 'platillos'. Datos recibidos:", menuData);
-            throw new Error("El menú no contiene información válida de platillos.");
+        // Obtener todos los menús
+        const [menus, errorMenus] = await getMenusService();
+
+        if (errorMenus || !menus || menus.length === 0) {
+            throw new Error("No se encontró ningún menú");
         }
 
-        if (!Array.isArray(menuData.platillos) || menuData.platillos.length === 0) {
-            console.error("Error: la propiedad 'platillos' no es un arreglo o está vacía.");
-            throw new Error("El menú no contiene platillos disponibles.");
+        let menuDelDia;
+
+        if (id_menu) {
+            // Buscar el menú con el ID proporcionado
+            menuDelDia = menus.find(menu => menu.id_menu === parseInt(id_menu, 10));
+
+            if (!menuDelDia) {
+                throw new Error(`No se encontró el menú con id_menu: ${id_menu}`);
+            }
+        } else {
+            // Ordenar los menús por fecha descendente
+            const menusOrdenados = menus.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            // Determinar la fecha actual en formato `YYYY-MM-DD`
+            const today = new Date().toISOString().split("T")[0];
+
+            // Buscar el menú con la fecha actual
+            menuDelDia = menusOrdenados.find(menu => menu.fecha === today);
+
+            // Si no hay un menú para hoy, seleccionar el más reciente (primer menú en la lista ordenada)
+            if (!menuDelDia) {
+                menuDelDia = menusOrdenados[0];
+            }
+
+            if (!menuDelDia) {
+                throw new Error("No se encontró el menú del día");
+            }
         }
 
-        // Extraer la información de los platillos
-        const platillosData = menuData.platillos.map(platillo => ({
-            nombre_platillo: platillo.nombre_platillo,
-            precio_platillo: platillo.precio_platillo,
-            disponible: platillo.disponible,
-        }));
+        // Generar la URL dinámica para el QR
+        const qrCodeUrl = `http://localhost:5173/menu-dia?id_menu=${menuDelDia.id_menu}`;
 
-        const dataString = JSON.stringify({ platillos: platillosData });
+        // Generar el código QR a partir de la URL
+        const qrCode = await QRCode.toDataURL(qrCodeUrl);
 
-        // Generar el código QR
-        const qrCode = await QRCode.toDataURL(dataString);
         return qrCode;
     } catch (error) {
-        console.error("Error generando el QR del menú:", error);
-        throw new Error("Error al generar el código QR del menú");
+        console.error("Error generando el QR del menú:", error.message);
+        throw new Error(error.message || "Error al generar el código QR del menú");
     }
 }
-
 
 
 

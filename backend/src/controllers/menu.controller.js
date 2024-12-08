@@ -23,51 +23,21 @@ import{
 from "../handlers/responseHandlers.js";
 
 
-
 export async function getMenuQRCodeController(req, res) {
     try {
-        // Obtener todos los menús utilizando el servicio existente
-        const [menus, errorMenus] = await getMenusService();
+        // Leer el parámetro opcional `id_menu` del request
+        const { id_menu } = req.query;
 
-        if (errorMenus || menus.length === 0) {
-            return handleErrorServer(res, 404, "No se encontró ningún menú");
-        }
+        // Llamar al servicio con el ID del menú (si se proporciona) o generar el QR del menú del día
+        const qrCode = await generateMenuQRCode(id_menu);
 
-        // Ordenar los menús por fecha descendente
-        const menusOrdenados = menus.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
-        // Determinar la fecha actual en formato `YYYY-MM-DD`
-        const today = new Date().toISOString().split("T")[0];
-
-        // Buscar el menú con la fecha actual
-        let menuDelDia = menusOrdenados.find(menu => menu.fecha === today);
-
-        // Si no hay un menú para hoy, seleccionar el más reciente (primer menú en la lista ordenada)
-        if (!menuDelDia) {
-            menuDelDia = menusOrdenados[0];
-        }
-
-        if (!menuDelDia) {
-            return handleErrorServer(res, 404, "No se encontró el menú del día");
-        }
-
-        try {
-            // Generar el código QR con la información del menú
-            const qrCode = await generateMenuQRCode(menuDelDia);
-
-            // Enviar el código QR como respuesta
-            handleSuccess(res, 200, "QR del menú del día generado exitosamente", { qrCode });
-        } catch (error) {
-            console.error("Error al generar el QR:", error.message);
-            return handleErrorServer(res, 500, error.message);
-        }
+        // Enviar el código QR como respuesta
+        handleSuccess(res, 200, "QR del menú generado exitosamente", { qrCode });
     } catch (error) {
         console.error("Error en getMenuQRCodeController:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }
-
-
 
 
 

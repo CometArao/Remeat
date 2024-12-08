@@ -1,5 +1,5 @@
 import React from 'react';
-import useGenerateMenuQRCode from '../hooks/MenuQRCode/useGenerateMenuQRCode';
+import useGenerateMenuQRCode from '../../hooks/MenuQRCode/useGenerateMenuQRCode';
 
 const GenerateQRCode = () => {
     const { qrCode, generateQRCode, loading, error } = useGenerateMenuQRCode();
