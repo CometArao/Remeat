@@ -7,21 +7,19 @@ const CreateComandaPopup = ({ isOpen, onClose }) => {
 
   const handleCreate = async (formData) => {
     await create(formData);
-    onClose(); // Cierra el popup tras crear
+    onClose(); // Cierra el formulario tras la creación
     window.location.reload(); // Refresca el listado
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="popup">
-      <div className="popup-content">
-        <button className="close-button" onClick={onClose}>
-          &times;
-        </button>
-        <h2>Crear Comanda</h2>
-        <ComandaForm onSubmit={handleCreate} />
-      </div>
+    <div className="comandas-container">
+      <button className="comanda-item-button" onClick={onClose}>
+        &times; Cerrar
+      </button>
+      <h2>Crear Comanda</h2>
+      <ComandaForm onSubmit={handleCreate} />
     </div>
   );
 };

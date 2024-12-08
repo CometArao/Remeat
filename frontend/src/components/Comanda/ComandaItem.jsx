@@ -1,25 +1,49 @@
-import React from 'react';
-import useDeleteComanda from '../../hooks/Comandas/useDeleteComanda';
+import React, { useState } from 'react';
+import DeleteComanda from './DeleteComanda';
+import AddPlatilloForm from './AddPlatilloForm';
+import CompleteComandaButton from './CompleteComandaButton';
+import EditComandaForm from './EditComandaForm'; 
 
-const ComandaItem = ({ comanda }) => {
-  const { remove, loading } = useDeleteComanda();
-
-  const handleDelete = async () => {
-    if (window.confirm(`¿Estás seguro de eliminar la comanda ID: ${comanda.id_comanda}?`)) {
-      await remove(comanda.id_comanda);
-      window.location.reload(); // Actualizar listado tras eliminar
-    }
-  };
+const ComandaItem = ({ comanda, onDelete, onComplete, onEditComplete }) => {
+  const [showAddPlatillo, setShowAddPlatillo] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false); 
 
   return (
-    <li>
+    <div className="comanda-item">
       <h3>Comanda ID: {comanda.id_comanda}</h3>
       <p>Fecha: {comanda.fecha_compra_comanda}</p>
       <p>Hora: {comanda.hora_compra_comanda}</p>
-      <button onClick={handleDelete} disabled={loading}>
-        {loading ? 'Eliminando...' : 'Eliminar'}
+      <p>Estado: <strong>{comanda.estado_comanda}</strong></p>
+
+      {/* Botón para eliminar */}
+      <DeleteComanda comandaId={comanda.id_comanda} onDelete={onDelete} />
+      
+      {/* Botón para completar */}
+      <CompleteComandaButton comandaId={comanda.id_comanda} onComplete={onComplete} />
+      
+      {/* Botón para editar */}
+      <button onClick={() => setShowEditForm(!showEditForm)}>
+        {showEditForm ? 'Cancelar Edición' : 'Editar Comanda'}
       </button>
-    </li>
+
+      {/* Mostrar formulario de edición si está habilitado */}
+      {showEditForm && (
+        <EditComandaForm
+          comanda={comanda}
+          onEditComplete={() => {
+            setShowEditForm(false); // Oculta el formulario tras editar
+            if (onEditComplete) onEditComplete();
+          }}
+        />
+      )}
+
+      {/* Botón para añadir platillo */}
+      <button onClick={() => setShowAddPlatillo(!showAddPlatillo)}>
+        {showAddPlatillo ? 'Cancelar' : 'Añadir Platillo'}
+      </button>
+
+      {showAddPlatillo && <AddPlatilloForm comandaId={comanda.id_comanda} />}
+    </div>
   );
 };
 

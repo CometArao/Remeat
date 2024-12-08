@@ -1,51 +1,51 @@
 import React, { useState } from 'react';
+import useUpdateComanda from '../../hooks/Comandas/useUpdateComanda';
 
-const EditComandaForm = ({ comanda, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    fecha_compra_comanda: comanda.fecha_compra_comanda || '',
-    hora_compra_comanda: comanda.hora_compra_comanda || '',
-    estado_comanda: comanda.estado_comanda || 'pendiente',
-  });
+const EditComandaForm = ({ comanda, onEditComplete }) => {
+  const [fechaCompra, setFechaCompra] = useState(comanda.fecha_compra_comanda);
+  const [horaCompra, setHoraCompra] = useState(comanda.hora_compra_comanda);
+  const { update, loading } = useUpdateComanda();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(comanda.id_comanda, formData); // Llama a la función `onSubmit` con los datos actualizados
+    const updatedData = {
+      fecha_compra_comanda: fechaCompra,
+      hora_compra_comanda: horaCompra,
+      estado_comanda: comanda.estado_comanda, // Mantén el estado existente
+    };
+
+    try {
+      await update(comanda.id_comanda, updatedData); // Llama al hook para actualizar
+      if (onEditComplete) onEditComplete(); // Notifica al padre tras completar
+      alert('Comanda actualizada correctamente.');
+    } catch (err) {
+      console.error('Error al actualizar la comanda:', err);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="edit-comanda-form">
-      <label>Fecha:</label>
-      <input
-        type="date"
-        name="fecha_compra_comanda"
-        value={formData.fecha_compra_comanda}
-        onChange={handleChange}
-        required
-      />
-      <label>Hora:</label>
-      <input
-        type="time"
-        name="hora_compra_comanda"
-        value={formData.hora_compra_comanda}
-        onChange={handleChange}
-        required
-      />
-      <label>Estado de la Comanda:</label>
-      <select
-        name="estado_comanda"
-        value={formData.estado_comanda}
-        onChange={handleChange}
-        required
-      >
-        <option value="pendiente">Pendiente</option>
-        <option value="en proceso">En Proceso</option>
-        <option value="completada">Completada</option>
-      </select>
-      <button type="submit">Guardar Cambios</button>
+    <form onSubmit={handleSubmit}>
+      <label>
+        Fecha de Compra:
+        <input
+          type="date"
+          value={fechaCompra}
+          onChange={(e) => setFechaCompra(e.target.value)}
+          required
+        />
+      </label>
+      <label>
+        Hora de Compra:
+        <input
+          type="time"
+          value={horaCompra}
+          onChange={(e) => setHoraCompra(e.target.value)}
+          required
+        />
+      </label>
+      <button type="submit" disabled={loading}>
+        {loading ? 'Guardando...' : 'Guardar Cambios'}
+      </button>
     </form>
   );
 };
