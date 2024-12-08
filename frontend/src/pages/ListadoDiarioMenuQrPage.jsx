@@ -3,7 +3,7 @@ import ListadoDiarioMenuQrComponent from '../../src/components/MenuQRCode/Listad
 
 const ListadoDiarioMenuQrPage = () => {
     const [searchParams] = useSearchParams();
-    const menuDataEncoded = searchParams.get('menuData'); // Obtiene los datos codificados en Base64 desde la URL
+    const menuDataEncoded = searchParams.get('menuData');
 
     if (!menuDataEncoded) {
         return <p>Error: No se proporcionaron datos del menú.</p>;
@@ -11,7 +11,7 @@ const ListadoDiarioMenuQrPage = () => {
 
     let menuData;
     try {
-        // Decodificar los datos del menú
+
         menuData = JSON.parse(atob(menuDataEncoded));
     } catch (error) {
         console.error("Error al decodificar los datos del menú:", error);
