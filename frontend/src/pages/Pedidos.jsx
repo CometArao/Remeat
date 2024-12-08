@@ -46,6 +46,7 @@ const Pedidos = () => {
     );
 
     const columns = [
+        { title: 'ID', field: 'id_pedido', width: 100 },
         { title: 'Descripción', field: 'descripcion_pedido', width: 200 },
         { title: 'Fecha de Compra', field: 'fecha_compra_pedido', width: 150 },
         { title: 'Fecha de Entrega', field: 'fecha_entrega_pedido', width: 150 },

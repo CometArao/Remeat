@@ -8,6 +8,21 @@ import useUsers from "../hooks/users/useGetUsers";
 import useGetUtensilios from "../hooks/utensilios/useUtensilio";
 import "@styles/crearPedido.css";
 
+// Obtener la fecha de hoy en formato "YYYY-MM-DD"
+const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+};
+
+// Obtener el rango permitido para fechas
+const getYearRange = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const minDate = `${currentYear - 1}-01-01`; // Año anterior
+    const maxDate = `${currentYear + 1}-12-31`; // Año siguiente
+    return { minDate, maxDate };
+};
+
 const CrearPedido = () => {
     const navigate = useNavigate();
     const { ingredientes, fetchIngredientes } = useGetIngredientes();
@@ -17,14 +32,19 @@ const CrearPedido = () => {
 
     const [pedidoData, setPedidoData] = useState({
         descripcion_pedido: "",
-        fecha_compra_pedido: "",
+        fecha_compra_pedido: getTodayDate(),
         fecha_entrega_pedido: "",
-        costo_pedido: "",
         id_usuario: "",
         id_proveedor: "",
-        ingredientes: [], // Para ingredientes seleccionados
-        utensilios: [] // Para utensilios seleccionados
+        ingredientes: [], // { id_ingrediente, cantidad }
+        utensilios: [] // { id_utensilio, cantidad }
     });
+
+    const [selectedIngredientes, setSelectedIngredientes] = useState({});
+    const [selectedUtensilios, setSelectedUtensilios] = useState({});
+    const [costoTotal, setCostoTotal] = useState(0);
+
+    const { minDate, maxDate } = getYearRange(); // Fechas límite para el rango
 
     const administradores = users.filter(user => user.rol_usuario === "administrador");
 
@@ -33,28 +53,60 @@ const CrearPedido = () => {
         setPedidoData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleIngredientesChange = (idIngrediente) => {
+    const handleCheckboxChange = (type, id) => {
+        if (type === "ingredientes") {
+            setSelectedIngredientes((prev) => ({
+                ...prev,
+                [id]: !prev[id] // Toggle checkbox selection
+            }));
+        } else if (type === "utensilios") {
+            setSelectedUtensilios((prev) => ({
+                ...prev,
+                [id]: !prev[id] // Toggle checkbox selection
+            }));
+        }
+    };
+
+    const handleCantidadChange = (type, id, cantidad) => {
         setPedidoData((prev) => {
-            const ingredientesActualizados = prev.ingredientes.includes(idIngrediente)
-                ? prev.ingredientes.filter(id => id !== idIngrediente) // Quitar si ya estaba seleccionado
-                : [...prev.ingredientes, idIngrediente]; // Agregar si no estaba
-            return { ...prev, ingredientes: ingredientesActualizados };
+            const updatedList = prev[type].filter(item => item[`id_${type.slice(0, -1)}`] !== id);
+            if (cantidad > 0) {
+                updatedList.push({ [`id_${type.slice(0, -1)}`]: id, cantidad: parseFloat(cantidad) });
+            }
+            return { ...prev, [type]: updatedList };
         });
     };
 
-    const handleUtensiliosChange = (idUtensilio) => {
-        setPedidoData((prev) => {
-            const utensiliosActualizados = prev.utensilios.includes(idUtensilio)
-                ? prev.utensilios.filter(id => id !== idUtensilio) // Quitar si ya estaba seleccionado
-                : [...prev.utensilios, idUtensilio]; // Agregar si no estaba
-            return { ...prev, utensilios: utensiliosActualizados };
+    const calculateCostoTotal = () => {
+        let total = 0;
+
+        // Calcular el costo total de ingredientes seleccionados
+        pedidoData.ingredientes.forEach(ing => {
+            const ingredienteInfo = ingredientes.find(i => i.id_ingrediente === ing.id_ingrediente);
+            if (ingredienteInfo && ingredienteInfo.costo_ingrediente) {
+                total += ing.cantidad * ingredienteInfo.costo_ingrediente;
+            } else {
+                console.warn(`Costo de ingrediente no encontrado para ID: ${ing.id_ingrediente}`);
+            }
         });
+
+        // Calcular el costo total de utensilios seleccionados
+        pedidoData.utensilios.forEach(ut => {
+            const utensilioInfo = utensilios.find(u => u.id_utensilio === ut.id_utensilio);
+            if (utensilioInfo && utensilioInfo.costo_utensilio) {
+                total += ut.cantidad * utensilioInfo.costo_utensilio;
+            } else {
+                console.warn(`Costo de utensilio no encontrado para ID: ${ut.id_utensilio}`);
+            }
+        });
+
+        setCostoTotal(total); // Actualizar el costo total en tiempo real
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await createPedido(pedidoData); // Enviar con el formato esperado
+            await createPedido({ ...pedidoData }); // Enviar datos al backend
             showSuccessAlert("¡Éxito!", "Pedido creado correctamente.");
             navigate("/pedidos");
         } catch (error) {
@@ -67,8 +119,13 @@ const CrearPedido = () => {
         fetchIngredientes();
         fetchProveedores();
         fetchUsers();
-        fetchUtensilios(); // Cargar utensilios
+        fetchUtensilios();
     }, []);
+
+    useEffect(() => {
+        console.log("Utensilios cargados:", utensilios); // Verificar datos cargados
+        calculateCostoTotal(); // Recalcular costo total cada vez que cambien ingredientes o utensilios
+    }, [pedidoData, utensilios]);
 
     return (
         <div className="crear-pedido-container">
@@ -93,6 +150,8 @@ const CrearPedido = () => {
                         value={pedidoData.fecha_compra_pedido}
                         onChange={handleInputChange}
                         required
+                        min={minDate}
+                        max={maxDate}
                     />
                 </div>
                 <div className="form-group">
@@ -103,17 +162,8 @@ const CrearPedido = () => {
                         value={pedidoData.fecha_entrega_pedido}
                         onChange={handleInputChange}
                         required
-                    />
-                </div>
-                <div className="form-group">
-                    <label>Costo del Pedido</label>
-                    <input
-                        type="number"
-                        name="costo_pedido"
-                        value={pedidoData.costo_pedido}
-                        onChange={handleInputChange}
-                        placeholder="Ej: 2500"
-                        required
+                        min={pedidoData.fecha_compra_pedido} // No puede ser menor a la fecha de compra
+                        max={maxDate}
                     />
                 </div>
                 <div className="form-group">
@@ -150,35 +200,52 @@ const CrearPedido = () => {
                 </div>
                 <div className="form-group">
                     <label>Ingredientes</label>
-                    {ingredientes.map((ing) => (
-                        <div key={ing.id_ingrediente}>
-                            <input
-                                type="checkbox"
-                                id={`ingrediente-${ing.id_ingrediente}`}
-                                checked={pedidoData.ingredientes.includes(ing.id_ingrediente)}
-                                onChange={() => handleIngredientesChange(ing.id_ingrediente)}
-                            />
-                            <label htmlFor={`ingrediente-${ing.id_ingrediente}`}>
-                                {ing.tipo_ingrediente?.nombre_tipo_ingrediente || "Sin tipo"} - {ing.nombre_ingrediente}
+                    {ingredientes.map(ing => (
+                        <div key={ing.id_ingrediente} className="item">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={!!selectedIngredientes[ing.id_ingrediente]}
+                                    onChange={() => handleCheckboxChange("ingredientes", ing.id_ingrediente)}
+                                />
+                                ID: {ing.id_ingrediente} - Nombre: {ing.tipo_ingrediente.nombre_tipo_ingrediente}
                             </label>
+                            {selectedIngredientes[ing.id_ingrediente] && (
+                                <input
+                                    type="number"
+                                    placeholder="Cantidad"
+                                    onChange={(e) => handleCantidadChange("ingredientes", ing.id_ingrediente, e.target.value)}
+                                />
+                            )}
                         </div>
                     ))}
                 </div>
                 <div className="form-group">
                     <label>Utensilios</label>
-                    {utensilios.map((ut) => (
-                        <div key={ut.id_utensilio}>
-                            <input
-                                type="checkbox"
-                                id={`utensilio-${ut.id_utensilio}`}
-                                checked={pedidoData.utensilios.includes(ut.id_utensilio)}
-                                onChange={() => handleUtensiliosChange(ut.id_utensilio)}
-                            />
-                            <label htmlFor={`utensilio-${ut.id_utensilio}`}>
-                                {ut.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo"} - {ut.id_utensilio}
+                    {utensilios.map(ut => (
+                        <div key={ut.id_utensilio} className="item">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={!!selectedUtensilios[ut.id_utensilio]}
+                                    onChange={() => handleCheckboxChange("utensilios", ut.id_utensilio)}
+                                />
+                                ID: {ut.id_utensilio} - Nombre: {ut.tipo_utensilio.nombre_tipo_utensilio}
                             </label>
+                            {selectedUtensilios[ut.id_utensilio] && (
+                                <input
+                                    type="number"
+                                    placeholder="Cantidad"
+                                    onChange={(e) => handleCantidadChange("utensilios", ut.id_utensilio, e.target.value)}
+                                />
+                            )}
                         </div>
                     ))}
+                </div>
+
+                <div className="form-group">
+                    <label>Costo Total del Pedido</label>
+                    <p>${costoTotal.toFixed(2)}</p> {/* Mostrar costo total calculado */}
                 </div>
                 <button type="submit">Crear Pedido</button>
             </form>
