@@ -9,13 +9,5 @@ export const generateMenuQRCode = async () => {
   };
 
 
-export const fetchListadoDiarioMenuQr = async (id_menu) => {
-    try {
-        const response = await axios.get(`menus/${id_menu}`);
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching menu by id:", error);
-        throw new Error("No se pudo obtener el menú del día");
-    }
-};
+
 
