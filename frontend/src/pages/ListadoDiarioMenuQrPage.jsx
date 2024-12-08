@@ -1,22 +1,26 @@
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import ListadoDiarioMenuQrComponent from '../../src/components/MenuQRCode/ListadoDiarioMenuQrComponent';
 
 const ListadoDiarioMenuQrPage = () => {
-    const { id_menu: idMenuParam } = useParams(); // Extrae el ID del menú de un parámetro dinámico
     const [searchParams] = useSearchParams();
-    const idMenuQuery = searchParams.get('id_menu'); // Extrae el ID del menú de los query params
+    const menuDataEncoded = searchParams.get('menuData'); // Obtiene los datos codificados en Base64 desde la URL
 
-    // Usar el ID del menú del path param o del query param
-    const id_menu = idMenuParam || idMenuQuery;
+    if (!menuDataEncoded) {
+        return <p>Error: No se proporcionaron datos del menú.</p>;
+    }
 
-    // Mostrar un mensaje si no hay un ID de menú
-    if (!id_menu) {
-        return <p>Por favor, proporciona un ID de menú válido o escanea un QR.</p>;
+    let menuData;
+    try {
+        // Decodificar los datos del menú
+        menuData = JSON.parse(atob(menuDataEncoded));
+    } catch (error) {
+        console.error("Error al decodificar los datos del menú:", error);
+        return <p>Error: Datos del menú inválidos.</p>;
     }
 
     return (
         <div>
-            <ListadoDiarioMenuQrComponent id_menu={id_menu} />
+            <ListadoDiarioMenuQrComponent menuData={menuData} />
         </div>
     );
 };

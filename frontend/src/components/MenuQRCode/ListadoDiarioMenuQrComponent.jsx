@@ -1,22 +1,24 @@
-import { useSearchParams } from 'react-router-dom';
-import ListadoDiarioMenuQrComponent from '../MenuQRCode/ListadoDiarioMenuQrComponent';
-
-const ListadoDiarioMenuQrPage = () => {
-    const [searchParams] = useSearchParams();
-    const menuDataEncoded = searchParams.get('menuData'); // Extrae el menú codificado
-
-    if (!menuDataEncoded) {
-        return <p>Error: No se proporcionaron datos del menú.</p>;
+const ListadoDiarioMenuQrComponent = ({ menuData }) => {
+    if (!menuData) {
+        return <p>Error: Datos del menú no disponibles.</p>;
     }
-
-    // Decodificar los datos del menú
-    const menuData = JSON.parse(atob(menuDataEncoded));
 
     return (
         <div>
-            <ListadoDiarioMenuQrComponent menuData={menuData} />
+            <h2>Menú del Día</h2>
+            <p>Fecha: {menuData.fecha}</p>
+            <p>Disponibilidad: {menuData.disponibilidad ? 'Disponible' : 'No Disponible'}</p>
+            <h3>Platillos:</h3>
+            <ul>
+                {menuData.platillos.map((platillo) => (
+                    <li key={platillo.id_platillo}>
+                        {platillo.nombre_platillo} - ${platillo.precio_platillo} -{' '}
+                        {platillo.disponible ? 'Disponible' : 'No Disponible'}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 };
 
-export default ListadoDiarioMenuQrPage;
+export default ListadoDiarioMenuQrComponent;
