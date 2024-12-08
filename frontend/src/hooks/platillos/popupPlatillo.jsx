@@ -27,7 +27,7 @@ export default function PopupPlatillo({
       defaultValue: platilloData.disponible !== undefined ? platilloData.disponible : true,
       fieldType: "input",
       type: "checkbox",
-      required: true,
+      required: false,
     },
     {
         label: "Encargado",

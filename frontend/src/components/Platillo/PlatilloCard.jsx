@@ -10,21 +10,26 @@ const PlatilloCard = ({ platillo, isSelected, onSelectChange }) => {
     <div className="platillo-card">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>{platillo.nombre_platillo}</h2>
-        <input 
+        <input
           type="checkbox"
           checked={isSelected}
           onChange={handleCheckboxChange}
         />
       </div>
+
+      {/* Mostrar el estado de disponibilidad */}
+      <p className={platillo.disponible ? 'status-available' : 'status-unavailable'}>
+        {platillo.disponible ? 'Disponible' : 'No disponible'}
+      </p>
       <h4>Ingredientes:</h4>
       <ul>
-    {platillo.ingredientes && platillo.ingredientes.length > 0 ? (
-    platillo.ingredientes.map((ing, idx) => (
-    <li key={idx}>{ing.nombre_tipo_ingrediente}</li>
-  ))
-) : (
-  <li>Sin ingredientes asignados</li>
-)}
+        {platillo.ingredientes && platillo.ingredientes.length > 0 ? (
+          platillo.ingredientes.map((ing, idx) => (
+            <li key={idx}>{ing.nombre_tipo_ingrediente}</li>
+          ))
+        ) : (
+          <li>Sin ingredientes asignados</li>
+        )}
       </ul>
     </div>
   );
