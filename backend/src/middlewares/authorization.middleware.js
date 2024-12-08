@@ -80,9 +80,6 @@ export async function isMesero(req, res, next) {
 export const authorizeRoles = (roles) => (req, res, next) => {
   const userRole = req.user?.rol_usuario;
 
-  console.log(`Rol del usuario: ${userRole}`); // Verifica qué rol tiene el usuario
-  console.log(`Roles permitidos: ${roles.join(", ")}`); // Verifica qué roles son permitidos
-
   if (roles.includes(userRole)) {
     return next();
   } else {
