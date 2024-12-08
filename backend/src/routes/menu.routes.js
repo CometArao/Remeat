@@ -10,7 +10,7 @@ import {
 } from "../controllers/menu.controller.js";
 
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
-import { isMesero,authorizeRoles } from '../middlewares/authorization.middleware.js';
+import { isMesero, authorizeRoles } from '../middlewares/authorization.middleware.js';
 
 
 const router = Router();

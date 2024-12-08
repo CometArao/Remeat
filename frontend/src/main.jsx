@@ -513,7 +513,7 @@ const router = createBrowserRouter([
       {
         path: '/menus',
         element: (
-          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero', 'mesero']}>
             <Menu />
           </ProtectedRoute>
         ),
