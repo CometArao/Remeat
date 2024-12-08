@@ -5,7 +5,7 @@ import { createProveedorService,
     getProveedorByIdService, 
     updateProveedorService } from "../services/proveedor.service.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { proveedorBodyValidation } from "../validations/proveedor.validation.js"; // Importa las validaciones
+import { proveedorBodyValidation, proveedorQueryValidation } from "../validations/proveedor.validation.js"; // Importa las validaciones
 
 export async function createProveedor(req, res) {
     try {
@@ -98,20 +98,19 @@ export async function updateProveedor(req, res) {
 }
 
 export async function deleteProveedor(req, res) {
-   const { id_proveedor } = req.params;
+    try {
+        const { id_proveedor } = req.params;
 
-   try {
-       const [result, error] = await deleteProveedorService(id_proveedor);
-       
-       if (error) {
-           if (error === "Proveedor no encontrado") {
-               return handleErrorClient(res ,404 ,error);
-           }
-           return handleErrorServer(res ,500 ,error);
-       }
+        const { error } = proveedorQueryValidation.validate({ id_proveedor });
 
-       handleSuccess(res ,200 ,"Proveedor eliminado exitosamente", null);
-   } catch (error) {
-       handleErrorServer(res ,500 ,error.message );
-   }
+        if (error) return handleErrorClient(res, 400, error.message);
+
+        const [deletedProveedor, errorProveedor] = await deleteProveedorService(id_proveedor);
+
+        if (errorProveedor) return handleErrorClient(res, 404, "Error eliminando proveedor", errorProveedor);
+
+        handleSuccess(res, 200, "Proveedor eliminado exitosamente", null);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+    }
 }

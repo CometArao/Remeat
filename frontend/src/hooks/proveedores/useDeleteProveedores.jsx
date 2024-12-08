@@ -7,19 +7,30 @@ const useDeleteProveedor = (fetchProveedores, setDataProveedor) => {
             try {
                 const result = await deleteDataAlert();
                 if (result.isConfirmed) {
-                    await deleteProveedor(selectedProveedores[0].id_proveedor);
-                    showSuccessAlert('¡Proveedor Eliminado!', 'El proveedor ha sido eliminado correctamente.');
-                    fetchProveedores(); // Actualiza la lista de proveedores
+                    const response = await deleteProveedor(selectedProveedores[0].id_proveedor);
+
+                    if (response.status === 'Client error') {
+                        return showErrorAlert('Error', response.details);
+                    }
+
+                    showSuccessAlert(
+                        '¡Eliminado!', 
+                        'El proveedor ha sido eliminado correctamente.'
+                    );
+
+                    await fetchProveedores();
                     setDataProveedor([]);
                 }
             } catch (error) {
                 console.error('Error al eliminar el proveedor:', error);
-                showErrorAlert('Error', 'Ocurrió un problema al eliminar el proveedor.');
+                showErrorAlert('Error', error.message || 'Ocurrió un problema al eliminar el proveedor.');
             }
         }
     };
 
-    return { handleDelete };
+    return { 
+        handleDelete 
+    };
 };
 
 export default useDeleteProveedor;
