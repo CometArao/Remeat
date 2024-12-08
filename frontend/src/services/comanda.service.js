@@ -8,9 +8,17 @@ export const createComanda = async (comandaData, token) => {
 };
 
 export const deleteComanda = async (id, token) => {
-  await axios.delete(`/comandas/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  try {
+    const response = await axios.delete(`/comandas/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Incluye el token en los headers
+      },
+    });
+    return response.data; // Asegúrate de devolver los datos esperados
+  } catch (err) {
+    console.error('Error en la solicitud de eliminación:', err.response || err);
+    throw new Error(err.response?.data?.message || 'Error al eliminar la comanda.');
+  }
 };
 
 export const getComandas = async (token) => {
@@ -58,4 +66,18 @@ export const completeComanda = async (comandaId, token) => {
     }
   );
   return response.data;
+};
+
+
+
+export const getComandaById = async (id, token) => {
+  try {
+    const response = await axios.get(`/comandas/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (err) {
+    console.error('Error obteniendo la comanda por ID:', err.response || err);
+    throw new Error(err.response?.data?.message || 'Error al obtener la comanda.');
+  }
 };

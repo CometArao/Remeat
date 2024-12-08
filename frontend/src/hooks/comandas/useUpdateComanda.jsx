@@ -6,14 +6,20 @@ const useUpdateComanda = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const update = async (comandaId, comandaData, token) => {
+  const update = async (comandaId, updatedData) => {
     setLoading(true);
+    setError(null);
+
     try {
-      const response = await updateComanda(comandaId, comandaData, token);
+      const token = cookies.get('jwt-auth');
+      if (!token) throw new Error('Token no encontrado. Por favor, inicia sesión.');
+
+      const response = await updateComanda(comandaId, updatedData, token);
       return response;
     } catch (err) {
-      setError(err);
-      console.error(err);
+      console.error('Error actualizando la comanda:', err.message || err);
+      setError(err.message || 'Error inesperado.');
+      throw err;
     } finally {
       setLoading(false);
     }

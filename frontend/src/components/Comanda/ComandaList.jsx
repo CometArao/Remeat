@@ -1,45 +1,83 @@
 import React, { useState } from 'react';
-import useDeleteComanda from '../../hooks/comandas/useDeleteComanda';
-import AddPlatilloForm from './AddPlatilloForm'; // Importamos AddPlatilloForm
-import '../../styles/Comandas.css';
+import ComandaItem from './ComandaItem';
+import useGetComandas from '../../hooks/Comandas/useGetComandas';
+import ComandaDetail from './ComandaDetail';
 
-const ComandaList = ({ comandas, onDelete }) => {
-  const { remove, loading: deleting } = useDeleteComanda();
-  const [showAddPlatillo, setShowAddPlatillo] = useState(null); // Para controlar qué comanda muestra el formulario
+const ComandaList = () => {
+  const { comandas, loading, error, refetch } = useGetComandas();
+  const [filteredComanda, setFilteredComanda] = useState(null);
 
-  const handleDelete = async (id) => {
-    if (window.confirm(`¿Estás seguro de eliminar la comanda con ID ${id}?`)) {
-      await remove(id);
-      onDelete(); // Refresca la lista en el padre
-    }
+  const handleSearchComplete = (comanda) => {
+    setFilteredComanda(comanda); // Reemplaza el estado con la nueva comanda
   };
+
+  const handleClearSearch = () => {
+    setFilteredComanda(null); // Limpia el estado
+  };
+
+  const handleDelete = async () => {
+    console.log('Eliminando una comanda...');
+    await refetch();
+  };
+
+  const handleComplete = async () => {
+    console.log('Completando una comanda...');
+    await refetch();
+  };
+
+  const handleEditComplete = async () => {
+    console.log('Editando una comanda...');
+    await refetch();
+  };
+
+  const handleCustomAction = async (comandaId) => {
+    console.log(`Ejecutando acción personalizada para comanda ${comandaId}`);
+    await refetch();
+  };
+
+  if (loading) return <p>Cargando comandas...</p>;
+  if (error) return <p>Error al cargar las comandas: {error.message}</p>;
 
   return (
     <div className="comandas-container">
       <h2>Listado de Comandas</h2>
-      {comandas.map((comanda) => (
-        <div key={comanda.id_comanda} className="comanda-item">
-          <h3>Comanda ID: {comanda.id_comanda}</h3>
-          <p>Fecha: {comanda.fecha_compra_comanda}</p>
-          <p>Hora: {comanda.hora_compra_comanda}</p>
-          <p>Estado: <strong>{comanda.estado_comanda}</strong></p>
 
-          {/* Botón para eliminar comanda */}
-          <button onClick={() => handleDelete(comanda.id_comanda)} disabled={deleting}>
-            {deleting ? 'Eliminando...' : 'Eliminar'}
-          </button>
+      {/* Integrar ComandaDetail */}
+      <ComandaDetail
+        onSearchComplete={handleSearchComplete}
+        onClearSearch={handleClearSearch}
+      />
 
-          {/* Botón para mostrar/ocultar AddPlatilloForm */}
-          <button onClick={() => setShowAddPlatillo(showAddPlatillo === comanda.id_comanda ? null : comanda.id_comanda)}>
-            {showAddPlatillo === comanda.id_comanda ? 'Cancelar' : 'Añadir Platillo'}
-          </button>
-
-          {/* Mostrar AddPlatilloForm si corresponde */}
-          {showAddPlatillo === comanda.id_comanda && (
-            <AddPlatilloForm comandaId={comanda.id_comanda} />
+      {/* Mostrar lista de comandas o resultados filtrados */}
+      {filteredComanda ? (
+        <div>
+          <ComandaItem
+            key={filteredComanda.id_comanda}
+            comanda={filteredComanda}
+            onDelete={handleDelete}
+            onComplete={handleComplete}
+            onEditComplete={handleEditComplete}
+            onCustomAction={handleCustomAction}
+          />
+        </div>
+      ) : (
+        <div>
+          {comandas.length > 0 ? (
+            comandas.map((comanda) => (
+              <ComandaItem
+                key={comanda.id_comanda}
+                comanda={comanda}
+                onDelete={handleDelete}
+                onComplete={handleComplete}
+                onEditComplete={handleEditComplete}
+                onCustomAction={handleCustomAction}
+              />
+            ))
+          ) : (
+            <p>No hay comandas disponibles.</p>
           )}
         </div>
-      ))}
+      )}
     </div>
   );
 };
