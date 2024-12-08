@@ -104,7 +104,6 @@ export const userBodyValidation = Joi.object({
      contrasena_nueva_usuario: Joi.string()
          .min(8)
          .max(26)
-         .allow("")
          .pattern(/^[a-zA-Z0-9]+$/)
          .messages({
              "string.empty": "La nueva contraseña no puede estar vacía.",
@@ -123,7 +122,6 @@ export const userBodyValidation = Joi.object({
      id_horario_laboral: Joi.number() // Agregar validación para el ID del horario laboral
           .integer()
           .positive()
-          .required() 
           .messages({
               "number.base": "El ID del horario laboral debe ser un número.",
               "number.integer": "El ID del horario laboral debe ser un número entero.",

@@ -17,7 +17,7 @@ const Login = () => {
         try {
             const response = await login(data);
             if (response.status === 'Success') {
-                navigate('/home');
+                navigate('/inicio');
             } else if (response.status === 'Client error') {
                 errorData(response.details);
             }
@@ -42,7 +42,7 @@ const Login = () => {
                         maxLength: 30,
                         errorMessageData: errorEmail,
                         validate: {
-                            emailDomain: (value) => value.endsWith('@gmail.com') || 'El correo debe terminar en @gmail.cl'
+                            emailDomain: (value) => value.endsWith('@gmail.com') || 'El correo debe terminar en @gmail.com'
                         },
                         onChange: (e) => handleInputChange('email', e.target.value),
                     },
@@ -63,11 +63,6 @@ const Login = () => {
                 ]}
                 buttonText="Iniciar sesión"
                 onSubmit={loginSubmit}
-                footerContent={
-                    <p>
-                        ¿No tienes cuenta?, <a href="/register">¡Regístrate aquí!</a>
-                    </p>
-                }
             />
         </main>
     );

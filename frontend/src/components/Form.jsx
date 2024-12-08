@@ -4,7 +4,7 @@ import '@styles/form.css';
 import HideIcon from '../assets/HideIcon.svg';
 import ViewIcon from '../assets/ViewIcon.svg';
 
-const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundColor }) => {
+const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundColor, children }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [showPassword, setShowPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
@@ -101,6 +101,8 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
                     </div>
                 </div>
             ))}
+            {children}
+            
             {buttonText && <button type="submit">{buttonText}</button>}
             {footerContent && <div className="footerContent">{footerContent}</div>}
         </form>

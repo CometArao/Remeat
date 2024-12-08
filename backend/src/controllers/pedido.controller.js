@@ -1,13 +1,23 @@
 "use strict";
-import { createPedidoService, 
-    deletePedidoService, 
-    getAllPedidosService, 
-    getPedidoByIdService, 
+import {
+    createPedidoService,
+    deletePedidoService,
+    getAllPedidosService,
+    getPedidoByIdService,
     updatePedidoService,
-    validateIngredientesYUtensilios } from "../services/pedido.service.js";
+    validateIngredientesYUtensilios
+} from "../services/pedido.service.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
-import { pedidoValidation } from "../validations/pedido.validation.js"; // Importa las validaciones
-import { sendEmail } from "../config/mailer.js"; // Importa la función para enviar correos
+import { pedidoValidation } from "../validations/pedido.validation.js";
+import { sendEmail } from "../config/mailer.js";
+import {
+    getProveedorByIdService,
+} from "../services/proveedor.service.js"; // Asegúrate de tener este servicio
+
+// Asegúrate de importar AppDataSource, Proveedor y Usuario
+import { AppDataSource } from "../config/configDb.js";
+import Proveedor from "../entity/proveedor.entity.js";
+import Usuario from "../entity/usuario.entity.js";
 
 export async function createPedido(req, res) {
     try {
@@ -29,43 +39,47 @@ export async function createPedido(req, res) {
             return handleErrorClient(res, 400, serviceError);
         }
 
-        // Obtener el correo del proveedor
-        const proveedorEmail = newPedido.proveedor ? newPedido.proveedor.correo_proveedor : null;
+        // Obtener el correo y nombre del proveedor
+        const proveedor = await obtenerProveedor(newPedido.id_proveedor);
 
         // Enviar correo al proveedor
-        if (proveedorEmail) {
+        if (proveedor && proveedor.correo_proveedor) {
             await sendEmail(
-                proveedorEmail,
+                proveedor.correo_proveedor,
                 "Nuevo Pedido Creado",
                 {
                     id_pedido: newPedido.id_pedido,
                     descripcion_pedido: newPedido.descripcion_pedido,
                     fecha_compra_pedido: newPedido.fecha_compra_pedido,
                     fecha_entrega_pedido: newPedido.fecha_entrega_pedido,
-                    nombre_usuario: newPedido.usuario.nombre_usuario,
+                    nombre_usuario: await obtenerNombreUsuario(newPedido.id_usuario),
                     costo_pedido: newPedido.costo_pedido,
-                    ingredientes: newPedido.ingredientes || [], // Asegúrate de incluir los ingredientes
-                    utensilios: newPedido.utensilios || []      // Asegúrate de incluir los utensilios
+                    ingredientes: newPedido.ingredientes || [],
+                    utensilios: newPedido.utensilios || [],
+                    nombre_proveedor: proveedor.nombre_proveedor // Aquí agregamos el nombre del proveedor
                 }
             );
         }
 
-        // Preparar la respuesta sin información sensible del usuario
-        const responseData = {
-            id_pedido: newPedido.id_pedido,
-            descripcion_pedido: newPedido.descripcion_pedido,
-            fecha_compra_pedido: newPedido.fecha_compra_pedido,
-            estado_pedido: newPedido.estado_pedido,
-            fecha_entrega_pedido: newPedido.fecha_entrega_pedido,
-            costo_pedido: newPedido.costo_pedido,
-            id_usuario: newPedido.usuario.id_usuario,
-            id_proveedor: newPedido.proveedor ? newPedido.proveedor.id_proveedor : null
-        };
-
-        handleSuccess(res, 201, "Pedido creado exitosamente", responseData);
+        handleSuccess(res, 201, "Pedido creado exitosamente", newPedido);
     } catch (error) {
+        console.error("Error en el controlador:", error);
         handleErrorServer(res, 500, error.message);
     }
+}
+
+// Función auxiliar para obtener el proveedor completo
+async function obtenerProveedor(id_proveedor) {
+    const proveedorRepository = AppDataSource.getRepository(Proveedor);
+    const proveedor = await proveedorRepository.findOneBy({ id_proveedor });
+    return proveedor;
+}
+
+// Función auxiliar para obtener el nombre del usuario (sin cambios)
+async function obtenerNombreUsuario(id_usuario) {
+    const usuarioRepository = AppDataSource.getRepository(Usuario);
+    const usuario = await usuarioRepository.findOneBy({ id_usuario });
+    return usuario ? usuario.nombre_usuario : "Usuario desconocido";
 }
 
 // Obtener todos los pedidos

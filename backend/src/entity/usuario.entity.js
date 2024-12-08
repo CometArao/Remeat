@@ -55,13 +55,18 @@ const usuarioSchema = new EntitySchema({
             inverseSide: "usuario",
             cascade: true,
         },
-        crea_platillos: { // Relación con platillo
+        crea_platillos: {
             type: "one-to-many",
             target: "platillo",
             inverseSide: "creador",
-            cascade: true
-        }
-    }
+            cascade: true,
+        },
+        pedidos: { // Relación con pedido
+            type: "one-to-many",
+            target: "pedido",
+            inverseSide: "usuario",
+        },
+    },
 });
 
 export default usuarioSchema;
