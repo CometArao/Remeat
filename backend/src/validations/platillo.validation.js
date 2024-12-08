@@ -10,6 +10,11 @@ export const platilloBodyValidation = Joi.object({
       "string.base": "El campo 'nombre_platillo' debe ser una cadena de texto.",
       "string.max": "El campo 'nombre_platillo' no debe exceder los 100 caracteres.",
     }),
+    disponible: Joi.boolean()
+    .optional()
+    .messages({
+      "boolean.base": "El campo 'disponible' debe ser un valor booleano (true o false).",
+    }),
   id_usuario: Joi.number()
     .integer()
     .positive()
@@ -33,11 +38,9 @@ export const platilloBodyValidation = Joi.object({
           }),
         porcion_ingrediente_platillo: Joi.number()
           .positive()
-          .required()
           .messages({
             "number.base": "El campo 'porcion_ingrediente_platillo' debe ser un número.",
             "number.positive": "El campo 'porcion_ingrediente_platillo' debe ser un número positivo.",
-            "any.required": "El campo 'porcion_ingrediente_platillo' es obligatorio.",
           }),
       })
     )

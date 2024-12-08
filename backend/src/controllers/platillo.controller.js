@@ -99,14 +99,13 @@ export async function getPlatilloByIdController(req, res){
 export async function updatePlatilloController(req, res){
     try{
         const { id_platillo } = req.params;
-        const { nombre_platillo, id_usuario } = req.body;
 
-        const { error } = platilloBodyValidation.validate({ nombre_platillo, id_usuario });
+        const { error } = platilloBodyValidation.validate(req.body);
 
         if(error) return handleErrorClient(res, 400, error.message);
 
         // eslint-disable-next-line max-len
-        const [updatedPlatillo, errorPlatillo] = await updatePlatilloByIdService(id_platillo, { nombre_platillo, id_usuario });
+        const [updatedPlatillo, errorPlatillo] = await updatePlatilloByIdService(id_platillo, req.body);
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
 

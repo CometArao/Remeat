@@ -30,6 +30,11 @@ const platillo = new EntitySchema({
         }
     },
     relations: {
+        componePlatillo: {
+            type: "one-to-many",
+            target: "compuesto_platillo",
+            inverseSide: "platillo",
+        },
         creador: {
             type: "many-to-one",
             target: "usuario",
