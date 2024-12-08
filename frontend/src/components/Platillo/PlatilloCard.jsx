@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../styles/platillos.css'; // Actualiza los estilos aquí
+import '../../styles/platillos.css';
 
 const PlatilloCard = ({ platillo, isSelected, onSelectChange }) => {
     const handleCheckboxChange = (e) => {
@@ -7,9 +7,12 @@ const PlatilloCard = ({ platillo, isSelected, onSelectChange }) => {
     };
 
     return (
-        <div className="platillo-card">
+        <div className="platillo-card" style={{ position: 'relative' }}> {/* Posición relativa para la ID */}
+            {/* Mostrar la ID del platillo */}
+            <span className="card-id">ID: {platillo.id_platillo}</span>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 className="menu-title">{platillo.nombre_platillo}</h2> {/* Título ajustado */}
+                <h2 className="menu-title">{platillo.nombre_platillo}</h2>
                 <input
                     type="checkbox"
                     checked={isSelected}

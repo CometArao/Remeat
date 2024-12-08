@@ -50,6 +50,7 @@ const TiposIngrediente = () => {
     } = useCreateTipoIngrediente(setTiposIngrediente);
 
     const columns = [
+        { title: 'ID', field: 'id_tipo_ingrediente', width: 100 },
         { title: 'Nombre', field: 'nombre_tipo_ingrediente', width: 500, responsive: 0 },
         { title: 'Unidad de Medida', field: 'unidad_medida.nombre_unidad_medida', width: 300 },
     ];

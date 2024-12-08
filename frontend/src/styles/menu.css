@@ -85,3 +85,13 @@
   text-align: center;
   margin-top: 10px;
 }  
+
+/* Estilo para la ID en la esquina superior izquierda */
+.card-id {
+  position: absolute; /* Posición absoluta para posicionamiento dentro del contenedor */
+  top: 10px; /* Distancia desde la parte superior */
+  left: 10px; /* Distancia desde la parte izquierda */
+  font-size: 0.8rem; /* Tamaño de letra pequeño */
+  color: #7f8c8d; /* Color gris para la ID */
+  font-weight: bold; /* Negrita para destacar la ID */
+}

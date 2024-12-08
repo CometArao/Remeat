@@ -51,6 +51,7 @@ const Ingredientes = () => {
     } = useCreateIngrediente(setIngredientes);
 
     const columns = [
+      {title: 'ID', field: 'id_ingrediente', width: 100},  
       { title: 'Fecha de Vencimiento', field: 'fecha_vencimiento', width: 200 },
       { title: 'Cantidad', field: 'cantidad_ingrediente', width: 150 },
       { title: 'Cantidad Original', field: 'cantidad_original_ingrediente', width: 200 },

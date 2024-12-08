@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../styles/menu.css'; 
+import '../../styles/menu.css';
 
 const MenuCard = ({ menu, isSelected, onSelectChange }) => {
     const handleCheckboxChange = (e) => {
@@ -7,17 +7,20 @@ const MenuCard = ({ menu, isSelected, onSelectChange }) => {
     };
 
     return (
-        <div className="menu-card">
+        <div className="menu-card" style={{ position: 'relative' }}> {/* Posición relativa para la ID */}
+            {/* Mostrar la ID del menú */}
+            <span className="card-id">ID: {menu.id_menu}</span>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 className="menu-title">{menu.fecha}</h2> {/* Fecha ajustada */}
-                <input 
+                <h2 className="menu-title">{menu.fecha}</h2>
+                <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={handleCheckboxChange}
                 />
             </div>
 
-            {/* Mostrar el estado de disponibilidad del menú */}
+            {/* Mostrar el estado de disponibilidad */}
             <p className={menu.disponibilidad ? 'status-available' : 'status-unavailable'}>
                 {menu.disponibilidad ? 'Disponible' : 'No disponible'}
             </p>

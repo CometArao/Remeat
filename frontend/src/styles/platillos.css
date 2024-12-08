@@ -31,7 +31,7 @@
 
 .platillo-card h4 {
   font-size: 1rem;
-  color: #7f8c8d;
+  color: #414a4a;
   margin: 15px 0 10px;
 }
 
@@ -89,4 +89,14 @@
 
 .container::-webkit-scrollbar-thumb:hover {
   background-color: #aaa;
+}
+
+/* Estilo para la ID en la esquina superior izquierda */
+.card-id {
+  position: absolute; /* Posición absoluta para posicionamiento dentro del contenedor */
+  top: 10px; /* Distancia desde la parte superior */
+  left: 10px; /* Distancia desde la parte izquierda */
+  font-size: 0.8rem; /* Tamaño de letra pequeño */
+  color: #7f8c8d; /* Color gris para la ID */
+  font-weight: bold; /* Negrita para destacar la ID */
 }
