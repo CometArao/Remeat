@@ -15,7 +15,7 @@ const GenerateQRCode = () => {
                 <div>
                     <h2>Código QR Generado:</h2>
                     <img 
-                        src={`data:image/png;base64,${qrCode.trim()}`} 
+                        src={qrCode.trim()}
                         alt="QR Code" 
                         style={{ width: '300px', height: '300px' }} 
                     />
