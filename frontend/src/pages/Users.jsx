@@ -42,6 +42,7 @@ const Users = () => {
     );
 
     const columns = [
+        {title: 'ID', field: 'id_usuario', width: 100},
         { title: 'Nombre', field: 'nombre_usuario', width: 200 },
         { title: 'Apellido', field: 'apellido_usuario', width: 200 },
         { title: 'Correo', field: 'correo_usuario', width: 300 },
@@ -98,7 +99,7 @@ const Users = () => {
                     columns={columns}
                     filter={filterName}
                     dataToFilter="nombre_usuario"
-                    initialSortName="nombre_usuario"
+                    initialSortName="id_usuario"
                     onSelectionChange={handleSelectionChange}
                 />
             </div>

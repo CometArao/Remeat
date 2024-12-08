@@ -47,6 +47,7 @@ const Proveedores = () => {
   } = useCreateProveedor(setProveedores);
 
   const columns = [
+    { title: "ID", field: "id_proveedor", width: 100 },
     { title: "Nombre", field: "nombre_proveedor", width: 200 },
     { title: "Tipo", field: "tipo_proveedor", width: 200 },
     { title: "Correo", field: "correo_proveedor", width: 300 },
@@ -77,18 +78,13 @@ const Proveedores = () => {
               />
             </button>
             {/* Botón Eliminar Usuario */}
-            <button
-              className="proveedores-delete-button"
-              disabled={dataProveedor.length === 0}
-              onClick={() => handleDelete(dataProveedor)}
-            >
-              <img
-                src={
-                  dataProveedor.length === 0 ? DeleteIconDisable : DeleteIcon
-                }
-                alt="Eliminar Proveedor"
-              />
-            </button>
+            <button className='delete-user-button' disabled={dataProveedor.length === 0} onClick={() => handleDelete(dataProveedor)}>
+              {dataProveedor.length === 0 ? (
+                <img src={DeleteIconDisable} alt="delete-disabled" />
+              ) : (
+                <img src={DeleteIcon} alt="delete" />
+              )}
+              </button>
           </div>
         </div>
         <Table
@@ -96,7 +92,7 @@ const Proveedores = () => {
           columns={columns}
           filter={filter}
           dataToFilter={"nombre_proveedor"}
-          initialSortName={"nombre_proveedor"}
+          initialSortName={"id_proveedor"}
           onSelectionChange={handleSelectionChange}
         />
       </div>
@@ -106,7 +102,7 @@ const Proveedores = () => {
         setShow={setIsPopupOpen}
         data={dataProveedor}
         action={handleUpdate}
-        isEdit={true} // Es una edición
+        isEdit={true}
       />
 
       <PopupFormProveedores
@@ -114,7 +110,7 @@ const Proveedores = () => {
         setShow={setIsCreatePopUpOpen}
         data={dataProveedorCreate}
         action={handleCreate}
-        isEdit={false} // Es una creación
+        isEdit={false}
       />
     </div>
   );
