@@ -23,9 +23,7 @@ import GenerateQRCode from '@pages/GenerateQRCode';
 import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
-
-
-
+import CrearPedido from './pages/CrearPedido';
 
 const data_lineal2 = [
   {
@@ -618,6 +616,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Pedidos />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/crear_pedido',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <CrearPedido /> {/* Nuevo componente para la creación de pedidos */}
           </ProtectedRoute>
         ),
       },
