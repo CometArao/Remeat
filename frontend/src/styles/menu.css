@@ -52,5 +52,36 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
+    max-height: 70vh; /* Limita la altura máxima del contenedor */
+    overflow-y: auto; /* Habilita el desplazamiento vertical si es necesario */
+    padding: 10px; /* Añade espacio interior */
+    border: 1px solid #ddd; /* Opcional: Para visualizar los bordes del contenedor */
+    background-color: #f9f9f9; /* Fondo ligero para destacar las tarjetas */
   }
-  
+
+  /* Opcional: Mejora el diseño del scroll */
+.container::-webkit-scrollbar {
+  width: 10px; /* Ancho del scroll */
+}
+
+.container::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* Color del scroll */
+  border-radius: 5px;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background-color: #aaa; /* Color al pasar el cursor */
+}
+.status-available {
+  color: rgb(110, 218, 110); /* Verde para disponible */
+  font-weight: bold;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.status-unavailable {
+  color: rgb(210, 33, 84); /* Rojo para no disponible */
+  font-weight: bold;
+  text-align: center;
+  margin-top: 10px;
+}  
