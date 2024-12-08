@@ -485,6 +485,11 @@ const data_circular = [
 
 const router = createBrowserRouter([ 
   {
+    path: '/menu-dia',
+    element: <ListadoDiarioMenuQrPage />, 
+},
+
+  {
     path: '/',
     element: <Root />,
     errorElement: <Error404 />,
@@ -492,14 +497,6 @@ const router = createBrowserRouter([
       {
         path: '/inicio',
         element: <Home />
-      },
-      {
-        path: '/menu-dia', // Ruta base sin parámetro
-        element: <ListadoDiarioMenuQrPage />,
-    },
-      {
-        path: '/menu-dia/:id_menu', // Nueva ruta para el menú diario
-        element: <ListadoDiarioMenuQrPage />, // Sin protección, accesible para todos
       },
       {
         path: '/usuarios',
