@@ -23,6 +23,9 @@ import GenerateQRCode from '@pages/GenerateQRCode';
 import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
+import  Platillos from '@pages/Platillos';
+import Menu from './pages/Menu.jsx';
+
 
 
 
@@ -507,6 +510,22 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: '/menus',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero', 'mesero']}>
+            <Menu />
+          </ProtectedRoute>
+        ),
+      },
+     {
+        path: '/platillos',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
+            <Platillos />
+        </ProtectedRoute>
+      ),
+     },
        {
         path: '/ingredientes/', 
         element: (

@@ -10,7 +10,7 @@ import {
 } from "../controllers/menu.controller.js";
 
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
-import { isMesero } from '../middlewares/authorization.middleware.js';
+import { isMesero, authorizeRoles } from '../middlewares/authorization.middleware.js';
 
 
 const router = Router();
@@ -20,8 +20,8 @@ router
     .get("/menu/qr",isMesero, getMenuQRCodeController)
     .get("/", getMenusController)
     .get("/:id", getMenuByIdController)
-    .post("/", createMenuController)
-    .patch("/:id", updateMenuController)
-    .delete("/:id", deleteMenuController);
+    .post("/",authorizeRoles(["cocinero", "administrador"]), createMenuController)
+    .patch("/:id",authorizeRoles(["cocinero", "administrador"]), updateMenuController)
+    .delete("/:id", authorizeRoles(["cocinero", "administrador"]), deleteMenuController);
 
 export default router;

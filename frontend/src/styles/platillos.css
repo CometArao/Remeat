@@ -1,0 +1,52 @@
+.platillo-card {
+    position: relative; /* Posicionamiento relativo para el contenedor */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s ease;
+    background-color: #fff;
+  }
+  
+  .platillo-card:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  
+  .platillo-card h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+  }
+  
+  .platillo-card h4 {
+    margin: 15px 0 10px;
+    font-size: 1.2em;
+  }
+  
+  .platillo-card ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+  
+  .platillo-card li {
+    margin-bottom: 5px;
+    font-size: 1em;
+  }
+  .status-available {
+    color: rgb(110, 218, 110);
+    font-weight: bold;
+    font-size: 0.9rem; /* Ajuste del tamaño de la fuente */
+    position: absolute; /* Posicionamiento dentro del contenedor */
+    top: 10px; /* Distancia desde la parte superior */
+    right: 10px; /* Distancia desde la parte derecha */
+}
+
+.status-unavailable {
+    color: rgb(210, 33, 84);
+    font-weight: bold;
+    font-size: 0.9rem; /* Ajuste del tamaño de la fuente */
+    position: absolute; /* Posicionamiento dentro del contenedor */
+    top: 10px; /* Distancia desde la parte superior */
+    right: 10px; /* Distancia desde la parte derecha */
+}
