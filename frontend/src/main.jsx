@@ -4,6 +4,7 @@ import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users';
 import TipoUtensilio from '@pages/TipoUtensilio';
+import Utensilios from '@pages/Utensilio';
 import GraficoLineal from '@components/GraficoLineal'
 import GraficoCircular from '@components/GraficoCircular'
 import GraficoBarra from '@components/GraficoBarra'
@@ -506,10 +507,18 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/tipo_utensilio',
+        path: '/tipo_utensilios',
         element: (
           <ProtectedRoute allowedRoles={['administrador','cocinero']}>
             <TipoUtensilio />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/utensilios',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador','cocinero']}>
+            <Utensilios />
           </ProtectedRoute>
         ),
       },

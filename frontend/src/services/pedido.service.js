@@ -45,3 +45,13 @@ export async function deletePedido(id) {
         return error.response?.data || { status: 'Client error', details: error.message };
     }
 }
+
+export async function changePedidoToIngresado(id) {
+    try {
+        const response = await axios.post(`/pedidos/${id}/ingresar`);
+        return response.data;
+    } catch (error) {
+        console.error("Error cambiando estado del pedido:", error);
+        throw error.response?.data || error.message;
+    }
+}

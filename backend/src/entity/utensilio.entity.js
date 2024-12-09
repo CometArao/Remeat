@@ -1,6 +1,5 @@
-"use strict"
+"use strict";
 import { EntitySchema } from "typeorm";
-import tipo_utensilio from "./tipo_utensilio.entity.js";
 
 const utensilio = new EntitySchema({
     name: "utensilio",
@@ -22,10 +21,6 @@ const utensilio = new EntitySchema({
             type: "int",
             nullable: true,
         },
-        id_pedido: {
-            type: "int",
-            nullable: true
-        }
     },
     relations: {
         tipo_utensilio: {
@@ -37,14 +32,15 @@ const utensilio = new EntitySchema({
             onDelete: "SET NULL",
         },
         pedido: {
-            type: "many-to-one",
+            type: "many-to-many", // Ajusta según la relación real
             target: "pedido",
-            joinColumn: {
-                name: "id_pedido",
+            joinTable: {
+                name: "utensilio_pedido",
+                joinColumn: { name: "id_utensilio", referencedColumnName: "id_utensilio" },
+                inverseJoinColumn: { name: "id_pedido", referencedColumnName: "id_pedido" },
             },
-            onDelete: "SET NULL",
         },
-    }
+    },
 });
 
 export default utensilio;

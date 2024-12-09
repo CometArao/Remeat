@@ -1,5 +1,6 @@
 "use strict";
 import { EntitySchema } from "typeorm";
+
 const pedido = new EntitySchema({
     name: "pedido",
     tableName: "pedido",
@@ -53,14 +54,9 @@ const pedido = new EntitySchema({
             joinColumn: { name: "id_proveedor" },
             onDelete: "SET NULL",
         },
-        ingredientes: {
+        compuestoIngredientes: {
             type: "one-to-many",
-            target: "ingrediente",
-            inverseSide: "pedido",
-        },
-        utensilios: {
-            type: "one-to-many",
-            target: "utensilio",
+            target: "compuesto_ingrediente",
             inverseSide: "pedido",
         },
     },

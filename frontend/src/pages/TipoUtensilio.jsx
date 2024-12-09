@@ -1,7 +1,7 @@
 import Table from '@components/Table';
 import Search from '../components/Search';
 import useGetTipoUtensilio from '../hooks/tipo_utensilio/useGetTipoUtensilio';
-import Popup from '@hooks/tipo_utensilio/popupTipoUtensilio.jsx'
+import Popup from '@hooks/tipo_utensilio/popupTipoUtensilio.jsx';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
@@ -13,12 +13,8 @@ import useDeleteTipoUtensilio from '@hooks/tipo_utensilio/useDeleteTipoUtensilio
 import useEditTipoUtensilio from '../hooks/tipo_utensilio/useEditTipoUtensilio';
 import useCreateTipoUtensilio from '@hooks/tipo_utensilio/useCreateTipoUtensilio';
 
-
-//TODO: Que todas las palabras empiecen en minuscula
-//TODO: Revisar si en el backend se ingresan datos solo en minuscula
-//Se define componente tipo utensilio
 const TiposUtensilio = () => {
-  const { tipoUtensilios, fetchTipoUtensilio, setTipoUtensilio } = useGetTipoUtensilio();
+  const { tipoUtensilios, fetchTipoUtensilio, setTipoUtensilios } = useGetTipoUtensilio();
   const [filterName, setFilterName] = useState('');
   const {
     handleClickUpdate,
@@ -27,10 +23,8 @@ const TiposUtensilio = () => {
     setIsPopupOpen,
     dataTipoUtensilio,
     setDataTipoUtensilio
-} = useEditTipoUtensilio(setTipoUtensilio, fetchTipoUtensilio);
+  } = useEditTipoUtensilio(setTipoUtensilios, fetchTipoUtensilio);
 
-  console.log("dataTipoUtensilio")
-  console.log(dataTipoUtensilio)
   const { handleDelete } = useDeleteTipoUtensilio(fetchTipoUtensilio, setDataTipoUtensilio);
 
   const handleSelectionChange = useCallback((selectedItems) => {
@@ -44,14 +38,13 @@ const TiposUtensilio = () => {
     setIsCreatePopUpOpen,
     dataTipoUtensilioCreate,
     setDataTipoUtensilioCreate
-  } = useCreateTipoUtensilio(setTipoUtensilio)
+  } = useCreateTipoUtensilio(setTipoUtensilios);
 
   const columns = [
     { title: "Nombre", field: "nombre_tipo_utensilio", width: 500, responsive: 0 },
   ];
 
   const handleNameFilterChange = (e) => {
-    console.log(e)
     setFilterName(e.target.value.toLowerCase());
   };
 
@@ -66,7 +59,6 @@ const TiposUtensilio = () => {
               onChange={handleNameFilterChange}
               placeholder={'Filtrar por nombre'}
             />
-            {/* tmp style. la clase esta en users.css*/}
             <button className='create-button' onClick={handleClickCreate}>
                 <img src={CreateIcon} alt="Crear" />
             </button>
@@ -97,9 +89,10 @@ const TiposUtensilio = () => {
           onSelectionChange={handleSelectionChange}
         />
       </div>
-      <Popup show={isPopupOpen} setShow={setIsPopupOpen} data={dataTipoUtensilio} action={handleUpdate} titulo = {"Editar Tipo Utensilio"}/>
-      <Popup show={isCreatePopUpOpen} setShow={setIsCreatePopUpOpen} data={dataTipoUtensilioCreate} action={handleCreate} titulo={"Crear Utensilio"} />
+      <Popup show={isPopupOpen} setShow={setIsPopupOpen} data={dataTipoUtensilio} action={handleUpdate} titulo={"Editar Tipo Utensilio"} />
+      <Popup show={isCreatePopUpOpen} setShow={setIsCreatePopUpOpen} data={dataTipoUtensilioCreate} action={handleCreate} titulo={"Crear Tipo Utensilio"} />
     </div>
   );
 };
+
 export default TiposUtensilio;

@@ -1,10 +1,10 @@
 import SelectTime from '@components/SelectTime'
 import { useCallback, useState, useRef } from 'react';
-import useGetUtensilios from '../hooks/utensilios/useUtensilio';
+import useGetUtensilios from '../hooks/utensilios/useGetUtensilio';
 import useGetIngredientesSinTiposNulos from '../hooks/ingredientes/useGetIngredientesSinTipoNulos';
 import Search from '../components/Search';
-import TablaUtensilios from '@hooks/mermas/TablaUtensilios';
-import TablaIngredientes from '@hooks/mermas/TablaIngredientes';
+import TablaUtensilios from '@hooks/mermas/TablaUtensilios.jsx';
+import TablaIngredientes from '@hooks/mermas/TablaIngredientes.jsx';
 import { crearMerma } from '../services/merma.service';
 import { useNavigate } from 'react-router-dom';
 
