@@ -251,6 +251,7 @@ export async function deletePlatilloByIdService(id_platillo) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
 
     try {
+        console.log(`Eliminando platillo con ID: ${id_platillo}`); // Registro de eliminación
         // Eliminar registros relacionados en la tabla `compuesto_platillo`
         await componePlatilloRepository.delete({ id_platillo });
 

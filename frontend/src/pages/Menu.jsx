@@ -8,7 +8,7 @@ import CreateIcon from '../assets/PlusIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import EmptyIcon from '../assets/emptyIcon.svg';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import '@styles/users.css';
 import useDeleteMenu from '../hooks/menus/useDeletedMenu';
 import useEditMenu from '../hooks/menus/useEditMenu';
@@ -63,6 +63,7 @@ const Menu = () => {
     const handleCardSelectionChange = (selectedMenu, isChecked) => {
         if (isChecked) {
             setDataMenu(prev => {
+                // Evitar duplicados
                 if (prev.find(item => item.id_menu === selectedMenu.id_menu)) {
                     return prev;
                 }

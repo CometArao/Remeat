@@ -9,9 +9,7 @@ const useGetPlatillos = () => {
     const fetchPlatillo = async () => {
         try {
             const data = await getPlatillos();
-            console.log('Data retornada por getPlatillos:', data);
             setPlatillo(data);
-            console.log('Estado platillo despues de setPlatillo:', platillo);
           } catch (error) {
             console.error('Error fetching platillos:', error);
           }

@@ -29,7 +29,7 @@ const Platillos = () => {
         fetchPlatillo();
         fetchUsers();
         fetchTiposIngrediente();
-        console.log("Datos iniciales de platillos:", platillo);
+
     }, []);
 
     const {
