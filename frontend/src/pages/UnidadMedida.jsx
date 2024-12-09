@@ -42,7 +42,12 @@ const UnidadesMedida = () => {
         setDataUnidadMedidaCreate,
     } = useCreateUnidadMedida(setUnidadMedida);
 
-    const columns = [{ title: 'Nombre', field: 'nombre_unidad_medida', width: 500, responsive: 0 }];
+    const columns = [
+      { title: 'ID', field: 'id_unidad_medida', width: 100 },
+      { title: 'Nombre', field: 'nombre_unidad_medida', width: 500, responsive: 0 }
+    
+        ];
+
 
     const handleNameFilterChange = (e) => {
       console.log(e)
