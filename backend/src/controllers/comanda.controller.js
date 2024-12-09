@@ -82,6 +82,10 @@ export async function addPlatilloToComandaController(req, res) {
 }
 
 
+
+
+
+
 export async function createComandaController(req, res) {
   const { error } = createComandaValidation.validate(req.body);
   if (error) return handleErrorClient(res, 400, error.details[0].message);

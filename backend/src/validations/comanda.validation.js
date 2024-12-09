@@ -52,39 +52,35 @@ export const createComandaValidation = Joi.object({
 
 
 
-
+  export const addPlatilloToComandaValidation = Joi.object({
+    nombre_platillo: Joi.string()
+      .required()
+      .messages({
+        "string.base": "El nombre del platillo debe ser una cadena de texto.",
+        "any.required": "El nombre del platillo es obligatorio."
+      }),
+    estado: Joi.string()
+      .valid("pendiente", "preparando", "completado")
+      .default("pendiente")
+      .messages({
+        "any.only": "El estado debe ser 'pendiente', 'preparando' o 'completado'."
+      }),
+    cantidad: Joi.number()
+      .integer()
+      .positive()
+      .required()
+      .messages({
+        "number.base": "La cantidad debe ser un número.",
+        "number.integer": "La cantidad debe ser un número entero.",
+        "number.positive": "La cantidad debe ser un número positivo.",
+        "any.required": "La cantidad es obligatoria."
+      })
+  });
+  
 
 
   
-// Validación para agregar un platillo a una Comanda existente
-export const addPlatilloToComandaValidation = Joi.object({
-  id_platillo: Joi.number()
-    .integer()
-    .positive()
-    .required()
-    .messages({
-      "number.base": "El ID del platillo debe ser un número.",
-      "number.integer": "El ID del platillo debe ser un número entero.",
-      "number.positive": "El ID del platillo debe ser un número positivo.",
-      "any.required": "El ID del platillo es obligatorio."
-    }),
-  estado: Joi.string()
-    .valid("pendiente", "preparando", "completado")
-    .default("pendiente")
-    .messages({
-      "any.only": "El estado debe ser 'pendiente', 'preparando' o 'completado'."
-    }),
-  cantidad: Joi.number()
-    .integer()
-    .positive()
-    .required()
-    .messages({
-      "number.base": "La cantidad debe ser un número.",
-      "number.integer": "La cantidad debe ser un número entero.",
-      "number.positive": "La cantidad debe ser un número positivo.",
-      "any.required": "La cantidad es obligatoria."
-    })
-});
+
 
 // Validación para actualizar una Comanda
 export const updateComandaValidation = Joi.object({
