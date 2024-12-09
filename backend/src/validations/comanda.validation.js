@@ -52,31 +52,32 @@ export const createComandaValidation = Joi.object({
 
 
 
-  export const addPlatilloToComandaValidation = Joi.object({
-    nombre_platillo: Joi.string()
-      .required()
-      .messages({
-        "string.base": "El nombre del platillo debe ser una cadena de texto.",
-        "any.required": "El nombre del platillo es obligatorio."
-      }),
-    estado: Joi.string()
-      .valid("pendiente", "preparando", "completado")
-      .default("pendiente")
-      .messages({
-        "any.only": "El estado debe ser 'pendiente', 'preparando' o 'completado'."
-      }),
-    cantidad: Joi.number()
-      .integer()
-      .positive()
-      .required()
-      .messages({
-        "number.base": "La cantidad debe ser un número.",
-        "number.integer": "La cantidad debe ser un número entero.",
-        "number.positive": "La cantidad debe ser un número positivo.",
-        "any.required": "La cantidad es obligatoria."
-      })
-  });
-  
+  // Validación para agregar un platillo a una Comanda existente
+export const addPlatilloToComandaValidation = Joi.object({
+  nombre_platillo: Joi.string()
+    .required()
+    .messages({
+      "string.base": "El nombre del platillo debe ser una cadena de texto.",
+      "any.required": "El nombre del platillo es obligatorio."
+    }),
+  estado: Joi.string()
+    .valid("pendiente", "preparado", "entregado")
+    .default("pendiente")
+    .messages({
+      "any.only": "El estado debe ser 'pendiente', 'preparado' o 'entregado'."
+    }),
+  cantidad: Joi.number()
+    .integer()
+    .positive()
+    .required()
+    .messages({
+      "number.base": "La cantidad debe ser un número.",
+      "number.integer": "La cantidad debe ser un número entero.",
+      "number.positive": "La cantidad debe ser un número positivo.",
+      "any.required": "La cantidad es obligatoria."
+    })
+});
+
 
 
   
