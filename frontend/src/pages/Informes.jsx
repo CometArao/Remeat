@@ -81,8 +81,6 @@ const Informes = () => {
 
     const handleSelectedItems = () => {
         const selected = SelectedItemsRef.current.getSelectedItems()
-        console.log("selected")
-        console.log(selected)
         setSelectedItems(selected);
         return selected;
     }
@@ -102,7 +100,6 @@ const Informes = () => {
         try {
             const ventasPlatillos = await getPlatillos();
             //No se envia un pop con la alerta porque queda feo
-            console.log(ventasPlatillos)
             let formatedPlatillos = [];
             for (let i = 0; i < ventasPlatillos.length; i++) {
                 const ventaPlatillo = ventasPlatillos[i];
@@ -112,7 +109,6 @@ const Informes = () => {
                 }
                 formatedPlatillos.push(formatedPlatillo);
             }
-            console.log(formatedPlatillos)
             setDatosDependientes(formatedPlatillos);
             setTipoGrafico({ tipoGrafico: "lineal", variable: "ingresos_ventas_platillo" })
             setDatosIndependientes(tiempo_lineal)
@@ -193,8 +189,6 @@ const Informes = () => {
                 }
                 formatedList.push(formatedUtensilio)
             }
-            console.log("formated List")
-            console.log(formatedList)
             setDatosDependientes(formatedList)
             setTipoGrafico({ tipoGrafico: "lineal", variable: "stock_utensilios" })
             setDatosIndependientes(tiempo_lineal)
@@ -231,7 +225,6 @@ const Informes = () => {
         try {
             const ventasPlatillos = await getPlatillos();
             //No se envia un pop con la alerta porque queda feo
-            console.log(ventasPlatillos)
             let formatedPlatillos = [];
             for (let i = 0; i < ventasPlatillos.length; i++) {
                 const ventaPlatillo = ventasPlatillos[i];
@@ -241,7 +234,6 @@ const Informes = () => {
                 }
                 formatedPlatillos.push(formatedPlatillo);
             }
-            console.log(formatedPlatillos)
             setDatosDependientes(formatedPlatillos);
             setTipoGrafico({ tipoGrafico: "lineal", variable: "ventas_platillo" })
             setDatosIndependientes(tiempo_lineal)
@@ -270,8 +262,6 @@ const Informes = () => {
                 }
                 formatedPlatillos.push(formatedPlatillo);
             }
-            console.log(formatedPlatillos)
-            setDatosDependientes(formatedPlatillos);
             setTipoGrafico({ tipoGrafico: "barra", variable: "ventas_platillos_barra" })
             setDatosIndependientes([{ id: 1, name: "No Aplica" }])
         } catch (error) {
@@ -358,15 +348,11 @@ const Informes = () => {
         }
         const selectedItems = handleSelectedItems();
         const selectedTime = handleSelectedTime();
-        console.log("selected items")
-        console.log(selectedItems)
         //comprobar elementos seleccionados
         if (!selectedItems || selectedItems[0].id == -1) {
             showErrorAlert('error, debe seleccionar en la checklist de items')
             return;
         }
-        console.log("tipo Grafico")
-        console.log(tipoGrafico)
         if ((!selectedTime || selectedTime.id == -1) && tipoGrafico.tipoGrafico != "barra") {
             showErrorAlert('error, debe seleccionar en la checklist de tiempo')
             return;
@@ -380,6 +366,8 @@ const Informes = () => {
         let formatedDependiente = null;
         let datos_barra = null
         let keys = null;
+        console.log("tipo grafico variable")
+        console.log(tipoGrafico.variable)
         switch (tipoGrafico.variable) {
             /*
             ###############################################
@@ -387,10 +375,9 @@ const Informes = () => {
             ###############################################
             */
             case "ventas_platillo":
+                console.log("ventas_platillo")
                 const ventas_platillo =
                     await getVentasPlatillo(ids);
-                console.log("selectedtime")
-                console.log(selectedTime)
                 const formateddata =
                     construirLinealPlatillosVentas(ventas_platillo, selectedTime.name)
                 datos = {
@@ -400,14 +387,11 @@ const Informes = () => {
                 }
                 break;
             case "ingresos_ventas_platillo":
+                console.log("ingresos_ventas_platillo")
                 const ingresos_ventas_platillo =
                     await getVentasPlatillo(ids);
-                console.log("selectedtime")
-                console.log(selectedTime)
                 formatedDependiente =
                     construirLinealPlatillosIngresos(ingresos_ventas_platillo, selectedTime.name);
-                console.log("formateddependiente")
-                console.log(formatedDependiente)
                 datos = {
                     independientes: selectedTime,
                     dependientes: formatedDependiente,
@@ -415,6 +399,7 @@ const Informes = () => {
                 }
                 break;
             case "costos":
+                console.log("costos")
                 const costos = await getCostos(ids) //ids separadas
                 //todo: construir costos
                 datos = {
@@ -424,12 +409,12 @@ const Informes = () => {
                 }
                 break;
             case "utilidades":
+                console.log("utilidades")
                 //const utilidades todo:
                 break;
             case "stock_utensilios":
+                console.log("stock_utensilios")
                 const stock_utensilio = await getStockUtensilio(ids)
-                console.log("stock")
-                console.log(stock_utensilio)
                 formatedDependiente =
                     construirLinealStockUtensilios(stock_utensilio, selectedTime.name)
                 datos = {
@@ -439,6 +424,7 @@ const Informes = () => {
                 }
                 break;
             case "stock_ingredientes":
+                console.log("stock_ingredientes")
                 const stock_ingredientes = await getStockIngrediente(ids)
                 formatedDependiente =
                     construirStockIngredientes(stock_ingredientes, selectedTime.name)
@@ -454,10 +440,9 @@ const Informes = () => {
             ###############################################
             */
             case "ventas_platillos_barra":
+                console.log("ventas_platillos_barra")
                 const ventas_platillo_barra =
                     await getVentasPlatillo(ids);
-                console.log("selectedtime")
-                console.log(selectedTime)
                 [datos_barra, keys] =
                     construirVentasPlatilloBarra(ventas_platillo_barra)
                 formatedDependiente = datos_barra
@@ -469,6 +454,7 @@ const Informes = () => {
                 }
                 break;
             case "menu_platillos_barra":
+                console.log("menu_platillos_barra")
                 const menu_platillos_barra =
                     await getPlatilloMenu(ids);
                 [datos_barra, keys] =
@@ -487,6 +473,7 @@ const Informes = () => {
             ###############################################
             */
             case "ventas_platillos_circular":
+                console.log("ventas_platillos_circular")
                 const ventas_platillos_circular =
                     await getVentasPlatillo(ids);
                 formatedDependiente  =
@@ -498,6 +485,7 @@ const Informes = () => {
                 }
                 break;
             case "menu_platillos_circular":
+                console.log("menu_platillos_circular")
                 const menu_platillos_circular =
                     await getPlatilloMenu(ids);
                 formatedDependiente =
@@ -512,11 +500,7 @@ const Informes = () => {
                 showErrorAlert('default error ¿?')
                 return
         }
-        console.log("antes de enviar")
-        console.log(datos)
-        console.log("dependientes")
-        console.log(datos.dependientes)
-        console.log(datos.dependientes.length)
+        console.log("fin de switch")
         const dependientes_keys = Object.keys(datos.dependientes)
         if (datos.length == 0 || dependientes_keys.length == 0 || !datos.dependientes) {
             showErrorAlert('error, parece que los platillos seleccionados no tienen suficiente informacion')
