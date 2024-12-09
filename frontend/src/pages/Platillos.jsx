@@ -1,4 +1,4 @@
-import { useAuth} from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import Search from '@components/Search';
 import useTipoIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
 import useGetPlatillos from '../hooks/platillos/useGetPlatillos';
@@ -90,11 +90,11 @@ const Platillos = () => {
                             onChange={handleNameFilterChange}
                             placeholder="Buscar por nombre"
                         />
-                          {user?.rol_usuario === 'cocinero' && (
+                        {user?.rol_usuario === 'cocinero' && (
                             <button className="create-button" onClick={handleClickCreate}>
                                 <img src={CreateIcon} alt="Crear" />
                             </button>
-                             )}
+                        )}
 
                         <button onClick={handleClickUpdate} disabled={dataPlatillo.length === 0}>
                             {dataPlatillo.length === 0 ? (
@@ -118,9 +118,9 @@ const Platillos = () => {
                 </div>
 
                 {filteredPlatillos.length > 0 ? (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: '20px' }}>
-                        {filteredPlatillos.map(p => {
-                            const isSelected = dataPlatillo.some(item => item.id_platillo === p.id_platillo);
+                    <div className="container">
+                        {filteredPlatillos.map((p) => {
+                            const isSelected = dataPlatillo.some((item) => item.id_platillo === p.id_platillo);
                             return (
                                 <PlatilloCard
                                     key={p.id_platillo}
@@ -140,6 +140,7 @@ const Platillos = () => {
                         </p>
                     </div>
                 )}
+
             </div>
 
             <PopupPlatillo

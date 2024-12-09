@@ -2,20 +2,20 @@
 import Joi from "joi";
 
 const dateValidator = (value, helper) => {
-  const fechaActual = new Date();
-  const fechaIngresada = new Date(value);
+  const fechaActual = new Date(); // Fecha actual del servidor (en UTC)
+  const fechaIngresada = new Date(value); // Fecha ingresada por el usuario
 
-  // Ajustar la fecha actual restando 3 horas (diferencia horaria del servidor)
-  fechaActual.setHours(fechaActual.getHours() - 3);
-  fechaActual.setHours(0, 0, 0, 0); // Ajuste para considerar solo la fecha
-  fechaIngresada.setHours(0, 0, 0, 0);
+  // Establecer horas, minutos, segundos y milisegundos a 00:00:00
+  fechaActual.setUTCHours(0, 0, 0, 0);
+  fechaIngresada.setUTCHours(0, 0, 0, 0);
 
+  // Comparar las fechas
   if (fechaIngresada < fechaActual) {
-    return helper.message("La fecha debe ser posterior o igual a la fecha actual.");
+      return helper.message("La fecha debe ser posterior o igual a la fecha actual.");
   }
+  
   return value;
 };
-
 
 // Validación para el cuerpo de las solicitudes de menú 
 export const menuBodyValidation = Joi.object({
@@ -26,7 +26,9 @@ export const menuBodyValidation = Joi.object({
       "date.base": "La fecha debe ser una fecha válida.",
       "date.iso": "La fecha debe estar en formato ISO 8601.",
     }),
-  disponibilidad: Joi.boolean().messages({
+  disponibilidad: Joi.boolean()
+  .optional()
+  .messages({
     "boolean.base": "El campo 'disponibilidad' debe ser un valor booleano.",
   }),
   id_usuario: Joi.number()
