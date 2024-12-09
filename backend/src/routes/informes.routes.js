@@ -7,7 +7,7 @@ const router = Router();
 
 router
     .use(authenticateJwt)  // Aplicar autenticación a todas las rutas
-    .get("/get_stock_ingrediente", getStockIngrediente)
+    .post("/get_stock_ingrediente", getStockIngrediente)
     /*grafico de linea
     recibe un json(body) una lista de todos los ingredientes que
     se nesesitan

@@ -51,9 +51,9 @@ const crearMermas = () => {
         console.log(selectedIngredientes)
         console.log("selectedUtensilios")
         console.log(selectedUtensilios)
-        if(!selectedIngredientes || selectedIngredientes.length === 0 
+        if((!selectedIngredientes || selectedIngredientes.length === 0) 
             && 
-            !selectedUtensilios || selectedUtensilios.length === 0
+            (!selectedUtensilios || selectedUtensilios.length === 0)
         ) {
             console.log("Error") //TODO: Revisar error
             console.log(selectedIngredientes)
@@ -74,7 +74,7 @@ const crearMermas = () => {
         for(let i = 0; i < selectedIngredientes.length; i++) {
             const ingrediente = selectedIngredientes[i];
             const formatedIngrediente = {
-                id_utensilio: ingrediente.id_utensilio,
+                id_ingrediente: ingrediente.id_ingrediente,
                 cantidad_perdida: ingrediente.cantidad_perdida
             }
             ingredientesEnviar.push(formatedIngrediente)

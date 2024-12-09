@@ -14,7 +14,12 @@ import {
 } from '@services/informes.service.js'
 import { getIngredientes } from '../services/ingredientes.service';
 import { getTiposUtensilio } from '../services/utensilio.service';
-import { construirLinealPlatillosIngresos, construirLinealPlatillosVentas } from '../services/construirGrafico.service'
+import {
+    construirLinealPlatillosIngresos, construirLinealPlatillosVentas,
+    construirLinealStockUtensilios, construirStockIngredientes,
+    construirVentasPlatilloBarra, construirPlatillosMenuBarra,
+    construirVentasPlatilloCircular, construirPlatillosMenuCircular
+} from '../services/construirGrafico.service'
 
 /**
  * Esta pagina para seleccionar el grafico y las variables a usar
@@ -76,8 +81,6 @@ const Informes = () => {
 
     const handleSelectedItems = () => {
         const selected = SelectedItemsRef.current.getSelectedItems()
-        console.log("selected")
-        console.log(selected)
         setSelectedItems(selected);
         return selected;
     }
@@ -97,7 +100,6 @@ const Informes = () => {
         try {
             const ventasPlatillos = await getPlatillos();
             //No se envia un pop con la alerta porque queda feo
-            console.log(ventasPlatillos)
             let formatedPlatillos = [];
             for (let i = 0; i < ventasPlatillos.length; i++) {
                 const ventaPlatillo = ventasPlatillos[i];
@@ -107,7 +109,6 @@ const Informes = () => {
                 }
                 formatedPlatillos.push(formatedPlatillo);
             }
-            console.log(formatedPlatillos)
             setDatosDependientes(formatedPlatillos);
             setTipoGrafico({ tipoGrafico: "lineal", variable: "ingresos_ventas_platillo" })
             setDatosIndependientes(tiempo_lineal)
@@ -188,8 +189,6 @@ const Informes = () => {
                 }
                 formatedList.push(formatedUtensilio)
             }
-            console.log("formated List")
-            console.log(formatedList)
             setDatosDependientes(formatedList)
             setTipoGrafico({ tipoGrafico: "lineal", variable: "stock_utensilios" })
             setDatosIndependientes(tiempo_lineal)
@@ -226,7 +225,6 @@ const Informes = () => {
         try {
             const ventasPlatillos = await getPlatillos();
             //No se envia un pop con la alerta porque queda feo
-            console.log(ventasPlatillos)
             let formatedPlatillos = [];
             for (let i = 0; i < ventasPlatillos.length; i++) {
                 const ventaPlatillo = ventasPlatillos[i];
@@ -236,7 +234,6 @@ const Informes = () => {
                 }
                 formatedPlatillos.push(formatedPlatillo);
             }
-            console.log(formatedPlatillos)
             setDatosDependientes(formatedPlatillos);
             setTipoGrafico({ tipoGrafico: "lineal", variable: "ventas_platillo" })
             setDatosIndependientes(tiempo_lineal)
@@ -265,9 +262,7 @@ const Informes = () => {
                 }
                 formatedPlatillos.push(formatedPlatillo);
             }
-            console.log(formatedPlatillos)
-            setDatosDependientes(formatedPlatillos);
-            setTipoGrafico({ tipoGrafico: "barra", variable: "ventas_platillo" })
+            setTipoGrafico({ tipoGrafico: "barra", variable: "ventas_platillos_barra" })
             setDatosIndependientes([{ id: 1, name: "No Aplica" }])
         } catch (error) {
             console.log(error);
@@ -288,7 +283,7 @@ const Informes = () => {
                 formatedList.push(formatedData)
             }
             setDatosDependientes(formatedList)
-            setTipoGrafico({ tipoGrafico: "barra", variable: "platillo_menu" })
+            setTipoGrafico({ tipoGrafico: "barra", variable: "menu_platillos_barra" })
             setDatosIndependientes([{ id: 1, name: "No aplica" }])
         } catch (error) {
             console.log(error);
@@ -305,94 +300,98 @@ const Informes = () => {
     */
     const handleClickVentasPlatilloCircular = async () => {
         try {
-            const ventasPlatillos = await getPlatillos();
-            let formatedPlatillos = [];
-            for (let i = 0; i < ventasPlatillos.length; i++) {
-                const ventaPlatillo = ventasPlatillos[i];
-                const formatedPlatillo = {
-                    id: ventaPlatillo.id_platillo,
-                    name: ventaPlatillo.nombre_platillo
+            const ventasplatillos = await getPlatillos();
+            let formatedplatillos = [];
+            for (let i = 0; i < ventasplatillos.length; i++) {
+                const ventaplatillo = ventasplatillos[i];
+                const formatedplatillo = {
+                    id: ventaplatillo.id_platillo,
+                    name: ventaplatillo.nombre_platillo
                 }
-                formatedPlatillos.push(formatedPlatillo);
+                formatedplatillos.push(formatedplatillo);
             }
-            console.log(formatedPlatillos)
-            setDatosDependientes(formatedPlatillos);
-            setTipoGrafico({ tipoGrafico: "circular", variable: "ventas_platillo" })
+            console.log(formatedplatillos)
+            setDatosDependientes(formatedplatillos);
+            setTipoGrafico({ tipoGrafico: "circular", variable: "ventas_platillos_circular" })
             setDatosIndependientes(tiempo_circular)
         } catch (error) {
             console.log(error);
-            console.error('Error al buscar los platos:', error)
-            showErrorAlert("Error, No se pudieron encontrar los platos")
+            console.error('error al buscar los platos:', error)
+            showErrorAlert("error, no se pudieron encontrar los platos")
         }
     }
     const handlePlatilloMenuCircular = async () => {
         try {
-            const Platillos = await getPlatillos();
-            let formatedList = [];
-            for (let i = 0; i < Platillos.length; i++) {
-                const platillo = Platillos[i];
-                const formatedData = {
+            const platillos = await getPlatillos();
+            let formatedlist = [];
+            for (let i = 0; i < platillos.length; i++) {
+                const platillo = platillos[i];
+                const formateddata = {
                     id: platillo.id_platillo,
                     name: platillo.nombre_platillo
                 }
-                formatedList.push(formatedData)
+                formatedlist.push(formateddata)
             }
-            setDatosDependientes(formatedList)
-            setTipoGrafico({ tipoGrafico: "barra", variable: "platillo_menu"})
-            setDatosIndependientes([{ id: 1, name: "No aplica" }])
-        }catch(error) {
+            setDatosDependientes(formatedlist)
+            setTipoGrafico({ tipoGrafico: "barra", variable: "menu_platillos_circular" })
+            setDatosIndependientes(tiempo_circular)
+        } catch (error) {
             console.log(error)
-            console.error("Error al buscar los platos", error)
-            showErrorAlert("Error, no se pudieron encontrar los platos")
+            console.error("error al buscar los platos", error)
+            showErrorAlert("error, no se pudieron encontrar los platos")
         }
     }
     const handleNavigation = async () => {
         if (!tipoGrafico) {
-            showErrorAlert('Error, Debe seleccionar un tipo de grafico');
+            showErrorAlert('error, debe seleccionar un tipo de grafico');
             return;
         }
         const selectedItems = handleSelectedItems();
         const selectedTime = handleSelectedTime();
-        console.log("selected items")
-        console.log(selectedItems)
-        //Comprobar elementos seleccionados
+        //comprobar elementos seleccionados
         if (!selectedItems || selectedItems[0].id == -1) {
-            showErrorAlert('Error, Debe seleccionar en la checklist de items')
+            showErrorAlert('error, debe seleccionar en la checklist de items')
             return;
         }
         if ((!selectedTime || selectedTime.id == -1) && tipoGrafico.tipoGrafico != "barra") {
-            showErrorAlert('Error, Debe seleccionar en la checklist de tiempo')
+            showErrorAlert('error, debe seleccionar en la checklist de tiempo')
             return;
         }
         let ids = []
         for (let i = 0; i < selectedItems.length; i++) {
             ids.push(selectedItems[i].id)
         }
-        //llamar dependiendo del tipo de grafico TODO:
+        //llamar dependiendo del tipo de grafico todo:
         let datos = null;
-        switch(tipoGrafico.variable) {
+        let formatedDependiente = null;
+        let datos_barra = null
+        let keys = null;
+        console.log("tipo grafico variable")
+        console.log(tipoGrafico.variable)
+        switch (tipoGrafico.variable) {
+            /*
+            ###############################################
+                Graficos Lineales
+            ###############################################
+            */
             case "ventas_platillo":
+                console.log("ventas_platillo")
                 const ventas_platillo =
                     await getVentasPlatillo(ids);
-                console.log("selectedTime")
-                console.log(selectedTime)
-                const formatedData =
-                construirLinealPlatillosVentas(ventas_platillo, selectedTime.name)
+                const formateddata =
+                    construirLinealPlatillosVentas(ventas_platillo, selectedTime.name)
                 datos = {
                     independientes: selectedTime,
-                    dependientes: formatedData,
+                    dependientes: formateddata,
                     tipo: tipoGrafico
                 }
                 break;
             case "ingresos_ventas_platillo":
+                console.log("ingresos_ventas_platillo")
                 const ingresos_ventas_platillo =
                     await getVentasPlatillo(ids);
-                console.log("selectedTime")
-                console.log(selectedTime)
-                const formatedDependiente = 
-                construirLinealPlatillosIngresos(ingresos_ventas_platillo, selectedTime.name);
-                console.log("formatedDependiente")
-                console.log(formatedDependiente)
+                formatedDependiente =
+                    construirLinealPlatillosIngresos(ingresos_ventas_platillo, selectedTime.name);
                 datos = {
                     independientes: selectedTime,
                     dependientes: formatedDependiente,
@@ -400,7 +399,9 @@ const Informes = () => {
                 }
                 break;
             case "costos":
+                console.log("costos")
                 const costos = await getCostos(ids) //ids separadas
+                //todo: construir costos
                 datos = {
                     independientes: selectedTime,
                     dependientes: costos,
@@ -408,36 +409,102 @@ const Informes = () => {
                 }
                 break;
             case "utilidades":
-                //const utilidades TODO:
+                console.log("utilidades")
+                //const utilidades todo:
                 break;
-            case "stock_utensilio":
+            case "stock_utensilios":
+                console.log("stock_utensilios")
                 const stock_utensilio = await getStockUtensilio(ids)
+                formatedDependiente =
+                    construirLinealStockUtensilios(stock_utensilio, selectedTime.name)
                 datos = {
                     independientes: selectedTime,
-                    dependientes: stock_utensilio,
+                    dependientes: formatedDependiente,
                     tipo: tipoGrafico
                 }
                 break;
             case "stock_ingredientes":
+                console.log("stock_ingredientes")
                 const stock_ingredientes = await getStockIngrediente(ids)
+                formatedDependiente =
+                    construirStockIngredientes(stock_ingredientes, selectedTime.name)
                 datos = {
                     independientes: selectedTime,
-                    dependientes: stock_ingredientes,
+                    dependientes: formatedDependiente,
                     tipo: tipoGrafico
-                }//TODO: Los graficos de barra y circular
+                }
+                break;
+            /*
+            ###############################################
+                graficos en barra
+            ###############################################
+            */
+            case "ventas_platillos_barra":
+                console.log("ventas_platillos_barra")
+                const ventas_platillo_barra =
+                    await getVentasPlatillo(ids);
+                [datos_barra, keys] =
+                    construirVentasPlatilloBarra(ventas_platillo_barra)
+                formatedDependiente = datos_barra
+                datos = {
+                    independientes: selectedTime,
+                    dependientes: formatedDependiente,
+                    tipo: tipoGrafico,
+                    keys: keys
+                }
+                break;
+            case "menu_platillos_barra":
+                console.log("menu_platillos_barra")
+                const menu_platillos_barra =
+                    await getPlatilloMenu(ids);
+                [datos_barra, keys] =
+                    construirPlatillosMenuBarra(menu_platillos_barra)
+                formatedDependiente = datos_barra;
+                datos = {
+                    independientes: selectedTime,
+                    dependientes: formatedDependiente,
+                    tipo: tipoGrafico,
+                    keys: keys
+                }
+                break;
+            /*
+            ###############################################
+                graficos circulares
+            ###############################################
+            */
+            case "ventas_platillos_circular":
+                console.log("ventas_platillos_circular")
+                const ventas_platillos_circular =
+                    await getVentasPlatillo(ids);
+                [formatedDependiente, keys]  =
+                    construirVentasPlatilloCircular(ventas_platillos_circular)
+                datos = {
+                    independientes: selectedTime,
+                    dependientes: formatedDependiente,
+                    tipo: tipoGrafico,
+                    keys: keys
+                }
+                break;
+            case "menu_platillos_circular":
+                console.log("menu_platillos_circular")
+                const menu_platillos_circular =
+                    await getPlatilloMenu(ids);
+                formatedDependiente =
+                    construirPlatillosMenuCircular(menu_platillos_circular)
+                datos = {
+                    independientes: selectedTime,
+                    dependientes: formatedDependiente,
+                    tipo: tipoGrafico
+                }
                 break;
             default:
                 showErrorAlert('default error ¿?')
                 return
         }
-        console.log("antes de enviar")
-        console.log(datos)
-        console.log("dependientes")
-        console.log(datos.dependientes)
-        console.log(datos.dependientes.length)
+        console.log("fin de switch")
         const dependientes_keys = Object.keys(datos.dependientes)
         if (datos.length == 0 || dependientes_keys.length == 0 || !datos.dependientes) {
-            showErrorAlert('Error, parece que los platillos seleccionados no tienen suficiente informacion')
+            showErrorAlert('error, parece que los platillos seleccionados no tienen suficiente informacion')
             return
         }
         navigate('/grafico', { state: datos });
@@ -491,5 +558,4 @@ const Informes = () => {
         </div>
     );
 };
-
 export default Informes;
