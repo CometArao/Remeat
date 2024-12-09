@@ -1,21 +1,33 @@
 "use strict";
 import Joi from "joi";
+import { HOST } from "../config/configEnv.js";
 
 const dateValidator = (value, helper) => {
   const fechaActual = new Date();
   const fechaIngresada = new Date(value);
 
-  // Ajustar la fecha actual restando 3 horas (diferencia horaria del servidor)
-  fechaActual.setHours(fechaActual.getHours() - 3);
-  fechaActual.setHours(0, 0, 0, 0); // Ajuste para considerar solo la fecha
-  fechaIngresada.setHours(0, 0, 0, 0);
+  console.log("Fecha actual ORIGINAL: ", fechaActual);
+  console.log("Fecha ingresada ORIGINAL: ", fechaIngresada);
+  // Si el host no es localhost, ajustar la fecha actual
+  // De lo contrario, la fecha actual ya está ajustada
+    
 
+  fechaActual.setHours(fechaActual.getHours() - 3); // Obtengo hora actual chilena
+  console.log("Fecha actual ACTUALIZADA: ", fechaActual);
+  console.log("Fecha ingresadaACTUALIZADA: ", fechaIngresada);
+  // Ajustar la fecha actual restando 3 horas (diferencia horaria del servidor)
+  fechaActual.setHours(-3, 0, 0, 0); // Ajuste para considerar solo la fecha
+  //fechaIngresada.setHours(0, 0, 0, 0);
+
+  console.log("Fecha actual FORMAT: ", fechaActual);
+  console.log("Fecha ingresada FORMAT: ", fechaIngresada);
+
+  
   if (fechaIngresada < fechaActual) {
-    return helper.message("La fecha debe ser posterior o igual a la fecha actual.");
+    return helper.message("La fecha debe ser posterior o igual a la fecha actualasdsadsa");
   }
   return value;
 };
-
 
 // Validación para el cuerpo de las solicitudes de menú 
 export const menuBodyValidation = Joi.object({
@@ -26,7 +38,9 @@ export const menuBodyValidation = Joi.object({
       "date.base": "La fecha debe ser una fecha válida.",
       "date.iso": "La fecha debe estar en formato ISO 8601.",
     }),
-  disponibilidad: Joi.boolean().messages({
+  disponibilidad: Joi.boolean()
+  .optional()
+  .messages({
     "boolean.base": "El campo 'disponibilidad' debe ser un valor booleano.",
   }),
   id_usuario: Joi.number()

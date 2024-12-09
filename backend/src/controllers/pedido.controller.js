@@ -26,7 +26,12 @@ export async function createPedido(req, res) {
             return handleErrorClient(res, 400, error.details[0].message);
         }
 
-        const { ingredientes, utensilios } = req.body;
+        const { ingredientes = [], utensilios = [] } = req.body; // Valores predeterminados como arrays vacíos
+
+        // Verificar que al menos haya un ingrediente o utensilio
+        if (ingredientes.length === 0 && utensilios.length === 0) {
+            return handleErrorClient(res, 400, "El pedido debe incluir al menos un ingrediente o un utensilio.");
+        }
 
         // Verificar que los ingredientes y utensilios existan
         const [validationError] = await validateIngredientesYUtensilios(ingredientes, utensilios);
@@ -54,9 +59,23 @@ export async function createPedido(req, res) {
                     fecha_entrega_pedido: newPedido.fecha_entrega_pedido,
                     nombre_usuario: await obtenerNombreUsuario(newPedido.id_usuario),
                     costo_pedido: newPedido.costo_pedido,
-                    ingredientes: newPedido.ingredientes || [],
-                    utensilios: newPedido.utensilios || [],
-                    nombre_proveedor: proveedor.nombre_proveedor // Aquí agregamos el nombre del proveedor
+                    ingredientes: ingredientes.length > 0
+                        ? newPedido.ingredientes.map(ing => ({
+                              id_ingrediente: ing.id_ingrediente,
+                              nombre_tipo_ingrediente: ing.tipo_ingrediente?.nombre_tipo_ingrediente || "Sin tipo",
+                              cantidad_ingrediente: ing.cantidad_ingrediente,
+                              costo_ingrediente: ing.costo_ingrediente
+                          }))
+                        : [],
+                    utensilios: utensilios.length > 0
+                        ? newPedido.utensilios.map(ut => ({
+                              id_utensilio: ut.id_utensilio,
+                              nombre_tipo_utensilio: ut.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo",
+                              cantidad_utensilio: ut.cantidad_utensilio,
+                              costo_utensilio: ut.costo_utensilio
+                          }))
+                        : [],
+                    nombre_proveedor: proveedor.nombre_proveedor
                 }
             );
         }
@@ -67,6 +86,7 @@ export async function createPedido(req, res) {
         handleErrorServer(res, 500, error.message);
     }
 }
+
 
 // Función auxiliar para obtener el proveedor completo
 async function obtenerProveedor(id_proveedor) {

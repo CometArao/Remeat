@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useUpdateComanda from '../../hooks/Comandas/useUpdateComanda';
+import useUpdateComanda from '../../hooks/comandas/useUpdateComanda';
 
 const EditComandaForm = ({ comanda, onEditComplete }) => {
   const [fechaCompra, setFechaCompra] = useState(comanda.fecha_compra_comanda);

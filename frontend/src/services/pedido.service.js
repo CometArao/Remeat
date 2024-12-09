@@ -1,45 +1,47 @@
 import axios from './root.service.js';
 
-// Obtener todos los pedidos
 export async function getPedidos() {
     try {
-        const response = await axios.get('/pedidos');
-        return response.data;
+        const { data } = await axios.get('/pedidos/');
+        return data.data;
     } catch (error) {
-        console.error("Error al obtener los pedidos:", error);
-        throw error.response?.data || error.message;
+        console.error('Error fetching pedidos:', error);
+        return error.response?.data || [];
     }
 }
 
-// Crear un nuevo pedido
-export async function createPedido(data) {
+export async function createPedido(pedido) {
     try {
-        const response = await axios.post('/pedidos', data);
-        return response.data;
+        const { data } = await axios.post('/pedidos/', pedido);
+        return data.data;
     } catch (error) {
-        console.error("Error al crear el pedido:", error);
-        throw error.response?.data || error.message;
+        console.error('Error creando pedido:', error);
+        console.error('Respuesta del servidor:', error.response?.data); // Agrega este log
+        throw error; // Lanza el error para que pueda ser capturado en handleCreate
     }
 }
 
-// Actualizar un pedido
-export async function updatePedido(id_pedido, data) {
+
+export async function updatePedido(pedido, id) {
     try {
-        const response = await axios.put(`/pedidos/${id_pedido}`, data);
-        return response.data;
+        const { data } = await axios.put(`/pedidos/${id}`, pedido);
+        return data.data;
     } catch (error) {
-        console.error("Error al actualizar el pedido:", error);
-        throw error.response?.data || error.message;
+        console.error('Error updating pedido:', error);
+        return error.response?.data;
     }
 }
 
-// Eliminar un pedido
-export async function deletePedido(id_pedido) {
+export async function deletePedido(id) {
     try {
-        const response = await axios.delete(`/pedidos/${id_pedido}`);
-        return response.data;
+        if (!id) throw new Error('ID no válido para eliminar el pedido.');
+
+        const { data } = await axios.delete(`/pedidos/${id}`, {
+            headers: { 'Cache-Control': 'no-cache' },
+        });
+        return data;
     } catch (error) {
-        console.error("Error al eliminar el pedido:", error);
-        throw error.response?.data || error.message;
+        console.error('Error deleting pedido:', error);
+        return error.response?.data || { status: 'Client error', details: error.message };
     }
 }

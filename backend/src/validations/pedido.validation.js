@@ -25,32 +25,31 @@ export const pedidoValidation = Joi.object({
         .required()
         .messages({
             "date.base": "La fecha de compra debe ser una fecha válida.",
-            "any.required": "La fecha de compra es obligatoria."
+            "any.required": "La fecha de compra es obligatoria.",
         }),
     fecha_entrega_pedido: Joi.date()
-        .greater(Joi.ref("fecha_compra_pedido")) // Asegura que la fecha de entrega sea posterior a la fecha de compra
+        .min(Joi.ref("fecha_compra_pedido")) // Permitir mismo día o anterior
         .required()
         .messages({
             "date.base": "La fecha de entrega debe ser una fecha válida.",
             "any.required": "La fecha de entrega es obligatoria.",
-            "date.greater": "La fecha de entrega debe ser posterior a la fecha de compra."
+            "date.min": "La fecha de entrega no puede ser anterior a la fecha de compra.",
         }),
     estado_pedido: Joi.string()
-        .valid("pendiente", "enviado", "recibido")
+        .valid("Pendiente", "Ingresado", "Cancelado")
         .messages({
             "string.base": "El estado del pedido debe ser de tipo string.",
             "any.only": "El estado del pedido debe ser uno de: pendiente, enviado, recibido.",
-            "any.required": "El estado del pedido es obligatorio."
+            "any.required": "El estado del pedido es obligatorio.",
         }),
     costo_pedido: Joi.number()
         .integer()
         .positive()
-        .required()
         .messages({
             "number.base": "El costo debe ser un número.",
             "number.integer": "El costo debe ser un número entero.",
             "number.positive": "El costo debe ser un número positivo.",
-            "any.required": "El costo del pedido es obligatorio."
+            "any.required": "El costo del pedido es obligatorio.",
         }),
     id_usuario: Joi.number()
         .integer()
@@ -60,9 +59,9 @@ export const pedidoValidation = Joi.object({
             "number.base": "El id de usuario debe ser un número.",
             "number.integer": "El id de usuario debe ser un número entero.",
             "number.positive": "El id de usuario debe ser un número positivo.",
-            "any.required": "El id de usuario es obligatorio."
+            "any.required": "El id de usuario es obligatorio.",
         }),
-    id_proveedor: Joi.number() // Agregar validación para el ID del proveedor
+    id_proveedor: Joi.number() // Validación para el ID del proveedor
         .integer()
         .positive()
         .required() // Este campo es obligatorio
@@ -70,20 +69,64 @@ export const pedidoValidation = Joi.object({
             "number.base": "El id del proveedor debe ser un número.",
             "number.integer": "El id del proveedor debe ser un número entero.",
             "number.positive": "El id del proveedor debe ser un número positivo.",
-            "any.required": "El id del proveedor es obligatorio."
+            "any.required": "El id del proveedor es obligatorio.",
         }),
-    ingredientes: Joi.array() // Validación para ingredientes
-        .items(Joi.number().integer().positive())
-        .optional() // Este campo es opcional
+    ingredientes: Joi.array() // Validación para ingredientes con cantidades
+        .items(
+            Joi.object({
+                id_ingrediente: Joi.number()
+                    .integer()
+                    .positive()
+                    .required()
+                    .messages({
+                        "number.base": "El id del ingrediente debe ser un número.",
+                        "number.integer": "El id del ingrediente debe ser un número entero.",
+                        "number.positive": "El id del ingrediente debe ser un número positivo.",
+                        "any.required": "El id del ingrediente es obligatorio.",
+                    }),
+                cantidad: Joi.number()
+                    .integer()
+                    .positive()
+                    .required()
+                    .messages({
+                        "number.base": "La cantidad del ingrediente debe ser un número.",
+                        "number.integer": "La cantidad del ingrediente debe ser un número entero.",
+                        "number.positive": "La cantidad del ingrediente debe ser un número positivo.",
+                        "any.required": "La cantidad del ingrediente es obligatoria.",
+                    }),
+            })
+        )
+        .optional()
         .messages({
-            "array.base": "Los ingredientes deben ser un arreglo.",
-            "array.includesRequiredUnknowns": "Algunos ingredientes no son válidos."
+            "array.base": "Los ingredientes deben ser un arreglo de objetos.",
         }),
-    utensilios: Joi.array() // Validación para utensilios
-        .items(Joi.number().integer().positive())
-        .optional() // Este campo es opcional
+    utensilios: Joi.array() // Validación para utensilios con cantidades
+        .items(
+            Joi.object({
+                id_utensilio: Joi.number()
+                    .integer()
+                    .positive()
+                    .required()
+                    .messages({
+                        "number.base": "El id del utensilio debe ser un número.",
+                        "number.integer": "El id del utensilio debe ser un número entero.",
+                        "number.positive": "El id del utensilio debe ser un número positivo.",
+                        "any.required": "El id del utensilio es obligatorio.",
+                    }),
+                cantidad: Joi.number()
+                    .integer()
+                    .positive()
+                    .required()
+                    .messages({
+                        "number.base": "La cantidad del utensilio debe ser un número.",
+                        "number.integer": "La cantidad del utensilio debe ser un número entero.",
+                        "number.positive": "La cantidad del utensilio debe ser un número positivo.",
+                        "any.required": "La cantidad del utensilio es obligatoria.",
+                    }),
+            })
+        )
+        .optional()
         .messages({
-            "array.base": "Los utensilios deben ser un arreglo.",
-            "array.includesRequiredUnknowns": "Algunos utensilios no son válidos."
+            "array.base": "Los utensilios deben ser un arreglo de objetos.",
         }),
 });

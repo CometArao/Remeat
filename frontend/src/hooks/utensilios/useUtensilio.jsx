@@ -11,6 +11,7 @@ const useGetUtensilios = () => {
             let formattedData = response.map(utensilio => ({
                 id_utensilio: utensilio.id_utensilio,
                 cantidad_utensilio: utensilio.cantidad_utensilio,
+                costo_utensilio: utensilio.costo_utensilio,
                 pedido: utensilio.pedido,
                 tipo_utensilio: utensilio.tipo_utensilio
             }));

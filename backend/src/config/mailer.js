@@ -10,6 +10,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+// Función para enviar el correo electrónico
 export const sendEmail = async (to, subject, pedido) => {
     const mailOptions = {
         from: `"Equipo de Remeat" <${process.env.MAIL_USERNAME}>`,
@@ -26,6 +27,12 @@ export const sendEmail = async (to, subject, pedido) => {
         throw new Error("Error al enviar el correo");
     }
 };
+
+// Función para formatear fechas al formato "DD-MM-YYYY"
+function formatFecha(fecha) {
+    const [year, month, day] = fecha.split("-");
+    return `${day}-${month}-${year}`;
+}
 
 // Función para generar la plantilla de correo electrónico
 function generarPlantillaCorreo(pedido) {
@@ -47,11 +54,11 @@ function generarPlantillaCorreo(pedido) {
                 </tr>
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;"><strong>Fecha de Compra:</strong></td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${pedido.fecha_compra_pedido}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${formatFecha(pedido.fecha_compra_pedido)}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;"><strong>Fecha de Entrega:</strong></td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${pedido.fecha_entrega_pedido}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${formatFecha(pedido.fecha_entrega_pedido)}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;"><strong>Nombre del Cliente:</strong></td>
@@ -87,7 +94,7 @@ function generarTablaIngredientes(ingredientes) {
                     <th style="padding: 8px; border: 1px solid #ddd;">ID</th>
                     <th style="padding: 8px; border: 1px solid #ddd;">Nombre</th>
                     <th style="padding: 8px; border: 1px solid #ddd;">Cantidad</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Costo</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Costo unitario</th>
                 </tr>
             </thead>
             <tbody>
@@ -95,7 +102,7 @@ function generarTablaIngredientes(ingredientes) {
                     <tr>
                         <td style="padding: 8px; border: 1px solid #ddd;">${ing.id_ingrediente}</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">${ing.nombre_tipo_ingrediente}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${ing.cantidad_ingrediente}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${ing.cantidad_ingrediente || 0}</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">$${ing.costo_ingrediente}</td>
                     </tr>
                 `).join("")}
@@ -113,7 +120,7 @@ function generarTablaUtensilios(utensilios) {
                     <th style="padding: 8px; border: 1px solid #ddd;">ID</th>
                     <th style="padding: 8px; border: 1px solid #ddd;">Nombre</th>
                     <th style="padding: 8px; border: 1px solid #ddd;">Cantidad</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Costo</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Costo unitario</th>
                 </tr>
             </thead>
             <tbody>
@@ -121,7 +128,7 @@ function generarTablaUtensilios(utensilios) {
                     <tr>
                         <td style="padding: 8px; border: 1px solid #ddd;">${ut.id_utensilio}</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">${ut.nombre_tipo_utensilio}</td>
-                        <td style="padding: 8px; border: 1px solid #ddd;">${ut.cantidad_utensilio}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${ut.cantidad_utensilio || 0}</td>
                         <td style="padding: 8px; border: 1px solid #ddd;">$${ut.costo_utensilio}</td>
                     </tr>
                 `).join("")}

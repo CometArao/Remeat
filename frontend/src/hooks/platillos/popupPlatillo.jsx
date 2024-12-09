@@ -56,7 +56,7 @@ export default function PopupPlatillo({
   const handleSubmit = (formData) => {
     const ingredientes = formData.ingredientes.map((ing) => ({
         id_tipo_ingrediente: ing.value,
-        porcion_ingrediente_platillo: ing.porcion || 100, // Porción predeterminada si no se especifica
+        porcion_ingrediente_platillo: ing.porcion || 1, // Porción predeterminada si no se especifica
     }));
     const payload = {
         nombre_platillo: formData.nombre_platillo,
