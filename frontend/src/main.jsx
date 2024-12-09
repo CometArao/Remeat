@@ -26,6 +26,7 @@ import UnidadesMedida from '@pages/UnidadMedida';
 import Platillos from '@pages/Platillos';
 import Menu from './pages/Menu.jsx';
 import CrearPedido from './pages/CrearPedido';
+import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
 
 const data_lineal2 = [
   {
@@ -482,6 +483,11 @@ const data_circular = [
 
 
 const router = createBrowserRouter([ 
+  {
+    path: '/menu-dia',
+    element: <ListadoDiarioMenuQrPage />, 
+},
+
   {
     path: '/',
     element: <Root />,
