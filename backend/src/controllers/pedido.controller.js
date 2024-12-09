@@ -1,5 +1,6 @@
 "use strict";
 import {
+    changePedidoToIngresadoService,
     createPedidoService,
     deletePedidoService,
     getAllPedidosService,
@@ -10,10 +11,7 @@ import {
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import { pedidoValidation } from "../validations/pedido.validation.js";
 import { sendEmail } from "../config/mailer.js";
-import {
-    getProveedorByIdService,
-} from "../services/proveedor.service.js"; // Asegúrate de tener este servicio
-
+import { getProveedorByIdService } from "../services/proveedor.service.js"; // Asegúrate de tener este servicio
 // Asegúrate de importar AppDataSource, Proveedor y Usuario
 import { AppDataSource } from "../config/configDb.js";
 import Proveedor from "../entity/proveedor.entity.js";
@@ -26,7 +24,7 @@ export async function createPedido(req, res) {
             return handleErrorClient(res, 400, error.details[0].message);
         }
 
-        const { ingredientes = [], utensilios = [] } = req.body; // Valores predeterminados como arrays vacíos
+        const { ingredientes = [], utensilios = [] } = req.body;
 
         // Verificar que al menos haya un ingrediente o utensilio
         if (ingredientes.length === 0 && utensilios.length === 0) {
@@ -39,7 +37,9 @@ export async function createPedido(req, res) {
             return handleErrorClient(res, 400, validationError);
         }
 
-        const [newPedido, serviceError] = await createPedidoService(req.body);
+        // Llamar al servicio para crear el pedido
+        const [newPedido, processedIngredientes, processedUtensilios, serviceError] = 
+        await createPedidoService(req.body);
         if (serviceError) {
             return handleErrorClient(res, 400, serviceError);
         }
@@ -47,37 +47,13 @@ export async function createPedido(req, res) {
         // Obtener el correo y nombre del proveedor
         const proveedor = await obtenerProveedor(newPedido.id_proveedor);
 
-        // Enviar correo al proveedor
+        console.log("Datos procesados")
+        console.log(processedIngredientes)
+        console.log(processedUtensilios)
+
+        // Enviar correo al proveedor con los ingredientes y utensilios procesados
         if (proveedor && proveedor.correo_proveedor) {
-            await sendEmail(
-                proveedor.correo_proveedor,
-                "Nuevo Pedido Creado",
-                {
-                    id_pedido: newPedido.id_pedido,
-                    descripcion_pedido: newPedido.descripcion_pedido,
-                    fecha_compra_pedido: newPedido.fecha_compra_pedido,
-                    fecha_entrega_pedido: newPedido.fecha_entrega_pedido,
-                    nombre_usuario: await obtenerNombreUsuario(newPedido.id_usuario),
-                    costo_pedido: newPedido.costo_pedido,
-                    ingredientes: ingredientes.length > 0
-                        ? newPedido.ingredientes.map(ing => ({
-                              id_ingrediente: ing.id_ingrediente,
-                              nombre_tipo_ingrediente: ing.tipo_ingrediente?.nombre_tipo_ingrediente || "Sin tipo",
-                              cantidad_ingrediente: ing.cantidad_ingrediente,
-                              costo_ingrediente: ing.costo_ingrediente
-                          }))
-                        : [],
-                    utensilios: utensilios.length > 0
-                        ? newPedido.utensilios.map(ut => ({
-                              id_utensilio: ut.id_utensilio,
-                              nombre_tipo_utensilio: ut.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo",
-                              cantidad_utensilio: ut.cantidad_utensilio,
-                              costo_utensilio: ut.costo_utensilio
-                          }))
-                        : [],
-                    nombre_proveedor: proveedor.nombre_proveedor
-                }
-            );
+            await enviarCorreoProveedor(newPedido, proveedor, processedIngredientes, processedUtensilios);
         }
 
         handleSuccess(res, 201, "Pedido creado exitosamente", newPedido);
@@ -88,6 +64,43 @@ export async function createPedido(req, res) {
 }
 
 
+// Función auxiliar para enviar correo al proveedor
+async function enviarCorreoProveedor(pedido, proveedor, ingredientes, utensilios) {
+    const correoProveedor = proveedor.correo_proveedor;
+    const datosCorreo = {
+        id_pedido: pedido.id_pedido,
+        descripcion_pedido: pedido.descripcion_pedido,
+        fecha_compra_pedido: pedido.fecha_compra_pedido,
+        fecha_entrega_pedido: pedido.fecha_entrega_pedido,
+        nombre_usuario: await obtenerNombreUsuario(pedido.id_usuario),
+        costo_pedido: pedido.costo_pedido,
+        ingredientes: ingredientes.map(ing => ({
+            id_ingrediente: ing.id_ingrediente,
+            nombre_tipo_ingrediente: ing.nombre_tipo_ingrediente || "Sin tipo",
+            cantidad_ingrediente: ing.cantidad_ingrediente,
+            costo_ingrediente: ing.costo_ingrediente
+        })),
+        utensilios: utensilios.map(ut => ({
+            id_utensilio: ut.id_utensilio,
+            nombre_tipo_utensilio: ut.nombre_tipo_utensilio || "Sin tipo",
+            cantidad_utensilio: ut.cantidad_utensilio,
+            costo_utensilio: ut.costo_utensilio
+        })),
+        nombre_proveedor: proveedor.nombre_proveedor
+    };
+
+    try {
+        await sendEmail(
+            correoProveedor,
+            "Nuevo Pedido Creado",
+            datosCorreo
+        );
+        console.log(`Correo enviado al proveedor ${correoProveedor}`);
+    } catch (error) {
+        console.error(`Error enviando correo al proveedor ${correoProveedor}:`, error);
+    }
+}
+
 // Función auxiliar para obtener el proveedor completo
 async function obtenerProveedor(id_proveedor) {
     const proveedorRepository = AppDataSource.getRepository(Proveedor);
@@ -95,7 +108,7 @@ async function obtenerProveedor(id_proveedor) {
     return proveedor;
 }
 
-// Función auxiliar para obtener el nombre del usuario (sin cambios)
+// Función auxiliar para obtener el nombre del usuario
 async function obtenerNombreUsuario(id_usuario) {
     const usuarioRepository = AppDataSource.getRepository(Usuario);
     const usuario = await usuarioRepository.findOneBy({ id_usuario });
@@ -192,4 +205,18 @@ export async function deletePedido(req, res) {
     } catch (error) {
        handleErrorServer(res ,500 ,error.message );
    }
+}
+
+export async function changePedidoToIngresado(req, res) {
+    try {
+        const { id } = req.params;
+        const [result, error] = await changePedidoToIngresadoService(id);
+        if (error) {
+            return handleErrorClient(res, 400, error);
+        }
+
+        handleSuccess(res, 200, "Pedido cambiado a 'Ingresado' y elementos creados", result);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+    }
 }

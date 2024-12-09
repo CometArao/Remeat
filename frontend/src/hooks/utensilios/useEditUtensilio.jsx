@@ -1,36 +1,32 @@
 import { useState } from 'react';
-import { updateTipoUtensilio } from '../../services/utensilio.service';
+import { updateUtensilio } from '@services/utensilios.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
-import { formatPostUpdate } from '@helpers/formatData.js';
 
-const useEditTipoUtensilio = (setTipoUtensilio, fetchTipoUtensilio) => {
+const useEditUtensilio = (setUtensilios) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [dataTipoUtensilio, setDataTipoUtensilio] = useState([]);
-    
-    //Funcion que se ejecuta al presionar el boton editar
+    const [dataUtensilio, setDataUtensilio] = useState([]);
+
     const handleClickUpdate = () => {
-        if (dataTipoUtensilio.length > 0) {
+        if (dataUtensilio.length > 0) {
             setIsPopupOpen(true);
         }
     };
 
-    //Funcion que se ejecuta al confirmar el formulario de edicion
-    const handleUpdate = async (updatedTipoUtensilioData) => {
-        if (updatedTipoUtensilioData) {
+    const handleUpdate = async (updatedUtensilio) => {
+        if (updatedUtensilio) {
             try {
-            console.log("dataTipoUtensilio")
-            console.log(dataTipoUtensilio)
-            const updatedTipoUtensilio = await updateTipoUtensilio(updatedTipoUtensilioData, dataTipoUtensilio[0].id_tipo_utensilio);
-            showSuccessAlert('¡Actualizado!','El tipo de utensilio ha sido actualizado correctamente.');
-
-            setIsPopupOpen(false);
-
-            await fetchTipoUtensilio();
-            setIsPopupOpen(false);
-            setDataTipoUtensilio([]);
+                const updatedData = await updateUtensilio(updatedUtensilio, dataUtensilio[0].id_utensilio);
+                showSuccessAlert('¡Actualizado!', 'El utensilio ha sido actualizado correctamente.');
+                setIsPopupOpen(false);
+                setUtensilios((prev) =>
+                    prev.map((utensilio) =>
+                        utensilio.id_utensilio === updatedData.id_utensilio ? updatedData : utensilio
+                    )
+                );
+                setDataUtensilio([]);
             } catch (error) {
-                console.error('Error al actualizar el Tipo Utensilio:', error);
-                showErrorAlert('Cancelado','Ocurrió un error al actualizar el Tipo Utensilio.');
+                console.error('Error al actualizar el utensilio:', error);
+                showErrorAlert('Error', 'Ocurrió un error al actualizar el utensilio.');
             }
         }
     };
@@ -40,9 +36,9 @@ const useEditTipoUtensilio = (setTipoUtensilio, fetchTipoUtensilio) => {
         handleUpdate,
         isPopupOpen,
         setIsPopupOpen,
-        dataTipoUtensilio,
-        setDataTipoUtensilio
+        dataUtensilio,
+        setDataUtensilio,
     };
 };
 
-export default useEditTipoUtensilio;
+export default useEditUtensilio;

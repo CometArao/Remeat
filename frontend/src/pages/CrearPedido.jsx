@@ -5,7 +5,7 @@ import { showErrorAlert, showSuccessAlert } from "@helpers/sweetAlert.js";
 import useGetIngredientes from "../hooks/ingredientes/useGetIngredientes";
 import useProveedores from "../hooks/proveedores/useGetProveedores";
 import useUsers from "../hooks/users/useGetUsers";
-import useGetUtensilios from "../hooks/utensilios/useUtensilio";
+import useGetUtensilios from "../hooks/utensilios/useGetUtensilio";
 import "@styles/crearPedido.css";
 
 // Obtener la fecha de hoy en formato "YYYY-MM-DD"
@@ -54,59 +54,81 @@ const CrearPedido = () => {
     };
 
     const handleCheckboxChange = (type, id) => {
-        if (type === "ingredientes") {
-            setSelectedIngredientes((prev) => ({
+        const isIngredient = type === "ingredientes";
+        const selectedState = isIngredient ? selectedIngredientes : selectedUtensilios;
+
+        const updatedState = {
+            ...selectedState,
+            [id]: !selectedState[id], // Toggle selection
+        };
+
+        if (!updatedState[id]) {
+            // Deseleccionado: eliminarlo de pedidoData y restablecer cantidad
+            setPedidoData((prev) => ({
                 ...prev,
-                [id]: !prev[id] // Toggle checkbox selection
-            }));
-        } else if (type === "utensilios") {
-            setSelectedUtensilios((prev) => ({
-                ...prev,
-                [id]: !prev[id] // Toggle checkbox selection
+                [type]: prev[type].filter((item) => item[`id_${type.slice(0, -1)}`] !== id),
             }));
         }
+
+        isIngredient ? setSelectedIngredientes(updatedState) : setSelectedUtensilios(updatedState);
     };
 
     const handleCantidadChange = (type, id, cantidad) => {
+        const key = type === "ingredientes" ? "cantidad_ingrediente" : "cantidad_utensilio";
+    
         setPedidoData((prev) => {
-            const updatedList = prev[type].filter(item => item[`id_${type.slice(0, -1)}`] !== id);
+            const updatedList = prev[type].filter((item) => item[`id_${type.slice(0, -1)}`] !== id);
             if (cantidad > 0) {
-                updatedList.push({ [`id_${type.slice(0, -1)}`]: id, cantidad: parseFloat(cantidad) });
+                updatedList.push({ [`id_${type.slice(0, -1)}`]: id, [key]: parseFloat(cantidad) });
             }
             return { ...prev, [type]: updatedList };
         });
     };
+    
+    
 
     const calculateCostoTotal = () => {
         let total = 0;
-
+    
         // Calcular el costo total de ingredientes seleccionados
-        pedidoData.ingredientes.forEach(ing => {
-            const ingredienteInfo = ingredientes.find(i => i.id_ingrediente === ing.id_ingrediente);
+        pedidoData.ingredientes.forEach((ing) => {
+            const ingredienteInfo = ingredientes.find((i) => i.id_ingrediente === ing.id_ingrediente);
             if (ingredienteInfo && ingredienteInfo.costo_ingrediente) {
-                total += ing.cantidad * ingredienteInfo.costo_ingrediente;
+                total += ing.cantidad_ingrediente * ingredienteInfo.costo_ingrediente; // Usar cantidad_ingrediente
             } else {
                 console.warn(`Costo de ingrediente no encontrado para ID: ${ing.id_ingrediente}`);
             }
         });
-
+    
         // Calcular el costo total de utensilios seleccionados
-        pedidoData.utensilios.forEach(ut => {
-            const utensilioInfo = utensilios.find(u => u.id_utensilio === ut.id_utensilio);
-            if (utensilioInfo && utensilioInfo.costo_utensilio) {
-                total += ut.cantidad * utensilioInfo.costo_utensilio;
+        pedidoData.utensilios.forEach((ut) => {
+            const utensilioInfo = utensilios.find((u) => u.id_utensilio === ut.id_utensilio);
+            if (utensilioInfo && ut.cantidad_utensilio) {
+                total += ut.cantidad_utensilio * utensilioInfo.costo_utensilio; // Usar cantidad_utensilio
             } else {
                 console.warn(`Costo de utensilio no encontrado para ID: ${ut.id_utensilio}`);
             }
         });
-
+    
         setCostoTotal(total); // Actualizar el costo total en tiempo real
     };
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+    
+        // Validar que al menos un ingrediente o utensilio esté seleccionado
+        if (
+            (!pedidoData.ingredientes || pedidoData.ingredientes.length === 0) &&
+            (!pedidoData.utensilios || pedidoData.utensilios.length === 0)
+        ) {
+            showErrorAlert("Error", "Debes seleccionar al menos un ingrediente o utensilio para crear un pedido.");
+            return;
+        }
+    
         try {
-            await createPedido({ ...pedidoData }); // Enviar datos al backend
+            // Enviar datos al backend
+            const response = await createPedido({ ...pedidoData });
             showSuccessAlert("¡Éxito!", "Pedido creado correctamente.");
             navigate("/pedidos");
         } catch (error) {
@@ -114,6 +136,7 @@ const CrearPedido = () => {
             showErrorAlert("Error", "Hubo un problema al crear el pedido.");
         }
     };
+    
 
     useEffect(() => {
         fetchIngredientes();
@@ -148,10 +171,14 @@ const CrearPedido = () => {
                         type="date"
                         name="fecha_compra_pedido"
                         value={pedidoData.fecha_compra_pedido}
+                        readOnly
+
+                        // Descomentar para que se pueda cambiar la fecha de compra, y quitar readOnly
+                        /*value={pedidoData.fecha_compra_pedido}
                         onChange={handleInputChange}
                         required
                         min={minDate}
-                        max={maxDate}
+                        max={maxDate}*/
                     />
                 </div>
                 <div className="form-group">

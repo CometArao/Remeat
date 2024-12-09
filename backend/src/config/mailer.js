@@ -79,8 +79,7 @@ function generarPlantillaCorreo(pedido) {
             <p>Gracias por su atención.</p>
             <p>Atentamente,<br>El equipo de Remeat</p>
             <hr>
-            <p style="font-size: 12px; color: #777;">Este es un correo 
-            generado automáticamente, por favor no responda a este mensaje.</p>
+            <p style="font-size: 12px; color: #777;">Este es un correo generado automáticamente, por favor no responda a este mensaje.</p>
         </div>
     `;
 }

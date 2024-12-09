@@ -92,14 +92,33 @@ export async function createUtensilioService(data) {
     }
 }
 
+export async function getUtensiliosService() {
+    const utensilioRepository = AppDataSource.getRepository(Utensilio);
+
+    try {
+        const utensilios = await utensilioRepository.find({
+            relations: {
+                tipo_utensilio: true, // Relación válida
+            },
+        });
+
+        return [utensilios, null];
+    } catch (error) {
+        console.error("Error al obtener los utensilios:", error);
+        return [null, error.message];
+    }
+}
+
 // Servicio para obtener un utensilio específico
 export async function getUtensilioService(id) {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
+
     try {
         const utensilio = await utensilioRepository.findOne({
             where: { id_utensilio: id },
-            relations: ["tipo_utensilio"]
+            relations: { tipo_utensilio: true }, // Relación válida
         });
+
         return utensilio ? [utensilio, null] : [null, "Utensilio no encontrado"];
     } catch (error) {
         console.error("Error al obtener el utensilio:", error);
@@ -107,17 +126,6 @@ export async function getUtensilioService(id) {
     }
 }
 
-// Servicio para obtener todos los utensilios
-export async function getUtensiliosService() {
-    const utensilioRepository = AppDataSource.getRepository(Utensilio);
-    try {
-        const utensilios = await utensilioRepository.find({ relations: ["tipo_utensilio", "pedido"] });
-        return [utensilios, null];
-    } catch (error) {
-        console.error("Error al obtener los utensilios:", error);
-        return [null, error.message];
-    }
-}
 
 // Servicio para actualizar un utensilio
 export async function updateUtensilioService(id, data) {

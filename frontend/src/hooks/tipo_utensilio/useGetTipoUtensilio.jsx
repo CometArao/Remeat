@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
-import { getTiposUtensilio } from '@services/utensilio.service';
+import { getTiposUtensilio } from '@services/utensilios.service';
 
 const useGetTipoUtensilio = () => {
-    const [tipoUtensilios, setTipoUtensilio] = useState([]);
+    const [tipoUtensilios, setTipoUtensilios] = useState([]);
+
     const fetchTipoUtensilio = async () => {
         try {
-            const response = await getTiposUtensilio();
-            const formattedData = response.map(utensilio => ({
-                id_tipo_utensilio: utensilio.id_tipo_utensilio,
-                nombre_tipo_utensilio: utensilio.nombre_tipo_utensilio,
-            }));
-            setTipoUtensilio(formattedData);
+            const data = await getTiposUtensilio();
+            setTipoUtensilios(data);
         } catch (error) {
-            console.error("Error: ", error);
+            console.error('Error fetching tipo utensilios:', error);
         }
     };
 
@@ -20,7 +17,7 @@ const useGetTipoUtensilio = () => {
         fetchTipoUtensilio();
     }, []);
 
-    return { tipoUtensilios, fetchTipoUtensilio, setTipoUtensilio };
+    return { tipoUtensilios, fetchTipoUtensilio, setTipoUtensilios };
 };
 
 export default useGetTipoUtensilio;

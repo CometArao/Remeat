@@ -1,124 +1,127 @@
-import { useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Table from '@components/Table';
-import useGetPedidos from '../hooks/pedidos/useGetPedido.jsx';
-import useUsers from '../hooks/users/useGetUsers.jsx';
-import useProveedores from '../hooks/proveedores/useGetProveedores.jsx';
+import Search from '@components/Search';
+import PedidoCard from '../components/Pedido/PedidoCard';
+import useGetPedidos from '../hooks/pedidos/useGetPedido';
+import useUsers from '../hooks/users/useGetUsers';
+import useProveedores from '../hooks/proveedores/useGetProveedores';
 import useGetIngredientes from '../hooks/ingredientes/useGetIngredientes';
-import PopupPedido from '../hooks/pedidos/popupPedidos.jsx';
+import useGetUtensilios from '../hooks/utensilios/useGetUtensilio';
+import PopupPedido from '../hooks/pedidos/popupPedidos';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
-import UpdateIconDisable from "@assets/updateIconDisabled.svg";
-import DeleteIconDisable from "@assets/deleteIconDisabled.svg";
-import '@styles/proveedores.css'; // Usaremos este CSS como guía
+import UpdateIconDisable from '../assets/updateIconDisabled.svg';
+import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
+import EmptyIcon from '../assets/emptyIcon.svg';
 import useDeletePedido from '../hooks/pedidos/useDeletePedido';
 import useEditPedido from '../hooks/pedidos/useEditPedido';
-import { useMemo } from 'react';
+import '@styles/users.css';
 
 const Pedidos = () => {
     const navigate = useNavigate();
-    const { pedidos, fetchPedidos, setPedidos } = useGetPedidos();
+    const { pedidos, fetchPedidos } = useGetPedidos();
     const { users } = useUsers();
     const { proveedores } = useProveedores();
     const { ingredientes } = useGetIngredientes();
+    const { utensilios } = useGetUtensilios();
+
+    const [filterName, setFilterName] = useState('');
+    const [dataPedido, setDataPedido] = useState([]);
 
     const {
         handleClickUpdate,
         handleUpdate,
         isPopupOpen,
         setIsPopupOpen,
-        dataPedido,
-        setDataPedido,
-    } = useEditPedido(setPedidos);
-
-    const handleCreateRedirect = () => {
-        navigate('/crear_pedido');
-    };
+    } = useEditPedido(fetchPedidos);
 
     const { handleDelete } = useDeletePedido(fetchPedidos, setDataPedido);
 
-    const handleSelectionChange = useCallback(
-        (selectedItems) => {
-            setDataPedido(selectedItems);
-        },
-        [setDataPedido]
+    useEffect(() => {
+        fetchPedidos();
+    }, []);
+
+    const handleNameFilterChange = (e) => {
+        setFilterName(e.target.value.toLowerCase());
+    };
+
+    const filteredPedidos = pedidos.filter((pedido) =>
+        pedido.descripcion_pedido.toLowerCase().includes(filterName)
     );
 
-    const columns = [
-        { title: 'ID', field: 'id_pedido', width: 100 },
-        { title: 'Descripción', field: 'descripcion_pedido', width: 200 },
-        { title: 'Fecha de Compra', field: 'fecha_compra_pedido', width: 150 },
-        { title: 'Fecha de Entrega', field: 'fecha_entrega_pedido', width: 150 },
-        { title: 'Costo', field: 'costo_pedido', width: 100 },
-        { title: 'Estado', field: 'estado_pedido', width: 100 },
-        { title: 'Usuario', field: 'nombre_usuario', width: 200 },
-        { title: 'Proveedor', field: 'nombre_proveedor', width: 200 },
-    ];
-
-    const pedidosConNombres = useMemo(() => {
-        return pedidos.map((pedido) => {
-            const usuario = users.find((u) => u.id_usuario === pedido.id_usuario);
-            const proveedor = proveedores.find((p) => p.id_proveedor === pedido.id_proveedor);
-            return {
-                ...pedido,
-                id: pedido.id_pedido,
-                nombre_usuario: usuario ? `${usuario.nombre_usuario} ${usuario.apellido_usuario}` : 'N/A',
-                nombre_proveedor: proveedor ? proveedor.nombre_proveedor : 'N/A',
-            };
-        });
-    }, [pedidos, users, proveedores]);
+    const handleCardSelectionChange = (selectedPedido, isChecked) => {
+        if (isChecked) {
+            setDataPedido((prev) => {
+                if (!prev.some((item) => item.id_pedido === selectedPedido.id_pedido)) {
+                    return [...prev, selectedPedido];
+                }
+                return prev;
+            });
+        } else {
+            setDataPedido((prev) => prev.filter((item) => item.id_pedido !== selectedPedido.id_pedido));
+        }
+    };
 
     return (
-        <div className="proveedores-container">
-            <div className="proveedores-table-container">
-                <div className="proveedores-top-table">
-                    <h1 className="proveedores-title-table">Pedidos</h1>
-                    <div className="proveedores-filter-actions">
-                        {/* Botón Crear Pedido - Redirige a una nueva pantalla */}
-                        <button
-                            className="proveedores-create-button"
-                            onClick={handleCreateRedirect}
-                        >
+        <div className="main-container">
+            <div className="table-container">
+                <div className="top-table">
+                    <h1 className="title-table">Pedidos</h1>
+                    <div className="filter-actions">
+                        <Search
+                            value={filterName}
+                            onChange={handleNameFilterChange}
+                            placeholder="Buscar por descripción"
+                        />
+                        <button className="create-button" onClick={() => navigate('/crear_pedido')}>
                             <img src={CreateIcon} alt="Crear" />
                         </button>
-                        {/* Botón Editar Pedido */}
-                        <button
-                            onClick={handleClickUpdate}
-                            disabled={dataPedido.length === 0}
-                        >
-                            <img
-                                src={
-                                    dataPedido.length === 0 ? UpdateIconDisable : UpdateIcon
-                                }
-                                alt="Editar Pedido"
-                            />
+                        <button onClick={handleClickUpdate} disabled={dataPedido.length === 0}>
+                            {dataPedido.length === 0 ? (
+                                <img src={UpdateIconDisable} alt="edit-disabled" />
+                            ) : (
+                                <img src={UpdateIcon} alt="edit" />
+                            )}
                         </button>
-                        {/* Botón Eliminar Pedido */}
                         <button
-                            className="proveedores-delete-button"
+                            className="delete-user-button"
                             disabled={dataPedido.length === 0}
                             onClick={() => handleDelete(dataPedido)}
                         >
-                            <img
-                                src={
-                                    dataPedido.length === 0 ? DeleteIconDisable : DeleteIcon
-                                }
-                                alt="Eliminar Pedido"
-                            />
+                            {dataPedido.length === 0 ? (
+                                <img src={DeleteIconDisable} alt="delete-disabled" />
+                            ) : (
+                                <img src={DeleteIcon} alt="delete" />
+                            )}
                         </button>
                     </div>
                 </div>
-                <Table
-                    data={pedidosConNombres}
-                    columns={columns}
-                    initialSortName={'fecha_compra_pedido'}
-                    onSelectionChange={handleSelectionChange}
-                    idField="id" // Importante para que la tabla use la propiedad 'id' como identificador
-                />
+
+                {filteredPedidos.length > 0 ? (
+                    <div className="container">
+                        {filteredPedidos.map((pedido) => (
+                            <PedidoCard
+                                key={pedido.id_pedido}
+                                pedido={pedido}
+                                usuarios={users}
+                                proveedores={proveedores}
+                                isSelected={dataPedido.some((item) => item.id_pedido === pedido.id_pedido)}
+                                onSelectChange={handleCardSelectionChange}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="empty-container">
+                        <img src={EmptyIcon} alt="No hay pedidos" className="empty-icon" />
+                        <h2 className="empty-message">No hay pedidos disponibles</h2>
+                        <p className="empty-description">
+                            Crea uno nuevo usando el botón <strong>+</strong> en la parte superior.
+                        </p>
+                    </div>
+                )}
             </div>
 
-            {/* Popup para Editar Pedido */}
             <PopupPedido
                 show={isPopupOpen}
                 setShow={setIsPopupOpen}
@@ -128,6 +131,7 @@ const Pedidos = () => {
                 users={users}
                 proveedores={proveedores}
                 ingredientes={ingredientes}
+                utensilios={utensilios}
             />
         </div>
     );
