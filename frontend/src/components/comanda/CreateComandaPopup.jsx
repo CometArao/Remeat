@@ -1,6 +1,6 @@
 import React from 'react';
 import ComandaForm from './ComandaForm';
-import useCreateComanda from '../../hooks/Comandas/useCreateComanda';
+import useCreateComanda from '../../hooks/comandas/useCreateComanda';
 
 const CreateComandaPopup = ({ isOpen, onClose }) => {
   const { create, loading } = useCreateComanda();

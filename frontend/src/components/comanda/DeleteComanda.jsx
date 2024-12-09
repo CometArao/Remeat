@@ -1,5 +1,5 @@
 import React from 'react';
-import useDeleteComanda from '../../hooks/Comandas/useDeleteComanda';
+import useDeleteComanda from '../../hooks/comandas/useDeleteComanda';
 
 const DeleteComanda = ({ comandaId, onDelete }) => {
   const { remove, loading } = useDeleteComanda();

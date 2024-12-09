@@ -26,12 +26,17 @@ import UnidadesMedida from '@pages/UnidadMedida';
 import Platillos from '@pages/Platillos';
 import Menu from './pages/Menu.jsx';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import CrearPedido from './pages/CrearPedido';
 =======
 import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
 
 
 >>>>>>> 8703ba53f7baac9dd6cacfbe698031ea1b32ebbd
+=======
+import CrearPedido from './pages/CrearPedido';
+import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
+>>>>>>> 7f5f70e436efe701cf9fcaa3e5cfe68896f9a81e
 
 const data_lineal2 = [
   {

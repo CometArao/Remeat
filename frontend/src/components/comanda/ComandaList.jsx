@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ComandaItem from './ComandaItem';
-import useGetComandas from '../../hooks/Comandas/useGetComandas';
+import useGetComandas from '../../hooks/comandas/useGetComandas';
 import ComandaDetail from './ComandaDetail';
 
 const ComandaList = () => {

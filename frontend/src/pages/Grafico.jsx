@@ -120,43 +120,44 @@ const data_circular = [
 const Grafico = () => {
   const location = useLocation();
   const data = location.state;
-  let formatedData = null;
-  let keys = null;
-  console.log("data en Grafico")
+  console.log("data")
   console.log(data)
-  if (data.tipo.tipoGrafico == "lineal") {
-    formatedData = construirLineal(data.dependientes);
-    console.log("formatedData")
-    console.log(formatedData)
-    if (data.independientes.name == "Hora") {
-      //Mostrar interfaz para elegir hora
-      console.log("hora")
-      formatedData.sort((a,b) => a.data.x - b.data.x)
+  //let formatedData = null;
+  //let keys = null;
+  //console.log("data en Grafico")
+  //console.log(data)
+  //if (data.tipo.tipoGrafico == "lineal") {
+    ////formatedData = construirLineal(data.dependientes);
+    //console.log("formatedData")
+    //console.log(formatedData)
+    //if (data.independientes.name == "Hora") {
+      ////Mostrar interfaz para elegir hora
+      //console.log("hora")
+      //formatedData.sort((a,b) => a.data.x - b.data.x)
 
-    }
-  }
-  if (data.tipo.tipoGrafico == "barra") {
-    if (data.independiente == "Hora") {
-      //Mostrar interfaz para elegir hora
-    }
-    const [f, k] = construirBarra(data.dependientes);
-    formatedData = f;
-    keys = k;
-  }
-  if (data.tipo.tipoGrafico == "circular") {
-    if (data.independiente == "Hora") {
-      //Mostrar interfaz para elegir hora
-    }
-    console.log("CIRCULAR")
-    formatedData = construirCircular(data.dependientes);
-  }
-
+    //}
+  //}
+  //if (data.tipo.tipoGrafico == "barra") {
+    //if (data.independiente == "Hora") {
+      ////Mostrar interfaz para elegir hora
+    //}
+    //const [f, k] = construirBarra(data.dependientes);
+    //formatedData = f;
+    //keys = k;
+  //}
+  //if (data.tipo.tipoGrafico == "circular") {
+    //if (data.independiente == "Hora") {
+      ////Mostrar interfaz para elegir hora
+    //}
+    //console.log("CIRCULAR")
+    //formatedData = construirCircular(data.dependientes);
+  //}
   return (
     <div>
       <h1>GRAFICO</h1>
       <div style={{ height: '80vh', marginTop: '10vh' }}>
         {data.tipo.tipoGrafico == "lineal" &&
-          <GraficoLineal data={formatedData}
+          <GraficoLineal data={data.dependientes}
             legendX={data.independientes.name} legendY={data.tipo.variable} />
         }
         {data.tipo.tipoGrafico == "barra" &&
@@ -172,46 +173,6 @@ const Grafico = () => {
   )
 }
 
-//TODO: pruebas
-function construirLineal(datos) {
-  let result = [];
-  const keys = Object.keys(datos)
-  const colores = [
-    "hsl(308, 70%, 50%)",
-    "hsl(149, 70%, 50%)",
-    "hsl(63, 70%, 50%)",
-    "hsl(155, 70%, 50%)",
-    "hsl(200, 70%, 50%)"
-  ]
-  for (let i = 0; i < keys.length; i++) {
-    console.log("datos")
-    console.log(datos)
-    const ventas = datos[keys[i]]['ventas_por_comanda'];
-    let indice_color = 0;
-    //if(/*independiente*/) {
-    ////comprobar indenpendiente
-    //}
-    let formatedVentas = []
-    for (let ii = 0; ii < ventas.length; ii++) {
-      const obj = {
-        "x": ventas[ii].hora_compra,
-        "y": ventas[ii].cantidad_platillo
-      }
-      formatedVentas.push(obj);
-    }
-    const obj = {
-      "id": keys[i],
-      "color": colores[indice_color],
-      "data": formatedVentas
-    }
-    indice_color++;
-    if (indice_color === colores.length) {
-      indice_color = 0;
-    }
-    result.push(obj);
-  }
-  return result;
-}
 //TODO: pruebas
 function construirBarra(datos) {
   const color_barra = "hsl(299, 70%, 50%)"

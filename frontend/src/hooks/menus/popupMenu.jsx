@@ -27,7 +27,7 @@ export default function PopupMenu({
             defaultValue: menuData.disponibilidad !== undefined ? menuData.disponibilidad : true,
             fieldType: "input",
             type: "checkbox",
-            required: true,
+            required: false,
         },
         {
             label: "Creador",
@@ -58,11 +58,14 @@ export default function PopupMenu({
         }));
         console.log('Platillos en PopupMenu:', platillos);
 
+        
         const payload = {
-            ...formData,
+            fecha: formData.fecha,
+            disponibilidad: formData.disponibilidad,
             platillos,
         };
         action(payload);
+        console.log('Fecha ingresada:', formData.fecha);
     }
     return (
         <div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useGetComandaById from '../../hooks/Comandas/useGetComandaById';
+import useGetComandaById from '../../hooks/comandas/useGetComandaById';
 
 
 const ComandaDetail = ({ onClearSearch, onSearchComplete }) => {
