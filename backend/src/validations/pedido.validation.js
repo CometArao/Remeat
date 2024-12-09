@@ -36,7 +36,7 @@ export const pedidoValidation = Joi.object({
             "date.min": "La fecha de entrega no puede ser anterior a la fecha de compra.",
         }),
     estado_pedido: Joi.string()
-        .valid("Pendiente", "Ingresado", "Cancelado")
+        .valid("Pendiente", "Ingresado")
         .messages({
             "string.base": "El estado del pedido debe ser de tipo string.",
             "any.only": "El estado del pedido debe ser uno de: pendiente, enviado, recibido.",
@@ -84,7 +84,7 @@ export const pedidoValidation = Joi.object({
                         "number.positive": "El id del ingrediente debe ser un número positivo.",
                         "any.required": "El id del ingrediente es obligatorio.",
                     }),
-                cantidad: Joi.number()
+                cantidad_ingrediente: Joi.number()
                     .integer()
                     .positive()
                     .required()
@@ -113,7 +113,7 @@ export const pedidoValidation = Joi.object({
                         "number.positive": "El id del utensilio debe ser un número positivo.",
                         "any.required": "El id del utensilio es obligatorio.",
                     }),
-                cantidad: Joi.number()
+                cantidad_utensilio: Joi.number()
                     .integer()
                     .positive()
                     .required()
