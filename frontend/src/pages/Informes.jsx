@@ -312,7 +312,7 @@ const Informes = () => {
             }
             console.log(formatedplatillos)
             setDatosDependientes(formatedplatillos);
-            setTipoGrafico({ tipografico: "circular", variable: "ventas_platillos_circular" })
+            setTipoGrafico({ tipoGrafico: "circular", variable: "ventas_platillos_circular" })
             setDatosIndependientes(tiempo_circular)
         } catch (error) {
             console.log(error);
@@ -333,7 +333,7 @@ const Informes = () => {
                 formatedlist.push(formateddata)
             }
             setDatosDependientes(formatedlist)
-            setTipoGrafico({ tipografico: "barra", variable: "menu_platillos_circular" })
+            setTipoGrafico({ tipoGrafico: "barra", variable: "menu_platillos_circular" })
             setDatosIndependientes(tiempo_circular)
         } catch (error) {
             console.log(error)
@@ -476,12 +476,13 @@ const Informes = () => {
                 console.log("ventas_platillos_circular")
                 const ventas_platillos_circular =
                     await getVentasPlatillo(ids);
-                formatedDependiente  =
+                [formatedDependiente, keys]  =
                     construirVentasPlatilloCircular(ventas_platillos_circular)
                 datos = {
                     independientes: selectedTime,
                     dependientes: formatedDependiente,
                     tipo: tipoGrafico,
+                    keys: keys
                 }
                 break;
             case "menu_platillos_circular":

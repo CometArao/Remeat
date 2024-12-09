@@ -4,11 +4,14 @@ import GraficoCircular from "@components/GraficoCircular.jsx"
 import { useLocation } from 'react-router-dom'
 //Los datos x de 1 tienen que aparecer en los otros, pero estos pueden aparecer
 //como nulos
-const color_barra = "hsl(299, 70%, 50%)"
 //Este componente prepara todo para mostrar el grafico lineal
 const Grafico = () => {
   const location = useLocation();
   const data = location.state;
+  console.log("grafico")
+  console.log(data)
+  console.log(data.dependientes)
+  console.log(data.keys)
   return (
     <div>
       <h1>GRAFICO</h1>
@@ -23,7 +26,7 @@ const Grafico = () => {
         }
         {data.tipo.tipoGrafico == "circular" &&
           <GraficoCircular data={data.dependientes}
-            legendX={data.independientes.name} legendY={data.tipo.variable} />
+            keys={data.keys} />
         }
       </div>
     </div>

@@ -255,17 +255,10 @@ export function construirVentasPlatilloBarra(datos) {
     return [result, keys];
 }
 export function construirPlatillosMenuBarra(datos) {
-    const color_barra = "hsl(299, 70%, 50%)"
-    const colores = [
-        "hsl(308, 70%, 50%)",
-        "hsl(149, 70%, 50%)",
-        "hsl(63, 70%, 50%)",
-        "hsl(155, 70%, 50%)",
-        "hsl(200, 70%, 50%)"
-    ]
     let keys = []
     let result = [];
     for (let i = 0; i < datos.length; i++) {
+        const color_barra = getColor(i)
         const platillo_menu = datos[i]
         keys.push(platillo_menu.nombre_platillo)
         let total = 0;
@@ -279,10 +272,10 @@ export function construirPlatillosMenuBarra(datos) {
     return [result, keys];
 }
 export function construirVentasPlatilloCircular(datos) {
-    const color_circular = "hsl(299, 70%, 50%)" //TODO: agregar una funcion para generar colores
     const keys = Object.keys(datos)
     let result = [];
     for (let i = 0; i < keys.length; i++) {
+        const color_circular = getColor(i)
         const ventas = datos[keys[i]]["ventas_por_comanda"];
         let total = 0;
         for (let ii = 0; ii < ventas.length; ii++) {
@@ -297,12 +290,14 @@ export function construirVentasPlatilloCircular(datos) {
         }
         result.push(itemCircular)
     }
-    return result;
+    console.log("result")
+    console.log(result)
+    return [result, keys];
 }
 export function construirPlatillosMenuCircular(datos) {
-    const color_circular = "hsl(299, 70%, 50%)" //TODO: agregar una funcion para generar colores
     let result = [];
     for (let i = 0; i < datos.length; i++) {
+        const color_circular = getColor(i)
         const platillo_menu = datos[i]
         const itemCircular = {
             "id": platillo_menu.nombre_platillo,
@@ -495,6 +490,19 @@ function truncarAño(data) {
     console.log(newData)
     return newData;
 }
-function extraerHoraFecha(mfecha) {
-    //TODO: sin implementar
+//function extraerHoraFecha(mfecha) {
+    ////TODO: sin implementar
+    //creo que no nesesito esta funcion
+//}
+
+function getColor(i) {
+    const colores = [
+        "hsl(308, 70%, 50%)",
+        "hsl(149, 70%, 50%)",
+        "hsl(63, 70%, 50%)",
+        "hsl(155, 70%, 50%)",
+        "hsl(200, 70%, 50%)"
+    ]
+    const color_index = i % colores.length;
+    return colores[color_index]
 }
