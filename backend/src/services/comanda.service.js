@@ -48,6 +48,50 @@ import Menu from '../entity/menu.entity.js';
 }
 */
 
+export async function getMeserosService(){
+  // Obtén el repositorio de la entidad Usuario
+  const usuarioRepository = AppDataSource.getRepository(Usuario);
+
+  try {
+    // Usa find con un filtro para obtener solo los usuarios con rol 'mesero'
+    const meseros = await usuarioRepository.find({
+      where: { rol_usuario: 'mesero' },
+      select: ['id_usuario', 'nombre_usuario', 'apellido_usuario', 'correo_usuario'], // Solo los campos necesarios
+    });
+
+    return meseros; // Devuelve la lista de meseros
+  } catch (error) {
+    // Captura cualquier error y lánzalo con un mensaje claro
+    throw new Error('Error al obtener los meseros: ' + error.message);
+  }
+};
+
+
+export async function getPlatillosDelDiaService(){
+  const menuRepository = AppDataSource.getRepository(Menu);
+
+  try {
+    // Busca el menú del día con la relación correcta
+    const menuDelDia = await menuRepository
+      .createQueryBuilder('menu')
+      .leftJoinAndSelect('menu.platillo', 'platillo') 
+      .where('menu.disponibilidad = :disponible', { disponible: true })
+      .orderBy('menu.fecha', 'DESC') // Busca el menú más reciente en caso de múltiples menús disponibles
+      .getOne();
+
+    if (!menuDelDia) {
+      throw new Error('No se encontró un menú disponible para el día actual.');
+    }
+
+    return menuDelDia.platillo; // Devuelve la lista de platillos del menú del día
+  } catch (error) {
+    throw new Error('Error al obtener los platillos del menú del día: ' + error.message);
+  }
+};
+
+
+
+
 
 
 export async function obtenerComandasConPlatillos() { 
@@ -56,14 +100,14 @@ export async function obtenerComandasConPlatillos() {
   const comandas = await comandaRepository
     .createQueryBuilder('comanda')
     .leftJoinAndSelect(ConformaComanda, 'conforma', 'conforma.id_comanda = comanda.id_comanda')
-    .leftJoinAndSelect('comanda.usuario', 'usuario') // Incluimos la relación del usuario
-    .leftJoinAndSelect(Platillo, 'platillo', 'conforma.id_platillo = platillo.id_platillo') // Agregar la relación con platillo
+    .leftJoinAndSelect('comanda.usuario', 'usuario') 
+    .leftJoinAndSelect(Platillo, 'platillo', 'conforma.id_platillo = platillo.id_platillo') 
     .select([
       'comanda.id_comanda', 
       'comanda.fecha_compra_comanda', 
       'conforma.id_platillo', 
-      'conforma.cantidad_platillo', // Incluir la cantidad del platillo
-      'conforma.estado_platillo',   // Incluir el estado del platillo
+      'conforma.cantidad_platillo', 
+      'conforma.estado_platillo',   
       'usuario.id_usuario', 
       'platillo.nombre_platillo'
     ])
@@ -77,12 +121,12 @@ export async function obtenerComandasConPlatillos() {
       //await verificarHorarioLaboral(comanda.usuario_id_usuario);
       comandasEnHorario.push({
         idComanda: comanda.comanda_id_comanda,
-        fecha: format(new Date(comanda.comanda_fecha_compra_comanda), 'yyyy-MM-dd'), // Formato legible de fecha
+        fecha: format(new Date(comanda.comanda_fecha_compra_comanda), 'yyyy-MM-dd'), 
         tienePlatillos: comanda.conforma_id_platillo !== null,
-        cantidad: comanda.conforma_cantidad_platillo, // Agregar cantidad del platillo
+        cantidad: comanda.conforma_cantidad_platillo, 
         nombrePlatillo: comanda.platillo_nombre_platillo,
         idPlatillo: comanda.conforma_id_platillo,
-        estadoPlatillo: comanda.conforma_estado_platillo // Agregar estado del platillo
+        estadoPlatillo: comanda.conforma_estado_platillo 
       });
     } catch (error) {
       console.log(`Comanda ${comanda.id_comanda} omitida: ${error.message}`);
@@ -95,7 +139,6 @@ export async function obtenerComandasConPlatillos() {
     data: comandasEnHorario
   };
 }
-
 
 
 
@@ -112,22 +155,36 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   });
   if (!comanda) throw new Error('Comanda no encontrada.');
 
-   // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  // Verificación de horario laboral del usuario asignado a la comanda
+  // await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
-  // Verificar si el platillo existe
-  const platillo = await platilloRepository.findOne({
-    where: { id_platillo: platilloData.id_platillo }
-  });
-  if (!platillo) throw new Error('Platillo no encontrado.');
-
-  // Verificar si el platillo está en un menú activo
-  const menu = await menuRepository.findOne({
-    where: { id_menu: platilloData.menuIdMenu, disponibilidad: true },
+  // Obtener el menú diario automáticamente
+  const currentDate = new Date();
+  let menu = await menuRepository.findOne({
+    where: { fecha: currentDate.toISOString().split('T')[0], disponibilidad: true },
     relations: ['platillo'] // Carga los platillos del menú
   });
 
-  if (!menu || !menu.platillo.some(p => p.id_platillo === platilloData.id_platillo)) {
+  // Si no hay menú para hoy, obtener el menú más cercano anterior
+  if (!menu) {
+    menu = await menuRepository.createQueryBuilder('menu')
+      .where('menu.fecha <= :currentDate', { currentDate })
+      .andWhere('menu.disponibilidad = true')
+      .orderBy('menu.fecha', 'DESC')
+      .leftJoinAndSelect('menu.platillo', 'platillo')
+      .getOne();
+  }
+
+  if (!menu) throw new Error('No hay un menú disponible.');
+
+  // Verificar si el platillo existe
+  const platillo = await platilloRepository.findOne({
+    where: { nombre_platillo: platilloData.nombre_platillo }
+  });
+  if (!platillo) throw new Error('Platillo no encontrado.');
+
+  // Verificar si el platillo está en el menú activo
+  if (!menu.platillo.some(p => p.id_platillo === platillo.id_platillo)) {
     throw new Error('El platillo no está en el menú activo.');
   }
 
@@ -148,30 +205,39 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
 
 
+
 export async function createComanda(data) {
- // await verificarHorarioLaboral(data.id_usuario);
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
-  const usuario = await usuarioRepository.findOne({ where: { id_usuario: data.id_usuario } });
+  // Buscar al usuario únicamente por correo
+  const usuario = await usuarioRepository.findOne({
+    where: { correo_usuario: data.email }
+  });
+
   if (!usuario) {
-    throw new Error('Usuario no encontrado');
+    throw new Error('Usuario no encontrado con el correo proporcionado.');
   }
 
+  // Validar que el rol sea "mesero"
   if (usuario.rol_usuario !== 'mesero') {
     throw new Error('Solo el rol "mesero" tiene permiso para crear comandas.');
   }
 
+  // Crear la comanda
   const nuevaComanda = comandaRepository.create({
     usuario: usuario,
-    estado_comanda: data.estado || 'pendiente',
+    estado_comanda: data.estado_comanda || 'pendiente',
     fecha_compra_comanda: data.fecha_compra_comanda || null,
-    hora_compra_comanda: data.hora_compra_comanda || null
+    hora_compra_comanda: data.hora_compra_comanda || null,
   });
   await comandaRepository.save(nuevaComanda);
 
   return nuevaComanda;
 }
+
+
+
 
 
 
