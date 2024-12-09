@@ -81,3 +81,15 @@ export const getComandaById = async (id, token) => {
     throw new Error(err.response?.data?.message || 'Error al obtener la comanda.');
   }
 };
+
+export const getMeseros = async (id, token) => {
+  try {
+    const response = await axios.get(`/comandas/comanda/meseros`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (err) {
+    console.error('Error obteniendo los meseros:', err.response || err);
+    throw new Error(err.response?.data?.message || 'Error al obtener los meseros.');
+  }
+};

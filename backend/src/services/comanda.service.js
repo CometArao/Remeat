@@ -48,6 +48,23 @@ import Menu from '../entity/menu.entity.js';
 }
 */
 
+export const getMeserosService = async () => {
+  // Obtén el repositorio de la entidad Usuario
+  const usuarioRepository = AppDataSource.getRepository(Usuario);
+
+  try {
+    // Usa find con un filtro para obtener solo los usuarios con rol 'mesero'
+    const meseros = await usuarioRepository.find({
+      where: { rol_usuario: 'mesero' },
+      select: ['id_usuario', 'nombre_usuario', 'apellido_usuario', 'correo_usuario'], // Solo los campos necesarios
+    });
+
+    return meseros; // Devuelve la lista de meseros
+  } catch (error) {
+    // Captura cualquier error y lánzalo con un mensaje claro
+    throw new Error('Error al obtener los meseros: ' + error.message);
+  }
+};
 
 
 export async function obtenerComandasConPlatillos() { 
@@ -149,29 +166,37 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
 
 export async function createComanda(data) {
- // await verificarHorarioLaboral(data.id_usuario);
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
-  const usuario = await usuarioRepository.findOne({ where: { id_usuario: data.id_usuario } });
+  // Buscar al usuario únicamente por correo
+  const usuario = await usuarioRepository.findOne({
+    where: { correo_usuario: data.email }
+  });
+
   if (!usuario) {
-    throw new Error('Usuario no encontrado');
+    throw new Error('Usuario no encontrado con el correo proporcionado.');
   }
 
+  // Validar que el rol sea "mesero"
   if (usuario.rol_usuario !== 'mesero') {
     throw new Error('Solo el rol "mesero" tiene permiso para crear comandas.');
   }
 
+  // Crear la comanda
   const nuevaComanda = comandaRepository.create({
     usuario: usuario,
-    estado_comanda: data.estado || 'pendiente',
+    estado_comanda: data.estado_comanda || 'pendiente',
     fecha_compra_comanda: data.fecha_compra_comanda || null,
-    hora_compra_comanda: data.hora_compra_comanda || null
+    hora_compra_comanda: data.hora_compra_comanda || null,
   });
   await comandaRepository.save(nuevaComanda);
 
   return nuevaComanda;
 }
+
+
+
 
 
 

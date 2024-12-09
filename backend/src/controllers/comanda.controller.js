@@ -7,8 +7,10 @@ import {
   completeComanda,
   getAllComandas,
   addPlatilloToComanda,
-  obtenerComandasConPlatillos
+  obtenerComandasConPlatillos,
+  getMeserosService
 } from '../services/comanda.service.js';
+
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
 
 import {
@@ -17,6 +19,19 @@ import {
   updateComandaValidation
 } from '../validations/comanda.validation.js';
 
+
+export const getMeserosController = async (req, res) => {
+  try {
+    // Llama al servicio para obtener la lista de meseros
+    const meseros = await getMeserosService();
+
+    // Devuelve la lista de meseros con un estado 200
+    res.status(200).json({ status: 'Success', data: meseros });
+  } catch (error) {
+    // En caso de error, devuelve un estado 500 y el mensaje de error
+    res.status(500).json({ status: 'Error', message: error.message });
+  }
+};
 
 
 export async function getComandasConPlatillosController(req, res) {

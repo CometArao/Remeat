@@ -8,6 +8,7 @@ import {
   getComandaByIdController,
   addPlatilloToComandaController,
   getComandasConPlatillosController,
+  getMeserosController
 } from '../controllers/comanda.controller.js';
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
 import {isMesero} from '../middlewares/authorization.middleware.js';
@@ -26,5 +27,6 @@ router.delete('/:id', isMesero, deleteComandaController); // Eliminar una comand
 router.patch('/:id/complete', isMesero, completeComandaController); // Completar una comanda
 router.post('/:id/platillos', isMesero, addPlatilloToComandaController); // Añadir un platillo a una comanda
 router.get('/comandas/platillos', isMesero, getComandasConPlatillosController); // Obtener comandas con platillos
+router.get('/comanda/meseros', isMesero, getMeserosController); // Obtener meseros
 
 export default router;
