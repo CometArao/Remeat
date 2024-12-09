@@ -17,36 +17,39 @@ const useCreatePedido = (setPedidos) => {
                 (!newPedidoData.ingredientes || newPedidoData.ingredientes.length === 0) &&
                 (!newPedidoData.utensilios || newPedidoData.utensilios.length === 0)
             ) {
-                showErrorAlert('Error', 'Debes seleccionar al menos un ingrediente o utensilio para crear un pedido.');
+                showErrorAlert("Error", "Debes seleccionar al menos un ingrediente o utensilio para crear un pedido.");
                 return;
             }
-    
+
             try {
-                // Transformar ingredientes y utensilios si es necesario
+                // Transformar ingredientes y utensilios
                 if (newPedidoData.ingredientes) {
-                    newPedidoData.ingredientes = newPedidoData.ingredientes.map((id) => ({ id_ingrediente: id }));
+                    newPedidoData.ingredientes = newPedidoData.ingredientes.map(ing => ({
+                        id_ingrediente: ing.id_ingrediente,
+                        cantidad_ingrediente: ing.cantidad_ingrediente,
+                    }));
                 }
-    
+
                 if (newPedidoData.utensilios) {
-                    newPedidoData.utensilios = newPedidoData.utensilios.map((id) => ({ id_utensilio: id }));
+                    newPedidoData.utensilios = newPedidoData.utensilios.map(ut => ({
+                        id_utensilio: ut.id_utensilio,
+                        cantidad_utensilio: ut.cantidad_utensilio,
+                    }));
                 }
-    
-                // Establecer estado_pedido como 'pendiente'
-                newPedidoData.estado_pedido = 'Pendiente';
-    
-                console.log('Datos del nuevo pedido:', newPedidoData);
+
+                // Enviar al backend
+                console.log("Datos del nuevo pedido:", newPedidoData);
                 const createdPedido = await createPedido(newPedidoData);
-                showSuccessAlert('¡Pedido Creado!', 'El pedido se ha registrado correctamente.');
+                showSuccessAlert("¡Pedido Creado!", "El pedido se ha registrado correctamente.");
                 setPedidos((prev) => [...prev, createdPedido]);
                 setIsCreatePopupOpen(false);
             } catch (error) {
-                console.error('Error al crear el pedido:', error);
-                const errorMessage = error.response?.data?.message || 'Ocurrió un problema al crear el pedido.';
-                showErrorAlert('Error', errorMessage);
+                console.error("Error al crear el pedido:", error);
+                const errorMessage = error.response?.data?.message || "Ocurrió un problema al crear el pedido.";
+                showErrorAlert("Error", errorMessage);
             }
         }
     };
-    
 
     return {
         handleClickCreate,

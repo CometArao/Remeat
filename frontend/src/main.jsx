@@ -4,6 +4,7 @@ import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users';
 import TipoUtensilio from '@pages/TipoUtensilio';
+import Utensilios from '@pages/Utensilio';
 import GraficoLineal from '@components/GraficoLineal'
 import GraficoCircular from '@components/GraficoCircular'
 import GraficoBarra from '@components/GraficoBarra'
@@ -25,18 +26,8 @@ import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
 import Platillos from '@pages/Platillos';
 import Menu from './pages/Menu.jsx';
-<<<<<<< HEAD
-<<<<<<< HEAD
-import CrearPedido from './pages/CrearPedido';
-=======
-import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
-
-
->>>>>>> 8703ba53f7baac9dd6cacfbe698031ea1b32ebbd
-=======
 import CrearPedido from './pages/CrearPedido';
 import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
->>>>>>> 7f5f70e436efe701cf9fcaa3e5cfe68896f9a81e
 
 const data_lineal2 = [
   {
@@ -516,10 +507,18 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/tipo_utensilio',
+        path: '/tipo_utensilios',
         element: (
           <ProtectedRoute allowedRoles={['administrador','cocinero']}>
             <TipoUtensilio />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/utensilios',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador','cocinero']}>
+            <Utensilios />
           </ProtectedRoute>
         ),
       },

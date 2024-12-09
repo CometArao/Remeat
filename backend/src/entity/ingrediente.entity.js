@@ -1,10 +1,9 @@
-"use strict"
-import { EntitySchema, JoinColumn } from "typeorm";
-
+"use strict";
+import { EntitySchema } from "typeorm";
 
 const ingrediente = new EntitySchema({
-    name:"ingrediente",
-    tableName:"ingrediente",
+    name: "ingrediente",
+    tableName: "ingrediente",
     columns: {
         id_ingrediente: {
             type: "int",
@@ -13,46 +12,41 @@ const ingrediente = new EntitySchema({
         },
         fecha_vencimiento: {
             type: "date",
-            nullable: false
+            nullable: false,
         },
         cantidad_ingrediente: {
             type: "int",
-            nullable: false
+            nullable: false,
         },
         cantidad_original_ingrediente: {
             type: "int",
-            nullable: false
+            nullable: false,
         },
         costo_ingrediente: {
-            type: "int"
+            type: "int",
         },
         id_tipo_ingrediente: {
             type: "int",
-            nullable: true
+            nullable: true,
         },
-        id_pedido: {
-            type: "int",
-            nullable: true
-        }
     },
     relations: {
         tipo_ingrediente: {
             type: "many-to-one",
             target: "tipo_ingrediente",
-            joinColumn: {
-                name: "id_tipo_ingrediente"
-            },
+            joinColumn: { name: "id_tipo_ingrediente" },
             onDelete: "SET NULL",
         },
-        pedido: {
-            type: "many-to-one",
-            target: "pedido",
-            joinColumn: {
-                name: "id_pedido"
-            },
-            onDelete: "SET NULL",
+    },
+    pedido: {
+        type: "many-to-many", // Ajusta según la relación real
+        target: "pedido",
+        joinTable: {
+            name: "ingrediente_pedido",
+            joinColumn: { name: "id_ingrediente", referencedColumnName: "id_ingrediente" },
+            inverseJoinColumn: { name: "id_pedido", referencedColumnName: "id_pedido" },
         },
-    }
+    },
 });
 
 export default ingrediente;

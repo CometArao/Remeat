@@ -5,13 +5,18 @@ const useGetIngredientes = () => {
     const [ingredientes, setIngredientes] = useState([]);
 
     const fetchIngredientes = async () => {
-        const data = await getIngredientes();
-        console.log("fetch ingredientes")
-        console.log(data)
-        if (data) {
-            setIngredientes(data);
+        try {
+            const data = await getIngredientes();
+            if (Array.isArray(data)) {
+                setIngredientes(data);
+            } else {
+                console.error("Error fetching ingredientes: ", data);
+            }
+        } catch (error) {
+            console.error("Error fetching ingredientes:", error);
         }
     };
+    
     useEffect(() => {
         fetchIngredientes();
     }, [])

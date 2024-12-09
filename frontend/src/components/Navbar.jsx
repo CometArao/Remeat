@@ -97,7 +97,18 @@ const Navbar = () => {
                             </li>
                             <li>
                                 <NavLink
-                                    to="/tipo_utensilio"
+                                    to="/tipo_utensilios"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Tipos de Utensilios
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
+                                    to="/utensilios"
                                     onClick={() => {
                                         setMenuOpen(false);
                                         addActiveClass();
@@ -105,7 +116,7 @@ const Navbar = () => {
                                 >
                                     Utensilios
                                 </NavLink>
-                            </li>  
+                            </li>
                             <li>
                                 <NavLink
                                     to="/tipos_ingredientes"
