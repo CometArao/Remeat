@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ComandaForm from './ComandaForm';
 import useCreateComanda from '../../hooks/comandas/useCreateComanda';
 
 const CreateComandaPopup = ({ isOpen, onClose }) => {
-  const { create, loading } = useCreateComanda();
+  const { meseros, fetchMeseros, loadingMeseros, create } = useCreateComanda();
+
+  useEffect(() => {
+    if (isOpen) fetchMeseros();
+  }, [isOpen]);
 
   const handleCreate = async (formData) => {
     await create(formData);
-    onClose(); // Cierra el formulario tras la creación
-    window.location.reload(); // Refresca el listado
+    onClose();
+    window.location.reload(); // Refresca la lista
   };
 
   if (!isOpen) return null;
@@ -19,7 +23,11 @@ const CreateComandaPopup = ({ isOpen, onClose }) => {
         &times; Cerrar
       </button>
       <h2>Crear Comanda</h2>
-      <ComandaForm onSubmit={handleCreate} />
+      {loadingMeseros ? (
+        <p>Cargando meseros...</p>
+      ) : (
+        <ComandaForm meseros={meseros} onSubmit={handleCreate} />
+      )}
     </div>
   );
 };

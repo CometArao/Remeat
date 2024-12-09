@@ -1,17 +1,31 @@
 // backend/src/validations/comanda.validation.js
 import Joi from 'joi';
 
-// Validación para crear una nueva Comanda
+
+
+
+
 export const createComandaValidation = Joi.object({
   id_usuario: Joi.number()
     .integer()
     .positive()
-    .required()
     .messages({
       "number.base": "El ID del usuario debe ser un número.",
       "number.integer": "El ID del usuario debe ser un número entero.",
       "number.positive": "El ID del usuario debe ser un número positivo.",
       "any.required": "El ID del usuario es obligatorio."
+    }),
+  email: Joi.string()
+    .email()
+    .when("id_usuario", {
+      is: Joi.exist(),
+      then: Joi.forbidden(),
+      otherwise: Joi.required()
+    })
+    .messages({
+      "string.email": "El correo debe ser válido.",
+      "any.required": "El correo del usuario es obligatorio si no se proporciona el ID.",
+      "any.unknown": "No se permite el correo si ya se envió un ID."
     }),
   estado_comanda: Joi.string()
     .valid("pendiente", "completada")
@@ -29,28 +43,28 @@ export const createComandaValidation = Joi.object({
       "string.pattern.base": "La hora debe estar en el formato HH:MM."
     })
 })
+  .xor("id_usuario", "email") // Obligatorio enviar solo una forma de identificar al usuario
   .unknown(false)
   .messages({
     "object.unknown": "No se permiten propiedades adicionales."
   });
 
-// Validación para agregar un platillo a una Comanda existente
+
+
+
+  // Validación para agregar un platillo a una Comanda existente
 export const addPlatilloToComandaValidation = Joi.object({
-  id_platillo: Joi.number()
-    .integer()
-    .positive()
+  nombre_platillo: Joi.string()
     .required()
     .messages({
-      "number.base": "El ID del platillo debe ser un número.",
-      "number.integer": "El ID del platillo debe ser un número entero.",
-      "number.positive": "El ID del platillo debe ser un número positivo.",
-      "any.required": "El ID del platillo es obligatorio."
+      "string.base": "El nombre del platillo debe ser una cadena de texto.",
+      "any.required": "El nombre del platillo es obligatorio."
     }),
   estado: Joi.string()
-    .valid("pendiente", "preparando", "completado")
+    .valid("pendiente", "preparado", "entregado")
     .default("pendiente")
     .messages({
-      "any.only": "El estado debe ser 'pendiente', 'preparando' o 'completado'."
+      "any.only": "El estado debe ser 'pendiente', 'preparado' o 'entregado'."
     }),
   cantidad: Joi.number()
     .integer()
@@ -63,6 +77,11 @@ export const addPlatilloToComandaValidation = Joi.object({
       "any.required": "La cantidad es obligatoria."
     })
 });
+
+
+
+  
+
 
 // Validación para actualizar una Comanda
 export const updateComandaValidation = Joi.object({
