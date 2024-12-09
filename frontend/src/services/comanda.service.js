@@ -93,3 +93,18 @@ export const getMeseros = async (id, token) => {
     throw new Error(err.response?.data?.message || 'Error al obtener los meseros.');
   }
 };
+
+
+
+export const getPlatillos = async (id, token) => {
+  try {
+    const response = await axios.get(`/comandas/comanda/menuplatillo`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });    
+    return response.data;
+    
+  } catch (err) {
+    console.error('Error obteniendo los platillos:', err.response || err);
+    throw new Error(err.response?.data?.message || 'Error al obtener los platillos.');
+  }
+};
