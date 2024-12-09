@@ -1,28 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useAddPlatilloToComanda from '../../hooks/comandas/useAddPlatilloToComanda';
 
 const AddPlatilloForm = ({ comandaId }) => {
-  const { addPlatillo, loading, error } = useAddPlatilloToComanda();
+  const { addPlatillo, platillos, refetchPlatillos, loading, error } = useAddPlatilloToComanda();
   const [platilloData, setPlatilloData] = useState({
-    id_platillo: '',
+    nombre_platillo: '',
     cantidad: '',
     estado: 'pendiente', // Valor por defecto
   });
 
+  // Cargar platillos del menú del día al montar el componente
+  useEffect(() => {
+    refetchPlatillos();
+  }, [refetchPlatillos]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Convertir los datos al tipo correcto
+    // Formatear los datos para enviar al backend
     const formattedData = {
-      id_platillo: parseInt(platilloData.id_platillo, 10), // Convertir a número entero
+      nombre_platillo: platilloData.nombre_platillo, // Enviar el nombre del platillo
       cantidad: parseInt(platilloData.cantidad, 10), // Convertir a número entero
       estado: platilloData.estado, // Mantener como string
     };
 
-
     try {
       await addPlatillo(comandaId, formattedData);
-      setPlatilloData({ id_platillo: '', cantidad: '', estado: 'pendiente' }); // Limpiar formulario
+      setPlatilloData({ nombre_platillo: '', cantidad: '', estado: 'pendiente' }); // Limpiar formulario
     } catch (error) {
       console.error('Error al añadir platillo:', error);
     }
@@ -33,13 +37,19 @@ const AddPlatilloForm = ({ comandaId }) => {
       <h4>Añadir Platillo a Comanda</h4>
       {error && <p style={{ color: 'red' }}>Error: {error.message}</p>}
       <div>
-        <label>ID Platillo:</label>
-        <input
-          type="text"
-          value={platilloData.id_platillo}
-          onChange={(e) => setPlatilloData({ ...platilloData, id_platillo: e.target.value })}
+        <label>Platillo:</label>
+        <select
+          value={platilloData.nombre_platillo}
+          onChange={(e) => setPlatilloData({ ...platilloData, nombre_platillo: e.target.value })}
           required
-        />
+        >
+          <option value="" disabled>Seleccione un platillo</option>
+          {platillos.map((platillo) => (
+            <option key={platillo.id_platillo} value={platillo.nombre_platillo}>
+              {platillo.nombre_platillo}
+            </option>
+          ))}
+        </select>
       </div>
       <div>
         <label>Cantidad:</label>
@@ -58,8 +68,8 @@ const AddPlatilloForm = ({ comandaId }) => {
           required
         >
           <option value="pendiente">Pendiente</option>
-          <option value="preparando">Preparando</option>
-          <option value="completado">Completado</option>
+          <option value="preparado">Preparado</option>
+          <option value="entregado">Entregado</option>
         </select>
       </div>
       <button type="submit" disabled={loading}>

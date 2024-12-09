@@ -1,23 +1,24 @@
 import { useState, useCallback } from 'react';
-import { createComanda, getComandas } from '../../services/comanda.service';
+import { createComanda, getMeseros } from '../../services/comanda.service';
 import cookies from 'js-cookie';
 
 const useCreateComanda = () => {
   const [loading, setLoading] = useState(false);
-  const [comandas, setComandas] = useState([]);
+  const [meseros, setMeseros] = useState([]);
+  const [loadingMeseros, setLoadingMeseros] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchComandas = useCallback(async () => {
-    setLoading(true);
+  const fetchMeseros = useCallback(async () => {
+    setLoadingMeseros(true);
     const token = cookies.get('jwt-auth');
     try {
-      const response = await getComandas(token);
-      setComandas(response.data.data || []);
+      const response = await getMeseros(token);
+      setMeseros(response.data || []);
     } catch (err) {
-      console.error('Error obteniendo las comandas después de crear:', err);
       setError(err);
+      console.error('Error obteniendo los meseros:', err);
     } finally {
-      setLoading(false);
+      setLoadingMeseros(false);
     }
   }, []);
 
@@ -26,7 +27,6 @@ const useCreateComanda = () => {
     try {
       const token = cookies.get('jwt-auth');
       const response = await createComanda(comandaData, token);
-      await fetchComandas(); // Actualiza la lista después de crear
       return response;
     } catch (error) {
       console.error('Error creando la comanda:', error);
@@ -36,7 +36,7 @@ const useCreateComanda = () => {
     }
   };
 
-  return { create, comandas, loading, error, refetch: fetchComandas };
+  return { meseros, fetchMeseros, loadingMeseros, create, loading, error };
 };
 
 export default useCreateComanda;
