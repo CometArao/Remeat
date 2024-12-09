@@ -9,8 +9,6 @@ import Utensilio from "../entity/utensilio.entity.js"; // Importa la entidad Ute
 
 export async function createPedidoService(data) {
     const pedidoRepository = AppDataSource.getRepository(Pedido);
-    const usuarioRepository = AppDataSource.getRepository(Usuario);
-    const proveedorRepository = AppDataSource.getRepository(Proveedor);
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
 
@@ -18,106 +16,89 @@ export async function createPedidoService(data) {
         const {
             descripcion_pedido,
             fecha_compra_pedido,
-            estado_pedido,
+            estado_pedido = "Pendiente",
             fecha_entrega_pedido,
-            costo_pedido,
             id_usuario,
             id_proveedor,
-            ingredientes,
-            utensilios
+            ingredientes = [], // Valores predeterminados como arrays vacíos
+            utensilios = [] // Valores predeterminados como arrays vacíos
         } = data;
-        
-        console.log("Data recibida en el servicio:", data);
-        console.log("id_usuario recibido:", id_usuario);
-        
 
-        // Verificar usuario
+        let costoTotal = 0;
 
-        const usuario = await usuarioRepository.findOneBy({ id_usuario });
-        console.log("Resultado de la búsqueda del usuario:", usuario);
-
-
-        
-
-        // Verificar proveedor
-        const proveedor = await proveedorRepository.findOneBy({ id_proveedor });
-        if (!proveedor) {
-            console.error("Proveedor no encontrado");
-            return [null, "Proveedor no encontrado"];
-        }
-
-        // Crear el pedido
+        // Crear el pedido inicial
         const newPedido = pedidoRepository.create({
             descripcion_pedido,
             fecha_compra_pedido,
-            estado_pedido: "pendiente", // Estado fijo
+            estado_pedido,
             fecha_entrega_pedido,
-            costo_pedido,
-            usuario, // Asignar el usuario correctamente
-            proveedor // Asignar el proveedor correctamente
+            costo_pedido: 0, // Inicialmente 0, se actualizará después
+            id_usuario,
+            id_proveedor,
         });
 
-        // Agregar ingredientes
-        if (ingredientes && ingredientes.length > 0) {
+        // Procesar ingredientes si existen
+        if (ingredientes.length > 0) {
             const foundIngredientes = await ingredienteRepository.find({
-                where: { id_ingrediente: In(ingredientes) },
+                where: { id_ingrediente: In(ingredientes.map(i => i.id_ingrediente)) },
                 relations: ["tipo_ingrediente"]
             });
-            if (foundIngredientes.length === 0) {
-                console.error("Ingredientes no encontrados");
+
+            if (foundIngredientes.length !== ingredientes.length) {
                 return [null, "Uno o más ingredientes no existen"];
             }
-            newPedido.ingredientes = foundIngredientes;
+
+            newPedido.ingredientes = foundIngredientes.map((ing) => {
+                const ingredientePedido = ingredientes.find(i => i.id_ingrediente === ing.id_ingrediente);
+                const cantidad = ingredientePedido ? ingredientePedido.cantidad : 0;
+                const costo = cantidad * ing.costo_ingrediente;
+                costoTotal += costo;
+
+                return {
+                    ...ing,
+                    cantidad_ingrediente: cantidad
+                };
+            });
         }
 
-        // Agregar utensilios
-        if (utensilios && utensilios.length > 0) {
+        // Procesar utensilios si existen
+        if (utensilios.length > 0) {
             const foundUtensilios = await utensilioRepository.find({
-                where: { id_utensilio: In(utensilios) },
+                where: { id_utensilio: In(utensilios.map(u => u.id_utensilio)) },
                 relations: ["tipo_utensilio"]
             });
-            if (foundUtensilios.length === 0) {
-                console.error("Utensilios no encontrados");
+
+            if (foundUtensilios.length !== utensilios.length) {
                 return [null, "Uno o más utensilios no existen"];
             }
-            newPedido.utensilios = foundUtensilios;
+
+            newPedido.utensilios = foundUtensilios.map((ut) => {
+                const utensilioPedido = utensilios.find(u => u.id_utensilio === ut.id_utensilio);
+                const cantidad = utensilioPedido ? utensilioPedido.cantidad : 0;
+                const costo = cantidad * ut.costo_utensilio;
+                costoTotal += costo;
+
+                return {
+                    ...ut,
+                    cantidad_utensilio: cantidad
+                };
+            });
         }
+
+        // Asignar el costo total al pedido
+        newPedido.costo_pedido = costoTotal;
 
         // Guardar el pedido
         const savedPedido = await pedidoRepository.save(newPedido);
 
-        // Preparar respuesta con relaciones
-        const responseData = {
-            id_pedido: savedPedido.id_pedido,
-            descripcion_pedido: savedPedido.descripcion_pedido,
-            fecha_compra_pedido: savedPedido.fecha_compra_pedido,
-            estado_pedido: savedPedido.estado_pedido,
-            fecha_entrega_pedido: savedPedido.fecha_entrega_pedido,
-            costo_pedido: savedPedido.costo_pedido,
-            id_usuario: usuario.id_usuario,
-            id_proveedor: proveedor.id_proveedor,
-            ingredientes: savedPedido.ingredientes?.map(ing => ({
-                id_ingrediente: ing.id_ingrediente,
-                nombre_tipo_ingrediente: ing.tipo_ingrediente?.nombre_tipo_ingrediente || "Sin tipo",
-                cantidad_ingrediente: ing.cantidad_ingrediente,
-                costo_ingrediente: ing.costo_ingrediente
-            })) || [],
-            utensilios: savedPedido.utensilios?.map(ut => ({
-                id_utensilio: ut.id_utensilio,
-                nombre_tipo_utensilio: ut.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo",
-                cantidad_utensilio: ut.cantidad_utensilio,
-                costo_utensilio: ut.costo_utensilio
-            })) || []
-        };
-        
-        console.log(id_usuario)
-
-        return [responseData, null];
+        return [savedPedido, null];
     } catch (error) {
         console.error("Error al crear el pedido:", error);
         return [null, error.message];
     }
 }
+
+
 
 export async function validateIngredientesYUtensilios(ingredientes, utensilios) {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);

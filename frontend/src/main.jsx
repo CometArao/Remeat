@@ -23,11 +23,10 @@ import GenerateQRCode from '@pages/GenerateQRCode';
 import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
-import  Platillos from '@pages/Platillos';
+import Platillos from '@pages/Platillos';
 import Menu from './pages/Menu.jsx';
+import CrearPedido from './pages/CrearPedido';
 import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
-
-
 
 const data_lineal2 = [
   {
@@ -641,6 +640,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Pedidos />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/crear_pedido',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <CrearPedido /> {/* Nuevo componente para la creación de pedidos */}
           </ProtectedRoute>
         ),
       },

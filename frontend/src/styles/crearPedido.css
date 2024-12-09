@@ -1,0 +1,104 @@
+.crear-pedido-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #eef7ff;
+    padding: 20px;
+}
+
+.crear-pedido-form {
+    background-color: white;
+    border-radius: 24px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    padding: 40px;
+    width: 100%;
+    max-width: 800px;
+    font-family: "Montserrat", sans-serif;
+}
+
+.crear-pedido-form h1 {
+    color: #003366;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.crear-pedido-form .form-group {
+    margin-bottom: 20px;
+}
+
+.crear-pedido-form label {
+    display: block;
+    font-weight: bold;
+    color: #003366;
+    margin-bottom: 8px;
+}
+
+.crear-pedido-form input,
+.crear-pedido-form select,
+.crear-pedido-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #003366;
+    border-radius: 12px;
+    font-size: 16px;
+    background-color: #eef7ff;
+    color: #003366;
+    outline: none;
+}
+
+.crear-pedido-form input:focus,
+.crear-pedido-form select:focus,
+.crear-pedido-form textarea:focus {
+    background-color: rgba(0, 110, 223, 0.1);
+    border-color: #006edf;
+}
+
+.crear-pedido-form .form-group textarea {
+    resize: vertical;
+}
+
+.crear-pedido-form button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #003366;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.crear-pedido-form button:hover {
+    background-color: #00509e;
+}
+
+.crear-pedido-form .error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+    display: none;
+}
+
+.crear-pedido-form .error-message.visible {
+    display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .crear-pedido-form {
+        padding: 20px;
+    }
+
+    .crear-pedido-form h1 {
+        font-size: 24px;
+    }
+
+    .crear-pedido-form button {
+        font-size: 14px;
+    }
+}

@@ -1,6 +1,7 @@
 "use strict";
 import { AppDataSource } from "../config/configDb.js";
 import Proveedor from "../entity/proveedor.entity.js";
+import Pedido from "../entity/pedido.entity.js";
 
 // Crear un nuevo proveedor
 export async function createProveedorService(data) {
@@ -69,21 +70,33 @@ export async function updateProveedorService(id_proveedor,data) {
      }
 }
 
-// Eliminar un proveedor
 export async function deleteProveedorService(id_proveedor) {
-     const proveedorRepository = AppDataSource.getRepository(Proveedor);
+    const proveedorRepository = AppDataSource.getRepository(Proveedor);
+    const pedidoRepository = AppDataSource.getRepository(Pedido);
 
-     try {
-         const proveedor = await proveedorRepository.findOneBy({ id_proveedor });
-         if (!proveedor) {
-             return [null,"Proveedor no encontrado"];
-         }
+    try {
+        const proveedor = await proveedorRepository.findOneBy({ id_proveedor });
+        if (!proveedor) {
+            return [null, `El proveedor con ID ${id_proveedor} no existe.`];
+        }
 
-         await proveedorRepository.delete(id_proveedor); // Elimina el proveedor
+        // Verificar si el proveedor está asociado con algún pedido
+        const pedido = await pedidoRepository.findOne({
+            where: { id_proveedor },
+        });
 
-         return [true,null]; // Retornar true si se eliminó exitosamente
-     } catch (error) {
-         console.error("Error al eliminar el proveedor:", error);
-         return [null,error.message];
-     }
+        if (pedido) {
+            return [
+                null,
+                "No se puede eliminar este proveedor porque está asociado a uno o más pedidos.",
+            ];
+        }
+
+        // Eliminar el proveedor si no tiene pedidos asociados
+        await proveedorRepository.delete(id_proveedor);
+        return [proveedor, null];
+    } catch (error) {
+        console.error("Error al eliminar el proveedor:", error);
+        return [null, error.message];
+    }
 }
