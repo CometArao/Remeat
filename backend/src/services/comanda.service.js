@@ -48,7 +48,7 @@ import Menu from '../entity/menu.entity.js';
 }
 */
 
-export const getMeserosService = async () => {
+export async function getMeserosService(){
   // Obtén el repositorio de la entidad Usuario
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
@@ -65,6 +65,33 @@ export const getMeserosService = async () => {
     throw new Error('Error al obtener los meseros: ' + error.message);
   }
 };
+
+
+export async function getPlatillosDelDiaService(){
+  const menuRepository = AppDataSource.getRepository(Menu);
+
+  try {
+    // Busca el menú del día con la relación correcta
+    const menuDelDia = await menuRepository
+      .createQueryBuilder('menu')
+      .leftJoinAndSelect('menu.platillo', 'platillo') // Cambiado de 'platillos' a 'platillo'
+      .where('menu.disponibilidad = :disponible', { disponible: true })
+      .orderBy('menu.fecha', 'DESC') // Busca el menú más reciente en caso de múltiples menús disponibles
+      .getOne();
+
+    if (!menuDelDia) {
+      throw new Error('No se encontró un menú disponible para el día actual.');
+    }
+
+    return menuDelDia.platillo; // Devuelve la lista de platillos del menú del día
+  } catch (error) {
+    throw new Error('Error al obtener los platillos del menú del día: ' + error.message);
+  }
+};
+
+
+
+
 
 
 export async function obtenerComandasConPlatillos() { 

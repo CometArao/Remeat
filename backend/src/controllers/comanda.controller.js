@@ -8,7 +8,8 @@ import {
   getAllComandas,
   addPlatilloToComanda,
   obtenerComandasConPlatillos,
-  getMeserosService
+  getMeserosService,
+  getPlatillosDelDiaService
 } from '../services/comanda.service.js';
 
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
@@ -20,7 +21,7 @@ import {
 } from '../validations/comanda.validation.js';
 
 
-export const getMeserosController = async (req, res) => {
+export async function getMeserosController(req, res){
   try {
     // Llama al servicio para obtener la lista de meseros
     const meseros = await getMeserosService();
@@ -32,6 +33,22 @@ export const getMeserosController = async (req, res) => {
     res.status(500).json({ status: 'Error', message: error.message });
   }
 };
+
+
+
+
+export async function getPlatillosDelDiaController(req, res){
+  try {
+    const platillos = await getPlatillosDelDiaService(); // Llama al servicio para obtener los platillos
+    res.status(200).json({ status: 'Success', data: platillos });
+  } catch (error) {
+    res.status(500).json({ status: 'Error', message: error.message });
+  }
+};
+
+
+
+
 
 
 export async function getComandasConPlatillosController(req, res) {
