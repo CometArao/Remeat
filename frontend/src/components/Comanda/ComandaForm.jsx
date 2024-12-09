@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-const ComandaForm = ({ onSubmit }) => {
+const ComandaForm = ({ meseros, onSubmit }) => {
   const [formData, setFormData] = useState({
     fecha_compra_comanda: '',
     hora_compra_comanda: '',
-    id_usuario: '',
-    estado_comanda: 'pendiente', // Valor predeterminado
+    email: '',
+    estado_comanda: 'pendiente',
   });
 
   const handleChange = (e) => {
@@ -27,6 +27,7 @@ const ComandaForm = ({ onSubmit }) => {
         onChange={handleChange}
         required
       />
+
       <label>Hora:</label>
       <input
         type="time"
@@ -35,14 +36,22 @@ const ComandaForm = ({ onSubmit }) => {
         onChange={handleChange}
         required
       />
-      <label>ID Usuario:</label>
-      <input
-        type="number"
-        name="id_usuario"
-        value={formData.id_usuario}
+
+      <label>Mesero:</label>
+      <select
+        name="email"
+        value={formData.email}
         onChange={handleChange}
         required
-      />
+      >
+        <option value="">Seleccione un mesero</option>
+        {meseros.map((mesero) => (
+          <option key={mesero.id_usuario} value={mesero.correo_usuario}>
+            {mesero.nombre_usuario} {mesero.apellido_usuario} ({mesero.correo_usuario})
+          </option>
+        ))}
+      </select>
+
       <label>Estado de la Comanda:</label>
       <select
         name="estado_comanda"
@@ -52,6 +61,7 @@ const ComandaForm = ({ onSubmit }) => {
       >
         <option value="pendiente">Pendiente</option>
       </select>
+
       <button type="submit">Crear Comanda</button>
     </form>
   );
