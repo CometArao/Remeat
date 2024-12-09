@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import ComandaList from '../components/Comanda/ComandaList';
-import ComandasWithPlatillosList from '../components/Comanda/ComandasWithPlatillosList';
-import CreateComandaPopup from '../components/Comanda/CreateComandaPopup';
+import ComandaList from '../components/comanda/ComandaList';
+import ComandasWithPlatillosList from '../components/comanda/ComandasWithPlatillosList';
+import CreateComandaPopup from '../components/comanda/CreateComandaPopup';
 
 const Comandas = () => {
   const [view, setView] = useState('default'); // Controla qué vista mostrar
