@@ -277,7 +277,11 @@
   integrity sha512-snKqtPW01tN0ui7yu9rGv69aJXr/a/Ywvl11sUjNtEcRc+ng/mQriFL0wLXMef74iHa/EkftbDzU9F8iFbH+zg==
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 "@esbuild/win32-x64@0.21.5":
+=======
+"@esbuild/linux-x64@0.21.5":
+>>>>>>> Stashed changes
 =======
 "@esbuild/linux-x64@0.21.5":
 >>>>>>> Stashed changes
