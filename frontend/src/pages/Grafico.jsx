@@ -161,11 +161,11 @@ const Grafico = () => {
             legendX={data.independientes.name} legendY={data.tipo.variable} />
         }
         {data.tipo.tipoGrafico == "barra" &&
-          <GraficoBarra data={formatedData}
-            keys={keys} legendX={null} legendY={data.tipo.variable} />
+          <GraficoBarra data={data.dependientes}
+            keys={data.keys} legendX={null} legendY={data.tipo.variable} />
         }
         {data.tipo.tipoGrafico == "circular" &&
-          <GraficoCircular data={formatedData}
+          <GraficoCircular data={data.dependientes}
             legendX={data.independientes.name} legendY={data.tipo.variable} />
         }
       </div>
@@ -173,56 +173,5 @@ const Grafico = () => {
   )
 }
 
-//TODO: pruebas
-function construirBarra(datos) {
-  const color_barra = "hsl(299, 70%, 50%)"
-  let result = [];
-  let keys = Object.keys(datos);
 
-  for (let i = 0; i < keys.length; i++) {
-    const ventas = datos[keys[i]]['ventas_por_comanda'];
-    console.log("ventas")
-    console.log(ventas)
-    let total = 0;
-    for (let ii = 0; ii < ventas.length; ii++) {
-      const venta = ventas[ii];
-      console.log("total")
-      console.log(total)
-      total += venta.cantidad_platillo;
-    }
-    console.log("total")
-    console.log(total)
-    const itemBar = {
-      "nombre_platillo": keys[i],
-      [keys[i]]: total,
-      "color_barra": color_barra
-    }
-    result.push(itemBar);
-  }
-  return [result, keys];
-}
-
-function construirCircular(datos) {
-  const color_circular = "hsl(299, 70%, 50%)" //TODO: agregar una funcion para generar colores
-  const keys = Object.keys(datos)
-  let result = [];
-  for (let i = 0; i < keys.length; i++) {
-    console.log("datos")
-    console.log(datos)
-    const ventas = datos[keys[i]]["ventas_por_comanda"];
-    let total = 0;
-    for (let ii = 0; ii < ventas.length; ii++) {
-      const venta = ventas[ii];
-      total += venta.cantidad_platillo
-    }
-    const itemCircular = {
-      "id": keys[i],
-      "label": keys[i],
-      "value": total,
-      "color": color_circular
-    }
-    result.push(itemCircular)
-  }
-  return result;
-}
 export default Grafico

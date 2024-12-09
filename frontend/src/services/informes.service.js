@@ -60,10 +60,10 @@ export async function getStockIngrediente(ids_tipo_ingrediente) {
 export async function getPlatilloMenu(ids_platillo) {
     try {
         const body = {
-            ids: TODO
+            ids: ids_platillo
         }
         const { data } = await axios.post(`/informes/get_platillo_menu`, body)
-        return data
+        return data.data
     }catch(error) {
         console.error(error)
         return error.response.data

@@ -107,8 +107,9 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
         where: { id_tipo_ingrediente: id_tipo_ingrediente }
       });
       if (!tipoIngredienteEncontrado) {
-        return [null,
-          "El tipo de ingrediente con id: " + id_tipo_ingrediente + "no existe"]
+        continue
+        //return [null,
+          //"El tipo de ingrediente con id: " + id_tipo_ingrediente + "no existe"]
       }
       const ingredientes = await AppDataSource.query(`
     SELECT * 
@@ -118,7 +119,8 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
     WHERE ti.id_tipo_ingrediente = $1
     `, [id_tipo_ingrediente])
       if (!ingredientes || ingredientes.length == 0) {
-        return [null, "No se encontraron ingredientes asociados a ese tipo"]
+        continue
+        //return [null, "No se encontraron ingredientes asociados a ese tipo"]
       }
       //Por cada ingrediente mirar mermas y pedidos
       for (let i = 0; i < ingredientes.length; i++) {
@@ -230,9 +232,6 @@ export async function getVentasPlatilloService() {
    *    ventas: ventas
    *  }
    * ]
-   * 
-   * 
-   * 
    */
   try {
     const platillosRepository = AppDataSource.getRepository(Platillo)
