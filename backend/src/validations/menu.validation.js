@@ -1,19 +1,31 @@
 "use strict";
 import Joi from "joi";
+import { HOST } from "../config/configEnv.js";
 
 const dateValidator = (value, helper) => {
-  const fechaActual = new Date(); // Fecha actual del servidor (en UTC)
-  const fechaIngresada = new Date(value); // Fecha ingresada por el usuario
+  const fechaActual = new Date();
+  const fechaIngresada = new Date(value);
 
-  // Establecer horas, minutos, segundos y milisegundos a 00:00:00
-  fechaActual.setUTCHours(0, 0, 0, 0);
-  fechaIngresada.setUTCHours(0, 0, 0, 0);
+  console.log("Fecha actual ORIGINAL: ", fechaActual);
+  console.log("Fecha ingresada ORIGINAL: ", fechaIngresada);
+  // Si el host no es localhost, ajustar la fecha actual
+  // De lo contrario, la fecha actual ya está ajustada
+    
 
-  // Comparar las fechas
-  if (fechaIngresada < fechaActual) {
-      return helper.message("La fecha debe ser posterior o igual a la fecha actual.");
-  }
+  fechaActual.setHours(fechaActual.getHours() - 3); // Obtengo hora actual chilena
+  console.log("Fecha actual ACTUALIZADA: ", fechaActual);
+  console.log("Fecha ingresadaACTUALIZADA: ", fechaIngresada);
+  // Ajustar la fecha actual restando 3 horas (diferencia horaria del servidor)
+  fechaActual.setHours(-3, 0, 0, 0); // Ajuste para considerar solo la fecha
+  //fechaIngresada.setHours(0, 0, 0, 0);
+
+  console.log("Fecha actual FORMAT: ", fechaActual);
+  console.log("Fecha ingresada FORMAT: ", fechaIngresada);
+
   
+  if (fechaIngresada < fechaActual) {
+    return helper.message("La fecha debe ser posterior o igual a la fecha actualasdsadsa");
+  }
   return value;
 };
 
