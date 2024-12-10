@@ -138,17 +138,12 @@ export async function getMenuByIdController(req, res){
 
 export async function deleteMenuController(req, res){
     try{
-        console.log("Llegué controlador")
-        console.log(req.params)
         const { id } = req.params;
-
-        console.log(id);
 
         const { error } = menuQueryValidation.validate({ id });
 
         if(error) return handleErrorClient(res, 400, error.message);
 
-        console.log("Voy al servicio")
         const [menu, errorMenu] = await deleteMenuByIdService(id);
 
         if(errorMenu) return handleErrorClient(res, 404, errorMenu);
