@@ -59,3 +59,18 @@ export async function deletePlatillo(id) {
         return error.response.data;
     }
 }
+
+export async function confirmarPlatillo(idPlatillo, idComanda, nuevoEstado) {
+    try {
+      const response = await axios.post(
+        `/platillos/confirmar/${idPlatillo}/${idComanda}`,
+        { nuevo_estado: nuevoEstado },
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error al confirmar el platillo:', error.response?.data || error.message);
+      throw new Error(
+        error.response?.data?.message || 'Error al confirmar el platillo.'
+      );
+    }
+  }

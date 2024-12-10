@@ -25,11 +25,6 @@ export async function generateMenuQRCode(url) {
 
 
 
-
-
-
-
-
 export async function createMenuService(data) {
     const menuRepository = AppDataSource.getRepository(Menu);
     const platilloRepository = AppDataSource.getRepository(Platillo);

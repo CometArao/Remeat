@@ -3,17 +3,18 @@ import Select from 'react-select';
 import axios from '../../services/root.service';
 
 const IngredientesSelect = ({ value, onChange }) => {
-  const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState([]);
+  const [ingredientesDisponibles, setIngredientesDisponibles] = useState([]);
+  const [seleccionados, setSeleccionados] = useState(value || []);
 
   useEffect(() => {
     const obtenerIngredientes = async () => {
       try {
         const response = await axios.get('/ingredientes/tipo');
-        const opciones = response.data.data.map(ingrediente => ({
+        const opciones = response.data.data.map((ingrediente) => ({
           value: ingrediente.id_tipo_ingrediente,
           label: ingrediente.nombre_tipo_ingrediente,
         }));
-        setIngredientesSeleccionados(opciones);
+        setIngredientesDisponibles(opciones);
       } catch (error) {
         console.error('Error al obtener los ingredientes:', error);
       }
@@ -22,72 +23,53 @@ const IngredientesSelect = ({ value, onChange }) => {
     obtenerIngredientes();
   }, []);
 
-  // Estilos personalizados para react-select
-  const customStyles = {
-    control: (base) => ({
-      ...base,
-      minHeight: '35px',         // Control más bajo
-      fontSize: '14px',          // Fuente un poco más pequeña
-    }),
-    valueContainer: (base) => ({
-      ...base,
-      padding: '2px 8px',        // Menos padding interno
-    }),
-    multiValue: (base) => ({
-      ...base,
-      display: 'flex',
-      alignItems: 'center',
-      padding: '2px 6px',        // Menos padding en el chip
-      borderRadius: '4px',
-      fontSize: '13px',
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      padding: '0',              // Quita padding extra
-    }),
-    multiValueRemove: (base) => ({
-      ...base,
-      borderRadius: '50%',
-      fontSize: '12px',
-      width: '20px',
-      height: '20px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0',
-      marginLeft: '8px',
-      cursor: 'pointer',
-      ':hover': {
-        backgroundColor: '#d1d1d1',
-        color: '#333',
-      },
-    }),
-    dropdownIndicator: (base) => ({
-      ...base,
-      padding: '0px', // Quita espacio extra en el icono de dropdown
-    }),
-    clearIndicator: (base) => ({
-      ...base,
-      padding: '0px', // Quita espacio extra en el icono de clear
-    }),
-    indicatorsContainer: (base) => ({
-      ...base,
-      '> div': {
-        padding: '0 4px', // Menos espacio entre indicadores
-      },
-    }),
+  const manejarCambio = (ingredientes) => {
+    const ingredientesConPorcion = ingredientes.map((ingrediente) => {
+      const existente = seleccionados.find((sel) => sel.value === ingrediente.value);
+      return {
+        ...ingrediente,
+        porcion: existente ? existente.porcion : 1,
+      };
+    });
+    setSeleccionados(ingredientesConPorcion);
+    onChange(ingredientesConPorcion);
+  };
+
+  const actualizarPorcion = (index, nuevaPorcion) => {
+    const nuevosSeleccionados = [...seleccionados];
+    nuevosSeleccionados[index].porcion = parseFloat(nuevaPorcion) || 1;
+    setSeleccionados(nuevosSeleccionados);
+    onChange(nuevosSeleccionados);
   };
 
   return (
-    <Select
-      isMulti
-      options={ingredientesSeleccionados}
-      value={value}
-      onChange={onChange}
-      placeholder="Selecciona los ingredientes..."
-      styles={customStyles}
-      noOptionsMessage={() => 'No hay ingredientes disponibles'}
-    />
+    <div>
+      <Select
+        isMulti
+        options={ingredientesDisponibles}
+        value={seleccionados}
+        onChange={manejarCambio}
+        placeholder="Selecciona los ingredientes..."
+        noOptionsMessage={() => 'No hay ingredientes disponibles'}
+      />
+      {seleccionados.length > 0 && (
+        <div className="ingredientes-porciones">
+          {seleccionados.map((ingrediente, index) => (
+            <div key={ingrediente.value} className="ingrediente-porcion">
+              <span>{ingrediente.label}</span>
+              <input
+                type="number"
+                min="0.1"
+                step="0.1"
+                value={ingrediente.porcion}
+                onChange={(e) => actualizarPorcion(index, e.target.value)}
+                placeholder="Porción"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

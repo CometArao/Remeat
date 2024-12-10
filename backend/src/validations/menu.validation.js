@@ -5,26 +5,15 @@ import { HOST } from "../config/configEnv.js";
 const dateValidator = (value, helper) => {
   const fechaActual = new Date();
   const fechaIngresada = new Date(value);
-
-  console.log("Fecha actual ORIGINAL: ", fechaActual);
-  console.log("Fecha ingresada ORIGINAL: ", fechaIngresada);
-  // Si el host no es localhost, ajustar la fecha actual
-  // De lo contrario, la fecha actual ya está ajustada
-    
-
+  
   fechaActual.setHours(fechaActual.getHours() - 3); // Obtengo hora actual chilena
-  console.log("Fecha actual ACTUALIZADA: ", fechaActual);
-  console.log("Fecha ingresadaACTUALIZADA: ", fechaIngresada);
+
   // Ajustar la fecha actual restando 3 horas (diferencia horaria del servidor)
   fechaActual.setHours(-3, 0, 0, 0); // Ajuste para considerar solo la fecha
+
   //fechaIngresada.setHours(0, 0, 0, 0);
-
-  console.log("Fecha actual FORMAT: ", fechaActual);
-  console.log("Fecha ingresada FORMAT: ", fechaIngresada);
-
-  
   if (fechaIngresada < fechaActual) {
-    return helper.message("La fecha debe ser posterior o igual a la fecha actualasdsadsa");
+    return helper.message("La fecha debe ser posterior o igual a la fecha actual.");
   }
   return value;
 };
@@ -94,7 +83,7 @@ export const menuBodyValidation = Joi.object({
 
 // Validación para las consultas de menú (por query params)
 export const menuQueryValidation = Joi.object({
-  id_menu: Joi.number()
+  id: Joi.number()
     .integer()
     .positive()
     .messages({
