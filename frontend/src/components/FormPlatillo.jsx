@@ -47,7 +47,7 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
                             placeholder={field.placeholder}
                             type={field.type === 'password' && field.name === 'password' ? (showPassword ? 'text' : 'password') :
                                 field.type === 'password' && field.name === 'newPassword' ? (showNewPassword ? 'text' : 'password') :
-                                field.type}
+                                    field.type}
                             defaultValue={field.defaultValue || ''}
                             disabled={field.disabled}
                             onChange={field.onChange}
@@ -122,14 +122,16 @@ const Form = ({ title, fields, buttonText, onSubmit, footerContent, backgroundCo
                         />
                     )}
 
+
+
                     {field.type === 'password' && field.name === 'password' && (
                         <span className="toggle-password-icon" onClick={togglePasswordVisibility}>
-                            <img src={showPassword ? ViewIcon : HideIcon} alt="ver/ocultar password"/>
+                            <img src={showPassword ? ViewIcon : HideIcon} alt="ver/ocultar password" />
                         </span>
                     )}
                     {field.type === 'password' && field.name === 'newPassword' && (
                         <span className="toggle-password-icon" onClick={toggleNewPasswordVisibility}>
-                            <img src={showNewPassword ? ViewIcon : HideIcon} alt="ver/ocultar password"/>
+                            <img src={showNewPassword ? ViewIcon : HideIcon} alt="ver/ocultar password" />
                         </span>
                     )}
                     <div className={`error-message ${errors[field.name] ? 'visible' : ''}`}>
