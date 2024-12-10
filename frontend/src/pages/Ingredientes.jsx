@@ -23,8 +23,7 @@ const Ingredientes = () => {
     useEffect(() => {
         fetchIngredientes();
         fetchTiposIngrediente();
-    }
-    , []);
+    }, []);
 
     const {
         handleClickUpdate,
@@ -39,7 +38,7 @@ const Ingredientes = () => {
 
     const handleSelectionChange = useCallback((selectedItems) => {
         setDataIngrediente(selectedItems);
-      }, [setDataIngrediente]);
+    }, [setDataIngrediente]);
 
     const {
         handleClickCreate,
@@ -51,19 +50,17 @@ const Ingredientes = () => {
     } = useCreateIngrediente(setIngredientes);
 
     const columns = [
-      {title: 'ID', field: 'id_ingrediente', width: 100},  
-      { title: 'Fecha de Vencimiento', field: 'fecha_vencimiento', width: 200 },
-      { title: 'Cantidad', field: 'cantidad_ingrediente', width: 150 },
-      { title: 'Cantidad Original', field: 'cantidad_original_ingrediente', width: 200 },
-      { title: 'Costo', field: 'costo_ingrediente', width: 150 },
-      { title: 'Tipo de Ingrediente', field: 'tipo_ingrediente.nombre_tipo_ingrediente', width: 200 },
+        { title: 'ID', field: 'id_ingrediente', width: 100 },
+        { title: 'Fecha de Vencimiento', field: 'fecha_vencimiento', width: 200 },
+        { title: 'Cantidad', field: 'cantidad_ingrediente', width: 150 },
+        { title: 'Cantidad Original', field: 'cantidad_original_ingrediente', width: 200 },
+        { title: 'Costo', field: 'costo_ingrediente', width: 150 },
+        { title: 'Tipo de Ingrediente', field: 'tipo_ingrediente.nombre_tipo_ingrediente', width: 200 },
     ];
-  
-    // Filtrar datos según el término de búsqueda
+    
     const handleNameFilterChange = (e) => {
-        console.log(e)
         setFilterName(e.target.value.toLowerCase());
-      };
+    };
 
     return (
         <div className="main-container">

@@ -16,10 +16,11 @@ const useGetIngredientes = () => {
             console.error("Error fetching ingredientes:", error);
         }
     };
-    
+
     useEffect(() => {
         fetchIngredientes();
-    }, [])
+    }, []);
+
     return { ingredientes, fetchIngredientes, setIngredientes };
 };
 

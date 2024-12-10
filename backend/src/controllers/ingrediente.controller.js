@@ -46,8 +46,12 @@ export async function getTipoIngredientesController(req, res) {
   try {
     const [tipos, error] = await getTipoIngredientesService();
     if (error) {
-
-      return handleErrorClient(res, 404, "Error obteniendo tipos de ingredientes", error);
+      return handleErrorClient(
+        res,
+        404,
+        "Error obteniendo tipos de ingredientes",
+        error
+      );
     }
     handleSuccess(res, 200, "Tipos de ingredientes obtenidos", tipos);
   } catch (error) {
@@ -101,21 +105,35 @@ export async function deleteTipoIngredienteController(req, res) {
     const { id_tipo_ingrediente } = req.params;
 
     if (!id_tipo_ingrediente) {
-      return handleErrorClient(res, 400, "ID del tipo de ingrediente no proporcionado.");
+      return handleErrorClient(
+        res,
+        400,
+        "ID del tipo de ingrediente no proporcionado."
+      );
     }
 
-    const [deletedTipoIngrediente, errorTipoIngrediente] = await deleteTipoIngredienteService(id_tipo_ingrediente);
+    const [deletedTipoIngrediente, errorTipoIngrediente] =
+      await deleteTipoIngredienteService(id_tipo_ingrediente);
 
     if (errorTipoIngrediente) {
-      return handleErrorClient(res, 404, "Error eliminando tipo de ingrediente", errorTipoIngrediente);
+      return handleErrorClient(
+        res,
+        404,
+        "Error eliminando tipo de ingrediente",
+        errorTipoIngrediente
+      );
     }
 
-    handleSuccess(res, 200, "Tipo de ingrediente eliminado exitosamente", deletedTipoIngrediente);
+    handleSuccess(
+      res,
+      200,
+      "Tipo de ingrediente eliminado exitosamente",
+      deletedTipoIngrediente
+    );
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
 }
-
 
 // Controlador para crear un ingrediente
 export async function createIngredienteController(req, res) {
@@ -126,8 +144,14 @@ export async function createIngredienteController(req, res) {
       return handleErrorClient(res, 400, "Error de validación", error.message);
     }
 
-    const { fecha_vencimiento, cantidad_ingrediente, cantidad_original_ingrediente, 
-      costo_ingrediente, id_tipo_ingrediente, id_pedido = null } = req.body;
+    const {
+      fecha_vencimiento,
+      cantidad_ingrediente,
+      cantidad_original_ingrediente,
+      costo_ingrediente,
+      id_tipo_ingrediente,
+      id_pedido = null, // Si no se proporciona, será null
+    } = req.body;
 
     const [newIngrediente, errorIngrediente] = await createIngredienteService({
       fecha_vencimiento,
@@ -139,25 +163,45 @@ export async function createIngredienteController(req, res) {
     });
 
     if (errorIngrediente) {
-      return handleErrorClient(res, 404, "Error creando ingrediente", errorIngrediente);
+      return handleErrorClient(
+        res,
+        404,
+        "Error creando ingrediente",
+        errorIngrediente
+      );
     }
 
-    // Preparar la respuesta con la información del tipo de ingrediente
+    // Construir la respuesta con la información del ingrediente, tipo, y pedido
     const responseData = {
       id_ingrediente: newIngrediente.id_ingrediente,
       fecha_vencimiento: newIngrediente.fecha_vencimiento,
       cantidad_ingrediente: newIngrediente.cantidad_ingrediente,
-      cantidad_original_ingrediente: newIngrediente.cantidad_original_ingrediente,
+      cantidad_original_ingrediente:
+        newIngrediente.cantidad_original_ingrediente,
       costo_ingrediente: newIngrediente.costo_ingrediente,
-      id_tipo_ingrediente: newIngrediente.id_tipo_ingrediente,
-      id_pedido: newIngrediente.id_pedido,
+      id_tipo_ingrediente: newIngrediente.tipo_ingrediente.id_tipo_ingrediente,
+      id_pedido: id_pedido || null, // Retornar el id del pedido si se proporcionó
       tipo_ingrediente: {
-        id_tipo_ingrediente: newIngrediente.tipo_ingrediente.id_tipo_ingrediente,
-        nombre_tipo_ingrediente: newIngrediente.tipo_ingrediente.nombre_tipo_ingrediente,
+        id_tipo_ingrediente:
+          newIngrediente.tipo_ingrediente.id_tipo_ingrediente,
+        nombre_tipo_ingrediente:
+          newIngrediente.tipo_ingrediente.nombre_tipo_ingrediente,
         unidad_medida: {
-          nombre_unidad_medida: newIngrediente.tipo_ingrediente.unidad_medida.nombre_unidad_medida,
+          nombre_unidad_medida:
+            newIngrediente.tipo_ingrediente.unidad_medida.nombre_unidad_medida,
         },
       },
+      pedido: id_pedido // Verifica si se proporcionó un id_pedido.
+        ? { // Si existe un id_pedido, crea el objeto relacionado al pedido.
+            id_pedido: id_pedido, // Incluye el id del pedido en la respuesta.
+            descripcion_pedido: 
+            newIngrediente.compuesto_ingrediente?.[0]?.pedido?.descripcion_pedido 
+            || "Sin descripción", // Obtiene la descripción del pedido desde la relación. 
+            // Si no existe, usa "Sin descripción".
+            fecha_compra_pedido: newIngrediente.compuesto_ingrediente?.[0]?.pedido?.fecha_compra_pedido 
+            || "No definida", // Obtiene la fecha de compra del pedido. Si no existe, usa "No definida".
+          }
+        : null, // Si no se proporcionó un id_pedido, el valor será null.
     };
 
     handleSuccess(res, 201, "Ingrediente creado exitosamente", responseData);
