@@ -484,8 +484,6 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
       if (!transicionesPermitidas[estadoActual].includes(nuevo_estado)) {
         throw new Error(`Transición no permitida de "${estadoActual}" a "${nuevo_estado}".`);
       }
-
-      console.log("estadoActual", estadoActual);
   
       // Verificar disponibilidad antes de cambiar el estado a "preparado"
       if (nuevo_estado === "preparado") {
@@ -494,9 +492,8 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
           throw new Error(`El platillo "${conformaPlatillo.platillo.nombre_platillo}" no está disponible.`);
         }
          // Descontar ingredientes del inventario
-    await descontarIngredientesInventario(id_platillo);
-
-    console.log("Ingredientes descontados del inventario:", id_platillo);
+         const cantidadesDescontadas = await descontarIngredientesInventario(id_platillo, id_comanda);
+          console.log("Ingredientes descontados del inventario:", cantidadesDescontadas);
 }
       // Actualizar el estado del platillo
       conformaPlatillo.estado_platillo = nuevo_estado;
@@ -511,12 +508,24 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
     }
   }
 
-export async function descontarIngredientesInventario(id_platillo) {
+export async function descontarIngredientesInventario(id_platillo, id_comanda) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
     const platilloRepository = AppDataSource.getRepository(Platillo);
+    const conformaRepository = AppDataSource.getRepository(ConformaComanda);
   
     try {
+        // Buscar relacion entre platillo y comanda 
+        const conformaPlatillo = await conformaRepository.findOne({
+            where: { id_comanda, id_platillo },
+        });
+        if (!conformaPlatillo) {
+            throw new Error("No se encontró la relación entre el platillo y la comanda.");
+        }
+        const cantidadPlatillo = conformaPlatillo.cantidad_platillo;
+        console.log("Cantidad de platillos:", cantidadPlatillo);
+
+
         // Buscar los ingredientes asociados al platillo desde la tabla `compuesto_platillo`
         const compuestosPlatillo = await componePlatilloRepository.find({
         where: { id_platillo },
@@ -530,18 +539,19 @@ export async function descontarIngredientesInventario(id_platillo) {
             throw new Error("El platillo no tiene ingredientes asociados o no existe.");
         }
 
+        let cantidadesDescontadas = 0; // Contador de ingredientes descontados
+
         for (const compuesto of compuestosPlatillo) {
             const ingrediente = await ingredienteRepository.findOne({
                 where: { id_tipo_ingrediente: compuesto.id_tipo_ingrediente }
             });
-            console.log("ingrediente", ingrediente);
 
             if (!ingrediente) {
                 throw new Error(`El ingrediente con ID ${compuesto.id_tipo_ingrediente} no existe.`);
             }
 
             const cantidadDisponible = ingrediente.cantidad_ingrediente;
-            const porcionRequerida = compuesto.porcion_ingrediente_platillo;
+            const porcionRequerida = compuesto.porcion_ingrediente_platillo * cantidadPlatillo;
 
             // Verificar si hay suficiente cantidad de ingrediente
             if (cantidadDisponible < porcionRequerida) {
@@ -555,6 +565,10 @@ export async function descontarIngredientesInventario(id_platillo) {
 
             // Guardar el cambio en el inventario
             await ingredienteRepository.save(ingrediente);
+
+            // Incrementar el contador de ingredientes descontados
+            cantidadesDescontadas+= porcionRequerida;
+            
 
             console.log(`Cantidad de "${compuesto.tipo_ingrediente.nombre_tipo_ingrediente}" descontada.`);
             console.log ("cantidad actual: ", ingrediente.cantidad_ingrediente);
@@ -572,6 +586,7 @@ export async function descontarIngredientesInventario(id_platillo) {
             platillo.disponible = false;
             await platilloRepository.save(platillo);
         }
+       return cantidadesDescontadas; 
     } catch (error) {
         console.error("Error al descontar ingredientes:", error.message);
         throw new Error("Ocurrió un error al descontar los ingredientes del inventario.");

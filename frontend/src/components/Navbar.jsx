@@ -86,13 +86,13 @@ const Navbar = () => {
                             </li>
                             <li>
                                 <NavLink
-                                    to="/platillos/confirma-platillo"
+                                    to="platillos/confirma-platillo"
                                     onClick={() => {
                                         setMenuOpen(false);
                                         addActiveClass();
                                     }}
                                 >
-                                    Confirmar Platillos
+                                    Confirmar Platillo
                                 </NavLink>
                             </li>
                             <li>
@@ -143,7 +143,7 @@ const Navbar = () => {
                     )}
 
                     {/* Rutas para mesero */}
-                    {(userRole === 'mesero' || userRole ==='cocinero') && (
+                    {userRole === 'mesero' && (
                         <>
                             <li>
                                 <NavLink

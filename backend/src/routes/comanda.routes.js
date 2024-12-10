@@ -21,7 +21,7 @@ router.use(authenticateJwt);
 
 // Rutas protegidas por el middleware de autorización
 router.post('/', isMesero, createComandaController); // Crear una comanda
-router.get('/', /*isMesero,*/ getAllComandasController); // Obtener todas las comandas
+router.get('/', isMesero, getAllComandasController); // Obtener todas las comandas
 router.get('/:id', isMesero, getComandaByIdController); // Obtener una comanda por ID
 router.put('/:id', isMesero, updateComandaController); // Actualizar una comanda
 router.delete('/:id', isMesero, deleteComandaController); // Eliminar una comanda (solo admins)
