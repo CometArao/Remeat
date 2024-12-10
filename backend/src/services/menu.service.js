@@ -230,9 +230,7 @@ export async function updateMenuService(id_menu, menuData) {
 
 export async function deleteMenuByIdService(id_menu) {
     try {
-        console.log("Llegué al servicio")
         const menuRepository = AppDataSource.getRepository(Menu);
-        console.log ("Eliminando menu con id: ", id_menu);  
 
         const menuFound = await menuRepository.findOne({
             where: {  id_menu },
