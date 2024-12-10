@@ -25,6 +25,7 @@ import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
 import Platillos from '@pages/Platillos';
+import ConfirmaPlatillo from './pages/ConfirmaPlatillo';
 import Menu from './pages/Menu.jsx';
 import CrearPedido from './pages/CrearPedido';
 import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
@@ -538,6 +539,15 @@ const router = createBrowserRouter([
         </ProtectedRoute>
       ),
      },
+     {
+      path: '/platillos/confirma-platillo',
+      element: (
+        <ProtectedRoute allowedRoles={['cocinero']}>
+          <ConfirmaPlatillo />
+      </ProtectedRoute>
+    ),
+   },
+
        {
         path: '/ingredientes/', 
         element: (
@@ -631,7 +641,7 @@ const router = createBrowserRouter([
       {
         path: '/comandas', // Ruta para comandas, accesible solo para mesero
         element: (
-          <ProtectedRoute allowedRoles={['mesero']}>
+          <ProtectedRoute allowedRoles={['mesero','cocinero']}>
             <Comandas />
           </ProtectedRoute>
         ),

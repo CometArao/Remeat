@@ -30,43 +30,46 @@ export default function PopupPlatillo({
       required: false,
     },
     {
-        label: "Encargado",
-        name: "id_usuario",
-        defaultValue: platilloData.id_usuario || "",
-        fieldType: "select",
-        options: usuario.map((user) => ({
-            value: user.id_usuario,
-            label: user.nombre_usuario,
-        })),
-        required: true,
+      label: "Encargado",
+      name: "id_usuario",
+      defaultValue: platilloData.id_usuario || "",
+      fieldType: "select",
+      options: usuario.map((user) => ({
+        value: user.id_usuario,
+        label: user.nombre_usuario,
+      })),
+      required: true,
     },
-    
     {
       label: "Ingredientes",
       name: "ingredientes",
-      // Sin defaultValue si es nuevo, si es editar, puedes mapearlo a [{ value: x, label: y }, ...]
       defaultValue: isEdit && platilloData.ingredientes ? platilloData.ingredientes.map(ing => ({
         value: ing.id_tipo_ingrediente,
-        label: ing.nombre_tipo_ingrediente
+        label: ing.nombre_tipo_ingrediente,
+        porcion: ing.porcion_ingrediente_platillo || 1, // Porción predeterminada
       })) : [],
       fieldType: "ingredientes",
       required: true,
     },
   ];
+
   const handleSubmit = (formData) => {
-    const ingredientes = formData.ingredientes.map((ing) => ({
-        id_tipo_ingrediente: ing.value,
-        porcion_ingrediente_platillo: ing.porcion || 1, // Porción predeterminada si no se especifica
+    const ingredientes = (formData.ingredientes || []).map((ing) => ({
+      id_tipo_ingrediente: ing.value,
+      porcion_ingrediente_platillo: ing.porcion || 1, // Porción predeterminada si no se especifica
     }));
+  
     const payload = {
-        nombre_platillo: formData.nombre_platillo,
-        disponible: formData.disponible,
-        id_usuario: formData.id_usuario,
-        ingredientes,
+      nombre_platillo: formData.nombre_platillo,
+      disponible: formData.disponible,
+      id_usuario: formData.id_usuario,
+      ingredientes,
     };
+  
     action(payload);
   };
-
+  
+  
   return (
     <div>
       {show && (
