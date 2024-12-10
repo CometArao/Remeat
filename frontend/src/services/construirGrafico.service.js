@@ -271,16 +271,53 @@ export function construirPlatillosMenuBarra(datos) {
     }
     return [result, keys];
 }
-export function construirVentasPlatilloCircular(datos) {
+export function construirVentasPlatilloCircular(datos, time) {
     const keys = Object.keys(datos)
     let result = [];
     for (let i = 0; i < keys.length; i++) {
         const color_circular = getColor(i)
         const ventas = datos[keys[i]]["ventas_por_comanda"];
+        let today = null;
         let total = 0;
         for (let ii = 0; ii < ventas.length; ii++) {
             const venta = ventas[ii];
-            total += venta.cantidad_platillo
+            if (time === "Dia") {
+                today = formatearFecha(new Date())
+                const fechaVenta = formatearFecha(venta.fecha_compra);
+                console.log("today")
+                console.log(today)
+                console.log("fechaVenta")
+                console.log(fechaVenta)
+                if (today === fechaVenta) {
+                    total += venta.cantidad_platillo
+                }
+            }
+            if (time === "Mes") {
+                today = new Date()
+                const today_mes = today.getMonth()
+                const today_año = today.getFullYear()
+                const fechaVenta = new Date(venta.fecha_compra);
+                const venta_mes = fechaVenta.getMonth()
+                const venta_año = fechaVenta.getFullYear()
+                if (today_mes === venta_mes
+                    &&
+                    today_año === venta_año) {
+
+                    total += venta.cantidad_platillo
+                }
+            }
+            if (time === "Año") {
+                today = new Date()
+                const fechaVenta = new Date(venta.fecha_compra);
+                const venta_año = fechaVenta.getFullYear()
+                const today_año = today.getFullYear()
+                if (venta_año === today_año) {
+                    total += venta.cantidad_platillo
+                }
+            }
+            if (time === "Total") {
+                total += venta.cantidad_platillo
+            }
         }
         const itemCircular = {
             "id": keys[i],
@@ -294,18 +331,90 @@ export function construirVentasPlatilloCircular(datos) {
     console.log(result)
     return [result, keys];
 }
-export function construirPlatillosMenuCircular(datos) {
+export function construirPlatillosMenuCircular(datos, time) {
+    console.log("datos")
+    console.log(datos)
     let result = [];
     for (let i = 0; i < datos.length; i++) {
         const color_circular = getColor(i)
         const platillo_menu = datos[i]
-        const itemCircular = {
-            "id": platillo_menu.nombre_platillo,
-            "label": platillo_menu.nombre_platillo,
-            "value": platillo_menu.menus.length,
-            "color": color_circular
+        if()
+        if (time === "Total") {
+            const itemCircular = {
+                "id": platillo_menu.nombre_platillo,
+                "label": platillo_menu.nombre_platillo,
+                "value": platillo_menu.menu.length,
+                "color": color_circular
+            }
+            result.push(itemCircular)
         }
-        result.push(itemCircular)
+        if(time === "Año") {
+            const today = new Date()
+            const todayAño = today.getFullYear()
+            let menuCount = 0;
+            for(let ii = 0; ii < platillo_menu.menu.length; ii++) {
+                const menu = platillo_menu.menu[ii];
+                const fecha_menu = new Date(menu.fecha)
+                const menuAño = fecha_menu.getFullYear()
+                if(menuAño === todayAño) {
+                    menuCount++;
+                }
+            }
+            const itemCircular = {
+                "id": platillo_menu.nombre_platillo,
+                "label": platillo_menu.nombre_platillo,
+                "value": menuCount,
+                "color": color_circular
+            }
+            result.push(itemCircular)
+        }
+        if(time === "Mes") {
+            const today = new Date()
+            const todayAño = today.getFullYear()
+            const todayMes = today.getMonth()
+            let menuCount = 0;
+            for(let ii = 0; ii < platillo_menu.menu.length; ii++) {
+                const menu = platillo_menu.menu[ii];
+                const fecha_menu = new Date(menu.fecha)
+                const menuAño = fecha_menu.getFullYear()
+                const menuMes = fecha_menu.getMonth()
+                if(menuAño === todayAño && menuMes === todayMes) {
+                    menuCount++;
+                }
+            }
+            const itemCircular = {
+                "id": platillo_menu.nombre_platillo,
+                "label": platillo_menu.nombre_platillo,
+                "value": menuCount,
+                "color": color_circular
+            }
+            result.push(itemCircular)
+
+        }
+        if(time === "Dia") {
+            const today = new Date()
+            const todayAño = today.getFullYear()
+            const todayMes = today.getMonth()
+            const todayDia = today.getDate()
+            let menuCount = 0;
+            for(let ii = 0; ii < platillo_menu.menu.length; ii++) {
+                const menu = platillo_menu.menu[ii];
+                const fecha_menu = new Date(menu.fecha)
+                const menuAño = fecha_menu.getFullYear()
+                const menuMes = fecha_menu.getMonth()
+                const menuDia = fecha_menu.getDate()
+                if(menuAño === todayAño && menuMes === todayMes && menuDia === todayDia) {
+                    menuCount++;
+                }
+            }
+            const itemCircular = {
+                "id": platillo_menu.nombre_platillo,
+                "label": platillo_menu.nombre_platillo,
+                "value": menuCount,
+                "color": color_circular
+            }
+            result.push(itemCircular)
+        }
     }
     return result;
 }
@@ -375,8 +484,6 @@ function truncarMes(data) {
         newData.push(obj_point);
     }
     return newData
-
-    //TODO: sin implementar
 }
 function truncarMes_Test() {
     let newData = truncarMes([]);
@@ -491,8 +598,8 @@ function truncarAño(data) {
     return newData;
 }
 //function extraerHoraFecha(mfecha) {
-    ////TODO: sin implementar
-    //creo que no nesesito esta funcion
+////TODO: sin implementar
+//creo que no nesesito esta funcion
 //}
 
 function getColor(i) {

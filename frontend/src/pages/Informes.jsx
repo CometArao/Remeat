@@ -45,19 +45,19 @@ const tiempo_lineal = [
 ]
 const tiempo_circular = [
     {
-        id: 1,
+        id: 0,
         name: "Dia"
     },
     {
-        id: 2,
+        id: 1,
         name: "Mes"
     },
     {
-        id: 3,
+        id: 2,
         name: "Año"
     },
     {
-        id: 4,
+        id: 3,
         name: "Total"
     },
 ]
@@ -333,7 +333,7 @@ const Informes = () => {
                 formatedlist.push(formateddata)
             }
             setDatosDependientes(formatedlist)
-            setTipoGrafico({ tipoGrafico: "barra", variable: "menu_platillos_circular" })
+            setTipoGrafico({ tipoGrafico: "circular", variable: "menu_platillos_circular" })
             setDatosIndependientes(tiempo_circular)
         } catch (error) {
             console.log(error)
@@ -348,6 +348,8 @@ const Informes = () => {
         }
         const selectedItems = handleSelectedItems();
         const selectedTime = handleSelectedTime();
+        console.log("selectedTime")
+        console.log(selectedTime)
         //comprobar elementos seleccionados
         if (!selectedItems || selectedItems[0].id == -1) {
             showErrorAlert('error, debe seleccionar en la checklist de items')
@@ -477,7 +479,7 @@ const Informes = () => {
                 const ventas_platillos_circular =
                     await getVentasPlatillo(ids);
                 [formatedDependiente, keys]  =
-                    construirVentasPlatilloCircular(ventas_platillos_circular)
+                    construirVentasPlatilloCircular(ventas_platillos_circular, selectedTime.name)
                 datos = {
                     independientes: selectedTime,
                     dependientes: formatedDependiente,
@@ -490,7 +492,7 @@ const Informes = () => {
                 const menu_platillos_circular =
                     await getPlatilloMenu(ids);
                 formatedDependiente =
-                    construirPlatillosMenuCircular(menu_platillos_circular)
+                    construirPlatillosMenuCircular(menu_platillos_circular, selectedTime.name)
                 datos = {
                     independientes: selectedTime,
                     dependientes: formatedDependiente,
