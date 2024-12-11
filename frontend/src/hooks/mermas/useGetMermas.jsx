@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { getmermas } from '@services/merma.service.js';
+import { formatearFecha } from '../../helpers/formatDate';
 
 const useMermas = () => {
     const [mermas, setMermas] = useState([]);
@@ -11,7 +12,7 @@ const useMermas = () => {
             console.log(response)
             const formattedData = response.map(merma => ({
                 id_merma: merma.id_merma,
-                fecha_merma: merma.fecha_merma,
+                fecha_merma: formatearFecha(merma.fecha_merma),
             }));
             console.log(formattedData)
             setMermas(formattedData);
