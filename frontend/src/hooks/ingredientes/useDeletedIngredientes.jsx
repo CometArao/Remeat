@@ -7,21 +7,30 @@ const useDeleteIngrediente = (fetchIngredientes, setDataIngrediente) => {
             try {
                 const result = await deleteDataAlert();
                 if (result.isConfirmed) {
-                    const id = selectedIngredientes[0]?.id_ingrediente;
-                    if (!id) {
+                    // Verificar que el usuario seleccionó exactamente un ingrediente
+                    if (selectedIngredientes.length !== 1) {
+                        showErrorAlert('Error', 'Debe seleccionar un único ingrediente para eliminar.');
+                        return;
+                    }
+
+                    // Obtener el ID del ingrediente seleccionado
+                    const id_ingrediente = selectedIngredientes[0]?.id_ingrediente;
+                    if (!id_ingrediente) {
                         showErrorAlert('Error', 'No se pudo determinar el ID para eliminar.');
                         return;
                     }
 
-                    const response = await deleteIngrediente(id);
+                    console.log("Voy al servicio del front")
+                    // Enviar el ID al servicio de eliminación
+                    const response = await deleteIngrediente(id_ingrediente);
 
                     if (response?.status === 'Client error') {
                         throw new Error(response.details || 'Error desconocido al eliminar el ingrediente.');
                     }
 
                     showSuccessAlert('¡Eliminado!', 'El ingrediente ha sido eliminado correctamente.');
-                    await fetchIngredientes();
-                    setDataIngrediente([]);
+                    await fetchIngredientes(); // Actualizar la lista de ingredientes
+                    setDataIngrediente([]); // Limpiar la selección
                 }
             } catch (error) {
                 console.error('Error al eliminar el ingrediente:', error);

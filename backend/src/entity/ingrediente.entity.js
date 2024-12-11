@@ -41,6 +41,7 @@ const ingrediente = new EntitySchema({
       type: "one-to-many",
       target: "compuesto_ingrediente",
       inverseSide: "ingrediente",
+      onDelete: "CASCADE",
     },
   },
 });
