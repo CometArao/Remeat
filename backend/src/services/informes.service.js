@@ -109,7 +109,7 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
       if (!tipoIngredienteEncontrado) {
         continue
         //return [null,
-          //"El tipo de ingrediente con id: " + id_tipo_ingrediente + "no existe"]
+        //"El tipo de ingrediente con id: " + id_tipo_ingrediente + "no existe"]
       }
       const ingredientes = await AppDataSource.query(`
     SELECT * 
@@ -278,26 +278,46 @@ export async function getMenuPlatilloService(ids_platillo) {
     const { ids } = ids_platillo
     let result = []
     const platillosRepository = AppDataSource.getRepository(Platillo)
-    const platillosEncontrados = await platillosRepository.find({
-      relations: ['menus']
-    })
-    if (!platillosEncontrados) {
-      return [null, "No se encontro ningun plato"]
+    //const platillosEncontrados = await platillosRepository.find({
+    //relations: ['menus']
+    //})
+    for (let i = 0; i < ids.length; i++) {
+      const id_platillo = ids[i];
+      const platillosEncontrados = await AppDataSource.query(`
+      SELECT * 
+      FROM platillo p
+      WHERE p.id_platillo = $1
+    `, [id_platillo])
+    console.log(id_platillo)
+    console.log(platillosEncontrados)
+      if (!platillosEncontrados) {
+        //Se continua si no tiene platillos esta id
+        continue
+      }
+      for (let i = 0; i < platillosEncontrados.length; i++) {
+        let platillo = platillosEncontrados[i];
+        const menusDelPlatillo = await AppDataSource.query(`
+        SELECT *
+        FROM menu m
+        INNER JOIN menu_platillo_platillo mpp ON mpp."menuIdMenu" = m.id_menu
+        WHERE mpp."platilloIdPlatillo" = $1
+        `, [id_platillo])
+          console.log("menusDelPlatillo")
+        console.log(menusDelPlatillo)
+        if(!menusDelPlatillo) {
+          //Se deja una lista vacia para que tenga .length 0
+          platillo.menu = []
+          continue
+        }
+        platillo.menu = menusDelPlatillo;
+        result.push(platillo)
+      }
     }
     //console.log("platillosEncontrados")
     //console.log(platillosEncontrados)
-
-    for(let i = 0; i < platillosEncontrados.length; i++) {
-      const platillo = platillosEncontrados[i]
-      for(let ii = 0; ii < ids.length; ii++) {
-        if(platillo.id_platillo === ids[ii]) {
-          result.push(platillo);
-          continue
-        }
-      }
-    }
+    console.log(result)
     return [result, null]
-  }catch(error) {
+  } catch (error) {
     console.log(error)
     return [null, "Error en getMenuPlatillos"]
   }
