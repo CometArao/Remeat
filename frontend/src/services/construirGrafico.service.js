@@ -338,7 +338,6 @@ export function construirPlatillosMenuCircular(datos, time) {
     for (let i = 0; i < datos.length; i++) {
         const color_circular = getColor(i)
         const platillo_menu = datos[i]
-        if()
         if (time === "Total") {
             const itemCircular = {
                 "id": platillo_menu.nombre_platillo,
@@ -392,17 +391,27 @@ export function construirPlatillosMenuCircular(datos, time) {
 
         }
         if(time === "Dia") {
-            const today = new Date()
+            let today = new Date()
+            today = new Date() //TODO: como se ponia la fecha correcta
+            console.log("today")
+            console.log(today)
             const todayAño = today.getFullYear()
             const todayMes = today.getMonth()
-            const todayDia = today.getDate()
+            const todayDia = today.getUTCDate()
             let menuCount = 0;
             for(let ii = 0; ii < platillo_menu.menu.length; ii++) {
                 const menu = platillo_menu.menu[ii];
                 const fecha_menu = new Date(menu.fecha)
                 const menuAño = fecha_menu.getFullYear()
                 const menuMes = fecha_menu.getMonth()
-                const menuDia = fecha_menu.getDate()
+                const menuDia = fecha_menu.getUTCDate()
+                console.log(today)
+                console.log(fecha_menu)
+                console.log(menuAño === todayAño)
+                console.log(menuMes === todayMes)
+                console.log(menuDia === todayDia)
+                console.log(menuDia)
+                console.log(todayDia)
                 if(menuAño === todayAño && menuMes === todayMes && menuDia === todayDia) {
                     menuCount++;
                 }
