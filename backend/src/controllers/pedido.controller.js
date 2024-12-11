@@ -1,13 +1,15 @@
 "use strict";
 import {
-    changePedidoToIngresadoService,
     createPedidoService,
     deletePedidoService,
     getAllPedidosService,
     getPedidoByIdService,
+    updateEstadoPedidoService,
     updatePedidoService,
     validateIngredientesYUtensilios
 } from "../services/pedido.service.js";
+
+import { createIngredienteService } from "../services/ingrediente.service.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import { pedidoValidation } from "../validations/pedido.validation.js";
 import { sendEmail } from "../config/mailer.js";
@@ -16,6 +18,13 @@ import { getProveedorByIdService } from "../services/proveedor.service.js"; // A
 import { AppDataSource } from "../config/configDb.js";
 import Proveedor from "../entity/proveedor.entity.js";
 import Usuario from "../entity/usuario.entity.js";
+import Pedido from "../entity/pedido.entity.js";
+import compuestoIngrediente from "../entity/compuesto_ingrediente.js";
+import compuestoUtensilio from "../entity/compuesto_utensilio.js";
+import tipoIngrediente from "../entity/tipo_ingrediente.entity.js";
+import tipoUtensilio from "../entity/tipo_utensilio.entity.js";
+import Ingrediente from "../entity/ingrediente.entity.js";
+import Utensilio from "../entity/utensilio.entity.js";
 
 export async function createPedido(req, res) {
     try {
@@ -207,16 +216,131 @@ export async function deletePedido(req, res) {
    }
 }
 
-export async function changePedidoToIngresado(req, res) {
+// Controlador para confirmar pedido
+export async function confirmarPedidoController(req, res) {
+    const { id } = req.params;
+
     try {
-        const { id } = req.params;
-        const [result, error] = await changePedidoToIngresadoService(id);
-        if (error) {
-            return handleErrorClient(res, 400, error);
+        console.log("Pedido: ", id)
+        const pedidoRepository = AppDataSource.getRepository(Pedido);
+        const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
+        const utensilioRepository = AppDataSource.getRepository(Utensilio);
+        const tipoIngredienteRepository = AppDataSource.getRepository(tipoIngrediente);
+        const tipoUtensilioRepository = AppDataSource.getRepository(tipoUtensilio);
+
+        // Obtener el pedido con sus relaciones
+        const pedido = await pedidoRepository.findOne({
+            where: { id_pedido: id },
+            relations: ["compuestoIngredientes"], // Asegúrate de incluir las relaciones necesarias
+        });
+
+        console.log(pedido)
+       
+        if (!pedido) {
+            return handleErrorClient(res, 404, "Pedido no encontrado.");
         }
 
-        handleSuccess(res, 200, "Pedido cambiado a 'Ingresado' y elementos creados", result);
+        if (pedido.estado_pedido === "Ingresado") {
+            return handleErrorClient(res, 400, "El pedido ya está ingresado.");
+        }
+
+        // Procesar ingredientes
+        const ingredientesPromises = pedido.compuestoIngredientes.map(async (compIngrediente) => {
+            // Obtener el ingrediente con sus relaciones
+            const ingredienteOriginal = await ingredienteRepository.findOne({
+                where: { id_ingrediente: compuestoIngrediente.id_ingrediente },
+                relations: ["tipo_ingrediente"], // Asegúrate de incluir las relaciones necesarias
+            });
+
+            if (!ingredienteOriginal) {
+                throw new Error(`Ingrediente con ID ${compIngrediente.id_ingrediente} no encontrado.`);
+            }
+
+            console.log("Ingrediente Original:", ingredienteOriginal);
+
+            const [newIngrediente, errorIngrediente] = await createIngredienteService({
+                fecha_vencimiento: new Date(new Date().setDate(new Date().getDate() + 21)), // Fecha 3 semanas más
+                cantidad_ingrediente: compIngrediente.cantidad_pedida,
+                cantidad_original_ingrediente: compIngrediente.cantidad_pedida,
+                costo_ingrediente: ingredienteOriginal.costo_ingrediente,
+                id_tipo_ingrediente: ingredienteOriginal.tipo_ingrediente.id_tipo_ingrediente, 
+                id_pedido: null // Relación con el pedido
+            });
+
+            if (errorIngrediente) {
+                console.error(`Error creando ingrediente para el pedido ${id}:`, errorIngrediente);
+                throw new Error(`Error creando ingrediente: ${errorIngrediente}`);
+            }
+
+            return newIngrediente;
+        });
+
+        const ingredientesResult = await Promise.all(ingredientesPromises);
+        console.log("Ingredientes creados:", ingredientesResult);
+
+        
+        /*
+        // Procesar utensilios (similar a ingredientes si es necesario)
+        const utensiliosPromises = pedido.utensilios.map(async (utensilio) => {
+            const { id_utensilio, cantidad_utensilio, costo_utensilio } = utensilio;
+
+            const [newUtensilio, errorUtensilio] = await createUtensilioService({
+                cantidad_utensilio,
+                costo_utensilio,
+                id_tipo_utensilio: id_utensilio,
+                id_pedido: id,
+            });
+
+            if (errorUtensilio) {
+                console.error(`Error creando utensilio para el pedido ${id}:`, errorUtensilio);
+                throw new Error(`Error creando utensilio: ${errorUtensilio}`);
+            }
+
+            return newUtensilio;
+        });
+
+        const utensiliosResult = await Promise.all(utensiliosPromises).catch((error) => {
+            console.error("Error procesando utensilios:", error.message);
+            throw new Error("Error procesando los utensilios del pedido.");
+        });
+
+        console.log("Utensilios creados:", utensiliosResult);
+*/
+        // Cambiar el estado del pedido a "Ingresado" utilizando el servicio
+        const [pedidoActualizado, errorEstado] = await updateEstadoPedidoService(id, "Ingresado");
+
+        if (errorEstado) {
+            console.error(`Error actualizando el estado del pedido ${id}:`, errorEstado);
+            throw new Error(`Error actualizando el estado del pedido: ${errorEstado}`);
+        }
+
+        console.log("Estado del pedido actualizado a 'Ingresado':", pedidoActualizado);
+
+        handleSuccess(res, 200, "Pedido confirmado e ingresado exitosamente.", {
+            pedido: pedidoActualizado,
+            ingredientes: ingredientesResult,
+        });
     } catch (error) {
+        console.error("Error al confirmar pedido:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }
+
+export async function updateEstadoPedidoController(req, res) {
+    const { id } = req.params; // ID del pedido en la URL
+    const { nuevoEstado } = req.body; // Nuevo estado enviado en el cuerpo de la solicitud
+
+    try {
+        const [pedidoActualizado, error] = await updateEstadoPedidoService(id, nuevoEstado);
+
+        if (error) {
+            return handleErrorClient(res, 404, error);
+        }
+
+        handleSuccess(res, 200, "Estado del pedido actualizado exitosamente", pedidoActualizado);
+    } catch (error) {
+        console.error("Error al actualizar el estado del pedido:", error.message);
+        handleErrorServer(res, 500, error.message);
+    }
+}
+

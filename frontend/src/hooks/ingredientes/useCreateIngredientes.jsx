@@ -28,7 +28,7 @@ const useCreateIngrediente = (setIngredientes) => {
                 showErrorAlert('Error', 'Ocurrió un error al crear el ingrediente.');
             }
         }
-    }
+    };
 
     return {
         handleClickCreate,

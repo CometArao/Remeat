@@ -81,12 +81,13 @@ export async function createPedidoService(data) {
             id_pedido: savedPedido.id_pedido,
             id_ingrediente: dbIngrediente.id_ingrediente,
             cantidad_pedida: ing.cantidad_ingrediente,
+            id_tipo_ingrediente: dbIngrediente.id_tipo_ingrediente,
         });
 
         // Asignar los datos relacionados
+        ing.id_tipo_ingrediente = dbIngrediente.id_tipo_ingrediente;
         ing.nombre_tipo_ingrediente = nombreTipoIngrediente;
         ing.costo_ingrediente = dbIngrediente.costo_ingrediente;
-        console.log("Agregado" + ing.nombre_tipo_ingrediente)
     }
 }
 
@@ -115,6 +116,7 @@ export async function createPedidoService(data) {
                     id_pedido: savedPedido.id_pedido,
                     id_utensilio: dbUtensilio.id_utensilio,
                     cantidad_pedida: ut.cantidad_utensilio,
+                    id_tipo_utensilio: dbUtensilio.id_tipo_utensilio,
                 });
 
                 // Añadir los datos que faltaban en el correo
@@ -134,9 +136,6 @@ export async function createPedidoService(data) {
         return [null, error.message];
     }
 }
-
-
-
 
 export async function validateIngredientesYUtensilios(ingredientes, utensilios) {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
@@ -224,9 +223,6 @@ export async function getAllPedidosService() {
         return [null, error.message];
     }
 }
-
-
-
 
 // Obtener un pedido específico por ID
 export async function getPedidoByIdService(id_pedido) {
@@ -317,59 +313,28 @@ export async function deletePedidoService(id_pedido ) {
    } 
 }
 
-export async function changePedidoToIngresadoService(pedidoId) {
+
+// Servicio para actualizar el estado del pedido
+export async function updateEstadoPedidoService(id_pedido, nuevoEstado) {
     const pedidoRepository = AppDataSource.getRepository(Pedido);
-    const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
-    const utensilioRepository = AppDataSource.getRepository(Utensilio);
 
     try {
-        // Obtener el pedido
+        // Verificar si el pedido existe
         const pedido = await pedidoRepository.findOne({
-            where: { id_pedido: pedidoId },
-            relations: ["ingredientes", "utensilios"],
+            where: { id_pedido },
         });
 
         if (!pedido) {
-            return [null, `El pedido con ID ${pedidoId} no existe.`];
+            return [null, "Pedido no encontrado"];
         }
 
-        // Crear ingredientes y utensilios en el sistema
-        const currentDate = new Date();
-        const createdEntities = [];
-
-        if (pedido.ingredientes.length > 0) {
-            for (const ing of pedido.ingredientes) {
-                const newIngrediente = ingredienteRepository.create({
-                    fecha_vencimiento: currentDate, // Puedes modificar esto según tus necesidades
-                    cantidad_ingrediente: ing.cantidad_ingrediente,
-                    cantidad_original_ingrediente: ing.cantidad_ingrediente,
-                    costo_ingrediente: ing.costo_ingrediente,
-                    tipo_ingrediente: ing.tipo_ingrediente,
-                });
-                const savedIngrediente = await ingredienteRepository.save(newIngrediente);
-                createdEntities.push(savedIngrediente);
-            }
-        }
-
-        if (pedido.utensilios.length > 0) {
-            for (const ut of pedido.utensilios) {
-                const newUtensilio = utensilioRepository.create({
-                    cantidad_utensilio: ut.cantidad_utensilio,
-                    costo_utensilio: ut.costo_utensilio,
-                    tipo_utensilio: ut.tipo_utensilio,
-                });
-                const savedUtensilio = await utensilioRepository.save(newUtensilio);
-                createdEntities.push(savedUtensilio);
-            }
-        }
-
-        // Cambiar el estado del pedido a "Ingresado"
-        pedido.estado_pedido = "Ingresado";
+        // Actualizar el estado del pedido
+        pedido.estado_pedido = nuevoEstado;
         await pedidoRepository.save(pedido);
 
-        return [createdEntities, null];
+        return [pedido, null]; // Devolver el pedido actualizado
     } catch (error) {
-        console.error("Error cambiando estado del pedido:", error);
+        console.error("Error actualizando el estado del pedido:", error);
         return [null, error.message];
     }
 }

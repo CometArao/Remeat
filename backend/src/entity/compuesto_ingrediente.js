@@ -8,6 +8,7 @@ const compuestoIngrediente = new EntitySchema({
         id_pedido: {
             type: "int",
             primary: true,
+            nullable: false,
         },
         id_ingrediente: {
             type: "int",

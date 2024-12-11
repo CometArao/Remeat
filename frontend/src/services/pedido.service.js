@@ -46,12 +46,12 @@ export async function deletePedido(id) {
     }
 }
 
-export async function changePedidoToIngresado(id) {
+export async function confirmarPedidoService(id) {
     try {
         const response = await axios.post(`/pedidos/${id}/ingresar`);
         return response.data;
     } catch (error) {
-        console.error("Error cambiando estado del pedido:", error);
+        console.error('Error confirmando pedido:', error);
         throw error.response?.data || error.message;
     }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Search from '@components/Search';
 import PedidoCard from '../components/Pedido/PedidoCard';
@@ -16,6 +16,7 @@ import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import EmptyIcon from '../assets/emptyIcon.svg';
 import useDeletePedido from '../hooks/pedidos/useDeletePedido';
 import useEditPedido from '../hooks/pedidos/useEditPedido';
+import useConfirmarPedido from '../hooks/pedidos/useConfirmarPedido';
 import '@styles/users.css';
 
 const Pedidos = () => {
@@ -28,6 +29,7 @@ const Pedidos = () => {
 
     const [filterName, setFilterName] = useState('');
     const [dataPedido, setDataPedido] = useState([]);
+    const [renderKey, setRenderKey] = useState(0); // Para forzar re-renderizaciones necesarias
 
     const {
         handleClickUpdate,
@@ -38,30 +40,37 @@ const Pedidos = () => {
 
     const { handleDelete } = useDeletePedido(fetchPedidos, setDataPedido);
 
+    const { handleConfirmarPedido, loading } = useConfirmarPedido(fetchPedidos);
+
+    const filteredPedidos = useCallback(
+        () =>
+            pedidos.filter((pedido) =>
+                pedido.descripcion_pedido.toLowerCase().includes(filterName)
+            ),
+        [pedidos, filterName]
+    );
+
     useEffect(() => {
-        fetchPedidos();
-    }, []);
+        fetchPedidos(); // Llama a la función solo una vez al montar el componente
+    }, []); // Dependencias vacías para evitar múltiples llamadas
+    
 
     const handleNameFilterChange = (e) => {
         setFilterName(e.target.value.toLowerCase());
     };
 
-    const filteredPedidos = pedidos.filter((pedido) =>
-        pedido.descripcion_pedido.toLowerCase().includes(filterName)
-    );
-
-    const handleCardSelectionChange = (selectedPedido, isChecked) => {
-        if (isChecked) {
-            setDataPedido((prev) => {
+    const handleCardSelectionChange = useCallback((selectedPedido, isChecked) => {
+        setDataPedido((prev) => {
+            if (isChecked) {
                 if (!prev.some((item) => item.id_pedido === selectedPedido.id_pedido)) {
                     return [...prev, selectedPedido];
                 }
-                return prev;
-            });
-        } else {
-            setDataPedido((prev) => prev.filter((item) => item.id_pedido !== selectedPedido.id_pedido));
-        }
-    };
+            } else {
+                return prev.filter((item) => item.id_pedido !== selectedPedido.id_pedido);
+            }
+            return prev;
+        });
+    }, []);
 
     return (
         <div className="main-container">
@@ -95,12 +104,23 @@ const Pedidos = () => {
                                 <img src={DeleteIcon} alt="delete" />
                             )}
                         </button>
+                        <button
+                            className="confirm-button"
+                            onClick={() => handleConfirmarPedido(dataPedido[0]?.id_pedido)}
+                            disabled={!dataPedido.length || dataPedido[0]?.estado_pedido === 'Ingresado' || loading}
+                        >
+                            {loading
+                                ? 'Confirmando...'
+                                : dataPedido[0]?.estado_pedido === 'Ingresado'
+                                ? 'Confirmado'
+                                : 'Confirmar'}
+                        </button>
                     </div>
                 </div>
 
-                {filteredPedidos.length > 0 ? (
+                {filteredPedidos().length > 0 ? (
                     <div className="container">
-                        {filteredPedidos.map((pedido) => (
+                        {filteredPedidos().map((pedido) => (
                             <PedidoCard
                                 key={pedido.id_pedido}
                                 pedido={pedido}
@@ -108,6 +128,7 @@ const Pedidos = () => {
                                 proveedores={proveedores}
                                 isSelected={dataPedido.some((item) => item.id_pedido === pedido.id_pedido)}
                                 onSelectChange={handleCardSelectionChange}
+                                onConfirmar={() => handleConfirmarPedido(pedido.id_pedido)}
                             />
                         ))}
                     </div>
