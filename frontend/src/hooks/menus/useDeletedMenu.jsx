@@ -1,5 +1,5 @@
 import {deleteDataAlert, showErrorAlert, showSuccessAlert} from '@helpers/sweetAlert.js';
-import {deleteMenu} from '@services/menu.service.js';
+import {deleteMenu} from '../../services/menu.service.js';
 
 const useDeleteMenu = (fetchMenus, setMenus) => {
     const handleDelete = async (selectedMenus) => {
@@ -8,6 +8,9 @@ const useDeleteMenu = (fetchMenus, setMenus) => {
                 const result = await deleteDataAlert(); // Confirmación del usuario
                 if (result.isConfirmed) {
                     const id = selectedMenus[0]?.id_menu; // Obtener el ID del seleccionado
+
+                    console.log('id:', id);
+                    
                     if (!id) {
                         showErrorAlert('Error', 'No se pudo determinar el ID para eliminar.');
                         return;

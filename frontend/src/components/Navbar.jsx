@@ -86,6 +86,17 @@ const Navbar = () => {
                             </li>
                             <li>
                                 <NavLink
+                                    to="platillos/confirma-platillo"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Confirmar Platillo
+                                </NavLink>
+                            </li>
+                            <li>
+                                <NavLink
                                     to="/ingredientes"
                                     onClick={() => {
                                         setMenuOpen(false);

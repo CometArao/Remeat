@@ -7,7 +7,7 @@ const PlatilloCard = ({ platillo, isSelected, onSelectChange }) => {
     };
 
     return (
-        <div className="platillo-card" style={{ position: 'relative' }}> {/* Posición relativa para la ID */}
+        <div className="platillo-card" style={{ position: 'relative' }}>
             {/* Mostrar la ID del platillo */}
             <span className="card-id">ID: {platillo.id_platillo}</span>
 
@@ -29,7 +29,9 @@ const PlatilloCard = ({ platillo, isSelected, onSelectChange }) => {
             <ul>
                 {platillo.ingredientes && platillo.ingredientes.length > 0 ? (
                     platillo.ingredientes.map((ing, idx) => (
-                        <li key={idx}>{ing.nombre_tipo_ingrediente}</li>
+                        <li key={idx}>
+                            {ing.nombre_tipo_ingrediente} - {ing.porcion_ingrediente_platillo} {ing.unidad_medida?.nombre_unidad_medida || ''}
+                        </li>
                     ))
                 ) : (
                     <li>Sin ingredientes asignados</li>
