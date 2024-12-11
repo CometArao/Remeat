@@ -272,8 +272,8 @@ export async function updateIngredienteController(req, res) {
 // Controlador para eliminar un ingrediente
 export async function deleteIngredienteController(req, res) {
   try {
-const { id_ingrediente } = req.params;
-    const [deletedIngrediente, errorIngrediente] = await deleteIngredienteService(id_ingrediente);
+    const { id } = req.params;
+    const [deletedIngrediente, errorIngrediente] = await deleteIngredienteService(id);
     if (errorIngrediente) {
       return handleErrorClient(res, 404, "Error eliminando ingrediente", errorIngrediente);
     }

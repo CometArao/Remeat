@@ -29,6 +29,7 @@ const compuestoIngrediente = new EntitySchema({
             type: "many-to-one",
             target: "ingrediente",
             joinColumn: { name: "id_ingrediente" },
+            onDelete: "CASCADE",
         },
     },
 });

@@ -42,11 +42,11 @@ export async function updateIngrediente(data, id) {
     }
 }
 
-export async function deleteIngrediente(id) {
+export async function deleteIngrediente(id_ingrediente) {
     try {
-        if (!id) throw new Error('ID no válida para eliminar el ingrediente.');
+        if (!id_ingrediente) throw new Error('ID no válida para eliminar el ingrediente.');
 
-        const response = await axios.delete(`/ingredientes/${id}`, {
+        const response = await axios.delete(`/ingredientes/${id_ingrediente}`, {
             headers: { 'Cache-Control': 'no-cache',
                         'Pragma': 'no-cache',
              },

@@ -188,6 +188,10 @@ export async function deleteIngredienteService(id_ingrediente) {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
+
+        if(!id_ingrediente){
+            return [null, "ID de ingrediente no válido."]
+        }
         // Verificar que el ingrediente existe
         const ingredienteExistente = await ingredienteRepository.findOne({
             where: { id_ingrediente },
