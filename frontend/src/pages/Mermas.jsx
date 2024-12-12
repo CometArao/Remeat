@@ -4,6 +4,7 @@ import Popup from '@hooks/tipo_utensilio/popupTipoUtensilio.jsx'
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
+import InfoIcon from '../assets/InfoIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import { useCallback, useState } from 'react';
@@ -14,7 +15,6 @@ import { useNavigate } from 'react-router-dom';
 import useDeleteMerma from '../hooks/mermas/useDeleteMerma';
 //TODO: Que todas las palabras empiecen en minuscula
 //TODO: Revisar si en el backend se ingresan datos solo en minuscula
-//Se define componente tipo utensilio
 const Mermas = () => {
   const navigate = useNavigate();
   const { mermas, fetchMermas, setMermas } = getMermas();
@@ -43,6 +43,11 @@ const Mermas = () => {
   //Para borrar
   const { handleDelete } = useDeleteMerma(fetchMermas, setDataMermas);
 
+  const handleDetalle = () => {
+    //consultar ingredientes y utensilios asociados
+    //redirigir a pestaña de detalle
+  }
+
   return (
     <div className='main-container'>
       <div className='table-container'>
@@ -50,6 +55,9 @@ const Mermas = () => {
           <h1 className='title-table'>Mermas</h1>
           <div className='filter-actions'>
             {/* tmp style. la clase esta en users.css*/}
+            <button className='create-button' onClick={handleDetalle}>
+              <img src={InfoIcon} alt="Info" />
+            </button>
             <button className='create-button' onClick={handleClickCreate}>
               <img src={CreateIcon} alt="Crear" />
             </button>

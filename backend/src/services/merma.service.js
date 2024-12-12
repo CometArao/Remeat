@@ -12,12 +12,14 @@ export async function createMermaService(query) {
         const mermasRepository = AppDataSource.getRepository(Mermas);
         const utensilioMermaRepository = AppDataSource.getRepository(UtensilioMermas);
         const ingredienteMermaRepository = AppDataSource.getRepository(IngredientesMermas);
+        console.log("Crear mermas")
+        console.log(query)
         const { utensilios, ingredientes} = query;
+        console.log(utensilios)
+        console.log(ingredientes)
 
         const today = new Date()
         const formatedDate = today.toISOString()
-        console.log("formatedDate")
-        console.log(formatedDate)
         const nuevaMerma = mermasRepository.create({
             fecha_merma: formatedDate,
         })
@@ -31,16 +33,17 @@ export async function createMermaService(query) {
                 cantidad_perdida_utensilio: utensilio.cantidad_perdida
             })
             const UtensilioMermaCreado = await utensilioMermaRepository.save(nuevoUtensilioMerma);
+            console.log(UtensilioMermaCreado)
             if(!UtensilioMermaCreado) {
                 return [null, "Error al crear utensilio Merma"]
             }
         }
         for(let i = 0; i < ingredientes.length; i++) {
-            const ingredientes = ingredientes[i]
+            const ingrediente = ingredientes[i]
             const nuevoIngredienteMerma = ingredienteMermaRepository.create({
-                id_utensilio: ingredientes.id_utensilio,
+                id_ingrediente: ingrediente.id_ingrediente,
                 id_merma: mermaCreada.id_merma,
-                cantidad_perdida_utensilio: ingredientes.cantidad_perdida
+                cantidad_perdida_ingrediente: ingrediente.cantidad_perdida
             })
             const ingredienteMermaCreado = await ingredienteMermaRepository.save(nuevoIngredienteMerma);
             if(!ingredienteMermaCreado) {
