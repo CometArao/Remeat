@@ -8,7 +8,7 @@ import CreateIcon from '../assets/PlusIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import EmptyIcon from '../assets/emptyIcon.svg';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import '@styles/users.css';
 import useDeleteMenu from '../hooks/menus/useDeletedMenu';
 import useEditMenu from '../hooks/menus/useEditMenu';
@@ -19,9 +19,9 @@ import useGetPlatillos from '../hooks/platillos/useGetPlatillos';
 
 const Menu = () => {
     const { user } = useAuth();
-    const { menus, fetchMenus, setMenus } = useGetMenus();
-    const { users, fetchUsers } = useUsers();
-    const { platillo, fetchPlatillo } = useGetPlatillos();
+    const { menus = [], fetchMenus, setMenus } = useGetMenus(); // Default a []
+    const { users = [], fetchUsers } = useUsers(); // Default a []
+    const { platillo = [], fetchPlatillo } = useGetPlatillos(); // Default a []
 
     const [filterName, setFilterName] = useState('');
 
@@ -29,7 +29,6 @@ const Menu = () => {
         fetchMenus();
         fetchUsers();
         fetchPlatillo();
-        console.log("Datos iniciales de menús:", menus);
     }, []);
 
     const {
@@ -56,21 +55,21 @@ const Menu = () => {
         setFilterName(e.target.value.toLowerCase());
     };
 
-    const filteredMenus = Array.isArray(menus)
-        ? menus.filter((menu) => menu.fecha.toLowerCase().includes(filterName))
-        : [];
+    const filteredMenus = menus.filter((menu) =>
+        menu?.fecha?.toLowerCase().includes(filterName)
+    );
 
     const handleCardSelectionChange = (selectedMenu, isChecked) => {
         if (isChecked) {
-            setDataMenu(prev => {
-                // Evitar duplicados
-                if (prev.find(item => item.id_menu === selectedMenu.id_menu)) {
-                    return prev;
-                }
-                return [...prev, selectedMenu];
-            });
+            setDataMenu((prev) =>
+                prev.find((item) => item.id_menu === selectedMenu.id_menu)
+                    ? prev
+                    : [...prev, selectedMenu]
+            );
         } else {
-            setDataMenu(prev => prev.filter(item => item.id_menu !== selectedMenu.id_menu));
+            setDataMenu((prev) =>
+                prev.filter((item) => item.id_menu !== selectedMenu.id_menu)
+            );
         }
     };
 
@@ -90,23 +89,23 @@ const Menu = () => {
                         </button>
                     )}
                     {['cocinero', 'administrador'].includes(user?.rol_usuario) && (
-                        <button onClick={handleClickUpdate} disabled={dataMenu.length === 0}>
-                            {dataMenu.length === 0 ? (
-                                <img src={UpdateIconDisable} alt="edit-disabled" />
-                            ) : (
-                                <img src={UpdateIcon} alt="edit" />)}
+                        <button onClick={handleClickUpdate} disabled={!dataMenu.length}>
+                            <img
+                                src={!dataMenu.length ? UpdateIconDisable : UpdateIcon}
+                                alt="Editar"
+                            />
                         </button>
                     )}
                     {['cocinero', 'administrador'].includes(user?.rol_usuario) && (
                         <button
                             className="delete-user-button"
-                            disabled={dataMenu.length === 0}
+                            disabled={!dataMenu.length}
                             onClick={() => handleDelete(dataMenu)}
                         >
-                            {dataMenu.length === 0 ? (
-                                <img src={DeleteIconDisable} alt="delete-disabled" />
-                            ) : (
-                                <img src={DeleteIcon} alt="delete" />)}
+                            <img
+                                src={!dataMenu.length ? DeleteIconDisable : DeleteIcon}
+                                alt="Eliminar"
+                            />
                         </button>
                     )}
                 </div>
@@ -114,17 +113,16 @@ const Menu = () => {
 
             {filteredMenus.length > 0 ? (
                 <div className="container">
-                    {filteredMenus.map(menu => {
-                        const isSelected = dataMenu.some(item => item.id_menu === menu.id_menu);
-                        return (
-                            <MenuCard
-                                key={menu.id_menu}
-                                menu={menu}
-                                isSelected={isSelected}
-                                onSelectChange={handleCardSelectionChange}
-                            />
-                        );
-                    })}
+                    {filteredMenus.map((menu) => (
+                        <MenuCard
+                            key={menu.id_menu}
+                            menu={menu}
+                            isSelected={dataMenu.some(
+                                (item) => item.id_menu === menu.id_menu
+                            )}
+                            onSelectChange={handleCardSelectionChange}
+                        />
+                    ))}
                 </div>
             ) : (
                 <div className="empty-container">
@@ -142,7 +140,7 @@ const Menu = () => {
                 data={dataMenu}
                 action={handleUpdate}
                 usuario={users}
-                platillos={platillo}
+                platillos={platillo} // Filtrados
                 isEdit={true}
             />
             {isCreatePopupOpen && (
@@ -152,7 +150,7 @@ const Menu = () => {
                     data={dataMenuCreate || {}}
                     action={handleCreate}
                     usuario={users}
-                    platillos={platillo}
+                    platillos={platillo} // Filtrados
                     isEdit={false}
                 />
             )}

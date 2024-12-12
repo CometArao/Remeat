@@ -38,11 +38,34 @@ export async function createMenuService(data) {
             return [null, `El usuario con ID ${id_usuario} no existe.`];
         }
         // Verificar que todos los platillos existen
-        const platillosValidos = await platilloRepository.findByIds(platillos.map(p => p.id_platillo));
-        if (platillosValidos.length !== platillos.length) {
-            return [null, "Uno o más platillos no existen."];
+        const platillosValidos = [];
+        for (const platilloId of platillos.map(p => p.id_platillo)) {
+            const platillo = await platilloRepository.findOne({
+                where: { id_platillo: platilloId },
+                relations: ["ingredientes", "ingredientes.tipo_ingrediente"],
+            });
+
+            if (!platillo) {
+                return [null, `El platillo con ID ${platilloId} no existe.`];
+            }
+
+        //   // Validar precio establecido
+        if (!platillo.precio_platillo || platillo.precio_platillo <= 0) {
+            return [null, `El platillo "${platillo.nombre_platillo}" no tiene un precio establecido.`];
         }
 
+        // Validar disponibilidad de ingredientes
+        for (const ingrediente of platillo.ingredientes) {
+            if (ingrediente.cantidad_ingrediente < ingrediente.porcion_ingrediente_platillo) {
+                return [null, `El ingrediente "${ingrediente.tipo_ingrediente.nombre_tipo_ingrediente}
+                        " de "${platillo.nombre_platillo}" no está disponible.`];
+            }
+        }
+
+        platillosValidos.push(platillo);
+    }
+        
+        
         // Crear el menú
         const newMenu = menuRepository.create({
             fecha,
