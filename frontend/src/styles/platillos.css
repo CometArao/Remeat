@@ -65,6 +65,23 @@
   right: 10px;
 }
 
+/* Estilo para el precio del platillo */
+.price-assigned {
+  color: rgb(110, 218, 110); /* Color que resalta cuando el precio está asignado */
+  font-weight: bold; /* Negrita para destacar el precio */
+  font-size: 1.2em; /* Aumentar tamaño de fuente */
+  text-align: right; /* Alinear a la derecha */
+  margin-top: 10px; /* Espaciado superior */
+}
+
+.price-not-assigned {
+  color: rgb(210, 33, 84); /* Color para "Precio no asignado" */
+  font-weight: bold; /* Negrita para destacar el mensaje */
+  font-size: 1.2em; /* Aumentar tamaño de fuente */
+  text-align: right; /* Alinear a la derecha */
+  margin-top: 10px; /* Espaciado superior */
+}
+
 /* Contenedor con desplazamiento */
 .container {
   display: flex;

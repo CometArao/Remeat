@@ -37,7 +37,7 @@ export async function createPlatilloService(data) {
         const newPlatillo = platilloRepository.create({
             nombre_platillo,
             precio_platillo: 0, // Precio inicial de 0
-            disponible,
+            disponible: false,
             creador: usuarioExistente,  
         });
         await platilloRepository.save(newPlatillo);
@@ -108,26 +108,28 @@ export async function createPlatilloService(data) {
 
 
 export async function assignPriceToPlatilloService(data) {
-  const platilloRepository = AppDataSource.getRepository(Platillo);
+    const platilloRepository = AppDataSource.getRepository(Platillo);
 
-  try {
-      const { id_platillo, precio_platillo } = data;
+    try {
+        const { id_platillo, precio_platillo } = data;
 
-      // Verificar que el platillo existe
-      const platillo = await platilloRepository.findOneBy({ id_platillo });
-      if (!platillo) {
-          return [null, `El platillo con ID ${id_platillo} no existe.`];
-      }
+        // Verificar que el platillo existe
+        const platillo = await platilloRepository.findOneBy({ id_platillo });
 
-      // Asignar el precio al platillo
-      platillo.precio_platillo = precio_platillo;
-      await platilloRepository.save(platillo);
+        if (!platillo) {
+            return [null, `El platillo con ID ${id_platillo} no existe.`];
+        }
 
-      return [platillo, null];
-  } catch (error) {
-      console.error("Error al asignar precio al platillo:", error);
-      return [null, error.message];
-  }
+        // Asignar el precio al platillo
+        platillo.precio_platillo = precio_platillo;
+        platillo.disponible = true;
+        await platilloRepository.save(platillo);
+
+        return [platillo, null];
+    } catch (error) {
+        console.error("Error al asignar precio al platillo:", error);
+        return [null, error.message];
+    }
 }
 
 

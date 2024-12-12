@@ -49,6 +49,21 @@ export async function updatePlatillo(data, id) {
       );
     }
   }
+
+export async function updatePlatilloPrice(id, newPrice) {
+  try {
+      const response = await axios.patch(`platillos/cambiar-precio/${id}`, { precio_platillo: newPrice }, {
+          headers: { 'Cache-Control': 'no-cache' },
+      });
+      return response.data.data; // Devuelve los datos del backend
+  } catch (error) {
+      console.error('Error al actualizar el precio del platillo:', error.response?.data || error.message);
+      // Manejo de errores con un mensaje claro
+      throw new Error(
+          error.response?.data?.message || 'Error desconocido al actualizar el precio del platillo.'
+      );
+  }
+}
   
 
 export async function deletePlatillo(id) {

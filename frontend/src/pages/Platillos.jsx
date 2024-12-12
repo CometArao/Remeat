@@ -3,17 +3,19 @@ import Search from '@components/Search';
 import useTipoIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
 import useGetPlatillos from '../hooks/platillos/useGetPlatillos';
 import PopupPlatillo from '@hooks/platillos/popupPlatillo';
+import PopupPrecio from '@hooks/platillos/popupPrecio';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import EmptyIcon from '../assets/emptyIcon.svg'; // Asegúrate de tener un ícono representativo
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import '@styles/users.css';
 import useDeletePlatillo from '../hooks/platillos/useDeletePlatillo';
 import useEditPlatillo from '../hooks/platillos/useEditPlatillo';
 import useCreatePlatillo from '../hooks/platillos/useCreatePlatillo';
+import useEditPrecioPlatillo from '../hooks/platillos/useEditPrecioPlatillo'; // Importa tu hook
 import PlatilloCard from '../components/Platillo/PlatilloCard';
 import useUsers from '../hooks/users/useGetUsers';
 
@@ -24,12 +26,12 @@ const Platillos = () => {
     const { users, fetchUsers } = useUsers();
 
     const [filterName, setFilterName] = useState('');
+    const [selectedPlatillo, setSelectedPlatillo] = useState(null); // Estado para almacenar el platillo seleccionado
 
     useEffect(() => {
         fetchPlatillo();
         fetchUsers();
         fetchTiposIngrediente();
-
     }, []);
 
     const {
@@ -52,30 +54,42 @@ const Platillos = () => {
         setDataPlatilloCreate,
     } = useCreatePlatillo(fetchPlatillo, setPlatillo);
 
+    // Integración del nuevo hook para editar precios
+    const {
+        handleClickEditPrice,
+        handleUpdatePrice,
+        isEditPricePopupOpen,
+        setIsEditPricePopupOpen,
+    } = useEditPrecioPlatillo(fetchPlatillo);
+
     const handleNameFilterChange = (e) => {
         setFilterName(e.target.value.toLowerCase());
     };
 
-    console.log('platillo:', platillo);
+    console.log('platillos:', platillo);
     const filteredPlatillos = Array.isArray(platillo)
         ? platillo.filter((p) => p?.nombre_platillo?.toLowerCase().includes(filterName))
         : [];
 
-
     // Función para agregar o quitar platillos seleccionados
-    const handleCardSelectionChange = (selectedPlatillo, isChecked) => {
+    const handleCardSelectionChange = (selected, isChecked) => {
         if (isChecked) {
             // Agregar a la selección si no está presente
             setDataPlatillo(prev => {
                 // Evitamos duplicados
-                if (prev.find(item => item.id_platillo === selectedPlatillo.id_platillo)) {
+                if (prev.find(item => item.id_platillo === selected.id_platillo)) {
                     return prev;
                 }
-                return [...prev, selectedPlatillo];
+                return [...prev, selected];
             });
+            setSelectedPlatillo(selected); // Almacena el platillo seleccionado
         } else {
             // Remover de la selección
-            setDataPlatillo(prev => prev.filter(item => item.id_platillo !== selectedPlatillo.id_platillo));
+            setDataPlatillo(prev => prev.filter(item => item.id_platillo !== selected.id_platillo));
+            // Limpiar la selección si se deselecciona
+            if (selected.id_platillo === selectedPlatillo?.id_platillo) {
+                setSelectedPlatillo(null); // Limpiar la selección si se deselecciona
+            }
         }
     };
 
@@ -114,6 +128,20 @@ const Platillos = () => {
                                 <img src={DeleteIcon} alt="delete" />
                             )}
                         </button>
+                        {/* Botón para Editar Precio */}
+                        {user?.rol_usuario === 'administrador' && (
+                            <button
+                                className="edit-price-button"
+                                onClick={() => {
+                                    if (selectedPlatillo) {
+                                        handleClickEditPrice(selectedPlatillo); // Abre el popup con el platillo seleccionado
+                                    }
+                                }}
+                                disabled={!selectedPlatillo} // Solo habilitado si hay un platillo seleccionado
+                            >
+                                Editar Precio
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -140,9 +168,19 @@ const Platillos = () => {
                         </p>
                     </div>
                 )}
-
             </div>
 
+            {/* Popup para editar precio */}
+            {isEditPricePopupOpen && (
+                <PopupPrecio
+                    show={isEditPricePopupOpen}
+                    setShow={setIsEditPricePopupOpen}
+                    data={selectedPlatillo}
+                    action={handleUpdatePrice} // Pasa la función para actualizar el precio
+                />
+            )}
+
+            {/* Popup para editar y crear platillos */}
             <PopupPlatillo
                 show={isPopupOpen}
                 setShow={setIsPopupOpen}
@@ -163,7 +201,6 @@ const Platillos = () => {
                     isEdit={false}
                 />
             )}
-
         </div>
     );
 };

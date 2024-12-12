@@ -6,6 +6,19 @@ const PlatilloCard = ({ platillo, isSelected, onSelectChange }) => {
         onSelectChange(platillo, e.target.checked);
     };
 
+    // Función para formatear el precio
+    const formatPrice = (price) => {
+        if (price === 0 || price === undefined) {
+            return 'Precio no asignado';
+        }
+        return `$${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`; // Formato con separador de miles
+    };
+
+    // Determina la clase del precio
+    const priceClass = (platillo.precio_platillo === 0 || platillo.precio_platillo === undefined)
+        ? 'price-not-assigned' // Clase para "Precio no asignado"
+        : 'price-assigned'; // Clase para precios asignados
+
     return (
         <div className="platillo-card" style={{ position: 'relative' }}>
             {/* Mostrar la ID del platillo */}
@@ -37,6 +50,11 @@ const PlatilloCard = ({ platillo, isSelected, onSelectChange }) => {
                     <li>Sin ingredientes asignados</li>
                 )}
             </ul>
+
+            {/* Mostrar el precio del platillo */}
+            <p className={priceClass}>
+                {formatPrice(platillo.precio_platillo)}
+            </p>
         </div>
     );
 };
