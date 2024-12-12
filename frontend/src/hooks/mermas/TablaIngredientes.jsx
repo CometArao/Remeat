@@ -17,7 +17,7 @@ const TableWithCheckboxes = forwardRef((props, ref) => {
     const [numeroIngrediente, setNumeroIngrediente] = useState({});
 
     const getSelectedItems = () => {
-        const selectedData = props.filter(
+        const selectedData = props.data.filter(
             (item) =>
                 numeroIngrediente[item.id_ingrediente] !== 0 &&
                 numeroIngrediente[item.id_ingrediente]
