@@ -42,7 +42,8 @@ export async function createPlatilloController(req, res) {
 
 export async function assignPriceToPlatilloController(req, res) {
     try {
-        const { id_platillo, precio_platillo } = req.body;
+        const { id_platillo } = req.params;
+        const { precio_platillo } = req.body;
         const { error } = platilloPrecioValidation.validate({ precio_platillo });
 
         // Verificar si el usuario es administrador
@@ -104,7 +105,6 @@ export async function updatePlatilloController(req, res){
 
         if(error) return handleErrorClient(res, 400, error.message);
 
-        // eslint-disable-next-line max-len
         const [updatedPlatillo, errorPlatillo] = await updatePlatilloByIdService(id_platillo, req.body);
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
