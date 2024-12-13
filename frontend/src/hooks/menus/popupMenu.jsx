@@ -23,14 +23,6 @@ export default function PopupMenu({
             required: true,
         },
         {
-            label: "Disponibilidad",
-            name: "disponibilidad",
-            defaultValue: menuData.disponibilidad !== undefined ? menuData.disponibilidad : true,
-            fieldType: "input",
-            type: "checkbox",
-            required: false,
-        },
-        {
             label: "Creador",
             name: "id_usuario",
             defaultValue: menuData.usuario?.id_usuario || "",
@@ -57,24 +49,36 @@ export default function PopupMenu({
         },
     ];
 
+    if (isEdit) {
+        fields.unshift({
+            label: "Disponibilidad",
+            name: "disponibilidad",
+            defaultValue:
+                menuData.disponibilidad !== undefined
+                    ? menuData.disponibilidad
+                    : true,
+            fieldType: "input",
+            type: "checkbox",
+            required: false,
+        });
+    }
     const handleSubmit = (formData) => {
-      const platillosSeleccionados = Array.isArray(formData.platillos)
-          ? formData.platillos.map((plat) => ({
+        const platillosSeleccionados = Array.isArray(formData.platillos)
+            ? formData.platillos.map((plat) => ({
                 id_platillo: plat.value,
-                precioEstablecido: plat.precioEstablecido, // Asegura que pase este campo
-                ingredientesDisponibles: plat.ingredientesDisponibles, // Asegura que pase este campo
             }))
-          : [];
-  
-      const payload = {
-          fecha: formData.fecha,
-          disponibilidad: formData.disponibilidad,
-          platillos: platillosSeleccionados,
-      };
-  
-      console.log("Payload enviado a la acción del menú desde el popup:", payload);
-      action(payload);
-  };
+            : [];
+    
+        const payload = {
+            fecha: formData.fecha,
+            id_usuario: formData.id_usuario,
+            platillos: platillosSeleccionados,
+            ...(isEdit && { disponibilidad: formData.disponibilidad }), // Solo incluir disponibilidad si se edita
+        };
+    
+        console.log("Payload enviado:", payload);
+        action(payload);
+    };
   
   
 

@@ -70,10 +70,14 @@ export async function createMenuService(data) {
             return [null, "No hay platillos válidos para crear el menú."];
         }
 
-        // Crear el menú
+        // Si el menú se crea con disponibilidad activa, desactivar otros menús
+        if (disponibilidad) {
+            await menuRepository.update({ disponibilidad: true }, { disponibilidad: false });
+        }
+
+        // Crear el nuevo menú
         const newMenu = menuRepository.create({
             fecha,
-            disponibilidad,
             usuario: usuarioExistente,
             platillo: platillosValidos,
         });
@@ -179,7 +183,6 @@ export async function getMenuByIdService(id_menu) {
     }
 }
 
-
 export async function updateMenuService(id_menu, menuData) {
     const menuRepository = AppDataSource.getRepository(Menu);
     const platilloRepository = AppDataSource.getRepository(Platillo);
@@ -198,9 +201,13 @@ export async function updateMenuService(id_menu, menuData) {
             return [null, `El menú con ID ${id_menu} no existe.`];
         }
 
+        console.log("Menú encontrado antes de actualización:", menuFound);
+
         // Actualizar los campos básicos del menú
-        if (fecha !== undefined) menuFound.fecha = fecha;
-        if (disponibilidad !== undefined) menuFound.disponibilidad = disponibilidad;
+        if (fecha !== undefined) {
+            menuFound.fecha = fecha;
+            console.log("Fecha actualizada:", fecha);
+        }
 
         // Validar y actualizar el usuario asociado si se proporciona un nuevo id_usuario
         if (id_usuario !== undefined) {
@@ -209,12 +216,12 @@ export async function updateMenuService(id_menu, menuData) {
                 return [null, `El usuario con ID ${id_usuario} no existe.`];
             }
             menuFound.usuario = usuarioFound;
+            console.log("Usuario actualizado:", usuarioFound);
         }
 
         // Validar y actualizar los platillos asociados si se proporciona el array `platillos`
         if (platillos && platillos.length > 0) {
             const platilloIds = platillos.map((p) => p.id_platillo);
-
             const platillosValidos = await platilloRepository.findByIds(platilloIds);
 
             if (platillosValidos.length !== platilloIds.length) {
@@ -223,10 +230,31 @@ export async function updateMenuService(id_menu, menuData) {
 
             // Actualizar la relación many-to-many
             menuFound.platillo = platillosValidos;
+            console.log("Platillos actualizados:", platillosValidos);
+        }
+
+        // Lógica para manejar cambios de disponibilidad
+        if (disponibilidad !== undefined) {
+
+            if (disponibilidad === true && menuFound.disponibilidad !== true) {
+                // Si se activa el menú, desactiva los demás
+                const [activatedMenu, error] = await activarMenuService(id_menu);
+                if (error) {
+                    throw new Error(error);
+                }
+                console.log("Menú activado:", activatedMenu);
+                return [activatedMenu, null];
+            } else if (disponibilidad === false && menuFound.disponibilidad === true) {
+                // Si se desactiva el menú actual
+                menuFound.disponibilidad = false;
+                console.log("Disponibilidad cambiada a false.");
+            }
         }
 
         // Guardar el menú actualizado en la base de datos
         const updatedMenu = await menuRepository.save(menuFound);
+
+        console.log("Menú después de la actualización:", updatedMenu);
 
         // Construir la estructura de respuesta para mayor claridad
         const response = {
@@ -254,6 +282,7 @@ export async function updateMenuService(id_menu, menuData) {
 }
 
 
+
 export async function deleteMenuByIdService(id_menu) {
     try {
         const menuRepository = AppDataSource.getRepository(Menu);
@@ -275,5 +304,28 @@ export async function deleteMenuByIdService(id_menu) {
 
     }
 }
+
+export async function activarMenuService(id_menu) {
+    const menuRepository = AppDataSource.getRepository(Menu);
+
+    try {
+        // Desactivar todos los menús
+        await menuRepository.update({ disponibilidad: true }, { disponibilidad: false });
+
+        // Activar el menú seleccionado
+        const menuActivo = await menuRepository.findOne({ where: { id_menu } });
+        if (!menuActivo) {
+            throw new Error(`El menú con ID ${id_menu} no existe.`);
+        }
+        menuActivo.disponibilidad = true;
+        await menuRepository.save(menuActivo);
+
+        return [menuActivo, null];
+    } catch (error) {
+        console.error("Error al activar el menú:", error.message);
+        return [null, error.message];
+    }
+}
+
 
 

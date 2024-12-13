@@ -61,3 +61,12 @@ export async function deleteMenu(id) {
     return error.response.data;
   }
 }
+
+export async function activateMenu(id) {
+  try {
+    const response = await axios.patch(`menus/activar/${id}`);
+    return response.data.data;
+  } catch (error) {
+    return error.response.data;
+  }
+}

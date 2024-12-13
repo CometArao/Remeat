@@ -1,11 +1,13 @@
 "use strict";
 import{
+    activarMenuService,
     createMenuService,
     deleteMenuByIdService,
     generateMenuQRCode,
     getMenuByIdService,
     getMenusService,
     updateMenuService
+
 }
 from "../services/menu.service.js";
 
@@ -174,6 +176,30 @@ export async function updateMenuController(req, res){
         handleSuccess(res, 200, "Menú actualizado", menu);
     }
     catch(error){
+        handleErrorServer(res, 500, error.message);
+    }
+}
+export async function activarMenuController(req, res) {
+    try {
+        const { id } = req.params;
+
+        // Validar que el ID del menú es válido
+        if (!id) {
+            return handleErrorClient(res, 400, "El ID del menú es requerido.");
+        }
+
+        // Llamar al servicio para activar el menú
+        const [menuActivo, error] = await activarMenuService(id);
+
+        // Manejar errores desde el servicio
+        if (error) {
+            return handleErrorClient(res, 404, error);
+        }
+
+        // Respuesta exitosa
+        handleSuccess(res, 200, "Menú activado exitosamente", menuActivo);
+    } catch (error) {
+        console.error("Error en activarMenuController:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }
