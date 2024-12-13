@@ -2,16 +2,24 @@ import { useState, useImperativeHandle, forwardRef } from "react";
 
 // Solo puede ir un argumento junto a ref
 // Este argumento luego debe ser destructurado
-const TableWithCheckboxes = forwardRef((data, ref) => {
-    data = data.data; // Desestructuración del argumento
-    // console.log("data utensilio");
-    // console.log(data);
+const TableWithCheckboxes = forwardRef((props, ref) => {
+    props; // Desestructuración del argumento
+
+    console.log("data utensilio");
+    console.log(props);
+    let filterTest = ""
+    let string = "abc"
+    if(string.startsWith(filterTest)) {
+        console.log("it works")
+    }
+    console.log(props)
+
     //// Comprobar los nulos en tipo
     // for(let i = 0; i < data.length; i++) {
-        // const item = data[i];
-        // if(!item.tipo_utensilio) {
-            // data.splice(i, 1); // Eliminar el elemento sin datos de tipo
-        // }
+    // const item = data[i];
+    // if(!item.tipo_utensilio) {
+    // data.splice(i, 1); // Eliminar el elemento sin datos de tipo
+    // }
     // }
     // console.log("data utensilio revisado");
     // console.log(data);
@@ -20,7 +28,7 @@ const TableWithCheckboxes = forwardRef((data, ref) => {
     const [numeroUtensilio, setNumeroUtensilio] = useState({});
 
     const getSelectedItems = () => {
-        let selectedData = data.filter(
+        let selectedData = props.data.filter(
             item =>
                 numeroUtensilio[item.id_utensilio] !== 0 &&
                 numeroUtensilio[item.id_utensilio]
@@ -67,33 +75,35 @@ const TableWithCheckboxes = forwardRef((data, ref) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((item) => (
-                        <tr key={item.id_utensilio}>
-                            <td>
-                                {item.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo"}
-                            </td>
-                            <td>
-                                {item.pedido?.fecha_compra_pedido || "Sin fecha"}
-                            </td>
-                            <td>{item.cantidad_utensilio || 0}</td>
-                            <td>
-                                <input
-                                    type="number"
-                                    value={numeroUtensilio[item.id_utensilio] || 0}
-                                    onChange={(e) =>
-                                        handleSetNumberOfMermaUtensilio(
-                                            item.id_utensilio,
-                                            e.target.value
-                                        )
-                                    }
-                                    min="0" // Valor mínimo permitido
-                                    max={item.cantidad_utensilio || 0} // Valor máximo permitido
-                                    step="1" // Incremento/decremento por 1
-                                    style={{ width: "40px" }}
-                                />
-                            </td>
-                        </tr>
-                    ))}
+                    {props.data.map((item) => 
+                            item.tipo_utensilio.nombre_tipo_utensilio.toLowerCase().startsWith(props.filtro) ? (
+                                <tr key={item.tipo_utensilio.nombre_tipo_utensilio}>
+                                    <td>
+                                        {item.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo"}
+                                    </td>
+                                    <td>
+                                        {item.pedido?.fecha_compra_pedido || "Sin fecha"}
+                                    </td>
+                                    <td>{item.cantidad_utensilio || 0}</td>
+                                    <td>
+                                        <input
+                                            type="number"
+                                            value={numeroUtensilio[item.id_utensilio] || 0}
+                                            onChange={(e) =>
+                                                handleSetNumberOfMermaUtensilio(
+                                                    item.id_utensilio,
+                                                    e.target.value
+                                                )
+                                            }
+                                            min="0" // Valor mínimo permitido
+                                            max={item.cantidad_utensilio || 0} // Valor máximo permitido
+                                            step="1" // Incremento/decremento por 1
+                                            style={{ width: "40px" }}
+                                        />
+                                    </td>
+                                </tr>
+                            ) : null
+                    )}
                 </tbody>
             </table>
         </div>

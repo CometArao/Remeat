@@ -3,6 +3,7 @@ import GraficoBarra from "@components/GraficoBarra.jsx"
 import GraficoCircular from "@components/GraficoCircular.jsx"
 import { useLocation } from 'react-router-dom'
 import html2pdf from 'html2pdf.js'
+import '@styles/informe.css';
 //Los datos x de 1 tienen que aparecer en los otros, pero estos pueden aparecer
 //como nulos
 //Este componente prepara todo para mostrar el grafico lineal
@@ -66,7 +67,9 @@ const Grafico = () => {
           }
         </div>
       </div>
-      <button onClick={handleImprimirPdf}>Imprimir como pdf</button>
+      <div className='botones centrar'>
+        <button onClick={handleImprimirPdf}>Imprimir como pdf</button>
+      </div>
     </div>
   )
 }

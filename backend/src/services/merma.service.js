@@ -12,12 +12,14 @@ export async function createMermaService(query) {
         const mermasRepository = AppDataSource.getRepository(Mermas);
         const utensilioMermaRepository = AppDataSource.getRepository(UtensilioMermas);
         const ingredienteMermaRepository = AppDataSource.getRepository(IngredientesMermas);
+        console.log("Crear mermas")
+        console.log(query)
         const { utensilios, ingredientes} = query;
+        console.log(utensilios)
+        console.log(ingredientes)
 
         const today = new Date()
         const formatedDate = today.toISOString()
-        console.log("formatedDate")
-        console.log(formatedDate)
         const nuevaMerma = mermasRepository.create({
             fecha_merma: formatedDate,
         })
@@ -31,19 +33,26 @@ export async function createMermaService(query) {
                 cantidad_perdida_utensilio: utensilio.cantidad_perdida
             })
             const UtensilioMermaCreado = await utensilioMermaRepository.save(nuevoUtensilioMerma);
+            console.log(UtensilioMermaCreado)
             if(!UtensilioMermaCreado) {
                 return [null, "Error al crear utensilio Merma"]
             }
         }
         for(let i = 0; i < ingredientes.length; i++) {
-            const ingredientes = ingredientes[i]
-            const nuevoIngredienteMerma = ingredienteMermaRepository.create({
-                id_utensilio: ingredientes.id_utensilio,
-                id_merma: mermaCreada.id_merma,
-                cantidad_perdida_utensilio: ingredientes.cantidad_perdida
-            })
-            const ingredienteMermaCreado = await ingredienteMermaRepository.save(nuevoIngredienteMerma);
-            if(!ingredienteMermaCreado) {
+            console.log("Añadir ingrediente")
+            const ingrediente = ingredientes[i]
+            const nuevoIngredienteMerma = await AppDataSource.query(`
+            INSERT INTO ingrediente_merma (id_ingrediente, id_merma, cantidad_perdida_ingrediente)    
+            VALUES ($1, $2, $3)
+            `, [ingrediente.id_ingrediente, mermaCreada.id_merma, ingrediente.cantidad_perdida])
+
+            //const nuevoIngredienteMerma = ingredienteMermaRepository.create({
+                //id_ingrediente: ingrediente.id_ingrediente,
+                //id_merma: mermaCreada.id_merma,
+                //cantidad_perdida_ingrediente: ingrediente.cantidad_perdida
+            //})
+            //const ingredienteMermaCreado = await ingredienteMermaRepository.save(nuevoIngredienteMerma);
+            if(!nuevoIngredienteMerma) {
                 return [null, "Error al crear ingrediente merma"]
             }
         }
@@ -62,6 +71,35 @@ export async function getMermaService(id_merma) {
         const mermaEncontrada = await mermasRepository.findOne({
             where: { id_merma: id_merma }
         })
+        //seleccionar todos los ingredientes de la merma
+        const ingredientes = await AppDataSource.query(`
+            SELECT *
+            FROM ingrediente i
+            INNER JOIN ingrediente_merma im ON im.id_ingrediente = i.id_ingrediente 
+            INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = i.id_tipo_ingrediente
+            INNER JOIN compuesto_ingrediente ci ON ci.id_ingrediente = i.id_ingrediente
+            INNER JOIN pedido p ON p.id_pedido = ci.id_pedido
+            WHERE im.id_merma = $1
+        `, [id_merma])
+        if(!ingredientes) {
+            return [null, "Error no se encontro ingrediente"]
+        }
+        console.log(ingredientes)
+        mermaEncontrada.ingredientes = ingredientes;
+
+        //seleccionar todos los utensilios de la merma
+        const utensilios = await AppDataSource.query(`
+        SELECT *
+        FROM utensilio u    
+        INNER JOIN utensilio_merma um ON um.id_utensilio = u.id_utensilio
+        INNER JOIN tipo_utensilio tu ON tu.id_tipo_utensilio = u.id_tipo_utensilio
+        INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
+        INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
+        WHERE um.id_merma = $1
+        `, [id_merma])
+        console.log(utensilios)
+        mermaEncontrada.utensilios = utensilios;
+
         if(!mermaEncontrada) {
             return [null, "Error no se encontro la merma"]
         }

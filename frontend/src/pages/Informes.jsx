@@ -20,6 +20,7 @@ import {
     construirVentasPlatilloBarra, construirPlatillosMenuBarra,
     construirVentasPlatilloCircular, construirPlatillosMenuCircular
 } from '../services/construirGrafico.service'
+import Search from '../components/Search';
 
 /**
  * Esta pagina para seleccionar el grafico y las variables a usar
@@ -78,6 +79,12 @@ const Informes = () => {
         useState(["time"])
     const SelectedItemsRef = useRef();
     const SelectedTimeRef = useRef();
+    const [filterName, setFilterName] = useState('');
+
+    const handleNameFilterChange = (e) => {
+        console.log(e)
+        setFilterName(e.target.value.toLowerCase());
+    };
 
     const handleSelectedItems = () => {
         const selected = SelectedItemsRef.current.getSelectedItems()
@@ -126,16 +133,14 @@ const Informes = () => {
             for (let i = 0; i < ingredientes.length; i++) {
                 const ingrediente = ingredientes[i];
                 const IngredienteFormatedData = {
-                    id: ingrediente.id_tipo_ingrediente,
+                    id: "ingrediente_" + ingrediente.id_tipo_ingrediente,
                     name: ingrediente.nombre_tipo_ingrediente,
-                    tipo: "ingrediente"
                 }
                 formatedList.push(IngredienteFormatedData)
                 const utensilio = utensilios[i];
                 const utensilioFormatedData = {
-                    id: utensilio.id_tipo_utensilio,
+                    id: "utensilio_" + utensilio.id_tipo_utensilio,
                     name: utensilio.nombre_tipo_utensilio,
-                    tipo: "utensilio"
                 }
                 formatedList.push(utensilioFormatedData)
             }
@@ -155,16 +160,14 @@ const Informes = () => {
             for (let i = 0; i < ingredientes.length; i++) {
                 const ingrediente = ingredientes[i];
                 const IngredienteFormatedData = {
-                    id: ingrediente.id_tipo_ingrediente,
+                    id: "ingrediente_" + ingrediente.id_tipo_ingrediente,
                     name: ingrediente.nombre_tipo_ingrediente,
-                    tipo: "ingrediente"
                 }
                 formatedList.push(IngredienteFormatedData)
                 const utensilio = utensilios[i];
                 const utensilioFormatedData = {
-                    id: utensilio.id_tipo_utensilio,
+                    id: "utensilio_" + utensilio.id_tipo_utensilio,
                     name: utensilio.nombre_tipo_utensilio,
-                    tipo: "utensilio"
                 }
                 formatedList.push(utensilioFormatedData)
             }
@@ -262,6 +265,7 @@ const Informes = () => {
                 }
                 formatedPlatillos.push(formatedPlatillo);
             }
+            setDatosDependientes(formatedPlatillos);
             setTipoGrafico({ tipoGrafico: "barra", variable: "ventas_platillos_barra" })
             setDatosIndependientes([{ id: 1, name: "No Aplica" }])
         } catch (error) {
@@ -478,7 +482,7 @@ const Informes = () => {
                 console.log("ventas_platillos_circular")
                 const ventas_platillos_circular =
                     await getVentasPlatillo(ids);
-                [formatedDependiente, keys]  =
+                [formatedDependiente, keys] =
                     construirVentasPlatilloCircular(ventas_platillos_circular, selectedTime.name)
                 datos = {
                     independientes: selectedTime,
@@ -548,11 +552,18 @@ const Informes = () => {
                 </section>
             </div>
             <h1>Seleccione Las Variables</h1>
+            <Search
+                value={filterName}
+                onChange={handleNameFilterChange}
+                placeholder={'Filtrar por nombre'}
+            />
             <div className='horizontal'>
                 {/* Lista de platillos, utensilios, etc */}
-                <TableWithCheckboxes ref={SelectedItemsRef} data={datosDependientes} />
+                <TableWithCheckboxes ref={SelectedItemsRef} data={datosDependientes} 
+                    filtro={filterName}/>
                 {/* Lista de tiempos */}
-                <SelectTime ref={SelectedTimeRef} data={datosIndependientes} />
+                <SelectTime ref={SelectedTimeRef} data={datosIndependientes} 
+                    />
             </div>
             <div className="botones">
                 <button onClick={handleNavigation}>Crear Informe</button>
