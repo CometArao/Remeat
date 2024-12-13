@@ -1,9 +1,10 @@
 import React from 'react';
-import useGetComandasWithPlatillos from '../../hooks/comandas/useGetComandasWithPlatillos'; // Hook para obtener comandas con platillos
+import useGetComandasWithPlatillos from '../../hooks/comandas/useGetComandasWithPlatillos';
 import '../../styles/Comandas.css';
+import ComandaPlatillos from './ComandaPlatillos';
 
 const ComandasWithPlatillosList = () => {
-  const { comandasWithPlatillos, loading, error } = useGetComandasWithPlatillos();
+  const { comandasWithPlatillos, loading, error, refetch } = useGetComandasWithPlatillos();
 
   if (loading) return <p>Cargando comandas con platillos...</p>;
   if (error) return <p style={{ color: 'red' }}>Error: {error.message}</p>;
@@ -13,21 +14,28 @@ const ComandasWithPlatillosList = () => {
   }
 
   return (
-    <div className="comandas-container"> {/* Usa la misma clase principal */}
+    <div className="comandas-container">
       <h2>Listado de Comandas con Platillos</h2>
       {comandasWithPlatillos.map((comanda) => (
-        <div key={comanda.idComanda} className="comanda-item"> {/* Clase compartida */}
+        <div key={comanda.idComanda} className="comanda-item">
           <h3>Comanda ID: {comanda.idComanda}</h3>
           <p>Fecha: {comanda.fecha}</p>
           <p>Tiene Platillos: {comanda.tienePlatillos ? 'Sí' : 'No'}</p>
           {comanda.tienePlatillos && (
-            <div className="platillos-container"> {/* Clase compartida si es relevante */}
+            <div className="platillos-container">
               <p>Platillos:</p>
               {Array.isArray(comanda.platillos) ? (
-                comanda.platillos.map((platillo, index) => (
-                  <p key={index} className="platillo-item">
-                    {platillo.nombrePlatillo} - Cantidad: {platillo.cantidad} - Estado: {platillo.estadoPlatillo}
-                  </p>
+                comanda.platillos.map((platillo) => (
+                  <div key={`${comanda.idComanda}-${platillo.idPlatillo}`} className="platillo-item">
+                    <p>
+                      {platillo.nombrePlatillo} - Cantidad: {platillo.cantidad} - Estado: {platillo.estadoPlatillo}
+                    </p>
+                    <ComandaPlatillos
+                      platillos={[platillo]}
+                      comandaId={comanda.idComanda}
+                      onPlatilloRemoved={() => refetch()}
+                    />
+                  </div>
                 ))
               ) : (
                 <p>No se encontraron platillos.</p>

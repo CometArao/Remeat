@@ -9,7 +9,8 @@ import {
   addPlatilloToComanda,
   obtenerComandasConPlatillos,
   getMeserosService,
-  getPlatillosDelDiaService
+  getPlatillosDelDiaService,
+  removePlatilloFromComanda
 } from '../services/comanda.service.js';
 
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
@@ -19,6 +20,43 @@ import {
   addPlatilloToComandaValidation,
   updateComandaValidation
 } from '../validations/comanda.validation.js';
+
+
+
+
+
+
+
+
+
+
+export async function removePlatilloFromComandaController(req, res) {
+  const comandaId = parseInt(req.params.id, 10);
+  const platilloId = parseInt(req.params.platilloId, 10);
+  const loggedUser = req.user; // Usuario logueado, obtenido del middleware de autenticación
+
+  try {
+    const result = await removePlatilloFromComanda(comandaId, platilloId, loggedUser);
+    res.status(200).json({ status: 'Success', message: result.message });
+  } catch (error) {
+    if (error.message.includes('No tienes permiso') || error.message.includes('estado "pendiente"')) {
+      res.status(403).json({ status: 'Error', message: error.message });
+    } else {
+      res.status(400).json({ status: 'Error', message: error.message });
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 export async function getMeserosController(req, res){

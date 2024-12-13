@@ -246,6 +246,38 @@ export async function createComanda(loggedUser) {
 
 
 
+export async function removePlatilloFromComanda(comandaId, platilloId, loggedUser) {
+  const comandaRepository = AppDataSource.getRepository(Comanda);
+  const conformaRepository = AppDataSource.getRepository(ConformaComanda);
+
+  // Verificar si la comanda existe
+  const comanda = await comandaRepository.findOne({
+    where: { id_comanda: comandaId },
+    relations: ['usuario'] // Relación con el usuario creador de la comanda
+  });
+  if (!comanda) throw new Error('Comanda no encontrada.');
+
+  // Validar que el usuario logueado es el creador de la comanda
+  if (comanda.usuario.id_usuario !== loggedUser.id_usuario) {
+    throw new Error('No tienes permiso para eliminar platillos de esta comanda.');
+  }
+
+  // Verificar si la relación entre la comanda y el platillo existe
+  const conforma = await conformaRepository.findOne({
+    where: { id_comanda: comandaId, id_platillo: platilloId }
+  });
+  if (!conforma) throw new Error('El platillo no está asociado a esta comanda.');
+
+  // Validar que el estado del platillo sea "pendiente"
+  if (conforma.estado_platillo !== 'pendiente') {
+    throw new Error('Solo se pueden eliminar platillos con estado "pendiente".');
+  }
+
+  // Eliminar la relación de la tabla conforma_comanda
+  await conformaRepository.delete({ id_comanda: comandaId, id_platillo: platilloId });
+
+  return { message: 'Platillo eliminado exitosamente de la comanda.' };
+}
 
 
 
