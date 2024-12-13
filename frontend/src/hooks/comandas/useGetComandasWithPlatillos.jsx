@@ -16,7 +16,7 @@ const useGetComandasWithPlatillos = () => {
         if (response.data && Array.isArray(response.data)) {
           // Agrupa los datos por idComanda
           const agrupados = response.data.reduce((acc, item) => {
-            const { idComanda, fecha, tienePlatillos, nombrePlatillo, cantidad, estadoPlatillo } = item;
+            const { idComanda, fecha, tienePlatillos, idPlatillo, nombrePlatillo, cantidad, estadoPlatillo } = item;
             if (!acc[idComanda]) {
               acc[idComanda] = {
                 idComanda,
@@ -25,8 +25,8 @@ const useGetComandasWithPlatillos = () => {
                 platillos: [],
               };
             }
-            if (nombrePlatillo) {
-              acc[idComanda].platillos.push({ nombrePlatillo, cantidad, estadoPlatillo });
+            if (idPlatillo) {
+              acc[idComanda].platillos.push({ idPlatillo, nombrePlatillo, cantidad, estadoPlatillo });
             }
             return acc;
           }, {});

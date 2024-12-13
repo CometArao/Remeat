@@ -9,7 +9,8 @@ import {
   addPlatilloToComanda,
   obtenerComandasConPlatillos,
   getMeserosService,
-  getPlatillosDelDiaService
+  getPlatillosDelDiaService,
+  removePlatilloFromComanda
 } from '../services/comanda.service.js';
 
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
@@ -19,6 +20,46 @@ import {
   addPlatilloToComandaValidation,
   updateComandaValidation
 } from '../validations/comanda.validation.js';
+
+
+
+
+
+
+
+
+
+
+export async function removePlatilloFromComandaController(req, res) {
+  const comandaId = parseInt(req.params.id, 10);
+  const platilloId = parseInt(req.params.platilloId, 10);
+  const loggedUser = req.user; // Usuario logueado, obtenido del middleware de autenticación
+
+  try {
+    const result = await removePlatilloFromComanda(comandaId, platilloId, loggedUser);
+    res.status(200).json({ status: 'Success', message: result.message });
+  } catch (error) {
+    if (error.message.includes('No tienes permiso') || error.message.includes('estado "pendiente"')) {
+      res.status(403).json({ status: 'Error', message: error.message });
+    } else {
+      res.status(400).json({ status: 'Error', message: error.message });
+    }
+  }
+  console.log('Comanda ID:', req.params.id);
+console.log('Platillo ID:', req.params.platilloId);
+
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 export async function getMeserosController(req, res){
@@ -87,11 +128,12 @@ export async function addPlatilloToComandaController(req, res) {
 
 
 export async function createComandaController(req, res) {
-  const { error } = createComandaValidation.validate(req.body);
-  if (error) return handleErrorClient(res, 400, error.details[0].message);
-
   try {
-    const newComanda = await createComanda(req.body);
+    // Suponiendo que `req.user` contiene el usuario logueado
+    const loggedUser = req.user;
+    console.log(loggedUser);
+
+    const newComanda = await createComanda(loggedUser);
     handleSuccess(res, 201, 'Comanda creada', newComanda);
   } catch (error) {
     handleErrorServer(res, 500, error.message);
