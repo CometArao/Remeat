@@ -14,7 +14,6 @@ const useRemovePlatilloFromComanda = () => {
     try {
       const token = cookies.get('jwt-auth'); // Obtiene el token del usuario autenticado
       const response = await removePlatilloFromComanda(comandaId, platilloId, token);
-      console.log('Pablo'+comandaId, platilloId);
       setSuccess(true);
       return response;
     } catch (err) {

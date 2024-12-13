@@ -45,6 +45,9 @@ export async function removePlatilloFromComandaController(req, res) {
       res.status(400).json({ status: 'Error', message: error.message });
     }
   }
+  console.log('Comanda ID:', req.params.id);
+console.log('Platillo ID:', req.params.platilloId);
+
 }
 
 

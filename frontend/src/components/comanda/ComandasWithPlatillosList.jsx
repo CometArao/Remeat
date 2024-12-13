@@ -1,10 +1,16 @@
-import React from 'react';
-import useGetComandasWithPlatillos from '../../hooks/comandas/useGetComandasWithPlatillos';
+import React, { useCallback } from 'react';
+import useGetComandasWithPlatillos from '../../hooks/comandas/useGetComandasWithPlatillos'; // Hook para obtener comandas con platillos
 import '../../styles/Comandas.css';
-import ComandaPlatillos from './ComandaPlatillos';
+import ComandaPlatillos from './ComandaPlatillos'; // Importamos el componente para eliminar platillos
 
 const ComandasWithPlatillosList = () => {
   const { comandasWithPlatillos, loading, error, refetch } = useGetComandasWithPlatillos();
+
+  const handleRefetch = useCallback(() => {
+    if (refetch) {
+      refetch();
+    }
+  }, [refetch]);
 
   if (loading) return <p>Cargando comandas con platillos...</p>;
   if (error) return <p style={{ color: 'red' }}>Error: {error.message}</p>;
@@ -26,14 +32,18 @@ const ComandasWithPlatillosList = () => {
               <p>Platillos:</p>
               {Array.isArray(comanda.platillos) ? (
                 comanda.platillos.map((platillo) => (
-                  <div key={`${comanda.idComanda}-${platillo.idPlatillo}`} className="platillo-item">
+                  <div key={platillo.idPlatillo} className="platillo-item">
                     <p>
-                      {platillo.nombrePlatillo} - Cantidad: {platillo.cantidad} - Estado: {platillo.estadoPlatillo}
+                      ID Platillo: {platillo.idPlatillo} <br />
+                      Nombre: {platillo.nombrePlatillo} <br />
+                      Cantidad: {platillo.cantidad} <br />
+                      Estado: {platillo.estadoPlatillo}
                     </p>
+                    {/* Integramos ComandaPlatillos para eliminar */}
                     <ComandaPlatillos
-                      platillos={[platillo]}
-                      comandaId={comanda.idComanda}
-                      onPlatilloRemoved={() => refetch()}
+                      platillos={[platillo]} // Pasar el platillo actual
+                      comandaId={comanda.idComanda} // ID de la comanda
+                      onPlatilloRemoved={handleRefetch} // Actualizar al eliminar
                     />
                   </div>
                 ))
