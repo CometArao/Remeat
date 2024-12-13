@@ -15,7 +15,7 @@ const crearMermas = () => {
     const [selectedIngredientes, setSelectedIngredientes] = useState([])
     const { utensilios, fetchUtensilios, setUtensilios } = useGetUtensilios();
     const [utensiliosSeleccionados, setSelectedUtensilios] = useState([])
-    const {ingredientes, fetchIngredientes, setIngredientes } = useGetIngredientesSinTiposNulos();
+    const { ingredientes, fetchIngredientes, setIngredientes } = useGetIngredientesSinTiposNulos();
     const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState([])
     const [filterName, setFilterName] = useState('');
 
@@ -43,7 +43,7 @@ const crearMermas = () => {
         setSelectedUtensilios(selected)
         return selected
     }
-    
+
     const handleNavigation = async () => {
         const selectedIngredientes = handleSelectedIngredientes();
         const selectedUtensilios = handleSelectedUtensilios();
@@ -51,8 +51,8 @@ const crearMermas = () => {
         console.log(selectedIngredientes)
         console.log("selectedUtensilios")
         console.log(selectedUtensilios)
-        if((!selectedIngredientes || selectedIngredientes.length === 0) 
-            && 
+        if ((!selectedIngredientes || selectedIngredientes.length === 0)
+            &&
             (!selectedUtensilios || selectedUtensilios.length === 0)
         ) {
             console.log("Error") //TODO: Revisar error
@@ -61,7 +61,7 @@ const crearMermas = () => {
         }
         //Extraer los datos que nos importan de los utensilios
         let utensiliosEnviar = []
-        for(let i = 0; i < selectedUtensilios.length; i++) {
+        for (let i = 0; i < selectedUtensilios.length; i++) {
             const utensilio = selectedUtensilios[i];
             const formatedUtensilio = {
                 id_utensilio: utensilio.id_utensilio,
@@ -71,7 +71,7 @@ const crearMermas = () => {
         }
         //Extraer los datos que nos importan de los ingredientes
         let ingredientesEnviar = []
-        for(let i = 0; i < selectedIngredientes.length; i++) {
+        for (let i = 0; i < selectedIngredientes.length; i++) {
             const ingrediente = selectedIngredientes[i];
             const formatedIngrediente = {
                 id_ingrediente: ingrediente.id_ingrediente,
@@ -106,11 +106,11 @@ const crearMermas = () => {
                     </div>
                 </div>
                 <div className='horizontal'>
-                    <TablaUtensilios ref={SelectedUtensiliosRef} 
-                        data={utensilios} />
+                    <TablaUtensilios ref={SelectedUtensiliosRef}
+                        data={utensilios} filtro={filterName} />
                     {/* Lista de platillos, utensilios, etc */}
-                    <TablaIngredientes ref={SelectedIngredientesRef} 
-                        data={ingredientes} />
+                    <TablaIngredientes ref={SelectedIngredientesRef}
+                        data={ingredientes} filtro={filterName} />
                     {/* Lista de tiempos */}
                 </div>
                 <button onClick={handleNavigation}>Enviar</button>

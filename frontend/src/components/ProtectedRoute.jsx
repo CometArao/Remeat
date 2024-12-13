@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     }
 
     if (allowedRoles && !allowedRoles.includes(user?.rol_usuario)) {
-        return <Navigate to="/home" />;
+        return <Navigate to="/inicio" />;
     }
 
     return children;
