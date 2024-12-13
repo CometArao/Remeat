@@ -45,7 +45,8 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
       SELECT *
       FROM tipo_utensilio tu
       INNER JOIN utensilio u ON u.id_tipo_utensilio = tu.id_tipo_utensilio 
-      INNER JOIN pedido p ON p.id_pedido = u.id_pedido
+      INNER JOIN compuesto_utensilio cu ON cu.id_utensilio = u.id_utensilio
+      INNER JOIN pedido p ON p.id_pedido = cu.id_pedido
       WHERE tu.id_tipo_utensilio = $1
       ORDER BY p.fecha_entrega_pedido ASC
       `, [id_tipo_utensilio])
@@ -115,7 +116,8 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
     SELECT * 
     FROM tipo_ingrediente ti
     INNER JOIN ingrediente i ON i.id_tipo_ingrediente = ti.id_tipo_ingrediente
-    INNER JOIN pedido p ON p.id_pedido = i.id_pedido
+    INNER JOIN compuesto_ingrediente ci ON ci.id_ingrediente = i.id_ingrediente
+    INNER JOIN pedido p ON p.id_pedido = ci.id_pedido
     WHERE ti.id_tipo_ingrediente = $1
     `, [id_tipo_ingrediente])
       if (!ingredientes || ingredientes.length == 0) {

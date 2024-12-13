@@ -1,8 +1,9 @@
 import { useState, useImperativeHandle, forwardRef} from 'react';
 
-const TableWithCheckboxes = forwardRef((data, ref) => {
+const TableWithCheckboxes = forwardRef((props, ref) => {
   // Sample data with names
-  data = data.data
+  let data = props.data
+  let filtro = props.filtro
   console.log(data)
   // State to track checked status of checkboxes
   const [checkedItems, setCheckedItems] = useState({});
@@ -30,7 +31,8 @@ const TableWithCheckboxes = forwardRef((data, ref) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
+          {data.map((item) => 
+          item.name.toLowerCase().startsWith(filtro) ?
             <tr key={item.id}>
               <td>{item.name}</td>
               <td>
@@ -40,8 +42,8 @@ const TableWithCheckboxes = forwardRef((data, ref) => {
                   onChange={() => handleCheckboxChange(item.id)}
                 />
               </td>
-            </tr>
-          ))}
+            </tr> : null
+          )}
         </tbody>
       </table>
     </div>

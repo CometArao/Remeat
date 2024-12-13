@@ -134,7 +134,12 @@ export function construirLinealStockUtensilios(datos, time) {
         let formatedLineData = []
         for (let ii = 0; ii < utensilios.length; ii++) {
             if (time === "Hora") {
-                x = utensilios[ii].hora_compra
+                x = new Date(utensilios[ii].fecha)
+                console.log("x")
+                console.log(x)
+                x = x.toTimeString()
+                x = x.split(" ")[0]
+                console.log(x)
             }
             if (time === "Fecha") {
                 x = formatearFecha(utensilios[ii].fecha)
@@ -191,7 +196,10 @@ export function construirStockIngredientes(datos, time) {
         let formatedLineData = []
         for (let ii = 0; ii < utensilios.length; ii++) {
             if (time === "Hora") {
-                x = utensilios[ii].hora_compra
+                x = new Date(utensilios[ii].fecha)
+                console.log(x)
+                x = x.toTimeString()
+                x = x.split(" ")[0]
             }
             if (time === "Fecha") {
                 x = formatearFecha(utensilios[ii].fecha)
