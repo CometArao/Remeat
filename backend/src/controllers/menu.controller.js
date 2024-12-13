@@ -82,6 +82,7 @@ export async function getMenuQRCodeController(req, res) {
 
 export async function createMenuController(req, res) {
     try {
+        console.log ("CONTROLADOR:",req.body);
        const { fecha, disponibilidad, id_usuario, platillos } = req.body;
 
        const { error } = menuBodyValidation.validate({ fecha,  disponibilidad, id_usuario, platillos });

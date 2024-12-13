@@ -25,7 +25,7 @@ const useCreateMenu = (fetchMenu) => {
       
             // Captura el mensaje de error del backend
             const mensajeError =
-              error?.message || // Si `message` existe, úsalo
+              error?.message ||
               error?.details?.message || // Intenta extraer el mensaje desde "details"
               "Ocurrió un error inesperado."; // Mensaje genérico en caso de falla
       

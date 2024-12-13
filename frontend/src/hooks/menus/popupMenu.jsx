@@ -52,28 +52,31 @@ export default function PopupMenu({
             options: platillos.map((plat) => ({
                 value: plat.id_platillo,
                 label: plat.nombre_platillo,
-            })), // Pasar opciones válidas
+            })),
             required: true,
         },
     ];
 
     const handleSubmit = (formData) => {
-        const platillos = Array.isArray(formData.platillos)
-            ? formData.platillos.map((plat) => ({
+      const platillosSeleccionados = Array.isArray(formData.platillos)
+          ? formData.platillos.map((plat) => ({
                 id_platillo: plat.value,
+                precioEstablecido: plat.precioEstablecido, // Asegura que pase este campo
+                ingredientesDisponibles: plat.ingredientesDisponibles, // Asegura que pase este campo
             }))
-            : []; // Si no es un arreglo, se retorna vacío.
-
-        console.log('Platillos seleccionados en PopupMenu:', platillos);
-
-        const payload = {
-            fecha: formData.fecha,
-            disponibilidad: formData.disponibilidad,
-            platillos,
-        };
-
-        action(payload);
-    };
+          : [];
+  
+      const payload = {
+          fecha: formData.fecha,
+          disponibilidad: formData.disponibilidad,
+          platillos: platillosSeleccionados,
+      };
+  
+      console.log("Payload enviado a la acción del menú desde el popup:", payload);
+      action(payload);
+  };
+  
+  
 
     return (
         <div>

@@ -3,6 +3,9 @@ import { AppDataSource } from "../config/configDb.js";
 import Menu from "../entity/menu.entity.js";
 import Platillo from "../entity/platillo.entity.js";
 import Usuario from "../entity/usuario.entity.js";
+import ComponePlatillo from "../entity/compuesto_platillo.entity.js";
+import Ingrediente from "../entity/ingrediente.entity.js";
+import { verificarDisponibilidadPlatillo } from "./platillo.service.js";
 
 import QRCode from "qrcode";
 
@@ -29,6 +32,7 @@ export async function createMenuService(data) {
     const menuRepository = AppDataSource.getRepository(Menu);
     const platilloRepository = AppDataSource.getRepository(Platillo);
     const usuarioRepository = AppDataSource.getRepository(Usuario);
+
     try {
         const { fecha, disponibilidad, id_usuario, platillos } = data;
 
@@ -37,45 +41,46 @@ export async function createMenuService(data) {
         if (!usuarioExistente) {
             return [null, `El usuario con ID ${id_usuario} no existe.`];
         }
-        // Verificar que todos los platillos existen
+
+        // Validar los platillos seleccionados
         const platillosValidos = [];
-        for (const platilloId of platillos.map(p => p.id_platillo)) {
+        for (const platilloSeleccionado of platillos) {
             const platillo = await platilloRepository.findOne({
-                where: { id_platillo: platilloId },
-                relations: ["ingredientes", "ingredientes.tipo_ingrediente"],
+                where: { id_platillo: platilloSeleccionado.id_platillo },
             });
 
-            if (!platillo) {
-                return [null, `El platillo con ID ${platilloId} no existe.`];
+            if (!platillo || platillo.precio_platillo <= 0) {
+                console.warn(
+                    `Platillo con ID ${platilloSeleccionado.id_platillo} no es válido (sin precio o no existe).`
+                );
+                continue;
             }
 
-        //   // Validar precio establecido
-        if (!platillo.precio_platillo || platillo.precio_platillo <= 0) {
-            return [null, `El platillo "${platillo.nombre_platillo}" no tiene un precio establecido.`];
-        }
-
-        // Validar disponibilidad de ingredientes
-        for (const ingrediente of platillo.ingredientes) {
-            if (ingrediente.cantidad_ingrediente < ingrediente.porcion_ingrediente_platillo) {
-                return [null, `El ingrediente "${ingrediente.tipo_ingrediente.nombre_tipo_ingrediente}
-                        " de "${platillo.nombre_platillo}" no está disponible.`];
+            // Verificar la disponibilidad del platillo usando `verificarDisponibilidadPlatillo`
+            const disponible = await verificarDisponibilidadPlatillo(platillo.id_platillo);
+            if (!disponible) {
+                console.warn(`Platillo con ID ${platillo.id_platillo} no tiene ingredientes suficientes.`);
+                continue;
             }
+
+            platillosValidos.push(platillo);
         }
 
-        platillosValidos.push(platillo);
-    }
-        
-        
+        if (platillosValidos.length === 0) {
+            return [null, "No hay platillos válidos para crear el menú."];
+        }
+
         // Crear el menú
         const newMenu = menuRepository.create({
             fecha,
             disponibilidad,
-            usuario: usuarioExistente, // Relacionar con el usuario
-            platillo: platillosValidos // Relacionar con los platillos validados
+            usuario: usuarioExistente,
+            platillo: platillosValidos,
         });
+
         await menuRepository.save(newMenu);
 
-        // Construir la respuesta sin la contraseña del usuario
+        // Formatear la respuesta
         const formattedMenu = {
             id_menu: newMenu.id_menu,
             fecha: newMenu.fecha,
@@ -94,13 +99,11 @@ export async function createMenuService(data) {
         };
 
         return [formattedMenu, null];
-      
     } catch (error) {
         console.error("Error al crear el menú:", error);
         return [null, error.message];
     }
 }
-
 
 
 

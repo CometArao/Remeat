@@ -6,6 +6,7 @@ import TipoIngrediente from "../entity/tipo_ingrediente.entity.js";
 import ComponePlatillo from "../entity/compuesto_platillo.entity.js";
 import ConformaComanda from "../entity/conforma_comanda.entity.js";
 import Ingrediente from "../entity/ingrediente.entity.js";
+import { isAfter } from "date-fns";
 
 export async function createPlatilloService(data) {
     const platilloRepository = AppDataSource.getRepository(Platillo);
@@ -408,49 +409,68 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
 export async function verificarDisponibilidadPlatillo(id_platillo) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
-  
-    try {
-      const compuestoPlatillo = await componePlatilloRepository.find({
-        where: { id_platillo },
-        relations: ["tipo_ingrediente"]
-      });
-  
-      if (!compuestoPlatillo.length) {
-        throw new Error("El platillo no tiene ingredientes asociados o no existe.");
-      }
-      console.log("Procesando platillo con ID:", id_platillo);
-    console.log("Ingredientes asociados:", compuestoPlatillo);
-  
-      for (const compuesto of compuestoPlatillo) {
-        console.log("Procesando tipo ingrediente:", compuesto.id_tipo_ingrediente);
-        const ingrediente = await ingredienteRepository.findOne({
-            where: { id_tipo_ingrediente: compuesto.id_tipo_ingrediente }
-          });
 
-              
-          console.log("Ingrediente encontrado en inventario:", ingrediente);
-  
-        if (!ingrediente) {
-          throw new Error(`El ingrediente con ID ${compuesto.id_ingrediente} no existe.`);
+    try {
+        const compuestoPlatillo = await componePlatilloRepository.find({
+            where: { id_platillo },
+            relations: ["tipo_ingrediente"],
+        });
+
+        if (!compuestoPlatillo.length) {
+            throw new Error("El platillo no tiene ingredientes asociados o no existe.");
         }
-  
-        const cantidadDisponible = ingrediente.cantidad_ingrediente;
-        const porcionRequerida = compuesto.porcion_ingrediente_platillo;
-  
-        if (cantidadDisponible < porcionRequerida) {
-          console.error(`No hay suficiente cantidad de " ${compuesto.tipo_ingrediente.nombre_tipo_ingrediente}" 
-            en el inventario.`);
-          return false; // No hay suficiente cantidad de algún ingrediente
+
+        console.log("Procesando platillo con ID:", id_platillo);
+        console.log("Ingredientes asociados:", compuestoPlatillo);
+
+        for (const compuesto of compuestoPlatillo) {
+            console.log("Procesando tipo ingrediente:", compuesto.id_tipo_ingrediente);
+
+            // Buscar todos los ingredientes del mismo tipo y no vencidos
+            const ingredientes = await ingredienteRepository.find({
+                where: { id_tipo_ingrediente: compuesto.id_tipo_ingrediente },
+            });
+
+            const fechaActual = new Date();
+
+            const ingredientesValidos = ingredientes.filter((ingrediente) =>
+                isAfter(new Date(ingrediente.fecha_vencimiento), fechaActual)
+            );
+
+            if (!ingredientesValidos.length) {
+                throw new Error(
+                    `No hay ingredientes sin caducar  para el tipo de ingrediente con ID 
+                    ${compuesto.id_tipo_ingrediente}.`
+                );
+            }
+
+            // Sumar las cantidades disponibles de ingredientes válidos
+            const cantidadTotalDisponible = ingredientesValidos.reduce(
+                (total, ingrediente) => total + ingrediente.cantidad_ingrediente,
+                0
+            );
+
+            console.log(`Cantidad total disponible: ${cantidadTotalDisponible} (solo ingredientes válidos)`);
+
+            const porcionRequerida = compuesto.porcion_ingrediente_platillo;
+
+            if (cantidadTotalDisponible < porcionRequerida) {
+                console.error(
+                    `No hay suficiente cantidad de "${compuesto.tipo_ingrediente.nombre_tipo_ingrediente}" 
+                     en el inventario. Requerido: ${porcionRequerida}, Disponible: ${cantidadTotalDisponible}`
+                );
+                return false;
+            }
+
+            console.log(`Ingrediente disponible: ${compuesto.tipo_ingrediente.nombre_tipo_ingrediente}`);
         }
-        console.log("Ingrediente disponible");
-      }
-  
-      return true; // Todos los ingredientes tienen suficiente cantidad
+
+        return true; // Todos los ingredientes tienen suficiente cantidad
     } catch (error) {
-      console.error("Error al verificar la disponibilidad del platillo:", error.message);
-      throw new Error("Error al verificar la disponibilidad del platillo.");
+        console.error("Error al verificar la disponibilidad del platillo:", error.message);
+        throw new Error("Error al verificar la disponibilidad del platillo.");
     }
-  }
+}
   
   export async function confirmarPlatilloService(id_platillo, id_comanda, nuevo_estado) {
     const conformaRepository = AppDataSource.getRepository(ConformaComanda);
