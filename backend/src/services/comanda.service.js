@@ -6,17 +6,20 @@ import ConformaComanda from '../entity/conforma_comanda.entity.js';
 import HorarioLaboral from '../entity/horario_laboral.entity.js';
 import { AppDataSource } from '../config/configDb.js';
 import { format } from 'date-fns';
+
+
 import Menu from '../entity/menu.entity.js';
 
 
 
-/* async function verificarHorarioLaboral(idUsuario) {
+
+async function verificarHorarioLaboral(idUsuario) {
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
-  // Obtener el usuario junto con su horario laboral y los días del horario
+  // Obtener el usuario con su horario laboral y los días del horario
   const usuario = await usuarioRepository.findOne({
     where: { id_usuario: idUsuario },
-    relations: ['horario_laboral', 'horario_laboral.horario_dia'] // Correcto uso de la relación horario_dia
+    relations: ['horario_laboral', 'horario_laboral.horario_dia'], // Relaciones necesarias
   });
 
   if (!usuario) {
@@ -27,26 +30,60 @@ import Menu from '../entity/menu.entity.js';
     throw new Error("El usuario no tiene un horario laboral asignado.");
   }
 
-  // Obtener el día actual de la semana y la hora actual
-  const diaSemana = new Date().toLocaleDateString("es-ES", { weekday: "long" }).toLowerCase();
-  const horaActual = new Date().toLocaleTimeString("es-ES", { hour12: false });
+  // Función para normalizar textos (eliminar tildes)
+  const normalizarTexto = (texto) => {
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Elimina los diacríticos
+  };
 
+  // Obtener la fecha actual en UTC
+  const fechaActual = new Date(Date.now());
+  console.log("Hora original del servidor (UTC):", fechaActual.toISOString());
+
+  // Restar manualmente 3 horas para reflejar el desfase horario
+  fechaActual.setUTCHours(fechaActual.getUTCHours() - 3);
+
+  // Formatear la hora ajustada (-3 horas) en formato HH:mm:ss
+  const horaAjustadaISO = fechaActual.toISOString(); // Formato ISO ajustado
+  const horaAjustada = horaAjustadaISO.split('T')[1].split('.')[0]; // Extrae HH:mm:ss
+  console.log("Hora ajustada manualmente (-3 horas):", horaAjustada);
+
+  // Obtener el día de la semana en UTC después del ajuste de -3 horas
+  const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const diaSemanaAjustado = diasSemana[fechaActual.getUTCDay()]; // Día ajustado
+  const diaNormalizado = normalizarTexto(diaSemanaAjustado); // Normalizar para evitar problemas con tildes
+  console.log("Día de la semana (ajustado y normalizado):", diaNormalizado);
 
   // Buscar el horario del día correspondiente dentro del horario laboral del usuario
-  const horarioDia = usuario.horario_laboral.horario_dia.find(horario => horario.dia_semana === diaSemana);
+  const horarioDia = usuario.horario_laboral.horario_dia.find(
+    (horario) => normalizarTexto(horario.dia_semana) === diaNormalizado
+  );
 
   if (!horarioDia) {
-    throw new Error("No hay un horario laboral configurado para este día.");
+    throw new Error(`No hay horario laboral configurado para el día: ${diaSemanaAjustado}.`);
   }
 
-  // Verificar si la hora actual está dentro del rango de inicio y fin de horario laboral
-  if (horaActual >= horarioDia.hora_inicio && horaActual <= horarioDia.hora_fin) {
-    return true;
+  console.log("Horario laboral del día encontrado:", horarioDia);
+
+  // Verificar si la hora ajustada está dentro del rango de inicio y fin del horario laboral
+  if (horaAjustada >= horarioDia.hora_inicio && horaAjustada <= horarioDia.hora_fin) {
+    console.log("El usuario está dentro del horario laboral.");
+    return true; // Está dentro del horario laboral
   }
 
-  throw new Error("El usuario no está en su horario laboral.");
+  console.log(
+    `El usuario está fuera del horario laboral (${horaAjustada} fuera de ${horarioDia.hora_inicio} - ${horarioDia.hora_fin}).`
+  );
+  throw new Error(
+    `El usuario no está en su horario laboral (${horaAjustada} fuera de ${horarioDia.hora_inicio} - ${horarioDia.hora_fin}).`
+  );
 }
-*/
+
+
+
+
+
+
+
 
 export async function getMeserosService(){
   // Obtén el repositorio de la entidad Usuario
@@ -118,7 +155,7 @@ export async function obtenerComandasConPlatillos() {
   for (const comanda of comandas) {
     try {
       // Verifica el horario laboral del usuario asignado a la comanda
-      //await verificarHorarioLaboral(comanda.usuario_id_usuario);
+      await verificarHorarioLaboral(comanda.usuario_id_usuario);
       comandasEnHorario.push({
         idComanda: comanda.comanda_id_comanda,
         fecha: format(new Date(comanda.comanda_fecha_compra_comanda), 'yyyy-MM-dd'), 
@@ -156,7 +193,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  // await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   // Obtener el menú diario automáticamente
   const currentDate = new Date();
@@ -207,6 +244,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
 
 export async function createComanda(loggedUser) {
+  
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
@@ -223,11 +261,15 @@ export async function createComanda(loggedUser) {
   if (usuario.rol_usuario !== 'mesero') {
     throw new Error('Solo el rol "mesero" tiene permiso para crear comandas.');
   }
+ 
+  await verificarHorarioLaboral(loggedUser.id_usuario);
 
   // Obtener la fecha y hora actuales
   const fechaActual = new Date();
   const fechaCompra = fechaActual.toISOString().split('T')[0]; // YYYY-MM-DD
   const horaCompra = fechaActual.toTimeString().split(' ')[0]; // HH:MM:SS
+
+ 
 
   // Crear la comanda con los valores dinámicos
   const nuevaComanda = comandaRepository.create({
@@ -293,7 +335,7 @@ export async function getAllComandas() {
   for (const comanda of comandas) {
     try {
       // Verificar el horario laboral del usuario asociado a la comanda
-     //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+     await verificarHorarioLaboral(comanda.usuario.id_usuario);
       // Si el usuario está en horario laboral, agregar la comanda a la lista
       comandasEnHorario.push(comanda);
     } catch (error) {
@@ -329,7 +371,7 @@ export async function getComandaById(comandaId) {
   if (!comanda) throw new Error('Comanda no encontrada.');
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   return comanda;
 }
@@ -386,7 +428,7 @@ export async function deleteComanda(comandaId) {
   }
 
   // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   await conformaRepository.delete({ id_comanda: comandaId });
   await comandaRepository.remove(comanda);
@@ -411,7 +453,7 @@ export async function completeComanda(comandaId) {
   }
 
   // Verificar el horario laboral del usuario
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
+  await verificarHorarioLaboral(comanda.usuario.id_usuario);
 
   // Validar que el estado sea 'pendiente'
   if (comanda.estado_comanda !== 'pendiente') {
