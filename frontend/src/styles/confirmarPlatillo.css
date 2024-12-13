@@ -1,0 +1,73 @@
+/* ConfirmaPlatillo.css */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+  }
+  
+  .platillo-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px;
+    width: 350px; /* Igual que menu-card */
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  .platillo-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+  }
+  
+  .platillo-card h2 {
+    font-size: 1.8rem; /* Ajustar tamaño al diseño de menu-card */
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  
+  .platillo-card h4 {
+    font-size: 1rem;
+  }
+  
+  .status-available {
+    color: rgb(110,218,110);
+  }
+  
+  .status-unavailable {
+    color: rgb(210,33,84);
+  }
+  
+  .confirm-button {
+     background-color: #007bff; /* Azul */
+     color: white;
+     border: none;
+     border-radius:5px; 
+     padding:10px; 
+     cursor:pointer; 
+     margin-top:auto; /* Asegura que el botón esté al final */
+  }
+  
+  .confirm-button:hover {
+     background-color:#0056b3; /* Azul más oscuro al pasar el mouse */
+  }
+  
+  .loading {
+     text-align:center; 
+  }
+  
+  .error {
+     color:red; 
+  }
+  
