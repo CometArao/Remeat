@@ -87,11 +87,12 @@ export async function addPlatilloToComandaController(req, res) {
 
 
 export async function createComandaController(req, res) {
-  const { error } = createComandaValidation.validate(req.body);
-  if (error) return handleErrorClient(res, 400, error.details[0].message);
-
   try {
-    const newComanda = await createComanda(req.body);
+    // Suponiendo que `req.user` contiene el usuario logueado
+    const loggedUser = req.user;
+    console.log(loggedUser);
+
+    const newComanda = await createComanda(loggedUser);
     handleSuccess(res, 201, 'Comanda creada', newComanda);
   } catch (error) {
     handleErrorServer(res, 500, error.message);

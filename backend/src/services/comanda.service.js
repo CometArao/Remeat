@@ -206,17 +206,17 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
 
 
-export async function createComanda(data) {
+export async function createComanda(loggedUser) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
-  // Buscar al usuario únicamente por correo
+  // Buscar al usuario logueado en la base de datos
   const usuario = await usuarioRepository.findOne({
-    where: { correo_usuario: data.email }
+    where: { id_usuario: loggedUser.id_usuario }
   });
 
   if (!usuario) {
-    throw new Error('Usuario no encontrado con el correo proporcionado.');
+    throw new Error('Usuario no encontrado.');
   }
 
   // Validar que el rol sea "mesero"
@@ -224,17 +224,25 @@ export async function createComanda(data) {
     throw new Error('Solo el rol "mesero" tiene permiso para crear comandas.');
   }
 
-  // Crear la comanda
+  // Obtener la fecha y hora actuales
+  const fechaActual = new Date();
+  const fechaCompra = fechaActual.toISOString().split('T')[0]; // YYYY-MM-DD
+  const horaCompra = fechaActual.toTimeString().split(' ')[0]; // HH:MM:SS
+
+  // Crear la comanda con los valores dinámicos
   const nuevaComanda = comandaRepository.create({
     usuario: usuario,
-    estado_comanda: data.estado_comanda || 'pendiente',
-    fecha_compra_comanda: data.fecha_compra_comanda || null,
-    hora_compra_comanda: data.hora_compra_comanda || null,
+    estado_comanda: 'pendiente', // Estado predeterminado
+    fecha_compra_comanda: fechaCompra,
+    hora_compra_comanda: horaCompra,
   });
+
+  // Guardar la comanda en la base de datos
   await comandaRepository.save(nuevaComanda);
 
   return nuevaComanda;
 }
+
 
 
 
@@ -340,6 +348,10 @@ export async function deleteComanda(comandaId) {
   });
   
   if (!comanda) throw new Error('Comanda no encontrada.');
+
+  if(comanda.estado_comanda !== 'pendiente') {
+  throw new Error('La comanda no se puede eliminar porque ya está completada');
+  }
 
   // Verificación de horario laboral del usuario asignado a la comanda
   //await verificarHorarioLaboral(comanda.usuario.id_usuario);
