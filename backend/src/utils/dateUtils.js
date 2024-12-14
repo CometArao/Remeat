@@ -3,7 +3,9 @@
 /* Obtiene la hora actual del sistema en Chile (UTC -3). */
 export const getCurrentChileanTime = () => {
     const now = new Date(); // Hora actual en UTC
+    console.log("Hora actual en UTC:", now);
     now.setHours(now.getHours() - 3); // Ajusta la hora a UTC -3
+    console.log("Hora actual en Chile:", now);
     return now;
 };
 

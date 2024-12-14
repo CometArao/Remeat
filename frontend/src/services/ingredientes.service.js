@@ -1,11 +1,22 @@
 import axios from './root.service.js';
 
+// Redirigir al usuario a una página específica en caso de error
+const handleErrorResponse = (error) => {
+    if (error.response?.status === 403) {
+        console.warn('Acceso denegado: fuera de horario laboral.');
+        window.location.href = '/fuera-horario'; // Redirige a la página específica
+    } else {
+        console.error('Error:', error);
+    }
+    throw error; // Opcional: Lanza el error para manejarlo en otras partes
+};
+
 export async function getIngredientes() {
     try {
         const { data } = await axios.get('/ingredientes/');
         return data.data;
     } catch (error) {
-        console.error('Error fetching ingredientes:', error);
+        handleErrorResponse(error); // Maneja el error aquí
         return [];
     }
 }
@@ -22,8 +33,8 @@ export async function createIngrediente(data) {
         
         return response.data;
     } catch (error) {
-        console.error('Error creating ingrediente:', error);
-        return error.response.data;
+        handleErrorResponse(error); // Maneja el error aquí
+        return [];
     }
 }
 
@@ -37,8 +48,8 @@ export async function updateIngrediente(data, id) {
 
         return response.data;
     } catch (error) {
-        console.error('Error updating ingrediente:', error);
-        return error.response.data;
+        handleErrorResponse(error); // Maneja el error aquí
+        return [];
     }
 }
 
@@ -53,8 +64,8 @@ export async function deleteIngrediente(id_ingrediente) {
         });
         return response.data;
     } catch (error) {
-        console.error('Error deleting ingrediente:', error);
-        return error.response.data;
+        handleErrorResponse(error); // Maneja el error aquí
+        return [];
     }
 }
 
@@ -63,8 +74,8 @@ export async function getTiposIngrediente() {
         const { data } = await axios.get('/ingredientes/tipo/');
         return data.data;
     } catch (error) {
-        console.error('Error fetching tipos de ingrediente:', error);
-        return error.response.data;
+        handleErrorResponse(error); // Maneja el error aquí
+        return [];
     }
 }
 
@@ -73,8 +84,8 @@ export async function createTipoIngrediente(data) {
         const response = await axios.post('/ingredientes/tipo/', data, );
         return response.data;
     } catch (error) {
-        console.error('Error creating tipo ingrediente:', error);
-        return error.response.data;
+        handleErrorResponse(error); // Maneja el error aquí
+        return [];
     }
 }
 
@@ -88,8 +99,8 @@ export async function updateTipoIngrediente(data, id) {
         });
         return response.data;
     } catch (error) {
-        console.error('Error updating tipo ingrediente:', error);
-        return error.response.data 
+        handleErrorResponse(error); // Maneja el error aquí
+        return [];
     }
 }
 
@@ -106,8 +117,8 @@ export async function deleteTipoIngrediente(id) {
       });
       return response.data;
     } catch (error) {
-      console.error('Error deleting tipo ingrediente:', error);
-      return error.response.data;
+        handleErrorResponse(error); // Maneja el error aquí
+        return [];
     }
   }
   

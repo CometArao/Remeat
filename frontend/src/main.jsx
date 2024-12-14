@@ -33,6 +33,7 @@ import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
 import HorariosLaborales from './pages/HorariosLaborales';
 import CrearHorarios from './pages/CrearHorarios';
 import ModificarHorario from './pages/ModificarHorario.jsx';
+import FueraHorario from './pages/FueraHorario.jsx';
 
 
 const router = createBrowserRouter([
@@ -40,7 +41,10 @@ const router = createBrowserRouter([
     path: '/menu-dia',
     element: <ListadoDiarioMenuQrPage />,
   },
-
+  {
+    path: '/fuera-horario', // Ruta para la página de Fuera de Horario
+    element: <FueraHorario />,
+  },
   {
     path: '/',
     element: <Root />,
