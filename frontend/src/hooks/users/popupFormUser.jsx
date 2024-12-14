@@ -121,7 +121,7 @@ export default function PopupFormUser({ show, setShow, data, action, isEdit }) {
                                 {
                                     label: "Horario Laboral",
                                     name: "id_horario_laboral",
-                                    defaultValue: userData.horario_laboral.id_horario_laboral || "",
+                                    defaultValue: userData.horario_laboral?.id_horario_laboral || "",
                                     placeholder: "Selecciona un horario laboral",
                                     fieldType: "select",
                                     options: horariosLaborales.map((horario) => ({
