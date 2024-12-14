@@ -81,26 +81,35 @@ export async function getMenuQRCodeController(req, res) {
 
 
 
-
 export async function createMenuController(req, res) {
     try {
-        console.log ("CONTROLADOR:",req.body);
-       const { fecha, disponibilidad, id_usuario, platillos } = req.body;
+        console.log("CONTROLADOR:", req.body);
 
-       const { error } = menuBodyValidation.validate({ fecha,  disponibilidad, id_usuario, platillos });
+        const { fecha, disponibilidad, platillos } = req.body;
 
-       if(error) return handleErrorClient(res, 400, error.message);
+        // Obtener el ID del usuario logueado desde req.user
+        const id_usuario = req.user.id_usuario;
 
-       const [newMenu, errorMenu] = await 
-        createMenuService({ fecha, disponibilidad, id_usuario, platillos });
+        // Validar los datos del cuerpo (sin id_usuario porque se obtiene automáticamente)
+        const { error } = menuBodyValidation.validate({ fecha, disponibilidad, platillos });
 
-        if(errorMenu) return handleErrorClient(res, 404, errorMenu);
+        if (error) return handleErrorClient(res, 400, error.message);
+
+        // Llamar al servicio pasando el id_usuario desde req.user
+        const [newMenu, errorMenu] = await createMenuService(
+            { fecha, disponibilidad, platillos },
+            id_usuario // Se pasa como argumento
+        );
+
+        if (errorMenu) return handleErrorClient(res, 404, errorMenu);
 
         handleSuccess(res, 201, "Menú creado exitosamente", newMenu);
     } catch (error) {
+        console.error("Error en createMenuController:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }
+
 
 
 export async function getMenusController(req, res){
@@ -188,16 +197,18 @@ export async function activarMenuController(req, res) {
             return handleErrorClient(res, 400, "El ID del menú es requerido.");
         }
 
-        // Llamar al servicio para activar el menú
-        const [menuActivo, error] = await activarMenuService(id);
+        // Llamar al servicio para alternar la disponibilidad
+        const [updatedMenu, error] = await activarMenuService(id);
 
-        // Manejar errores desde el servicio
         if (error) {
             return handleErrorClient(res, 404, error);
         }
 
-        // Respuesta exitosa
-        handleSuccess(res, 200, "Menú activado exitosamente", menuActivo);
+        const message = updatedMenu.disponibilidad
+            ? "Menú activado correctamente."
+            : "Menú desactivado correctamente.";
+
+        handleSuccess(res, 200, message, updatedMenu);
     } catch (error) {
         console.error("Error en activarMenuController:", error.message);
         handleErrorServer(res, 500, error.message);

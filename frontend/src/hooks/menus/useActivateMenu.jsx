@@ -4,16 +4,21 @@ import { showSuccessAlert, showErrorAlert } from "@helpers/sweetAlert";
 
 const useActivateMenu = (fetchMenus) => {
     const [isActivating, setIsActivating] = useState(false);
-
-    const handleActivateMenu = async (id_menu) => {
+    const handleActivateMenu = async (id_menu, currentDisponibility) => {
         try {
             setIsActivating(true);
-            await activateMenu(id_menu);
-            showSuccessAlert("¡Activado!", "El menú se ha activado correctamente.");
-            await fetchMenus(); // Refrescar menús
+    
+            await activateMenu(id_menu); // Llamada al servicio de activación/desactivación
+    
+            await fetchMenus(); // Refrescar la lista completa
+    
+            showSuccessAlert(
+                currentDisponibility ? "¡Desactivado!" : "¡Activado!",
+                `El menú ha sido ${currentDisponibility ? "desactivado" : "activado"} correctamente.`
+            );
         } catch (error) {
-            console.error("Error al activar menú:", error);
-            showErrorAlert("Error", error.message || "Ocurrió un error al activar el menú.");
+            console.error("Error al alternar disponibilidad del menú:", error);
+            showErrorAlert("Error", error.message || "Ocurrió un error.");
         } finally {
             setIsActivating(false);
         }

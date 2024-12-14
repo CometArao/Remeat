@@ -6,7 +6,6 @@ export default function PopupMenu({
     setShow,
     data,
     action,
-    usuario = [],
     platillos = [],
     isEdit
 }) {
@@ -22,17 +21,7 @@ export default function PopupMenu({
             type: "date",
             required: true,
         },
-        {
-            label: "Creador",
-            name: "id_usuario",
-            defaultValue: menuData.usuario?.id_usuario || "",
-            fieldType: "select",
-            options: usuario.map((user) => ({
-                value: user.id_usuario,
-                label: user.nombre_usuario,
-            })),
-            required: true,
-        },
+
         {
             label: "Platillos",
             name: "platillos",
@@ -49,19 +38,6 @@ export default function PopupMenu({
         },
     ];
 
-    if (isEdit) {
-        fields.unshift({
-            label: "Disponibilidad",
-            name: "disponibilidad",
-            defaultValue:
-                menuData.disponibilidad !== undefined
-                    ? menuData.disponibilidad
-                    : true,
-            fieldType: "input",
-            type: "checkbox",
-            required: false,
-        });
-    }
     const handleSubmit = (formData) => {
         const platillosSeleccionados = Array.isArray(formData.platillos)
             ? formData.platillos.map((plat) => ({
@@ -71,9 +47,7 @@ export default function PopupMenu({
     
         const payload = {
             fecha: formData.fecha,
-            id_usuario: formData.id_usuario,
             platillos: platillosSeleccionados,
-            ...(isEdit && { disponibilidad: formData.disponibilidad }), // Solo incluir disponibilidad si se edita
         };
     
         console.log("Payload enviado:", payload);

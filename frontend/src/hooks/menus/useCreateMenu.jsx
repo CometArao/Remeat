@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import { createMenu } from "@services/menu.service";
 import { showErrorAlert, showSuccessAlert } from "@helpers/sweetAlert";
 
 const useCreateMenu = (fetchMenu) => {
+    const { user } = useAuth(); // Obtener datos del usuario autenticado
     const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
     const [dataMenu, setDataMenu] = useState([]);
     
@@ -13,7 +15,9 @@ const useCreateMenu = (fetchMenu) => {
     const handleCreate = async (newDataMenu) => {
         if (newDataMenu) {
           try {
-            const createdMenu = await createMenu(newDataMenu);
+            const token = localStorage.getItem("token") // Extraer el token del usuario autenticado
+
+            const createdMenu = await createMenu(newDataMenu, token); // Llamada al servicio de creación de menú
             showSuccessAlert("¡Creado!", "El menú ha sido creado correctamente.");
             setIsCreatePopupOpen(false);
       

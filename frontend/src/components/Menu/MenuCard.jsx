@@ -28,11 +28,12 @@ const MenuCard = ({ menu, isSelected, onSelectChange, onActivate, isActivating }
 
             <button
                 className="activate-button"
-                onClick={() => onActivate(menu.id_menu)}
-                disabled={menu.disponibilidad || isActivating} // Deshabilitar si ya está activo o se está activando
+                onClick={() => onActivate(menu.id_menu, menu.disponibilidad)}
+                disabled={isActivating} // Evitar múltiples clics mientras procesa
             >
-                {menu.disponibilidad ? "Activo" : isActivating ? "Activando..." : "Activar"}
+                {isActivating ? "Procesando..." : menu.disponibilidad ? "Desactivar" : "Activar"}
             </button>
+
         </div>
     );
 };
