@@ -10,12 +10,12 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers
 
 export async function createHorarioLaboral(req, res) {
   try {
-    const { descripcion, horariosDia } = req.body;
+    const { descripcion, horario_dia } = req.body; // Cambiado de horariosDia a horario_dia
 
     // Llama al servicio para manejar la lógica
     const [newHorarioLaboral, error] = await createHorarioLaboralService({
       descripcion,
-      horariosDia,
+      horario_dia,
     });
 
     if (error) {
@@ -33,7 +33,6 @@ export async function createHorarioLaboral(req, res) {
     handleErrorServer(res, 500, "Error interno al crear horario laboral.");
   }
 }
-
 
 // Obtener todos los horarios laborales
 export async function getHorariosLaborales(req, res) {
