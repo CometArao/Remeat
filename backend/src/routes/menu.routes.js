@@ -7,6 +7,7 @@ import {
     getMenuQRCodeController,
     getMenusController,
     updateMenuController,
+    activarMenuController,
 } from "../controllers/menu.controller.js";
 
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
@@ -22,6 +23,7 @@ router
     .get("/:id", getMenuByIdController)
     .post("/",authorizeRoles(["cocinero", "administrador"]), createMenuController)
     .patch("/:id",authorizeRoles(["cocinero", "administrador"]), updateMenuController)
+    .patch("/activar/:id",authorizeRoles(["cocinero", "administrador"]), activarMenuController)
     .delete("/:id", authorizeRoles(["cocinero", "administrador"]), deleteMenuController);
 
 export default router;

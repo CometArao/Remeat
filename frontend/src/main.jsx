@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom/client'; 
+import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from '@pages/Login';
 import Home from '@pages/Home';
@@ -17,10 +17,11 @@ import Informes from '@pages/Informes'
 import Grafico from './pages/Grafico.jsx';
 import Mermas from '@pages/Mermas.jsx';
 import CrearMermas from './pages/CrearMermas.jsx';
+import DetalleMerma from '@pages/DetalleMerma.jsx'
 import Pedidos from './pages/Pedidos.jsx';
 import Proveedores from '@pages/Proveedores';
-import Comandas from '@pages/Comandas'; 
-import GenerateQRCode from '@pages/GenerateQRCode'; 
+import Comandas from '@pages/Comandas';
+import GenerateQRCode from '@pages/GenerateQRCode';
 import Ingredientes from '@pages/Ingredientes';
 import TipoIngrediente from '@pages/TipoIngrediente';
 import UnidadesMedida from '@pages/UnidadMedida';
@@ -34,11 +35,11 @@ import CrearHorarios from './pages/CrearHorarios';
 import ModificarHorario from './pages/ModificarHorario.jsx';
 
 
-const router = createBrowserRouter([ 
+const router = createBrowserRouter([
   {
     path: '/menu-dia',
-    element: <ListadoDiarioMenuQrPage />, 
-},
+    element: <ListadoDiarioMenuQrPage />,
+  },
 
   {
     path: '/',
@@ -84,7 +85,7 @@ const router = createBrowserRouter([
       {
         path: '/tipo_utensilios',
         element: (
-          <ProtectedRoute allowedRoles={['administrador','cocinero']}>
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
             <TipoUtensilio />
           </ProtectedRoute>
         ),
@@ -92,7 +93,7 @@ const router = createBrowserRouter([
       {
         path: '/utensilios',
         element: (
-          <ProtectedRoute allowedRoles={['administrador','cocinero']}>
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
             <Utensilios />
           </ProtectedRoute>
         ),
@@ -105,30 +106,30 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-     {
+      {
         path: '/platillos',
         element: (
           <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
             <Platillos />
-        </ProtectedRoute>
-      ),
-     },
-     {
-      path: '/platillos/confirma-platillo',
-      element: (
-        <ProtectedRoute allowedRoles={['cocinero']}>
-          <ConfirmaPlatillo />
-      </ProtectedRoute>
-    ),
-   },
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/platillos/confirma-platillo',
+        element: (
+          <ProtectedRoute allowedRoles={['cocinero']}>
+            <ConfirmaPlatillo />
+          </ProtectedRoute>
+        ),
+      },
 
-       {
-        path: '/ingredientes/', 
+      {
+        path: '/ingredientes/',
         element: (
           <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
             <Ingredientes />
           </ProtectedRoute>
-       ),
+        ),
       },
       {
         path: '/tipos_ingredientes',
@@ -146,12 +147,11 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      //TODO: porque la navbar se sube en las pestañas de graficos
       {
         path: '/grafico',
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
-            <Grafico/>
+            <Grafico />
           </ProtectedRoute>
         ),
       },
@@ -172,9 +172,17 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: '/detalles_merma',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <DetalleMerma />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: '/comandas', // Ruta para comandas, accesible solo para mesero
         element: (
-          <ProtectedRoute allowedRoles={['mesero','cocinero']}>
+          <ProtectedRoute allowedRoles={['mesero', 'cocinero']}>
             <Comandas />
           </ProtectedRoute>
         ),
@@ -214,12 +222,12 @@ const router = createBrowserRouter([
       {
         path: '/unidades_medidas',
         element: (
-            <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
-                <UnidadesMedida />
-            </ProtectedRoute>
+          <ProtectedRoute allowedRoles={['administrador', 'cocinero']}>
+            <UnidadesMedida />
+          </ProtectedRoute>
         ),
-    },
-    
+      },
+
     ]
   },
   {

@@ -3,16 +3,12 @@ import ComandaForm from './ComandaForm';
 import useCreateComanda from '../../hooks/comandas/useCreateComanda';
 
 const CreateComandaPopup = ({ isOpen, onClose }) => {
-  const { meseros, fetchMeseros, loadingMeseros, create } = useCreateComanda();
+  const { create, loading } = useCreateComanda();
 
-  useEffect(() => {
-    if (isOpen) fetchMeseros();
-  }, [isOpen]);
-
-  const handleCreate = async (formData) => {
-    await create(formData);
+  const handleCreate = async () => {
+    await create(); // Llamar al servicio sin pasar datos
     onClose();
-    window.location.reload(); // Refresca la lista
+    window.location.reload(); // Refrescar lista
   };
 
   if (!isOpen) return null;
@@ -23,10 +19,10 @@ const CreateComandaPopup = ({ isOpen, onClose }) => {
         &times; Cerrar
       </button>
       <h2>Crear Comanda</h2>
-      {loadingMeseros ? (
-        <p>Cargando meseros...</p>
+      {loading ? (
+        <p>Creando comanda...</p>
       ) : (
-        <ComandaForm meseros={meseros} onSubmit={handleCreate} />
+        <ComandaForm onSubmit={handleCreate} />
       )}
     </div>
   );

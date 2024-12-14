@@ -9,7 +9,8 @@ import {
   addPlatilloToComandaController,
   getComandasConPlatillosController,
   getMeserosController,
-  getPlatillosDelDiaController
+  getPlatillosDelDiaController,
+  removePlatilloFromComandaController
 } from '../controllers/comanda.controller.js';
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
 import {isMesero} from '../middlewares/authorization.middleware.js';
@@ -30,5 +31,6 @@ router.post('/:id/platillos', isMesero, addPlatilloToComandaController); // Aña
 router.get('/comandas/platillos', /*isMesero,*/ getComandasConPlatillosController); // Obtener comandas con platillos
 router.get('/comanda/meseros', isMesero, getMeserosController); // Obtener meseros
 router.get('/comanda/menuplatillo', isMesero, getPlatillosDelDiaController); // Obtener platillos del día
+router.delete('/:id/platillos/:platilloId', isMesero, removePlatilloFromComandaController); // Eliminar un platillo de una comanda
 
 export default router;

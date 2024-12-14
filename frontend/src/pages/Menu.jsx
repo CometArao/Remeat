@@ -8,7 +8,7 @@ import CreateIcon from '../assets/PlusIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import EmptyIcon from '../assets/emptyIcon.svg';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import '@styles/users.css';
 import useDeleteMenu from '../hooks/menus/useDeletedMenu';
 import useEditMenu from '../hooks/menus/useEditMenu';
@@ -16,6 +16,7 @@ import useCreateMenu from '../hooks/menus/useCreateMenu';
 import MenuCard from '../components/Menu/MenuCard';
 import useUsers from '../hooks/users/useGetUsers';
 import useGetPlatillos from '../hooks/platillos/useGetPlatillos';
+import useActivateMenu from '../hooks/menus/useActivateMenu'; // Importar el hook
 
 const Menu = () => {
     const { user } = useAuth();
@@ -25,11 +26,13 @@ const Menu = () => {
 
     const [filterName, setFilterName] = useState('');
 
+    // Hook para activar menú
+    const { handleActivateMenu, isActivating } = useActivateMenu(fetchMenus);
+
     useEffect(() => {
         fetchMenus();
         fetchUsers();
         fetchPlatillo();
-        console.log("Datos iniciales de menús:", menus);
     }, []);
 
     const {
@@ -62,15 +65,14 @@ const Menu = () => {
 
     const handleCardSelectionChange = (selectedMenu, isChecked) => {
         if (isChecked) {
-            setDataMenu(prev => {
-                // Evitar duplicados
-                if (prev.find(item => item.id_menu === selectedMenu.id_menu)) {
+            setDataMenu((prev) => {
+                if (prev.find((item) => item.id_menu === selectedMenu.id_menu)) {
                     return prev;
                 }
                 return [...prev, selectedMenu];
             });
         } else {
-            setDataMenu(prev => prev.filter(item => item.id_menu !== selectedMenu.id_menu));
+            setDataMenu((prev) => prev.filter((item) => item.id_menu !== selectedMenu.id_menu));
         }
     };
 
@@ -94,7 +96,8 @@ const Menu = () => {
                             {dataMenu.length === 0 ? (
                                 <img src={UpdateIconDisable} alt="edit-disabled" />
                             ) : (
-                                <img src={UpdateIcon} alt="edit" />)}
+                                <img src={UpdateIcon} alt="edit" />
+                            )}
                         </button>
                     )}
                     {['cocinero', 'administrador'].includes(user?.rol_usuario) && (
@@ -106,7 +109,8 @@ const Menu = () => {
                             {dataMenu.length === 0 ? (
                                 <img src={DeleteIconDisable} alt="delete-disabled" />
                             ) : (
-                                <img src={DeleteIcon} alt="delete" />)}
+                                <img src={DeleteIcon} alt="delete" />
+                            )}
                         </button>
                     )}
                 </div>
@@ -114,14 +118,16 @@ const Menu = () => {
 
             {filteredMenus.length > 0 ? (
                 <div className="container">
-                    {filteredMenus.map(menu => {
-                        const isSelected = dataMenu.some(item => item.id_menu === menu.id_menu);
+                    {filteredMenus.map((menu) => {
+                        const isSelected = dataMenu.some((item) => item.id_menu === menu.id_menu);
                         return (
                             <MenuCard
                                 key={menu.id_menu}
                                 menu={menu}
                                 isSelected={isSelected}
                                 onSelectChange={handleCardSelectionChange}
+                                onActivate={handleActivateMenu} // Pasar función de activación
+                                isActivating={isActivating}
                             />
                         );
                     })}

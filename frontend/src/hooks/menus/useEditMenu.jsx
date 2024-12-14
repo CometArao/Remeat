@@ -16,26 +16,29 @@ const useEditMenu = (setMenus, fetchMenus) => {
     const handleUpdate = async (updatedDataMenu) => {
         try {
             const id = dataMenu[0]?.id_menu;
-
+    
             if (!id) {
                 throw new Error('ID no válido para el menú seleccionado.');
             }
-
-            console.log('Datos enviados:', updatedDataMenu);
-
-            await updateMenu(updatedDataMenu, id);
-            // Refresca la tabla
+    
+            const updatedMenu = await updateMenu(updatedDataMenu, id);
+    
+            setMenus((prevMenus) =>
+                prevMenus.map((menu) =>
+                    menu.id_menu === id ? updatedMenu : menu
+                )
+            );
             await fetchMenus();
-            // Muestra mensaje de éxito
+    
             showSuccessAlert('¡Actualizado!', 'El menú ha sido actualizado correctamente.');
             setIsPopupOpen(false);
             setDataMenu([]);
-
         } catch (error) {
             console.error('Error al actualizar el menú:', error.message);
             showErrorAlert('Error', error.message || 'Ocurrió un error al actualizar el menú.');
         }
     };
+    
     return {
         handleClickUpdate,
         handleUpdate,

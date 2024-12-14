@@ -44,12 +44,21 @@
 .horizontal {
     display: flex;
 }
+
 .horizontal div {
     padding: 10px;
     border: 1px solid #ccc;
-  }
-  @media (max-width: 600px) {
+}
+
+.centrar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
     .botones {
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Coloca más botones por fila en pantallas pequeñas */
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        /* Coloca más botones por fila en pantallas pequeñas */
     }
-  } 
+}

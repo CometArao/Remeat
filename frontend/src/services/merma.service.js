@@ -10,7 +10,7 @@ export async function getmermas() {
 }
 export async function getmerma(id) {
     try {
-        const { data } = await axios.get(`/get_merma/${id}`)
+        const { data } = await axios.get(`/mermas/get_merma${id}`)
         return data.data;
     } catch (error) {
         console.log(error);
