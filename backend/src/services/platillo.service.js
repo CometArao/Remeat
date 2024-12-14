@@ -405,6 +405,26 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
     }
 }
 
+export async function getFilteredTipoIngredientesService() {
+    const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
+    const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
+
+    try {
+        // Usar una consulta con JOIN para obtener solo los tipos de ingredientes relacionados con ingredientes
+        const tiposIngredientes = await tipoIngredienteRepository
+            .createQueryBuilder("tipoIngrediente")
+            .innerJoin("ingrediente", "ingrediente",
+                     "ingrediente.id_tipo_ingrediente = tipoIngrediente.id_tipo_ingrediente")
+            .select(["tipoIngrediente.id_tipo_ingrediente", "tipoIngrediente.nombre_tipo_ingrediente"])
+            .distinct(true)
+            .getMany();
+
+        return [tiposIngredientes, null];
+    } catch (error) {
+        console.error("Error al obtener los tipos de ingredientes filtrados:", error.message);
+        return [null, "Error interno del servidor"];
+    }
+}
 
 
 export async function verificarDisponibilidadPlatillo(id_platillo) {

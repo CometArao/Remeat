@@ -3,7 +3,8 @@ import {
     assignPriceToPlatilloService,
     confirmarPlatilloService,
     createPlatilloService,
-    deletePlatilloByIdService,  
+    deletePlatilloByIdService, 
+    getFilteredTipoIngredientesService, 
     getPlatilloByIdService,
     getPlatillosService,
     updatePlatilloByIdService
@@ -135,6 +136,21 @@ export async function deletePlatilloController(req, res){
         handleErrorServer(res, 500, error.message);
     }
 }
+
+
+
+export async function getFilteredTipoIngredientesController(req, res) {
+    try {
+        const [tiposIngredientes, error] = await getFilteredTipoIngredientesService();
+
+        if (error) return handleErrorClient(res, 404, error);
+
+        handleSuccess(res, 200, "Tipos de ingredientes filtrados obtenidos correctamente", tiposIngredientes);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+    }
+}
+
 
 export async function confirmarPlatilloController(req, res) {
     try {

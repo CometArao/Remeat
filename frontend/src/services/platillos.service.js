@@ -84,6 +84,15 @@ export async function deletePlatillo(id) {
     }
 }
 
+export async function getFilteredTipoIngredientes() {
+    try {
+        const response = await axios.get('/platillos/ingredientes/tipo');
+        return response.data.data;
+    } catch (error) {
+        return error.response.data;
+    }
+}
+
 export async function confirmarPlatillo(idPlatillo, idComanda, nuevoEstado) {
     try {
       const response = await axios.post(
