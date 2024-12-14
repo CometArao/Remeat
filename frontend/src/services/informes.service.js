@@ -33,6 +33,18 @@ export async function getCostos(ids_tipo_ingrediente, ids_tipo_utensilio) {
         return error.response.data
     }
 }
+export async function getCostosPlatillo(ids_platillo) {
+    try {
+        const body = {
+            ids_platillo: ids_platillo,
+        }
+        const { data } = await axios.post(`/informes/get_costos`, body);
+        return data.data
+    } catch (error) {
+        console.log(error)
+        return error.response.data
+    }
+}
 export async function getStockUtensilio(ids_tipo_utensilio) {
     try {
         const body = {
