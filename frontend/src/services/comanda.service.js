@@ -108,3 +108,13 @@ export const getPlatillos = async (id, token) => {
     throw new Error(err.response?.data?.message || 'Error al obtener los platillos.');
   }
 };
+
+
+export const removePlatilloFromComanda = async (comandaId, platilloId, token) => {
+  const response = await axios.delete(`/comandas/${comandaId}/platillos/${platilloId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
