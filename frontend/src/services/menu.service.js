@@ -22,9 +22,15 @@ export async function getMenuById(id) {
   }
 }
 
-export async function createMenu(data) {
+export async function createMenu(data, token) {
   try {
-    const response = await axios.post('menus/', data);
+    const response = await axios.post('menus/', data,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
     return response.data.data; // Devuelve los datos del backend en caso de éxito
   } catch (error) {
     // Lanza el error capturado para que pueda ser manejado en el componente
@@ -57,6 +63,15 @@ export async function deleteMenu(id) {
   try {
     const response = await axios.delete(`menus/${id}`);
     return response.data;
+  } catch (error) {
+    return error.response.data;
+  }
+}
+
+export async function activateMenu(id) {
+  try {
+    const response = await axios.patch(`menus/activar/${id}`);
+    return response.data.data;
   } catch (error) {
     return error.response.data;
   }

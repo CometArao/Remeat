@@ -16,7 +16,7 @@ const menu = new EntitySchema({
         },
         disponibilidad: {
             type: "boolean",
-            default: true // Por defecto, el menú está disponible
+            default: false // Por defecto, el menú está disponible
         },
         id_usuario: {
             type: "int",
