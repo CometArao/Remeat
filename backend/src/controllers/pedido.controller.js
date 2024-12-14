@@ -14,6 +14,12 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers
 import { pedidoValidation } from "../validations/pedido.validation.js";
 import { sendEmail } from "../config/mailer.js";
 import { getProveedorByIdService } from "../services/proveedor.service.js"; // Asegúrate de tener este servicio
+import {
+    compareDateTime,
+    getCurrentChileanTimestamp,
+    truncateToMinutes,
+} from "../utils/dateUtils.js";
+
 // Asegúrate de importar AppDataSource, Proveedor y Usuario
 import { AppDataSource } from "../config/configDb.js";
 import Proveedor from "../entity/proveedor.entity.js";
@@ -28,17 +34,37 @@ import Utensilio from "../entity/utensilio.entity.js";
 
 export async function createPedido(req, res) {
     try {
+        console.log(req.body);
         const { error } = pedidoValidation.validate(req.body);
         if (error) {
             return handleErrorClient(res, 400, error.details[0].message);
         }
 
-        const { ingredientes = [], utensilios = [] } = req.body;
+        const { ingredientes = [], utensilios = [], fecha_entrega_pedido } = req.body;
 
         // Verificar que al menos haya un ingrediente o utensilio
         if (ingredientes.length === 0 && utensilios.length === 0) {
-            return handleErrorClient(res, 400, "El pedido debe incluir al menos un ingrediente o un utensilio.");
+            return handleErrorClient(
+                res,
+                400,
+                "El pedido debe incluir al menos un ingrediente o un utensilio."
+            );
         }
+
+        // Validar la fecha de entrega con la hora actual
+        const validEntrega = compareDateTime(fecha_entrega_pedido, {
+            message: (msg) => msg, // Función mock para obtener mensajes de error
+        });
+        if (validEntrega) {
+            // Si se devuelve un mensaje, significa que hubo un error
+            console.log(validEntrega);
+            return handleErrorClient(res, 401, validEntrega);
+        }
+
+        // Asignar fecha de compra como la hora actual truncada
+        req.body.fecha_compra_pedido = truncateToMinutes(getCurrentChileanTimestamp()).toISOString();
+        console.log(req.body.fecha_compra_pedido);
+        
 
         // Verificar que los ingredientes y utensilios existan
         const [validationError] = await validateIngredientesYUtensilios(ingredientes, utensilios);
@@ -47,20 +73,15 @@ export async function createPedido(req, res) {
         }
 
         // Llamar al servicio para crear el pedido
-        const [newPedido, processedIngredientes, processedUtensilios, serviceError] = 
-        await createPedidoService(req.body);
+        const [newPedido, processedIngredientes, processedUtensilios, serviceError] =
+            await createPedidoService(req.body);
         if (serviceError) {
             return handleErrorClient(res, 400, serviceError);
         }
 
-        // Obtener el correo y nombre del proveedor
+        // Lógica de correo y respuesta
         const proveedor = await obtenerProveedor(newPedido.id_proveedor);
 
-        console.log("Datos procesados")
-        console.log(processedIngredientes)
-        console.log(processedUtensilios)
-
-        // Enviar correo al proveedor con los ingredientes y utensilios procesados
         if (proveedor && proveedor.correo_proveedor) {
             await enviarCorreoProveedor(newPedido, proveedor, processedIngredientes, processedUtensilios);
         }
@@ -71,6 +92,7 @@ export async function createPedido(req, res) {
         handleErrorServer(res, 500, error.message);
     }
 }
+
 
 
 // Función auxiliar para enviar correo al proveedor

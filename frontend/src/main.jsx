@@ -29,6 +29,9 @@ import ConfirmaPlatillo from './pages/ConfirmaPlatillo';
 import Menu from './pages/Menu.jsx';
 import CrearPedido from './pages/CrearPedido';
 import ListadoDiarioMenuQrPage from '@pages/ListadoDiarioMenuQrPage';
+import HorariosLaborales from './pages/HorariosLaborales';
+import CrearHorarios from './pages/CrearHorarios';
+import ModificarHorario from './pages/ModificarHorario.jsx';
 
 
 const router = createBrowserRouter([ 
@@ -51,6 +54,30 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['administrador']}>
             <Users />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/horarios_laborales',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <HorariosLaborales />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/crear_horario',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <CrearHorarios />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/modificar_horario/:id',
+        element: (
+          <ProtectedRoute allowedRoles={['administrador']}>
+            <ModificarHorario />
           </ProtectedRoute>
         ),
       },
