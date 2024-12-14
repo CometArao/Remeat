@@ -81,12 +81,24 @@ export async function deleteHorarioDiaService(id) {
   const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
 
   try {
-    const result = await horarioDiaRepository.delete(id);
-    if (result.affected === 0) return [null, "Horario día no encontrado"];
+      // Verificar que el horario día exista
+      const horarioDiaExistente = await horarioDiaRepository.findOne({
+          where: { id_horario_dia: id },
+      });
 
-    return [true, null];
+      if (!horarioDiaExistente) {
+          return [null, `El horario día con ID ${id} no existe.`];
+      }
+
+      // Intentar eliminar el horario día
+      await horarioDiaRepository.delete(id);
+      return [true, null];
   } catch (error) {
-    console.error("Error al eliminar horario día:", error);
-    return [null, error.message];
+      // Verificar si el error es de clave foránea
+      if (error.code === "23503") { // Código de error para violación de clave foránea en PostgreSQL
+          return [null, `No se puede eliminar este horario día porque está siendo utilizado en otros registros.`];
+      }
+      console.error("Error al eliminar el horario día:", error);
+      return [null, error.message];
   }
 }

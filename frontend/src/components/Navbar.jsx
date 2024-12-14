@@ -245,6 +245,18 @@ const Navbar = () => {
                                     Proveedores
                                 </NavLink>
                             </li>
+                            <li>
+                                <NavLink
+                                    to="/horarios_laborales"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        addActiveClass();
+                                    }}
+                                >
+                                    Horarios laborales
+                                </NavLink>
+                            </li>
+
                         </>
                     )}
 

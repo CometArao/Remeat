@@ -74,6 +74,7 @@ export async function updateUser(req, res) {
         const { id } = req.params;
         const { body } = req;
 
+        console.log(body)
         // Validar solo los campos permitidos
         const { errorValidation } = userBodyValidation.validate(body);
         if (errorValidation) {

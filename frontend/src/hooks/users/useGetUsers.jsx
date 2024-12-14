@@ -12,6 +12,7 @@ const useUsers = () => {
                 apellido_usuario: user.apellido_usuario,
                 correo_usuario: user.correo_usuario,
                 rol_usuario: user.rol_usuario,
+                horario_laboral: user.horario_laboral,
             }));
             setUsers(formattedData);
         } catch (error) {
