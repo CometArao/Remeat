@@ -16,9 +16,6 @@ export async function createHorarioDia(req, res) {
   }
 }
 
-
-
-
 // Obtener todos los horarios_dia
 export async function getHorariosDia(req, res) {
   try {
@@ -61,12 +58,35 @@ export async function updateHorarioDia(req, res) {
 // Eliminar un horario_dia por ID
 export async function deleteHorarioDia(req, res) {
   try {
-    const { id } = req.params;
-    const [deleted, error] = await deleteHorarioDiaService(id);
-    if (error) return handleErrorClient(res, 400, error);
+      const { id_horario_dia } = req.params;
 
-    handleSuccess(res, 200, "Horario día eliminado exitosamente");
+      if (!id_horario_dia) {
+          return handleErrorClient(
+              res,
+              400,
+              "ID del horario día no proporcionado."
+          );
+      }
+
+      const [deletedHorarioDia, errorHorarioDia] =
+          await deleteHorarioDiaService(id_horario_dia);
+
+      if (errorHorarioDia) {
+          return handleErrorClient(
+              res,
+              400,
+              "Error eliminando horario día",
+              errorHorarioDia
+          );
+      }
+
+      handleSuccess(
+          res,
+          200,
+          "Horario día eliminado exitosamente",
+          deletedHorarioDia
+      );
   } catch (error) {
-    handleErrorServer(res, 500, error.message);
+      handleErrorServer(res, 500, error.message);
   }
 }

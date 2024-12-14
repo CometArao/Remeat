@@ -16,7 +16,8 @@ const pedido = new EntitySchema({
             nullable: false,
         },
         fecha_compra_pedido: {
-            type: "date",
+            type: "timestamp",
+            precision: 0, // Limita la precisión a segundos
             nullable: false,
         },
         estado_pedido: {
@@ -25,7 +26,8 @@ const pedido = new EntitySchema({
             nullable: false,
         },
         fecha_entrega_pedido: {
-            type: "date",
+            type: "timestamp",
+            precision: 0, // Limita la precisión a segundos
             nullable: false,
         },
         costo_pedido: {

@@ -40,7 +40,7 @@ export default function PopupPedido({ show, setShow, data, action, isEdit, users
                                     defaultValue: pedidoData.fecha_compra_pedido || "",
                                     placeholder: "Ej: 2024-12-01",
                                     fieldType: "input",
-                                    type: "date",
+                                    type: "datetime-local", // Cambiar a datetime-local
                                     required: true,
                                 },
                                 {
@@ -49,7 +49,7 @@ export default function PopupPedido({ show, setShow, data, action, isEdit, users
                                     defaultValue: pedidoData.fecha_entrega_pedido || "",
                                     placeholder: "Ej: 2024-12-10",
                                     fieldType: "input",
-                                    type: "date",
+                                    type: "datetime-local", // Cambiar a datetime-local
                                     required: true,
                                 },
                                 {

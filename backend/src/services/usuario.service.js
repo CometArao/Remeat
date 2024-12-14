@@ -16,10 +16,8 @@ export async function createUserService(data) {
 
         if (existingUser) return [null,"Ya existe un usuario con ese correo electrónico"];
 
-        // **Asignar automáticamente id_horario_laboral a 1**
-        data.id_horario_laboral = 1;
+        data.id_horario_laboral = 12;
 
-        // **Encriptar la contraseña antes de guardar**
         if (!data.contrasena_usuario || data.contrasena_usuario.trim() === "") {
             return [null, "La contraseña es obligatoria"];
         }
@@ -90,12 +88,12 @@ export async function updateUserService(query, body) {
         // Buscar el usuario por ID
         const userFound = await userRepository.findOne({
             where: { id_usuario },
-            relations: ["horario_laboral"],
+            relations: ["horario_laboral"], // Incluir relaciones
         });
 
         if (!userFound) return [null, "Usuario no encontrado"];
 
-        // Validar que el email no esté duplicado
+        // Validar si el correo ya existe
         if (body.correo_usuario) {
             const existingUser = await userRepository.findOne({
                 where: { correo_usuario: body.correo_usuario },
@@ -106,22 +104,22 @@ export async function updateUserService(query, body) {
             }
         }
 
-        // Verificar si se intenta cambiar el horario laboral
+        // Actualizar el horario laboral si se proporciona un ID
         if (body.id_horario_laboral) {
-            // Comprobar si el nuevo id_horario_laboral existe
-            const horarioLaboralExists = await horarioLaboralRepository.findOne({
-                where: { id_horario_laboral: body.id_horario_laboral }
+            const horarioLaboral = await horarioLaboralRepository.findOne({
+                where: { id_horario_laboral: body.id_horario_laboral },
             });
 
-            if (!horarioLaboralExists) {
+            if (!horarioLaboral) {
                 return [null, "El horario laboral especificado no existe."];
             }
-            
-            // Actualizar el id_horario_laboral
-            userFound.id_horario_laboral = body.id_horario_laboral; 
+
+            userFound.horario_laboral = horarioLaboral; // Actualizar la relación
+        } else {
+            userFound.horario_laboral = null; // Permitir desvincular el horario laboral
         }
 
-        // Actualizar solo los campos permitidos
+        // Actualizar los demás campos
         Object.assign(userFound, {
             nombre_usuario: body.nombre_usuario,
             apellido_usuario: body.apellido_usuario,
@@ -136,7 +134,7 @@ export async function updateUserService(query, body) {
 
         await userRepository.save(userFound); // Guarda los cambios
 
-        // Excluir la contraseña en el retorno
+        // Excluir la contraseña del objeto retornado
         const { contrasena_usuario, ...userUpdated } = userFound;
 
         return [userUpdated, null];
@@ -145,6 +143,7 @@ export async function updateUserService(query, body) {
         return [null, "Error interno del servidor"];
     }
 }
+
 
 export async function updateUserPasswordService(query, newPassword) {
     try {

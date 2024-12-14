@@ -20,6 +20,7 @@ const useEditUser = (setUsers, fetchUsers) => {
           apellido_usuario: updatedUserData.apellido_usuario,
           correo_usuario: updatedUserData.correo_usuario,
           rol_usuario: updatedUserData.rol_usuario,
+          id_horario_laboral: updatedUserData.id_horario_laboral,
         };
         await updateUser(allowedData, dataUser[0].id_usuario);
         showSuccessAlert('¡Actualizado!', 'El usuario ha sido actualizado correctamente.');
