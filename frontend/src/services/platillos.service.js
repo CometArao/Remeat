@@ -21,9 +21,18 @@ export async function getPlatilloById(id) {
     }
 }
 
-export async function createPlatillo(data) {
+export async function createPlatillo(data, token) {
     try {
-        const response = await axios.post('platillos/', data);
+        const response = await axios.post('platillos/', data,
+            {
+                headers: {  
+                  'Authorization': `Bearer ${token}`,
+                  'Cache-Control': 'no-cache',
+
+                },
+            }
+        );
+
         return response.data.data;
     } catch (error) {
         return error.response.data;

@@ -6,7 +6,6 @@ export default function PopupPlatillo({
   setShow,
   data,
   action,
-  usuario = [],
   isEdit
 }) {
   const platilloData = data && data.length > 0 ? data[0] : {};
@@ -30,17 +29,6 @@ export default function PopupPlatillo({
       required: false,
     },
     {
-      label: "Encargado",
-      name: "id_usuario",
-      defaultValue: platilloData.id_usuario || "",
-      fieldType: "select",
-      options: usuario.map((user) => ({
-        value: user.id_usuario,
-        label: user.nombre_usuario,
-      })),
-      required: true,
-    },
-    {
       label: "Ingredientes",
       name: "ingredientes",
       defaultValue: isEdit && platilloData.ingredientes ? platilloData.ingredientes.map(ing => ({
@@ -62,7 +50,6 @@ export default function PopupPlatillo({
     const payload = {
       nombre_platillo: formData.nombre_platillo,
       disponible: formData.disponible,
-      id_usuario: formData.id_usuario,
       ingredientes,
     };
   

@@ -20,17 +20,22 @@ import {
 
 export async function createPlatilloController(req, res) {
     try {
-        const { nombre_platillo, id_usuario, disponible = true, ingredientes } = req.body;
+        const { nombre_platillo, disponible, ingredientes } = req.body;
+        console.log("Usuario desde req.user:", req.user);
+        //Obtener el id del usuario desde el token
+        const id_usuario = req.user.id_usuario;
+            console.log("Usuario desde req.user2:", req.user);
 
-        const { error } = platilloBodyValidation.validate({ nombre_platillo, id_usuario });
+        // Validar los datos del platillo
+        const { error } = platilloBodyValidation.validate({ nombre_platillo });
+
         if (error) return handleErrorClient(res, 400, error.message);
 
         const [newPlatillo, errorPlatillo] = await createPlatilloService({
             nombre_platillo,
             disponible,
-            id_usuario,
             ingredientes
-        });
+        }, id_usuario);
 
         if (errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
 

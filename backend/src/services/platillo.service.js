@@ -8,14 +8,14 @@ import ConformaComanda from "../entity/conforma_comanda.entity.js";
 import Ingrediente from "../entity/ingrediente.entity.js";
 import { isAfter } from "date-fns";
 
-export async function createPlatilloService(data) {
+export async function createPlatilloService(data, userId) {
     const platilloRepository = AppDataSource.getRepository(Platillo);
     const usuarioRepository = AppDataSource.getRepository(Usuario);
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
 
     try {
-        const { nombre_platillo, disponible, id_usuario, ingredientes } = data;
+        const { nombre_platillo, disponible, ingredientes } = data;
 
         const createErrorMessage = (dataInfo, message) => ({
             dataInfo,
@@ -23,16 +23,17 @@ export async function createPlatilloService(data) {
         });
 
         // Verificar que el usuario existe
-        const usuarioExistente = await usuarioRepository.findOneBy({ id_usuario });
+        const usuarioExistente = await usuarioRepository.findOneBy({ id_usuario: userId });
         if (!usuarioExistente) {
             return [
                 null,
                 createErrorMessage(
                     "id_usuario",
-                    `El usuario con ID ${id_usuario} no existe.`
+                    `El usuario con ID ${userId} no existe.`
                 ),
             ];
         }
+        console.log("Usuario existente:", usuarioExistente);   
  
         // Crear el platillo con precio inicial de 0
         const newPlatillo = platilloRepository.create({
