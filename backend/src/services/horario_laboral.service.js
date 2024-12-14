@@ -2,16 +2,47 @@
 import { AppDataSource } from "../config/configDb.js";
 import horario_laboral from "../entity/horario_laboral.entity.js";
 import horario_dia from "../entity/horario_dia.entity.js";
+import Usuario from "../entity/usuario.entity.js";
 
 export async function createHorarioLaboralService(data) {
   const horarioLaboralRepository = AppDataSource.getRepository(horario_laboral);
+  const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
 
   try {
-    const newHorarioLaboral = horarioLaboralRepository.create(data);
-    await horarioLaboralRepository.save(newHorarioLaboral);
-    return [newHorarioLaboral, null];
+    const { descripcion, horariosDia } = data;
+
+    // Validaciones
+    if (!descripcion) {
+      throw new Error("La descripción del horario laboral es obligatoria.");
+    }
+
+    if (!horariosDia || !Array.isArray(horariosDia) || horariosDia.length === 0) {
+      throw new Error("Debes agregar al menos un horario de día.");
+    }
+
+    // Formatear las horas para que incluyan solo hora y minuto
+    const formattedHorariosDia = horariosDia.map((horarioDia) => ({
+      ...horarioDia,
+      hora_inicio: horarioDia.hora_inicio.slice(0, 5), // Solo HH:mm
+      hora_fin: horarioDia.hora_fin.slice(0, 5), // Solo HH:mm
+    }));
+
+    // Crear el horario laboral
+    const newHorarioLaboral = horarioLaboralRepository.create({ descripcion });
+    const savedHorarioLaboral = await horarioLaboralRepository.save(newHorarioLaboral);
+
+    // Crear los horarios de día asociados
+    const horariosDiaData = horariosDia.map((horarioDia) => ({
+      ...horarioDia,
+      horario_laboral: savedHorarioLaboral, // Asocia el horario laboral al horario de día
+    }));
+
+    // Guarda todos los horarios de día en una sola operación
+    await horarioDiaRepository.save(horariosDiaData);
+
+    return [savedHorarioLaboral, null];
   } catch (error) {
-    console.error("Error al crear horario laboral:", error);
+    console.error("Error al crear horario laboral y horarios de día:", error);
     return [null, error.message];
   }
 }
@@ -33,11 +64,13 @@ export async function getHorariosLaboralesService() {
 // Obtener un horario laboral específico por ID
 export async function getHorarioLaboralByIdService(id) {
   const horarioLaboralRepository = AppDataSource.getRepository(horario_laboral);
+  console.log(`Buscando horario laboral con ID: ${id}`);
   try {
     const horarioLaboral = await horarioLaboralRepository.findOne({
-      where: { id_horario_laboral: id },
-      relations: { horario_dia: true }
+      where: { id_horario_laboral: id }, // Filtra por la ID
+      relations: { horario_dia: true } // Incluye la relación con `horario_dia`
     });
+
     return horarioLaboral;
   } catch (error) {
     console.error("Error al obtener el horario laboral por ID:", error);
@@ -45,15 +78,91 @@ export async function getHorarioLaboralByIdService(id) {
   }
 }
 
+
 export async function updateHorarioLaboralService(id, data) {
   const horarioLaboralRepository = AppDataSource.getRepository(horario_laboral);
+  const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
 
   try {
-    const horarioLaboral = await horarioLaboralRepository.findOneBy({ id_horario_laboral: id });
+    const horarioLaboral = await horarioLaboralRepository.findOne({
+      where: { id_horario_laboral: id },
+      relations: { horario_dia: true },
+    });
+
     if (!horarioLaboral) return [null, "Horario laboral no encontrado"];
 
-    horarioLaboralRepository.merge(horarioLaboral, data);
+    const { descripcion, horariosDia } = data;
+
+    // Validación de días duplicados y días válidos
+    if (horariosDia && Array.isArray(horariosDia)) {
+      const diasValidos = [
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado",
+        "Domingo",
+      ];
+      const diasUnicos = new Set();
+
+      for (const dia of horariosDia) {
+        if (!diasValidos.includes(dia.dia_semana)) {
+          return [null, `Día inválido: ${dia.dia_semana}. Solo se permiten días de lunes a domingo.`];
+        }
+        if (diasUnicos.has(dia.dia_semana)) {
+          return [null, `Día duplicado: ${dia.dia_semana}. No se permiten días repetidos.`];
+        }
+        diasUnicos.add(dia.dia_semana);
+      }
+    }
+
+    // Actualizar descripción si está presente
+    if (descripcion) horarioLaboral.descripcion = descripcion;
+
+    if (horariosDia) {
+      // Identificar días que deben eliminarse
+      const diasExistentes = horarioLaboral.horario_dia.map((dia) => dia.dia_semana);
+      const diasNuevos = horariosDia.map((dia) => dia.dia_semana);
+
+      const diasAEliminar = horarioLaboral.horario_dia.filter(
+        (dia) => !diasNuevos.includes(dia.dia_semana)
+      );
+
+      // Eliminar días que ya no están
+      if (diasAEliminar.length > 0) {
+        const idsAEliminar = diasAEliminar.map((dia) => dia.id_horario_dia);
+        await horarioDiaRepository.delete(idsAEliminar);
+      }
+
+      // Actualizar o agregar días
+      for (const dia of horariosDia) {
+        const diaExistente = horarioLaboral.horario_dia.find(
+          (d) => d.dia_semana === dia.dia_semana
+        );
+
+        if (diaExistente) {
+          // Actualizar día existente
+          diaExistente.hora_inicio = dia.hora_inicio.slice(0, 5); // Solo HH:mm
+          diaExistente.hora_fin = dia.hora_fin.slice(0, 5); // Solo HH:mm
+          await horarioDiaRepository.save(diaExistente);
+        } else {
+          // Crear un nuevo día
+          const nuevoHorarioDia = horarioDiaRepository.create({
+            ...dia,
+            horario_laboral: horarioLaboral,
+            hora_inicio: dia.hora_inicio.slice(0, 5),
+            hora_fin: dia.hora_fin.slice(0, 5),
+          });
+          await horarioDiaRepository.save(nuevoHorarioDia);
+          horarioLaboral.horario_dia.push(nuevoHorarioDia);
+        }
+      }
+    }
+
+    // Guardar cambios en el horario laboral
     await horarioLaboralRepository.save(horarioLaboral);
+
     return [horarioLaboral, null];
   } catch (error) {
     console.error("Error al actualizar horario laboral:", error);
@@ -61,16 +170,43 @@ export async function updateHorarioLaboralService(id, data) {
   }
 }
 
+
+
+
 export async function deleteHorarioLaboralService(id) {
   const horarioLaboralRepository = AppDataSource.getRepository(horario_laboral);
+  const usuarioRepository = AppDataSource.getRepository(Usuario); // Repositorio de usuarios, ajusta según tu modelo
 
   try {
-    const result = await horarioLaboralRepository.delete(id);
-    if (result.affected === 0) return [null, "Horario laboral no encontrado"];
+      // Verificar que el horario laboral exista
+      const horarioLaboralExistente = await horarioLaboralRepository.findOne({
+          where: { id_horario_laboral: id },
+      });
 
-    return [true, null];
+      if (!horarioLaboralExistente) {
+          return [null, `El horario laboral con ID ${id} no existe.`];
+      }
+
+      // Verificar si el horario laboral está enlazado a algún usuario
+      const usuarioEnlazado = await usuarioRepository.findOne({
+          where: { horario_laboral: { id_horario_laboral: id } }, // Ajusta el campo según tu relación
+      });
+
+      if (usuarioEnlazado) {
+          return [null, `No se puede eliminar este horario laboral 
+            porque está siendo utilizado por uno o más usuarios.`];
+      }
+
+      // Intentar eliminar el horario laboral
+      await horarioLaboralRepository.delete(id);
+      return [true, null];
   } catch (error) {
-    console.error("Error al eliminar horario laboral:", error);
-    return [null, error.message];
+      // Verificar si el error es de clave foránea
+      if (error.code === "23503") { // Código de error para violación de clave foránea en PostgreSQL
+          return [null, `No se puede eliminar este horario laboral 
+            porque está siendo utilizado en otros registros.`];
+      }
+      console.error("Error al eliminar el horario laboral:", error);
+      return [null, error.message];
   }
 }
