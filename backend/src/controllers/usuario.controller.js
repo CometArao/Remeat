@@ -29,6 +29,7 @@ export async function createUser(req, res) {
             return handleErrorClient(res, 400, error.details[0].message);
         }
 
+        //req.body.id_horario_laboral = parseInt(req.body.id_horario_laboral, 10);
         const [newUser, serviceError] = await createUserService(req.body);
         if (serviceError) {
             return handleErrorClient(res, 400, serviceError);
@@ -72,26 +73,48 @@ export async function getUser(req, res) {
 export async function updateUser(req, res) {
     try {
         const { id } = req.params;
-        const { body } = req;
+        const body = { ...req.body };
 
-        console.log(body)
+        // Extraer el token del encabezado de autorización
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) {
+            return handleErrorClient(res, 401, "No se proporcionó el token de autenticación.");
+        }
+
+        // Agregar el token y el usuario autenticado al cuerpo
+        body.token = token;
+
         // Validar solo los campos permitidos
         const { errorValidation } = userBodyValidation.validate(body);
         if (errorValidation) {
             return handleErrorClient(res, 400, errorValidation.details[0].message);
         }
 
-        const [updatedUser, errorUpdateUser] = await updateUserService({ id_usuario: id }, body);
-        if (errorUpdateUser) return handleErrorClient(res, 400, errorUpdateUser);
-        
+        const [updatedUser, errorUpdateUser] = await updateUserService(
+            { id_usuario: id },
+            body,
+            req.user // Usuario autenticado
+        );
+
+        if (errorUpdateUser) {
+            return handleErrorClient(res, 400, errorUpdateUser);
+        }
+
         // Preparar la respuesta excluyendo la contraseña
         const { contrasena_usuario, ...userUpdatedData } = updatedUser;
 
-        handleSuccess(res, 200,"Usuario actualizado exitosamente", userUpdatedData);
+        handleSuccess(res, 200, "Usuario actualizado exitosamente", userUpdatedData);
+
+        // Si el token fue invalidado, devolver una respuesta especial
+        if (req.user.id_usuario === id && (body.correo_usuario || body.rol_usuario)) {
+            res.setHeader("Token-Invalidated", "true");
+        }
     } catch (error) {
-       handleErrorServer(res ,500 ,error.message );
-   }
+        handleErrorServer(res, 500, error.message);
+    }
 }
+
+
 
 export async function updateUserPassword(req, res) {
     try {

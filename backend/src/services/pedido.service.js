@@ -44,9 +44,7 @@ export async function createPedidoService(data) {
         // Guardar el pedido
         const savedPedido = await pedidoRepository.save(newPedido);
 
-        console.log("Hola")
-
-        // Procesar ingredientes y utensilios (sin cambios)
+        // Procesar ingredientes y utensilios
         if (ingredientes.length > 0) {
             const foundIngredientes = await ingredienteRepository.find({
                 where: { id_ingrediente: In(ingredientes.map((i) => i.id_ingrediente)) },
@@ -86,42 +84,41 @@ export async function createPedidoService(data) {
                 ing.costo_ingrediente = dbIngrediente.costo_ingrediente;
             }
         }
-        console.log("Hola2")
-        /*
+        
         if (utensilios.length > 0) {
             const foundUtensilios = await utensilioRepository.find({
                 where: { id_utensilio: In(utensilios.map((u) => u.id_utensilio)) },
-                relations: ["tipo_utensilio"],
+                relations: ["tipo_utensilio"], // Relación con tipo_utensilio
             });
-
+        
             if (foundUtensilios.length !== utensilios.length) {
                 return [null, "Uno o más utensilios no existen"];
             }
-
+        
             for (const ut of utensilios) {
                 const dbUtensilio = foundUtensilios.find(
                     (dbUt) => dbUt.id_utensilio === ut.id_utensilio
                 );
-
+        
                 if (!dbUtensilio) {
                     throw new Error(`Utensilio con id ${ut.id_utensilio} no encontrado`);
                 }
-
+        
                 const costo = ut.cantidad_utensilio * dbUtensilio.costo_utensilio;
                 costoTotal += costo;
-
+        
+                // Guardar la relación en compuesto_utensilio
                 await compuestoUtensilioRepository.save({
                     id_pedido: savedPedido.id_pedido,
                     id_utensilio: dbUtensilio.id_utensilio,
                     cantidad_pedida: ut.cantidad_utensilio,
-                    id_tipo_utensilio: dbUtensilio.id_tipo_utensilio,
                 });
-
+        
+                // Añadir información adicional para la respuesta
                 ut.nombre_tipo_utensilio = dbUtensilio.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo";
                 ut.costo_utensilio = dbUtensilio.costo_utensilio;
             }
-        }*/
-        console.log("Hola3")
+        }
 
         savedPedido.costo_pedido = costoTotal;
         await pedidoRepository.save(savedPedido);
@@ -137,21 +134,32 @@ export async function validateIngredientesYUtensilios(ingredientes, utensilios) 
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
 
-    if (ingredientes && ingredientes.length > 0) {
-        const foundIngredientes = await ingredienteRepository.findByIds(ingredientes);
-        if (foundIngredientes.length !== ingredientes.length) {
-            return ["Algunos ingredientes no existen."];
+    try {
+        // Validar ingredientes
+        if (ingredientes.length > 0) {
+            const foundIngredientes = await ingredienteRepository.find({
+                where: { id_ingrediente: In(ingredientes.map((i) => i.id_ingrediente)) },
+            });
+            if (foundIngredientes.length !== ingredientes.length) {
+                return ["Uno o más ingredientes no existen"];
+            }
         }
-    }
 
-    if (utensilios && utensilios.length > 0) {
-        const foundUtensilios = await utensilioRepository.findByIds(utensilios);
-        if (foundUtensilios.length !== utensilios.length) {
-            return ["Algunos utensilios no existen."];
+        // Validar utensilios
+        if (utensilios.length > 0) {
+            const foundUtensilios = await utensilioRepository.find({
+                where: { id_utensilio: In(utensilios.map((u) => u.id_utensilio)) },
+            });
+            if (foundUtensilios.length !== utensilios.length) {
+                return ["Uno o más utensilios no existen"];
+            }
         }
-    }
 
-    return [null]; // No hay errores
+        return [null];
+    } catch (error) {
+        console.error("Error en la validación de ingredientes y utensilios:", error);
+        return [error.message];
+    }
 }
 
 export async function getAllPedidosService() {
