@@ -32,7 +32,7 @@ const Users = () => {
         handleCreate,
         isCreatePopUpOpen,
         setIsCreatePopUpOpen,
-    } = useCreateUser(setUsers);
+    } = useCreateUser(setUsers, fetchUsers);
 
     const handleSelectionChange = useCallback(
         (selectedUsers) => {
