@@ -48,12 +48,16 @@ async function calcularCostoPlatillo(costoComanda, ids_platillo) {
       if(!costo) {
         continue
       }
+      console.log(comanda)
       let miComanda = {
         fecha: comanda.fecha,
+        hora_compra: comanda.hora_compra_comanda,
         id_comanda: comanda.id_comanda,
         costo: costo,
         utilidad: utilidad
       }
+      console.log("miComanda")
+      console.log(miComanda)
       listaComandas.push(miComanda);
     }
     miPlatillo.comandas = listaComandas;

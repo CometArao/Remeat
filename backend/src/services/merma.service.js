@@ -37,6 +37,21 @@ export async function createMermaService(query) {
             if(!UtensilioMermaCreado) {
                 return [null, "Error al crear utensilio Merma"]
             }
+            //ajustar cantidad utensilio
+            const utensilioAEditar = await AppDataSource.query(`
+                SELECT *
+                FROM utensilio u
+                WHERE u.id_utensilio = $1
+                `, [ingrediente.id_ingrediente])
+            if(!utensilioAEditar) {
+                return [null, "Error integridad de la base de datos"]
+            }
+            const nuevaCantidad = utensilioAEditar.cantidad_ingrediente - utensilio.cantidad_perdida; 
+            await AppDataSource.query(`
+            UPDATE utensilio
+            SET cantidad_utensilio = $1
+            WHERE id_utensilio = $2; 
+            `, [nuevaCantidad, utensilio.id_utensilio])
         }
         for(let i = 0; i < ingredientes.length; i++) {
             console.log("Añadir ingrediente")
@@ -46,16 +61,24 @@ export async function createMermaService(query) {
             VALUES ($1, $2, $3)
             `, [ingrediente.id_ingrediente, mermaCreada.id_merma, ingrediente.cantidad_perdida])
 
-            //const nuevoIngredienteMerma = ingredienteMermaRepository.create({
-                //id_ingrediente: ingrediente.id_ingrediente,
-                //id_merma: mermaCreada.id_merma,
-                //cantidad_perdida_ingrediente: ingrediente.cantidad_perdida
-            //})
-            //const ingredienteMermaCreado = await ingredienteMermaRepository.save(nuevoIngredienteMerma);
             if(!nuevoIngredienteMerma) {
                 return [null, "Error al crear ingrediente merma"]
             }
+            //ajustar cantidad_ingrediente
+            const ingredienteAEditar = await AppDataSource.query(`
+                SELECT *
+                FROM ingrediente i
+                WHERE i.id_ingrediente = $1
+                `, [ingrediente.id_ingrediente])
+            const nuevaCantidad = ingredienteAEditar.cantidad_ingrediente - ingrediente.cantidad_perdida; 
+            await AppDataSource.query(`
+            UPDATE ingrediente 
+            SET cantidad_ingrediente = $1
+            WHERE id_ingrediente = $2; 
+            
+                `, [nuevaCantidad, ingrediente.id_ingrediente])
         }
+        
         return [nuevaMerma, null];
     }catch(error) {
         console.error("Error al crear una merma", error)

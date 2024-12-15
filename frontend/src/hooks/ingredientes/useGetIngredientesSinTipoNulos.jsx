@@ -6,12 +6,12 @@ const useGetIngredientesSinTiposNulos = () => {
 
     const fetchIngredientes = async () => {
         const data = await getIngredientes();
-        console.log("fetch ingredientes")
+        console.log("fetch ingredientes como")
         console.log(data)
         let checkedData = []
         for (let i = 0; i < data.length; i++) {
             const item = data[i];
-            if (item.tipo_ingrediente) {
+            if (item.tipo_ingrediente && item.pedido) {
                 checkedData.push(item)
             }
         }

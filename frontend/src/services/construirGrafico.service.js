@@ -202,7 +202,7 @@ export function construirLinealUtilidades(platillos, time) {
             let indice_color = 0;
             let formatedLineData = []
             if (time === "Hora") {
-                x = comanda.hora_compra // TODO que hacer con las horas de mermas y pedidos
+                x = comanda.hora_compra 
             }
             if (time === "Fecha") {
                 x = formatearFecha(comanda.fecha)

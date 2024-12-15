@@ -81,6 +81,7 @@ export async function createUtensilioService(data) {
         }
         const newUtensilio = utensilioRepository.create({
             cantidad_utensilio: cantidad_utensilio, 
+            cantidad_utensilio_restante: cantidad_utensilio,
             tipo_utensilio: tipoUtensilio, 
             costo_utensilio: costo_utensilio
             });
@@ -99,6 +100,7 @@ export async function getUtensiliosService() {
         const utensilios = await utensilioRepository.find({
             relations: {
                 tipo_utensilio: true, // Relación válida
+                pedido: true
             },
         });
 

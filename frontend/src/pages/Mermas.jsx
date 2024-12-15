@@ -50,6 +50,7 @@ const Mermas = () => {
     console.log("handle detalle")
     console.log(dataMermas) 
     const mermaDetalle = await getmerma(dataMermas[0].id_merma)
+    console.log(mermaDetalle)
     navigate('/detalles_merma', { state: mermaDetalle });
 
     //redirigir a pestaña de detalle
