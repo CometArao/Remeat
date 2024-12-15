@@ -9,7 +9,7 @@ const IngredientesSelect = ({ value, onChange }) => {
   useEffect(() => {
     const obtenerIngredientes = async () => {
       try {
-        const response = await axios.get('/ingredientes/tipo');
+        const response = await axios.get('/platillos/ingredientes/tipo');
         const opciones = response.data.data.map((ingrediente) => ({
           value: ingrediente.id_tipo_ingrediente,
           label: ingrediente.nombre_tipo_ingrediente,

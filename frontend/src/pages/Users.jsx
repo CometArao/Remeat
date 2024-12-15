@@ -32,7 +32,7 @@ const Users = () => {
         handleCreate,
         isCreatePopUpOpen,
         setIsCreatePopUpOpen,
-    } = useCreateUser(setUsers);
+    } = useCreateUser(setUsers, fetchUsers);
 
     const handleSelectionChange = useCallback(
         (selectedUsers) => {
@@ -47,6 +47,7 @@ const Users = () => {
         { title: 'Apellido', field: 'apellido_usuario', width: 200 },
         { title: 'Correo', field: 'correo_usuario', width: 300 },
         { title: 'Rol', field: 'rol_usuario', width: 150 },
+        { title: 'Horario Laboral', field: 'horario_laboral.descripcion', width: 200 },
     ];
 
     const handleFilterChange = (e) => {

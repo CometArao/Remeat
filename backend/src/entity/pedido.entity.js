@@ -16,7 +16,8 @@ const pedido = new EntitySchema({
             nullable: false,
         },
         fecha_compra_pedido: {
-            type: "date",
+            type: "timestamp",
+            precision: 0,
             nullable: false,
         },
         estado_pedido: {
@@ -25,7 +26,8 @@ const pedido = new EntitySchema({
             nullable: false,
         },
         fecha_entrega_pedido: {
-            type: "date",
+            type: "timestamp",
+            precision: 0,
             nullable: false,
         },
         costo_pedido: {
@@ -57,6 +59,11 @@ const pedido = new EntitySchema({
         compuestoIngredientes: {
             type: "one-to-many",
             target: "compuesto_ingrediente",
+            inverseSide: "pedido",
+        },
+        compuestoUtensilios: {
+            type: "one-to-many",
+            target: "compuesto_utensilio",
             inverseSide: "pedido",
         },
     },

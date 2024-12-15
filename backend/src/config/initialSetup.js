@@ -15,11 +15,12 @@ async function createUsers() {
     await Promise.all([
       usuarioRepository.save(
         usuarioRepository.create({
-          nombre_usuario: "admin",
-          apellido_usuario: "master",
-          correo_usuario: "cometarao@gmail.com",
+          nombre_usuario: "Juan Pablo",
+          apellido_usuario: "Rosas",
+          correo_usuario: "juanrosas@gmail.com",
           contrasena_usuario: await encryptPassword("admin1234"),
           rol_usuario: "administrador",
+          id_horario_laboral: 2,
         }),
       )
     ]);
@@ -50,6 +51,7 @@ async function createHorario(horario_dia) {
     console.error("Error al crear usuarios:", error);
   }
 }
+
 async function createHorario_dia() {
   try {
     const userRepository = AppDataSource.getRepository(horario_dia);

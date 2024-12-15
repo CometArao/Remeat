@@ -3,6 +3,8 @@ import User from "../entity/usuario.entity.js";
 import Horario_laboral from "../entity/horario_laboral.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
+import { addTokenToBlacklist } from "../utils/tokenBlacklist.js";
+
 
 // Crear un nuevo usuario
 export async function createUserService(data) {
@@ -16,10 +18,6 @@ export async function createUserService(data) {
 
         if (existingUser) return [null,"Ya existe un usuario con ese correo electrónico"];
 
-        // **Asignar automáticamente id_horario_laboral a 1**
-        data.id_horario_laboral = 1;
-
-        // **Encriptar la contraseña antes de guardar**
         if (!data.contrasena_usuario || data.contrasena_usuario.trim() === "") {
             return [null, "La contraseña es obligatoria"];
         }
@@ -80,9 +78,22 @@ export async function getUsersService() {
    }
 }
 
-export async function updateUserService(query, body) {
+export async function updateUserService(query, body, user) {
     try {
         const { id_usuario } = query;
+
+        // Comprobar si el usuario autenticado está modificando sus propios datos
+        const isSelfUpdate =
+            user.id_usuario === id_usuario &&
+            (
+                (body.correo_usuario && body.correo_usuario !== user.correo_usuario) || 
+                (body.rol_usuario && body.rol_usuario !== user.rol_usuario)
+            );
+
+        if (isSelfUpdate) {
+            console.log("Invalidando token para usuario:", user.id_usuario);
+            addTokenToBlacklist(user.token); // Invalida el token actual
+        }
 
         const userRepository = AppDataSource.getRepository(User);
         const horarioLaboralRepository = AppDataSource.getRepository(Horario_laboral);
@@ -95,7 +106,7 @@ export async function updateUserService(query, body) {
 
         if (!userFound) return [null, "Usuario no encontrado"];
 
-        // Validar que el email no esté duplicado
+        // Validar si el correo ya existe
         if (body.correo_usuario) {
             const existingUser = await userRepository.findOne({
                 where: { correo_usuario: body.correo_usuario },
@@ -106,22 +117,20 @@ export async function updateUserService(query, body) {
             }
         }
 
-        // Verificar si se intenta cambiar el horario laboral
+        // Actualizar el horario laboral si se proporciona un ID
         if (body.id_horario_laboral) {
-            // Comprobar si el nuevo id_horario_laboral existe
-            const horarioLaboralExists = await horarioLaboralRepository.findOne({
-                where: { id_horario_laboral: body.id_horario_laboral }
+            const horarioLaboral = await horarioLaboralRepository.findOne({
+                where: { id_horario_laboral: body.id_horario_laboral },
             });
 
-            if (!horarioLaboralExists) {
+            if (!horarioLaboral) {
                 return [null, "El horario laboral especificado no existe."];
             }
-            
-            // Actualizar el id_horario_laboral
-            userFound.id_horario_laboral = body.id_horario_laboral; 
+
+            userFound.horario_laboral = horarioLaboral;
         }
 
-        // Actualizar solo los campos permitidos
+        // Actualizar los demás campos
         Object.assign(userFound, {
             nombre_usuario: body.nombre_usuario,
             apellido_usuario: body.apellido_usuario,
@@ -134,9 +143,10 @@ export async function updateUserService(query, body) {
             userFound.contrasena_usuario = await encryptPassword(body.newPassword);
         }
 
-        await userRepository.save(userFound); // Guarda los cambios
+        // Guardar cambios si hay actualizaciones
+        await userRepository.save(userFound);
 
-        // Excluir la contraseña en el retorno
+        // Excluir la contraseña del objeto retornado
         const { contrasena_usuario, ...userUpdated } = userFound;
 
         return [userUpdated, null];
@@ -145,6 +155,10 @@ export async function updateUserService(query, body) {
         return [null, "Error interno del servidor"];
     }
 }
+
+
+
+
 
 export async function updateUserPasswordService(query, newPassword) {
     try {

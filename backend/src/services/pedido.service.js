@@ -30,12 +30,12 @@ export async function createPedidoService(data) {
 
         let costoTotal = 0;
 
-        // Crear el pedido básico
+        // Crear el pedido básico con las fechas en formato timestamp
         const newPedido = pedidoRepository.create({
             descripcion_pedido,
-            fecha_compra_pedido,
+            fecha_compra_pedido, // Hora actual ya calculada en el controlador
             estado_pedido,
-            fecha_entrega_pedido,
+            fecha_entrega_pedido, // Validada en el controlador
             costo_pedido: 0,
             id_usuario,
             id_proveedor,
@@ -44,92 +44,85 @@ export async function createPedidoService(data) {
         // Guardar el pedido
         const savedPedido = await pedidoRepository.save(newPedido);
 
-    // Procesar ingredientes
-    if (ingredientes.length > 0) {
-        const foundIngredientes = await ingredienteRepository.find({
-            where: { id_ingrediente: In(ingredientes.map((i) => i.id_ingrediente)) },
-        });
+        // Procesar ingredientes y utensilios
+        if (ingredientes.length > 0) {
+            const foundIngredientes = await ingredienteRepository.find({
+                where: { id_ingrediente: In(ingredientes.map((i) => i.id_ingrediente)) },
+            });
 
-        if (foundIngredientes.length !== ingredientes.length) {
-            return [null, "Uno o más ingredientes no existen"];
+            if (foundIngredientes.length !== ingredientes.length) {
+                return [null, "Uno o más ingredientes no existen"];
+            }
+
+            for (const ing of ingredientes) {
+                const dbIngrediente = foundIngredientes.find(
+                    (dbIng) => dbIng.id_ingrediente === ing.id_ingrediente
+                );
+
+                if (!dbIngrediente) {
+                    throw new Error(`Ingrediente con id ${ing.id_ingrediente} no encontrado`);
+                }
+
+                const dbTipoIngrediente = await tipoIngredienteRepository.findOneBy({
+                    id_tipo_ingrediente: dbIngrediente.id_tipo_ingrediente,
+                });
+
+                const nombreTipoIngrediente = dbTipoIngrediente?.nombre_tipo_ingrediente || "Sin tipo";
+
+                const costo = ing.cantidad_ingrediente * dbIngrediente.costo_ingrediente;
+                costoTotal += costo;
+
+                await compuestoIngredienteRepository.save({
+                    id_pedido: savedPedido.id_pedido,
+                    id_ingrediente: dbIngrediente.id_ingrediente,
+                    cantidad_pedida: ing.cantidad_ingrediente,
+                    id_tipo_ingrediente: dbIngrediente.id_tipo_ingrediente,
+                });
+
+                ing.id_tipo_ingrediente = dbIngrediente.id_tipo_ingrediente;
+                ing.nombre_tipo_ingrediente = nombreTipoIngrediente;
+                ing.costo_ingrediente = dbIngrediente.costo_ingrediente;
+            }
         }
-
-    for (const ing of ingredientes) {
-        const dbIngrediente = foundIngredientes.find((dbIng) => dbIng.id_ingrediente === ing.id_ingrediente);
-
-        if (!dbIngrediente) {
-            throw new Error(`Ingrediente con id ${ing.id_ingrediente} no encontrado`);
-        }
-
-        // Buscar el tipo de ingrediente en la tabla tipo_ingrediente
-        const dbTipoIngrediente = await tipoIngredienteRepository.findOneBy({
-            id_tipo_ingrediente: dbIngrediente.id_tipo_ingrediente,
-        });
-
-        console.log(dbTipoIngrediente);
-
-        // Si no se encuentra el tipo de ingrediente, asignar valores predeterminados
-        const nombreTipoIngrediente = dbTipoIngrediente?.nombre_tipo_ingrediente || "Sin tipo";
-        console.log(nombreTipoIngrediente)
-
-        // Calcular el costo basado en la cantidad
-        const costo = ing.cantidad_ingrediente * dbIngrediente.costo_ingrediente;
-        costoTotal += costo;
-
-        // Guardar la relación compuesta
-        await compuestoIngredienteRepository.save({
-            id_pedido: savedPedido.id_pedido,
-            id_ingrediente: dbIngrediente.id_ingrediente,
-            cantidad_pedida: ing.cantidad_ingrediente,
-            id_tipo_ingrediente: dbIngrediente.id_tipo_ingrediente,
-        });
-
-        // Asignar los datos relacionados
-        ing.id_tipo_ingrediente = dbIngrediente.id_tipo_ingrediente;
-        ing.nombre_tipo_ingrediente = nombreTipoIngrediente;
-        ing.costo_ingrediente = dbIngrediente.costo_ingrediente;
-    }
-}
-
-        // Procesar utensilios
+        
         if (utensilios.length > 0) {
             const foundUtensilios = await utensilioRepository.find({
                 where: { id_utensilio: In(utensilios.map((u) => u.id_utensilio)) },
-                relations: ["tipo_utensilio"], // Asegurarse de incluir la relación tipo_utensilio
+                relations: ["tipo_utensilio"], // Relación con tipo_utensilio
             });
-
+        
             if (foundUtensilios.length !== utensilios.length) {
                 return [null, "Uno o más utensilios no existen"];
             }
-
+        
             for (const ut of utensilios) {
-                const dbUtensilio = foundUtensilios.find((dbUt) => dbUt.id_utensilio === ut.id_utensilio);
-
+                const dbUtensilio = foundUtensilios.find(
+                    (dbUt) => dbUt.id_utensilio === ut.id_utensilio
+                );
+        
                 if (!dbUtensilio) {
                     throw new Error(`Utensilio con id ${ut.id_utensilio} no encontrado`);
                 }
-
+        
                 const costo = ut.cantidad_utensilio * dbUtensilio.costo_utensilio;
                 costoTotal += costo;
-
+        
+                // Guardar la relación en compuesto_utensilio
                 await compuestoUtensilioRepository.save({
                     id_pedido: savedPedido.id_pedido,
                     id_utensilio: dbUtensilio.id_utensilio,
                     cantidad_pedida: ut.cantidad_utensilio,
-                    id_tipo_utensilio: dbUtensilio.id_tipo_utensilio,
                 });
-
-                // Añadir los datos que faltaban en el correo
+        
+                // Añadir información adicional para la respuesta
                 ut.nombre_tipo_utensilio = dbUtensilio.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo";
                 ut.costo_utensilio = dbUtensilio.costo_utensilio;
             }
         }
 
-        // Actualizar el costo total del pedido
         savedPedido.costo_pedido = costoTotal;
         await pedidoRepository.save(savedPedido);
-            
-        // Devuelve el pedido, ingredientes y utensilios procesados
+
         return [savedPedido, ingredientes, utensilios, null];
     } catch (error) {
         console.error("Error al crear el pedido:", error);
@@ -141,21 +134,32 @@ export async function validateIngredientesYUtensilios(ingredientes, utensilios) 
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
 
-    if (ingredientes && ingredientes.length > 0) {
-        const foundIngredientes = await ingredienteRepository.findByIds(ingredientes);
-        if (foundIngredientes.length !== ingredientes.length) {
-            return ["Algunos ingredientes no existen."];
+    try {
+        // Validar ingredientes
+        if (ingredientes.length > 0) {
+            const foundIngredientes = await ingredienteRepository.find({
+                where: { id_ingrediente: In(ingredientes.map((i) => i.id_ingrediente)) },
+            });
+            if (foundIngredientes.length !== ingredientes.length) {
+                return ["Uno o más ingredientes no existen"];
+            }
         }
-    }
 
-    if (utensilios && utensilios.length > 0) {
-        const foundUtensilios = await utensilioRepository.findByIds(utensilios);
-        if (foundUtensilios.length !== utensilios.length) {
-            return ["Algunos utensilios no existen."];
+        // Validar utensilios
+        if (utensilios.length > 0) {
+            const foundUtensilios = await utensilioRepository.find({
+                where: { id_utensilio: In(utensilios.map((u) => u.id_utensilio)) },
+            });
+            if (foundUtensilios.length !== utensilios.length) {
+                return ["Uno o más utensilios no existen"];
+            }
         }
-    }
 
-    return [null]; // No hay errores
+        return [null];
+    } catch (error) {
+        console.error("Error en la validación de ingredientes y utensilios:", error);
+        return [error.message];
+    }
 }
 
 export async function getAllPedidosService() {

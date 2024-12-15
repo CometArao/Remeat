@@ -3,7 +3,8 @@ import {
     assignPriceToPlatilloService,
     confirmarPlatilloService,
     createPlatilloService,
-    deletePlatilloByIdService,  
+    deletePlatilloByIdService, 
+    getFilteredTipoIngredientesService, 
     getPlatilloByIdService,
     getPlatillosService,
     updatePlatilloByIdService
@@ -17,6 +18,8 @@ import {
     handleErrorServer,
     handleSuccess,
 } from "../handlers/responseHandlers.js";
+
+import { sendNotification } from "../services/socket.js"; // Importar función de notificación
 
 export async function createPlatilloController(req, res) {
     try {
@@ -136,10 +139,28 @@ export async function deletePlatilloController(req, res){
     }
 }
 
+
+
+export async function getFilteredTipoIngredientesController(req, res) {
+    try {
+        const [tiposIngredientes, error] = await getFilteredTipoIngredientesService();
+
+        if (error) return handleErrorClient(res, 404, error);
+
+        handleSuccess(res, 200, "Tipos de ingredientes filtrados obtenidos correctamente", tiposIngredientes);
+    } catch (error) {
+        handleErrorServer(res, 500, error.message);
+    }
+}
+
+
+
+
+
 export async function confirmarPlatilloController(req, res) {
     try {
-      const {  nuevo_estado } = req.body;
-        const { id_platillo, id_comanda } = req.params;
+      const { nuevo_estado } = req.body;
+      const { id_platillo, id_comanda } = req.params;
   
       // Validar parámetros obligatorios
       if (!nuevo_estado) {
@@ -147,12 +168,25 @@ export async function confirmarPlatilloController(req, res) {
       }
   
       // Llamar al servicio para confirmar el platillo
-      const [resultado, resultadoError] = await confirmarPlatilloService( id_platillo, id_comanda, nuevo_estado)
+      const [resultado, resultadoError] = await confirmarPlatilloService(
+        id_platillo,
+        id_comanda,
+        nuevo_estado
+      );
+  
       if (resultadoError) {
         return handleErrorClient(res, 404, resultadoError);
       }
-   
   
+      // Enviar notificación usando WebSocket
+      sendNotification("platillo-actualizado", {
+        id_comanda,
+        id_platillo,
+        nuevo_estado,
+        mensaje: `El platillo con ID ${id_platillo} ahora está en estado "${nuevo_estado}".`,
+      });
+  
+      // Responder éxito
       handleSuccess(res, 200, "Estado del platillo actualizado con éxito.", resultado);
     } catch (error) {
       handleErrorServer(res, 500, error.message);

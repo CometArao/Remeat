@@ -247,7 +247,7 @@ export async function getIngredienteController(req, res) {
 export async function updateIngredienteController(req, res) {
   try {
     
-    const { id_ingrediente } = req.params;
+    const { id } = req.params;
    const { fecha_vencimiento, cantidad_ingrediente,cantidad_original_ingrediente,
     costo_ingrediente, id_tipo_ingrediente } = req.body;
     
@@ -258,7 +258,7 @@ export async function updateIngredienteController(req, res) {
       return handleErrorClient(res, 400, "Error de validación", error.message);
     }
     const [newIngrediente, errorIngrediente] =  await updateIngredienteService
-    (id_ingrediente, { fecha_vencimiento, cantidad_ingrediente,
+    (id, { fecha_vencimiento, cantidad_ingrediente,
        cantidad_original_ingrediente, costo_ingrediente, id_tipo_ingrediente });	
     if (errorIngrediente) {
       return handleErrorClient(res, 404, "Error actualizando ingrediente", errorIngrediente);

@@ -10,12 +10,27 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers
 
 export async function createHorarioLaboral(req, res) {
   try {
-    const [newHorarioLaboral, error] = await createHorarioLaboralService(req.body);
-    if (error) return handleErrorClient(res, 400, error);
+    const { descripcion, horario_dia } = req.body; // Cambiado de horariosDia a horario_dia
 
-    handleSuccess(res, 201, "Horario laboral creado exitosamente", newHorarioLaboral);
+    // Llama al servicio para manejar la lógica
+    const [newHorarioLaboral, error] = await createHorarioLaboralService({
+      descripcion,
+      horario_dia,
+    });
+
+    if (error) {
+      return handleErrorClient(res, 400, error);
+    }
+
+    handleSuccess(
+      res,
+      201,
+      "Horario laboral y horarios de día creados exitosamente",
+      newHorarioLaboral
+    );
   } catch (error) {
-    handleErrorServer(res, 500, error.message);
+    console.error("Error al crear horario laboral:", error);
+    handleErrorServer(res, 500, "Error interno al crear horario laboral.");
   }
 }
 
@@ -29,11 +44,10 @@ export async function getHorariosLaborales(req, res) {
   }
 }
 
-// Obtener un horario laboral específico por ID
 export async function getHorarioLaboralById(req, res) {
   try {
-    const { id } = req.params;
-    const horarioLaboral = await getHorarioLaboralByIdService(id);
+    const { id_horario_laboral } = req.params; // Obtiene la ID de los parámetros de la URL
+    const horarioLaboral = await getHorarioLaboralByIdService(id_horario_laboral);
 
     if (!horarioLaboral) {
       return handleErrorClient(res, 404, "Horario laboral no encontrado");
@@ -47,24 +61,52 @@ export async function getHorarioLaboralById(req, res) {
 
 export async function updateHorarioLaboral(req, res) {
   try {
-    const { id } = req.params;
-    const [updatedHorarioLaboral, error] = await updateHorarioLaboralService(id, req.body);
-    if (error) return handleErrorClient(res, 400, error);
+    const { id_horario_laboral } = req.params;
+    const [updatedHorarioLaboral, error] = await updateHorarioLaboralService(id_horario_laboral, req.body);
+
+    if (error) {
+      return handleErrorClient(res, 400, error);
+    }
 
     handleSuccess(res, 200, "Horario laboral actualizado exitosamente", updatedHorarioLaboral);
   } catch (error) {
+    console.error("Error al actualizar horario laboral:", error);
     handleErrorServer(res, 500, error.message);
   }
 }
 
+
 export async function deleteHorarioLaboral(req, res) {
   try {
-    const { id } = req.params;
-    const [deleted, error] = await deleteHorarioLaboralService(id);
-    if (error) return handleErrorClient(res, 400, error);
+      const { id_horario_laboral } = req.params;
 
-    handleSuccess(res, 200, "Horario laboral eliminado exitosamente");
+      if (!id_horario_laboral) {
+          return handleErrorClient(
+              res,
+              400,
+              "ID del horario laboral no proporcionado."
+          );
+      }
+
+      const [deletedHorarioLaboral, errorHorarioLaboral] =
+          await deleteHorarioLaboralService(id_horario_laboral);
+
+      if (errorHorarioLaboral) {
+          return handleErrorClient(
+              res,
+              400,
+              "Error eliminando horario laboral",
+              errorHorarioLaboral
+          );
+      }
+
+      handleSuccess(
+          res,
+          200,
+          "Horario laboral eliminado exitosamente",
+          deletedHorarioLaboral
+      );
   } catch (error) {
-    handleErrorServer(res, 500, error.message);
+      handleErrorServer(res, 500, error.message);
   }
 }

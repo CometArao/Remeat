@@ -8,40 +8,34 @@ import passport from "passport";
 import express, { json, urlencoded } from "express";
 import { cookieKey, HOST, PORT } from "./config/configEnv.js";
 import { connectDB } from "./config/configDb.js";
-import { createUsers, createHorario, createHorario_dia} from "./config/initialSetup.js";
-import { passportJwtSetup } from "./auth/passport.auth.js";
-import horario_dia from "./entity/horario_dia.entity.js";
+import { createUsers } from "./config/initialSetup.js";
+import http from "http";
+import { initializeSocket } from "./services/socket.js";
+import { passportJwtSetup } from "./auth/passport.auth.js"; // Importar configuración de Passport
 
 async function setupServer() {
   try {
     const app = express();
+    const server = http.createServer(app);
+
+    // Inicializa WebSocket
+    initializeSocket(server);
 
     app.disable("x-powered-by");
 
+    // Middleware de Express
     app.use(
       cors({
         credentials: true,
         origin: true,
-      }),
+      })
     );
-
-    app.use(
-      urlencoded({
-        extended: true,
-        limit: "1mb",
-      }),
-    );
-
-    app.use(
-      json({
-        limit: "1mb",
-      }),
-    );
-
+    app.use(urlencoded({ extended: true, limit: "1mb" }));
+    app.use(json({ limit: "1mb" }));
     app.use(cookieParser());
-
     app.use(morgan("dev"));
 
+    // Configurar sesión
     app.use(
       session({
         secret: cookieKey,
@@ -52,37 +46,40 @@ async function setupServer() {
           httpOnly: true,
           sameSite: "strict",
         },
-      }),
+      })
     );
 
+    // Inicializar Passport y JWT
     app.use(passport.initialize());
     app.use(passport.session());
+    passportJwtSetup(); // Configuración de estrategia JWT
 
-    passportJwtSetup();
-
+    // Rutas de la API
     app.use("/api", indexRoutes);
 
-    app.listen(PORT, () => {
+    // Iniciar servidor
+    server.listen(PORT, () => {
       console.log(`=> Servidor corriendo en ${HOST}:${PORT}/api`);
     });
+
+    return app;
   } catch (error) {
-    console.log("Error en index.js -> setupServer(), el error es: ", error);
+    console.error("Error en index.js -> setupServer(), el error es:", error);
   }
 }
 
 async function setupAPI() {
   try {
-    await connectDB();
-    await setupServer();
-    await createUsers();
-    
+    await connectDB(); // Conectar a la base de datos
+    await setupServer(); // Configurar servidor
+    await createUsers(); // Crear usuarios iniciales
   } catch (error) {
-    console.log("Error en index.js -> setupAPI(), el error es: ", error);
+    console.error("Error en index.js -> setupAPI(), el error es:", error);
   }
 }
 
 setupAPI()
   .then(() => console.log("=> API Iniciada exitosamente"))
   .catch((error) =>
-    console.log("Error en index.js -> setupAPI(), el error es: ", error),
+    console.error("Error en index.js -> setupAPI(), el error es:", error)
   );
