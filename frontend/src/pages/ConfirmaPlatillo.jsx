@@ -12,7 +12,7 @@ const ConfirmaPlatillo = () => {
     try {
       const nuevoEstado = "preparado";
       await confirmarPlatillo(idPlatillo, idComanda, nuevoEstado);
-      alert("Platillo confirmado como preparado");
+      
       refetch(); // Refresca las comandas después de la confirmación
     } catch (err) {
       console.error("Error al confirmar platillo:", err);
