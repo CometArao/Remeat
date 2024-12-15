@@ -6,13 +6,20 @@ import useGetIngredientes from "../hooks/ingredientes/useGetIngredientes";
 import useProveedores from "../hooks/proveedores/useGetProveedores";
 import useUsers from "../hooks/users/useGetUsers";
 import useGetUtensilios from "../hooks/utensilios/useGetUtensilio";
+import { truncateToMinutes } from "../../../backend/src/utils/dateUtils.js";
 import "@styles/crearPedido.css";
 
 // Obtener la fecha de hoy en formato "YYYY-MM-DD"
 const getTodayDate = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`; // Formato para datetime-local
 };
+
 
 // Obtener el rango permitido para fechas
 const getYearRange = () => {
@@ -32,7 +39,7 @@ const CrearPedido = () => {
 
     const [pedidoData, setPedidoData] = useState({
         descripcion_pedido: "",
-        fecha_compra_pedido: getTodayDate(),
+        fecha_compra_pedido: getTodayDate(), // Fecha y hora actual
         fecha_entrega_pedido: "",
         id_usuario: "",
         id_proveedor: "",
@@ -44,8 +51,7 @@ const CrearPedido = () => {
     const [selectedUtensilios, setSelectedUtensilios] = useState({});
     const [costoTotal, setCostoTotal] = useState(0);
 
-    const { minDate, maxDate } = getYearRange(); // Fechas límite para el rango
-
+    const { minDate, maxDate } = getYearRange();
     const administradores = users.filter(user => user.rol_usuario === "administrador");
 
     const handleInputChange = (e) => {
@@ -59,14 +65,13 @@ const CrearPedido = () => {
 
         const updatedState = {
             ...selectedState,
-            [id]: !selectedState[id], // Toggle selection
+            [id]: !selectedState[id]
         };
 
         if (!updatedState[id]) {
-            // Deseleccionado: eliminarlo de pedidoData y restablecer cantidad
             setPedidoData((prev) => ({
                 ...prev,
-                [type]: prev[type].filter((item) => item[`id_${type.slice(0, -1)}`] !== id),
+                [type]: prev[type].filter((item) => item[`id_${type.slice(0, -1)}`] !== id)
             }));
         }
 
@@ -75,7 +80,7 @@ const CrearPedido = () => {
 
     const handleCantidadChange = (type, id, cantidad) => {
         const key = type === "ingredientes" ? "cantidad_ingrediente" : "cantidad_utensilio";
-    
+
         setPedidoData((prev) => {
             const updatedList = prev[type].filter((item) => item[`id_${type.slice(0, -1)}`] !== id);
             if (cantidad > 0) {
@@ -84,35 +89,26 @@ const CrearPedido = () => {
             return { ...prev, [type]: updatedList };
         });
     };
-    
-    
 
     const calculateCostoTotal = () => {
         let total = 0;
-    
-        // Calcular el costo total de ingredientes seleccionados
+
         pedidoData.ingredientes.forEach((ing) => {
             const ingredienteInfo = ingredientes.find((i) => i.id_ingrediente === ing.id_ingrediente);
             if (ingredienteInfo && ingredienteInfo.costo_ingrediente) {
-                total += ing.cantidad_ingrediente * ingredienteInfo.costo_ingrediente; // Usar cantidad_ingrediente
-            } else {
-                console.warn(`Costo de ingrediente no encontrado para ID: ${ing.id_ingrediente}`);
+                total += ing.cantidad_ingrediente * ingredienteInfo.costo_ingrediente;
             }
         });
-    
-        // Calcular el costo total de utensilios seleccionados
+
         pedidoData.utensilios.forEach((ut) => {
             const utensilioInfo = utensilios.find((u) => u.id_utensilio === ut.id_utensilio);
             if (utensilioInfo && ut.cantidad_utensilio) {
-                total += ut.cantidad_utensilio * utensilioInfo.costo_utensilio; // Usar cantidad_utensilio
-            } else {
-                console.warn(`Costo de utensilio no encontrado para ID: ${ut.id_utensilio}`);
+                total += ut.cantidad_utensilio * utensilioInfo.costo_utensilio;
             }
         });
-    
-        setCostoTotal(total); // Actualizar el costo total en tiempo real
+
+        setCostoTotal(total);
     };
-    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -127,7 +123,7 @@ const CrearPedido = () => {
         }
     
         try {
-            // Enviar datos al backend
+            // Enviar datos al backend con fecha_entrega_pedido ya en formato ISO
             const response = await createPedido({ ...pedidoData });
             showSuccessAlert("¡Éxito!", "Pedido creado correctamente.");
             navigate("/pedidos");
@@ -146,8 +142,7 @@ const CrearPedido = () => {
     }, []);
 
     useEffect(() => {
-        console.log("Utensilios cargados:", utensilios); // Verificar datos cargados
-        calculateCostoTotal(); // Recalcular costo total cada vez que cambien ingredientes o utensilios
+        calculateCostoTotal();
     }, [pedidoData, utensilios]);
 
     return (
@@ -166,31 +161,23 @@ const CrearPedido = () => {
                     />
                 </div>
                 <div className="form-group">
-                    <label>Fecha de Compra</label>
+                    <label>Fecha y Hora de Compra</label>
                     <input
-                        type="date"
+                        type="datetime-local"
                         name="fecha_compra_pedido"
                         value={pedidoData.fecha_compra_pedido}
                         readOnly
-
-                        // Descomentar para que se pueda cambiar la fecha de compra, y quitar readOnly
-                        /*value={pedidoData.fecha_compra_pedido}
-                        onChange={handleInputChange}
-                        required
-                        min={minDate}
-                        max={maxDate}*/
                     />
                 </div>
                 <div className="form-group">
-                    <label>Fecha de Entrega</label>
+                <label>Fecha y Hora de Entrega</label>
                     <input
-                        type="date"
+                        type="datetime-local"
                         name="fecha_entrega_pedido"
                         value={pedidoData.fecha_entrega_pedido}
                         onChange={handleInputChange}
                         required
-                        min={pedidoData.fecha_compra_pedido} // No puede ser menor a la fecha de compra
-                        max={maxDate}
+                        min={pedidoData.fecha_compra_pedido} // No puede ser antes de la fecha de compr
                     />
                 </div>
                 <div className="form-group">
@@ -269,10 +256,9 @@ const CrearPedido = () => {
                         </div>
                     ))}
                 </div>
-
                 <div className="form-group">
                     <label>Costo Total del Pedido</label>
-                    <p>${costoTotal.toFixed(2)}</p> {/* Mostrar costo total calculado */}
+                    <p>${costoTotal.toFixed(2)}</p>
                 </div>
                 <button type="submit">Crear Pedido</button>
             </form>

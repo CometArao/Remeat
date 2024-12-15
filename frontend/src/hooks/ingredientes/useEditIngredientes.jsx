@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { updateIngrediente } from '@services/ingredientes.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
-const useEditIngrediente = (setIngredientes) => {
+const useEditIngrediente = (setIngredientes, fetchIngredientes) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [dataIngrediente, setDataIngrediente] = useState([]);
 
@@ -20,9 +20,6 @@ const useEditIngrediente = (setIngredientes) => {
                     dataIngrediente[0].id_ingrediente
                 );
 
-                showSuccessAlert('¡Actualizado!', 'El ingrediente ha sido actualizado correctamente.');
-                setIsPopupOpen(false);
-
                 setIngredientes((prev) =>
                     prev.map((ingrediente) =>
                         ingrediente.id_ingrediente === updatedData.id_ingrediente
@@ -30,6 +27,11 @@ const useEditIngrediente = (setIngredientes) => {
                             : ingrediente
                     )
                 );
+
+                await fetchIngredientes();
+
+                showSuccessAlert('¡Actualizado!', 'El ingrediente ha sido actualizado correctamente.');
+                setIsPopupOpen(false);
 
                 setDataIngrediente([]);
             } catch (error) {

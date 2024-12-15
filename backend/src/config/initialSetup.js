@@ -50,6 +50,7 @@ async function createHorario(horario_dia) {
     console.error("Error al crear usuarios:", error);
   }
 }
+
 async function createHorario_dia() {
   try {
     const userRepository = AppDataSource.getRepository(horario_dia);

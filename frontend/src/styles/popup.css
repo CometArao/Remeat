@@ -9,6 +9,39 @@
     align-items: center;
     justify-content: center;
 }
+
+.horarios-dia-container {
+    margin-top: 20px;
+  }
+  
+  .horario-dia-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .horario-dia-row select,
+  .horario-dia-row input {
+    padding: 5px;
+    font-size: 14px;
+  }
+  
+  .add-horario-dia,
+  .remove-horario-dia {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .add-horario-dia:hover,
+  .remove-horario-dia:hover {
+    background-color: #0056b3;
+  }
+  
 .popup{
     top: 30px;
     height: 700px;

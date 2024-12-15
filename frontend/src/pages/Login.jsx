@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '@services/auth.service.js';
 import Form from '@components/Form';
 import useLogin from '@hooks/auth/useLogin.jsx';
-import '@styles/form.css';
+import '@styles/login.css';
 
 const Login = () => {
     const navigate = useNavigate();
