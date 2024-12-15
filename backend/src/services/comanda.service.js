@@ -32,7 +32,7 @@ async function verificarHorarioLaboral(idUsuario) {
 
   // Función para normalizar textos (eliminar tildes)
   const normalizarTexto = (texto) => {
-    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Elimina los diacríticos
+    return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Elimina los diacríticos
   };
 
   // Obtener la fecha actual en UTC
