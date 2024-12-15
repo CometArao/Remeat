@@ -1,31 +1,40 @@
 import { Server } from "socket.io";
 
-let io; // Mantendremos el objeto de socket.io global para enviar eventos más adelante
+let io = null;
 
 export function initializeSocket(server) {
-  io = new Server(server, {
-    cors: {
-      origin: "*", // Cambia esto según el dominio permitido
-    },
-  });
-
-  io.on("connection", (socket) => {
-    console.log(`Cliente conectado: ${socket.id}`);
-
-    // Evento para desconexión
-    socket.on("disconnect", () => {
-      console.log(`Cliente desconectado: ${socket.id}`);
+    io = new Server(server, {
+        cors: {
+            origin: "*", // Permitir conexiones desde cualquier origen
+        },
     });
-  });
 
-  console.log("Servidor WebSocket inicializado.");
+    io.on("connection", (socket) => {
+        console.log(`Cliente conectado: ${socket.id}`);
+        socket.on("disconnect", () => {
+            console.log(`Cliente desconectado: ${socket.id}`);
+        });
+    });
+
+    console.log("Servidor WebSocket inicializado.");
 }
 
+export function getSocketInstance() {
+  console.log("Obteniendo instancia de WebSocket:", io);
+    if (!io) {
+        throw new Error("WebSocket no inicializado. Asegúrate de llamar a initializeSocket.");
+    }
+    return io;
+}
+
+
+// Función para enviar notificaciones
 export function sendNotification(event, data) {
-  if (io) {
-    io.emit(event, data); // Envía el evento a todos los clientes conectados
+  try {
+    const io = getSocketInstance(); // Obtiene la instancia de Socket.IO
+    io.emit(event, data); // Emite el evento y los datos
     console.log(`Notificación enviada: ${event}`, data);
-  } else {
-    console.error("WebSocket no está inicializado.");
+  } catch (error) {
+    console.error("Error enviando notificación:", error.message);
   }
 }

@@ -1,5 +1,6 @@
 "use strict";
 import { AppDataSource } from "../config/configDb.js";
+import { getSocketInstance } from "../services/socket.js";
 import Platillo from "../entity/platillo.entity.js";
 import Usuario from "../entity/usuario.entity.js";
 import TipoIngrediente from "../entity/tipo_ingrediente.entity.js";
@@ -537,6 +538,10 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
       await conformaRepository.save(conformaPlatillo);
       
       console.log("conformaPlatillo3", conformaPlatillo);
+
+
+      const io = getSocketInstance();
+ 
 
         // Emitir evento de notificación al cliente
     if (nuevo_estado === "preparado") {
