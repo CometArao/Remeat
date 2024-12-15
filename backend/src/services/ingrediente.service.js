@@ -43,7 +43,6 @@ export async function createIngredienteService(data) {
         await ingredienteRepository.save(newIngrediente);
 
         // Si id_pedido está presente, agregarlo a la tabla intermedia
-        console.log("PENE")
         if (id_pedido) {
             console.log("Guardando en compuesto_ingrediente:", {
                 id_pedido,
@@ -69,7 +68,6 @@ export async function createIngredienteService(data) {
             console.warn(`id_pedido es nulo, no se guardará en compuesto_ingrediente.`);
         }
 
-        console.log("PENE2")
 
         // Obtener el ingrediente con todas las relaciones
         const savedIngrediente = await ingredienteRepository.findOne({

@@ -58,9 +58,9 @@ export async function updateHorarioDia(req, res) {
 // Eliminar un horario_dia por ID
 export async function deleteHorarioDia(req, res) {
   try {
-      const { id_horario_dia } = req.params;
+      const { id } = req.params;
 
-      if (!id_horario_dia) {
+      if (!id) {
           return handleErrorClient(
               res,
               400,
@@ -69,7 +69,7 @@ export async function deleteHorarioDia(req, res) {
       }
 
       const [deletedHorarioDia, errorHorarioDia] =
-          await deleteHorarioDiaService(id_horario_dia);
+          await deleteHorarioDiaService(id);
 
       if (errorHorarioDia) {
           return handleErrorClient(

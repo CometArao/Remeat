@@ -9,43 +9,67 @@ export async function createHorarioLaboralService(data) {
   const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
 
   try {
-    const { descripcion, horariosDia } = data;
+    const { descripcion, horario_dia } = data;
 
     // Validaciones
     if (!descripcion) {
       throw new Error("La descripción del horario laboral es obligatoria.");
     }
 
-    if (!horariosDia || !Array.isArray(horariosDia) || horariosDia.length === 0) {
+    if (!horario_dia || !Array.isArray(horario_dia) || horario_dia.length === 0) {
       throw new Error("Debes agregar al menos un horario de día.");
     }
 
-    // Formatear las horas para que incluyan solo hora y minuto
-    const formattedHorariosDia = horariosDia.map((horarioDia) => ({
-      ...horarioDia,
-      hora_inicio: horarioDia.hora_inicio.slice(0, 5), // Solo HH:mm
-      hora_fin: horarioDia.hora_fin.slice(0, 5), // Solo HH:mm
-    }));
+    // Validar días y horas
+    const diasSemanaValidos = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+    const formattedHorariosDia = horario_dia.map((horario) => {
+      const dia = horario.dia_semana.toLowerCase(); // Convertir a minúsculas para consistencia
+      if (!diasSemanaValidos.includes(dia)) {
+        throw new Error(`El día '${horario.dia_semana}' no es válido.`);
+      }
+
+      if (horario.hora_inicio >= horario.hora_fin) {
+        throw new Error(
+          `La hora de inicio (${horario.hora_inicio}) debe ser menor que la hora de fin (${horario.hora_fin}) para el día ${horario.dia_semana}.`
+        );
+      }
+
+      return {
+        ...horario,
+        dia_semana: dia,
+      };
+    });
 
     // Crear el horario laboral
     const newHorarioLaboral = horarioLaboralRepository.create({ descripcion });
     const savedHorarioLaboral = await horarioLaboralRepository.save(newHorarioLaboral);
 
     // Crear los horarios de día asociados
-    const horariosDiaData = horariosDia.map((horarioDia) => ({
-      ...horarioDia,
-      horario_laboral: savedHorarioLaboral, // Asocia el horario laboral al horario de día
+    const horariosDiaData = formattedHorariosDia.map((horario) => ({
+      ...horario,
+      horario_laboral: savedHorarioLaboral, // Asociar al horario laboral
     }));
 
     // Guarda todos los horarios de día en una sola operación
-    await horarioDiaRepository.save(horariosDiaData);
+    const savedHorariosDia = await horarioDiaRepository.save(horariosDiaData);
 
-    return [savedHorarioLaboral, null];
+    // Evitar referencia circular eliminando `horario_laboral` de cada horario_dia
+    const sanitizedHorariosDia = savedHorariosDia.map(({ horario_laboral, ...rest }) => rest);
+
+    return [
+      {
+        id_horario_laboral: savedHorarioLaboral.id_horario_laboral,
+        descripcion: savedHorarioLaboral.descripcion,
+        horario_dia: sanitizedHorariosDia,
+      },
+      null,
+    ];
   } catch (error) {
     console.error("Error al crear horario laboral y horarios de día:", error);
     return [null, error.message];
   }
 }
+
 
 // Obtener todos los horarios laborales
 export async function getHorariosLaboralesService() {

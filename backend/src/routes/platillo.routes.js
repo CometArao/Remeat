@@ -5,6 +5,7 @@ import {
     confirmarPlatilloController,
     createPlatilloController,
     deletePlatilloController,
+    getFilteredTipoIngredientesController,
     getPlatilloByIdController,
     getPlatillosController,
     updatePlatilloController,
@@ -20,6 +21,7 @@ router
     .use(authenticateJwt)  // Aplicar autenticación a todas las rutas
     .get("/", getPlatillosController)                   // Obtener todos los platillos
     .get("/:id_platillo",isChef, isMesero, getPlatilloByIdController)    // Obtener un platillo específico por ID
+    .get("/ingredientes/tipo", isChef, getFilteredTipoIngredientesController)// Obtener platillos filtrados por tipo de ingrediente
     .post("/", isChef, createPlatilloController)                // Crear platillo (sin precio)
     .patch("/:id_platillo", isChef, updatePlatilloController)   // Actualizar platillo
     .post("/confirmar/:id_platillo/:id_comanda", isChef, confirmarPlatilloController) // Confirmar estado de platillo

@@ -34,14 +34,11 @@ const utensilio = new EntitySchema({
             },
             onDelete: "SET NULL",
         },
-        pedido: {
-            type: "many-to-many", // Ajusta según la relación real
-            target: "pedido",
-            joinTable: {
-                name: "utensilio_pedido",
-                joinColumn: { name: "id_utensilio", referencedColumnName: "id_utensilio" },
-                inverseJoinColumn: { name: "id_pedido", referencedColumnName: "id_pedido" },
-            },
+        compuestoUtensilio: {
+            type: "one-to-many",
+            target: "compuesto_utensilio",
+            inverseSide: "utensilio",
+            onDelete: "CASCADE",
         },
     },
 });

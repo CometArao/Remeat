@@ -32,7 +32,7 @@ async function verificarHorarioLaboral(idUsuario) {
 
   // Función para normalizar textos (eliminar tildes)
   const normalizarTexto = (texto) => {
-    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Elimina los diacríticos
+    return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Elimina los diacríticos
   };
 
   // Obtener la fecha actual en UTC
@@ -205,7 +205,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   // Si no hay menú para hoy, obtener el menú más cercano anterior
   if (!menu) {
     menu = await menuRepository.createQueryBuilder("menu")
-      .where("menu.fecha <= :currentDate", { currentDate })
+      .where("menu.fecha >= :currentDate", { currentDate })
       .andWhere("menu.disponibilidad = true")
       .orderBy("menu.fecha", "DESC")
       .leftJoinAndSelect("menu.platillo", "platillo")
@@ -214,6 +214,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
   if (!menu) throw new Error("No hay un menú disponible.");
 
+  console.log("Apunto")
   // Verificar si el platillo existe
   const platillo = await platilloRepository.findOne({
     where: { nombre_platillo: platilloData.nombre_platillo }
@@ -475,6 +476,5 @@ export async function completeComanda(comandaId) {
 
   return updatedComanda;
 }
-
 
 

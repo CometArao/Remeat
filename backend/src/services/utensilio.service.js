@@ -3,6 +3,7 @@
 import { AppDataSource } from "../config/configDb.js";
 import Utensilio from "../entity/utensilio.entity.js";
 import TipoUtensilio from "../entity/tipo_utensilio.entity.js";
+import CompuestoUtensilio from "../entity/compuesto_utensilio.js";
 
 // Servicio para crear un tipo de utensilio
 export async function createTipoUtensilioService(data) {
@@ -73,12 +74,21 @@ export async function deleteTipoUtensilioService(id) {
 export async function createUtensilioService(data) {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
     const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
+    const compuestoUtensilioRepository = AppDataSource.getRepository(CompuestoUtensilio);
+
     try {
-        const { cantidad_utensilio, id_tipo_utensilio, costo_utensilio } = data;
-        const tipoUtensilio = await tipoUtensilioRepository.findOneBy({ id_tipo_utensilio });
+        const { cantidad_utensilio, costo_utensilio, id_tipo_utensilio, id_pedido } = data;
+
+        // Verificar que el tipo de utensilio existe
+        const tipoUtensilio = await tipoUtensilioRepository.findOne({
+            where: { id_tipo_utensilio },
+        });
+
         if (!tipoUtensilio) {
-            return [null, `El tipo de utensilio con ID ${id_tipo_utensilio} no existe`];
+            return [null, `El tipo de utensilio especificado con ID ${id_tipo_utensilio} no existe`];
         }
+
+        // Crear el utensilio
         const newUtensilio = utensilioRepository.create({
             cantidad_utensilio: cantidad_utensilio, 
             cantidad_utensilio_restante: cantidad_utensilio,
@@ -86,12 +96,46 @@ export async function createUtensilioService(data) {
             costo_utensilio: costo_utensilio
             });
         await utensilioRepository.save(newUtensilio);
-        return [newUtensilio, null];
+
+        // Si id_pedido está presente, agregarlo a la tabla intermedia
+        if (id_pedido) {
+            console.log("Guardando en compuesto_utensilio:", {
+                id_pedido,
+                id_utensilio: newUtensilio.id_utensilio,
+                cantidad_pedida: cantidad_utensilio,
+            });
+
+            const compuestoUtensilio = compuestoUtensilioRepository.create({
+                id_pedido,
+                id_utensilio: newUtensilio.id_utensilio,
+                cantidad_pedida: cantidad_utensilio,
+            });
+
+            // Validar antes de guardar
+            if (!compuestoUtensilio.id_pedido || !compuestoUtensilio.id_utensilio) {
+                throw new Error(
+                    `Datos incompletos para compuesto_utensilio: ${JSON.stringify(compuestoUtensilio)}`
+                );
+            }
+
+            await compuestoUtensilioRepository.save(compuestoUtensilio);
+        } else {
+            console.warn(`id_pedido es nulo, no se guardará en compuesto_utensilio.`);
+        }
+
+        // Obtener el utensilio con todas las relaciones
+        const savedUtensilio = await utensilioRepository.findOne({
+            where: { id_utensilio: newUtensilio.id_utensilio },
+            relations: { tipo_utensilio: true },
+        });
+
+        return [savedUtensilio, null];
     } catch (error) {
         console.error("Error al crear el utensilio:", error);
         return [null, error.message];
     }
 }
+
 
 export async function getUtensiliosService() {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
