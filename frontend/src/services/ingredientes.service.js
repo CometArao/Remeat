@@ -30,7 +30,7 @@ export async function createIngrediente(data) {
                 'Pragma': 'no-cache', // Asegura compatibilidad
             },
         });
-        
+
         return response.data;
     } catch (error) {
         handleErrorResponse(error); // Maneja el error aquí
@@ -41,15 +41,21 @@ export async function createIngrediente(data) {
 export async function updateIngrediente(data, id) {
     try {
         const response = await axios.put(`/ingredientes/${id}`, data, {
-            headers: { 'Cache-Control': 'no-cache', // Desactiva el uso de caché
-                        'Pragma': 'no-cache',       // Asegura compatibilidad
-             },
+            headers: {
+                'Cache-Control': 'no-cache', // Desactiva el uso de caché
+                'Pragma': 'no-cache',       // Asegura compatibilidad
+            },
         });
 
         return response.data;
     } catch (error) {
-        handleErrorResponse(error); // Maneja el error aquí
-        return [];
+        if (error.response && error.response.data && error.response.data.message) {
+            // Captura el mensaje de error del backend
+            throw new Error(error.response.data.message);
+        } else {
+            handleErrorResponse(error); // Maneja el error aquí
+            return [];
+        }
     }
 }
 
@@ -58,9 +64,10 @@ export async function deleteIngrediente(id_ingrediente) {
         if (!id_ingrediente) throw new Error('ID no válida para eliminar el ingrediente.');
 
         const response = await axios.delete(`/ingredientes/${id_ingrediente}`, {
-            headers: { 'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache',
-             },
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+            },
         });
         return response.data;
     } catch (error) {
@@ -81,11 +88,16 @@ export async function getTiposIngrediente() {
 
 export async function createTipoIngrediente(data) {
     try {
-        const response = await axios.post('/ingredientes/tipo/', data, );
+        const response = await axios.post('/ingredientes/tipo/', data,);
         return response.data;
     } catch (error) {
-        handleErrorResponse(error); // Maneja el error aquí
-        return [];
+        if (error.response && error.response.data && error.response.data.message) {
+            // Captura el mensaje de error del backend
+            throw new Error(error.response.data.message);
+        } else {
+            handleErrorResponse(error); // Maneja el error aquí
+            return [];
+        }
     }
 }
 
@@ -93,9 +105,34 @@ export async function createTipoIngrediente(data) {
 export async function updateTipoIngrediente(data, id) {
     try {
         const response = await axios.patch(`/ingredientes/tipo/${id}`, data, {
-            headers: { 'Cache-Control': 'no-cache',
-                        'Pragma': 'no-cache',
-             },
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response && error.response.data && error.response.data.message) {
+            // Captura el mensaje de error del backend
+            throw new Error(error.response.data.message);
+        } else {
+            handleErrorResponse(error); // Maneja el error aquí
+            return [];
+        }
+    }
+}
+
+
+export async function deleteTipoIngrediente(id) {
+    try {
+        if (!id) throw new Error('ID no válida para eliminar el tipo de ingrediente.');
+
+        // Envía la solicitud DELETE con encabezados mínimos
+        const response = await axios.delete(`/ingredientes/tipo/${id}`, {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+            }, // Evita el uso de caché
         });
         return response.data;
     } catch (error) {
@@ -104,21 +141,3 @@ export async function updateTipoIngrediente(data, id) {
     }
 }
 
-
-export async function deleteTipoIngrediente(id) {
-    try {
-      if (!id) throw new Error('ID no válida para eliminar el tipo de ingrediente.');
-  
-      // Envía la solicitud DELETE con encabezados mínimos
-      const response = await axios.delete(`/ingredientes/tipo/${id}`, {
-        headers: { 'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
-         }, // Evita el uso de caché
-      });
-      return response.data;
-    } catch (error) {
-        handleErrorResponse(error); // Maneja el error aquí
-        return [];
-    }
-  }
-  

@@ -22,8 +22,8 @@ const useCreateTipoIngrediente = (setTiposIngrediente) => {
                 setTiposIngrediente((prevArray) => [...prevArray, createdTipoIngrediente.data]);
                 setDataTipoIngrediente([]); // Limpia los datos temporales
             } catch (error) {
-                console.error('Error al crear el tipo de ingrediente:', error);
-                showErrorAlert('Error', 'Ocurrió un error al crear el tipo de ingrediente.');
+               // Muestra el mensaje del backend en la alerta
+               showErrorAlert('Error', error.message || 'Ocurrió un error al crear el tipo de ingrediente.');
             }
         }
     };

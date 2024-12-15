@@ -33,7 +33,7 @@ export async function createTipoIngredienteController(req, res) {
     ({ nombre_tipo_ingrediente, cantidad_alerta_tipo_ingrediente, id_unidad_medida });
 
     if (errorTipoIngrediente) {
-      return handleErrorClient(res, 404, "Error creando tipo de ingrediente", errorTipoIngrediente);
+      return handleErrorClient(res, 400, errorTipoIngrediente);
     }
     handleSuccess(res, 201, "Tipo de ingrediente creado exitosamente", newTipoIngrediente);
   } catch (error) {
@@ -90,7 +90,7 @@ export async function updateTipoIngredienteController(req, res) {
     const [updatedTipoIngrediente, errorTipoIngrediente] = await updateTipoIngredienteService
     (id_tipo_ingrediente, { nombre_tipo_ingrediente, cantidad_alerta_tipo_ingrediente, id_unidad_medida });
     if (errorTipoIngrediente) {
-      return handleErrorClient(res, 404, "Error actualizando tipo de ingrediente", errorTipoIngrediente);
+      return handleErrorClient(res, 400, errorTipoIngrediente);
     }
 
     handleSuccess(res, 200, "Tipo de ingrediente actualizado exitosamente", updatedTipoIngrediente);

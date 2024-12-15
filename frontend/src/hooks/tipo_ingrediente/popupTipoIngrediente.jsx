@@ -3,10 +3,11 @@ import '@styles/popup.css';
 import CloseIcon from '@assets/XIcon.svg';
 
 export default function PopupTipoIngrediente({ show, setShow, data, action, unidadesMedida = [], isEdit }) {
+    // Obtener los datos del tipo de ingrediente o inicializar un objeto vacío
     const tipoIngredienteData = data && data.length > 0 ? data[0] : {};
 
     const handleSubmit = (formData) => {
-        action(formData);
+        action(formData); // Llama a la acción correspondiente (crear o editar)
     };
 
     return (
@@ -14,9 +15,11 @@ export default function PopupTipoIngrediente({ show, setShow, data, action, unid
             {show && (
                 <div className="bg">
                     <div className="popup">
+                        {/* Botón para cerrar el popup */}
                         <button className="close" onClick={() => setShow(false)}>
                             <img src={CloseIcon} alt="Cerrar" />
                         </button>
+                        {/* Formulario dinámico según si es creación o edición */}
                         <Form
                             title={isEdit ? "Editar Tipo Ingrediente" : "Crear Tipo Ingrediente"}
                             fields={[
