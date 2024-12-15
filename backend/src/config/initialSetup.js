@@ -15,11 +15,12 @@ async function createUsers() {
     await Promise.all([
       usuarioRepository.save(
         usuarioRepository.create({
-          nombre_usuario: "admin",
-          apellido_usuario: "master",
-          correo_usuario: "cometarao@gmail.com",
+          nombre_usuario: "Juan Pablo",
+          apellido_usuario: "Rosas",
+          correo_usuario: "juanrosas@gmail.com",
           contrasena_usuario: await encryptPassword("admin1234"),
           rol_usuario: "administrador",
+          id_horario_laboral: 2,
         }),
       )
     ]);

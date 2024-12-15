@@ -3,6 +3,8 @@ import User from "../entity/usuario.entity.js";
 import Horario_laboral from "../entity/horario_laboral.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { comparePassword, encryptPassword } from "../helpers/bcrypt.helper.js";
+import { addTokenToBlacklist } from "../utils/tokenBlacklist.js";
+
 
 // Crear un nuevo usuario
 export async function createUserService(data) {
@@ -15,8 +17,6 @@ export async function createUserService(data) {
         });
 
         if (existingUser) return [null,"Ya existe un usuario con ese correo electrónico"];
-
-        data.id_horario_laboral = 12;
 
         if (!data.contrasena_usuario || data.contrasena_usuario.trim() === "") {
             return [null, "La contraseña es obligatoria"];
@@ -78,9 +78,22 @@ export async function getUsersService() {
    }
 }
 
-export async function updateUserService(query, body) {
+export async function updateUserService(query, body, user) {
     try {
         const { id_usuario } = query;
+
+        // Comprobar si el usuario autenticado está modificando sus propios datos
+        const isSelfUpdate =
+            user.id_usuario === id_usuario &&
+            (
+                (body.correo_usuario && body.correo_usuario !== user.correo_usuario) || 
+                (body.rol_usuario && body.rol_usuario !== user.rol_usuario)
+            );
+
+        if (isSelfUpdate) {
+            console.log("Invalidando token para usuario:", user.id_usuario);
+            addTokenToBlacklist(user.token); // Invalida el token actual
+        }
 
         const userRepository = AppDataSource.getRepository(User);
         const horarioLaboralRepository = AppDataSource.getRepository(Horario_laboral);
@@ -88,7 +101,7 @@ export async function updateUserService(query, body) {
         // Buscar el usuario por ID
         const userFound = await userRepository.findOne({
             where: { id_usuario },
-            relations: ["horario_laboral"], // Incluir relaciones
+            relations: ["horario_laboral"],
         });
 
         if (!userFound) return [null, "Usuario no encontrado"];
@@ -114,9 +127,7 @@ export async function updateUserService(query, body) {
                 return [null, "El horario laboral especificado no existe."];
             }
 
-            userFound.horario_laboral = horarioLaboral; // Actualizar la relación
-        } else {
-            userFound.horario_laboral = null; // Permitir desvincular el horario laboral
+            userFound.horario_laboral = horarioLaboral;
         }
 
         // Actualizar los demás campos
@@ -132,7 +143,8 @@ export async function updateUserService(query, body) {
             userFound.contrasena_usuario = await encryptPassword(body.newPassword);
         }
 
-        await userRepository.save(userFound); // Guarda los cambios
+        // Guardar cambios si hay actualizaciones
+        await userRepository.save(userFound);
 
         // Excluir la contraseña del objeto retornado
         const { contrasena_usuario, ...userUpdated } = userFound;
@@ -143,6 +155,9 @@ export async function updateUserService(query, body) {
         return [null, "Error interno del servidor"];
     }
 }
+
+
+
 
 
 export async function updateUserPasswordService(query, newPassword) {

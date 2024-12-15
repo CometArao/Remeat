@@ -1,5 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import axios from 'axios'; // Importa Axios
+import { logout } from '@services/auth.service.js'; // Importa el método logout
 import Login from '@pages/Login';
 import Home from '@pages/Home';
 import Users from '@pages/Users';
@@ -34,6 +36,25 @@ import HorariosLaborales from './pages/HorariosLaborales';
 import CrearHorarios from './pages/CrearHorarios';
 import ModificarHorario from './pages/ModificarHorario.jsx';
 import FueraHorario from './pages/FueraHorario.jsx';
+
+axios.interceptors.response.use(
+  (response) => {
+      // Detectar encabezado especial y redirigir al usuario si el token fue invalidado
+      if (response.headers["token-invalidated"] === "true") {
+          logout(); // Cierra sesión
+          window.location.href = "/auth"; // Redirigir al login
+      }
+      return response;
+  },
+  async (error) => {
+      // Redirigir si la respuesta es un 401
+      if (error.response?.status === 401) {
+          await logout(); // Cierra sesión
+          window.location.href = "/auth"; // Redirigir al login
+      }
+      return Promise.reject(error);
+  }
+);
 
 
 const router = createBrowserRouter([
