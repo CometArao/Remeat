@@ -111,6 +111,7 @@ export async function addPlatilloToComandaController(req, res) {
 
   const comandaId = req.params.id;
   try {
+    console.log("Hola")
     const addedPlatillo = await addPlatilloToComanda(comandaId, req.body);
     handleSuccess(res, 201, 'Platillo añadido a la comanda', addedPlatillo);
   } catch (error) {
