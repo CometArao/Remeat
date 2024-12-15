@@ -10,6 +10,7 @@ import {
 } from "../services/pedido.service.js";
 
 import { createIngredienteService } from "../services/ingrediente.service.js";
+import { createUtensilioService } from "../services/utensilio.service.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import { pedidoValidation } from "../validations/pedido.validation.js";
 import { sendEmail } from "../config/mailer.js";
@@ -92,7 +93,6 @@ export async function createPedido(req, res) {
         handleErrorServer(res, 500, error.message);
     }
 }
-
 
 
 // Función auxiliar para enviar correo al proveedor
@@ -244,19 +244,18 @@ export async function confirmarPedidoController(req, res) {
 
     try {
         console.log("Pedido: ", id)
+
         const pedidoRepository = AppDataSource.getRepository(Pedido);
         const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
         const utensilioRepository = AppDataSource.getRepository(Utensilio);
-        const tipoIngredienteRepository = AppDataSource.getRepository(tipoIngrediente);
-        const tipoUtensilioRepository = AppDataSource.getRepository(tipoUtensilio);
+        const compuestoIngredienteRepository = AppDataSource.getRepository(compuestoIngrediente);
+        const compuestoUtensilioRepository = AppDataSource.getRepository(compuestoUtensilio);
 
         // Obtener el pedido con sus relaciones
         const pedido = await pedidoRepository.findOne({
             where: { id_pedido: id },
-            relations: ["compuestoIngredientes"], // Asegúrate de incluir las relaciones necesarias
+            relations: ["compuestoIngredientes", "compuestoUtensilios"],
         });
-
-        console.log(pedido)
        
         if (!pedido) {
             return handleErrorClient(res, 404, "Pedido no encontrado.");
@@ -271,22 +270,21 @@ export async function confirmarPedidoController(req, res) {
             // Obtener el ingrediente con sus relaciones
             const ingredienteOriginal = await ingredienteRepository.findOne({
                 where: { id_ingrediente: compuestoIngrediente.id_ingrediente },
-                relations: ["tipo_ingrediente"], // Asegúrate de incluir las relaciones necesarias
+                relations: ["tipo_ingrediente"],
             });
 
             if (!ingredienteOriginal) {
                 throw new Error(`Ingrediente con ID ${compIngrediente.id_ingrediente} no encontrado.`);
             }
 
-            console.log("Ingrediente Original:", ingredienteOriginal);
-
+            // Se crea el ingrediente
             const [newIngrediente, errorIngrediente] = await createIngredienteService({
                 fecha_vencimiento: new Date(new Date().setDate(new Date().getDate() + 21)), // Fecha 3 semanas más
                 cantidad_ingrediente: compIngrediente.cantidad_pedida,
                 cantidad_original_ingrediente: compIngrediente.cantidad_pedida,
                 costo_ingrediente: ingredienteOriginal.costo_ingrediente,
                 id_tipo_ingrediente: ingredienteOriginal.tipo_ingrediente.id_tipo_ingrediente, 
-                id_pedido: null // Relación con el pedido
+                id_pedido: null
             });
 
             if (errorIngrediente) {
@@ -301,33 +299,38 @@ export async function confirmarPedidoController(req, res) {
         console.log("Ingredientes creados:", ingredientesResult);
 
         
-        /*
-        // Procesar utensilios (similar a ingredientes si es necesario)
-        const utensiliosPromises = pedido.utensilios.map(async (utensilio) => {
-            const { id_utensilio, cantidad_utensilio, costo_utensilio } = utensilio;
+        
+        
 
-            const [newUtensilio, errorUtensilio] = await createUtensilioService({
-                cantidad_utensilio,
-                costo_utensilio,
-                id_tipo_utensilio: id_utensilio,
-                id_pedido: id,
+        // Procesar utensilios
+        const utensiliosPromises = pedido.compuestoUtensilios.map(async (compUtensilio) => {
+            // Obtener el ingrediente con sus relaciones
+            const utensilioOriginal = await utensilioRepository.findOne({
+                where: { id_utensilio: compuestoUtensilio.id_utensilio },
+                relations: ["tipo_utensilio"],
             });
 
+            if (!utensilioOriginal) {
+                throw new Error(`Ingrediente con ID ${compUtensilio.id_utensilio} no encontrado.`);
+            }
+
+            const [newUtensilio, errorUtensilio] = await createUtensilioService({
+                cantidad_utensilio: compUtensilio.cantidad_pedida,
+                costo_utensilio: utensilioOriginal.costo_utensilio,
+                id_tipo_utensilio: utensilioOriginal.id_tipo_utensilio,
+                id_pedido: null,
+            });
+        
             if (errorUtensilio) {
                 console.error(`Error creando utensilio para el pedido ${id}:`, errorUtensilio);
                 throw new Error(`Error creando utensilio: ${errorUtensilio}`);
             }
-
+        
             return newUtensilio;
         });
 
-        const utensiliosResult = await Promise.all(utensiliosPromises).catch((error) => {
-            console.error("Error procesando utensilios:", error.message);
-            throw new Error("Error procesando los utensilios del pedido.");
-        });
-
+        const utensiliosResult = await Promise.all(utensiliosPromises);
         console.log("Utensilios creados:", utensiliosResult);
-*/
         // Cambiar el estado del pedido a "Ingresado" utilizando el servicio
         const [pedidoActualizado, errorEstado] = await updateEstadoPedidoService(id, "Ingresado");
 
