@@ -1,12 +1,12 @@
 "use strict";
 import { AppDataSource } from "../config/configDb.js";
+import { getSocketInstance } from "../services/socket.js";
 import Platillo from "../entity/platillo.entity.js";
 import Usuario from "../entity/usuario.entity.js";
 import TipoIngrediente from "../entity/tipo_ingrediente.entity.js";
 import ComponePlatillo from "../entity/compuesto_platillo.entity.js";
 import ConformaComanda from "../entity/conforma_comanda.entity.js";
 import Ingrediente from "../entity/ingrediente.entity.js";
-import { isAfter } from "date-fns";
 
 export async function createPlatilloService(data, userId) {
     const platilloRepository = AppDataSource.getRepository(Platillo);
@@ -488,7 +488,7 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
 }
 
   
-  export async function confirmarPlatilloService(id_platillo, id_comanda, nuevo_estado) {
+  export async function confirmarPlatilloService(id_platillo, id_comanda, nuevo_estado, io) {
     const conformaRepository = AppDataSource.getRepository(ConformaComanda);
   
     try {
@@ -538,6 +538,20 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
       await conformaRepository.save(conformaPlatillo);
       
       console.log("conformaPlatillo3", conformaPlatillo);
+
+
+      const io = getSocketInstance();
+ 
+
+        // Emitir evento de notificación al cliente
+    if (nuevo_estado === "preparado") {
+        io.emit("platillo-preparado", {
+          id_comanda,
+          id_platillo,
+          nuevo_estado,
+          mensaje: `El platillo con ID ${id_platillo} ahora está en estado "preparado".`,
+        });
+      }
   
       return [conformaPlatillo, null];
     } catch (error) {
