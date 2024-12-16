@@ -1,18 +1,18 @@
 import React from 'react';
 import useCompleteComanda from '../../hooks/comandas/useCompleteComanda';
+import { completeComandaAlert, showSuccessAlert, showErrorAlert } from '../../helpers/sweetAlert';
 
 const CompleteComandaButton = ({ comandaId, onComplete }) => {
   const { complete, loading } = useCompleteComanda();
 
   const handleComplete = async () => {
-    if (window.confirm(`¿Estás seguro de completar la comanda ID: ${comandaId}?`)) {
+    const result = await completeComandaAlert();
+    if (result.isConfirmed) {
       try {
         await complete(comandaId);
-        if (onComplete) {
-          onComplete(comandaId); // Notifica al padre para actualizar la lista
-        }
-        alert('¡Comanda completada exitosamente!');
+        showSuccessAlert('¡Comanda Completada!', 'La comanda ha sido completada exitosamente.');
       } catch (err) {
+        showErrorAlert('Error', 'No se pudo completar la comanda.');
         console.error('Error al completar la comanda:', err);
       }
     }

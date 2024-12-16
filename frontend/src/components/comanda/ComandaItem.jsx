@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import DeleteComanda from './DeleteComanda';
 import AddPlatilloForm from './AddPlatilloForm';
 import CompleteComandaButton from './CompleteComandaButton';
-import EditComandaForm from './EditComandaForm'; 
 
-const ComandaItem = ({ comanda, onDelete, onComplete, onEditComplete }) => {
+
+const ComandaItem = ({ comanda, onDelete, onComplete }) => {
   const [showAddPlatillo, setShowAddPlatillo] = useState(false);
-  const [showEditForm, setShowEditForm] = useState(false); 
+
 
   return (
     <div className="comanda-item">
@@ -21,21 +21,7 @@ const ComandaItem = ({ comanda, onDelete, onComplete, onEditComplete }) => {
       {/* Botón para completar */}
       <CompleteComandaButton comandaId={comanda.id_comanda} onComplete={onComplete} />
       
-      {/* Botón para editar */}
-      <button onClick={() => setShowEditForm(!showEditForm)}>
-        {showEditForm ? 'Cancelar Edición' : 'Editar Comanda'}
-      </button>
-
-      {/* Mostrar formulario de edición si está habilitado */}
-      {showEditForm && (
-        <EditComandaForm
-          comanda={comanda}
-          onEditComplete={() => {
-            setShowEditForm(false); // Oculta el formulario tras editar
-            if (onEditComplete) onEditComplete();
-          }}
-        />
-      )}
+     
 
       {/* Botón para añadir platillo */}
       <button onClick={() => setShowAddPlatillo(!showAddPlatillo)}>

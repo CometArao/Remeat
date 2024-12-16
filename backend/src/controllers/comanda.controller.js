@@ -2,7 +2,6 @@
 import {
   createComanda,
   getComandaById,
-  updateComanda,
   deleteComanda,
   completeComanda,
   getAllComandas,
@@ -18,10 +17,10 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers
 import {
   createComandaValidation,
   addPlatilloToComandaValidation,
-  updateComandaValidation
+ 
 } from '../validations/comanda.validation.js';
 
-
+import { sendNotification } from '../services/socket.js';
 
 
 
@@ -111,7 +110,6 @@ export async function addPlatilloToComandaController(req, res) {
 
   const comandaId = req.params.id;
   try {
-    console.log("Hola")
     const addedPlatillo = await addPlatilloToComanda(comandaId, req.body);
     handleSuccess(res, 201, 'Platillo añadido a la comanda', addedPlatillo);
   } catch (error) {
@@ -130,16 +128,44 @@ export async function addPlatilloToComandaController(req, res) {
 
 export async function createComandaController(req, res) {
   try {
-    // Suponiendo que `req.user` contiene el usuario logueado
-    const loggedUser = req.user;
-    console.log(loggedUser);
+   
+    console.log('Datos recibidos:', req.body);
 
-    const newComanda = await createComanda(loggedUser);
-    handleSuccess(res, 201, 'Comanda creada', newComanda);
+
+    const loggedUser = req.user;
+    const platilloData = req.body.platillo;
+
+    if (!platilloData || !platilloData.nombre_platillo || !platilloData.cantidad) {
+      return res.status(400).json({ 
+        status: 'Error', 
+        message: 'Debe proporcionar un nombre y cantidad para el platillo.' 
+      });
+    }
+
+    console.log('Datos recibidos:', platilloData);
+
+    const newComanda = await createComanda(loggedUser, platilloData);
+
+    sendNotification('nueva-comanda', {
+      id_comanda: newComanda.id_comanda,
+      fecha: newComanda.fecha_compra_comanda,
+      hora: newComanda.hora_compra_comanda,
+      estado: newComanda.estado_comanda,
+  });
+   
+
+
+    res.status(201).json({
+      status: 'Success',
+      message: 'Comanda creada con éxito.',
+      data: newComanda,
+    });
   } catch (error) {
-    handleErrorServer(res, 500, error.message);
+    console.error('Error en createComandaController:', error.message);
+    res.status(500).json({ status: 'Error', message: error.message });
   }
 }
+
 
 
 
@@ -171,18 +197,7 @@ export async function getComandaByIdController(req, res) {
 
 
 
-export async function updateComandaController(req, res) {
-  const { error } = updateComandaValidation.validate(req.body);
-  if (error) return handleErrorClient(res, 400, error.details[0].message);
 
-  const comandaId = req.params.id;
-  try {
-    const updatedComanda = await updateComanda(comandaId, req.body);
-    handleSuccess(res, 200, 'Comanda actualizada', updatedComanda);
-  } catch (error) {
-    handleErrorClient(res, 400, error.message);
-  }
-}
 
 
 export async function deleteComandaController(req, res) {

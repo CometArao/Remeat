@@ -37,7 +37,7 @@ async function verificarHorarioLaboral(idUsuario) {
 
   // Obtener la fecha actual en UTC
   const fechaActual = new Date(Date.now());
-  console.log("Hora original del servidor (UTC):", fechaActual.toISOString());
+  //console.log("Hora original del servidor (UTC):", fechaActual.toISOString());
 
   // Restar manualmente 3 horas para reflejar el desfase horario
   fechaActual.setUTCHours(fechaActual.getUTCHours() - 3);
@@ -45,13 +45,13 @@ async function verificarHorarioLaboral(idUsuario) {
   // Formatear la hora ajustada (-3 horas) en formato HH:mm:ss
   const horaAjustadaISO = fechaActual.toISOString(); // Formato ISO ajustado
   const horaAjustada = horaAjustadaISO.split("T")[1].split(".")[0]; // Extrae HH:mm:ss
-  console.log("Hora ajustada manualmente (-3 horas):", horaAjustada);
+  //console.log("Hora ajustada manualmente (-3 horas):", horaAjustada);
 
   // Obtener el día de la semana en UTC después del ajuste de -3 horas
   const diasSemana = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
   const diaSemanaAjustado = diasSemana[fechaActual.getUTCDay()]; // Día ajustado
   const diaNormalizado = normalizarTexto(diaSemanaAjustado); // Normalizar para evitar problemas con tildes
-  console.log("Día de la semana (ajustado y normalizado):", diaNormalizado);
+  //console.log("Día de la semana (ajustado y normalizado):", diaNormalizado);
 
   // Buscar el horario del día correspondiente dentro del horario laboral del usuario
   const horarioDia = usuario.horario_laboral.horario_dia.find(
@@ -62,17 +62,18 @@ async function verificarHorarioLaboral(idUsuario) {
     throw new Error(`No hay horario laboral configurado para el día: ${diaSemanaAjustado}.`);
   }
 
-  console.log("Horario laboral del día encontrado:", horarioDia);
+  //console.log("Horario laboral del día encontrado:", horarioDia);
 
   // Verificar si la hora ajustada está dentro del rango de inicio y fin del horario laboral
   if (horaAjustada >= horarioDia.hora_inicio && horaAjustada <= horarioDia.hora_fin) {
-    console.log("El usuario está dentro del horario laboral.");
+    //console.log("El usuario está dentro del horario laboral.");
     return true; // Está dentro del horario laboral
   }
 
-  console.log(
+  /*console.log(
     `El usuario está fuera del horario laboral (${horaAjustada} fuera de ${horarioDia.hora_inicio} - ${horarioDia.hora_fin}).`
   );
+  */
   throw new Error(
     `El usuario no está en su horario laboral (${horaAjustada} fuera de ${horarioDia.hora_inicio} - ${horarioDia.hora_fin}).`
   );
@@ -205,7 +206,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   // Si no hay menú para hoy, obtener el menú más cercano anterior
   if (!menu) {
     menu = await menuRepository.createQueryBuilder("menu")
-      .where("menu.fecha >= :currentDate", { currentDate })
+      .where("menu.fecha <= :currentDate", { currentDate })
       .andWhere("menu.disponibilidad = true")
       .orderBy("menu.fecha", "DESC")
       .leftJoinAndSelect("menu.platillo", "platillo")
@@ -244,10 +245,11 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
 
 
-export async function createComanda(loggedUser) {
-  
+export async function createComanda(loggedUser, platilloData) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
+
+  console.log('Datos del platillo en createComanda:', platilloData); // Log para depurar
 
   // Buscar al usuario logueado en la base de datos
   const usuario = await usuarioRepository.findOne({
@@ -262,15 +264,11 @@ export async function createComanda(loggedUser) {
   if (usuario.rol_usuario !== "mesero") {
     throw new Error("Solo el rol 'mesero' tiene permiso para crear comandas.");
   }
- 
-  await verificarHorarioLaboral(loggedUser.id_usuario);
 
   // Obtener la fecha y hora actuales
   const fechaActual = new Date();
   const fechaCompra = fechaActual.toISOString().split("T")[0]; // YYYY-MM-DD
   const horaCompra = fechaActual.toTimeString().split(" ")[0]; // HH:MM:SS
-
- 
 
   // Crear la comanda con los valores dinámicos
   const nuevaComanda = comandaRepository.create({
@@ -280,11 +278,17 @@ export async function createComanda(loggedUser) {
     hora_compra_comanda: horaCompra,
   });
 
-  // Guardar la comanda en la base de datos
-  await comandaRepository.save(nuevaComanda);
+  // Guardar la comanda
+  const savedComanda = await comandaRepository.save(nuevaComanda);
 
-  return nuevaComanda;
+  console.log('Comanda guardada:', savedComanda);
+
+  // Añadir el platillo a la comanda usando la función existente
+  await addPlatilloToComanda(savedComanda.id_comanda, platilloData);
+
+  return savedComanda;
 }
+
 
 
 
@@ -378,39 +382,7 @@ export async function getComandaById(comandaId) {
 }
 
 
-export async function updateComanda(comandaId, data) {
-  const comandaRepository = AppDataSource.getRepository(Comanda);
-  const comanda = await comandaRepository.findOne({
-    where: { id_comanda: comandaId },
-    relations: ["usuario"] // Relación con usuario
-  });
 
-  if (!comanda) throw new Error("Comanda no encontrada.");
-
-  // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
-
-  if (comanda.estado_comanda !== "pendiente") {
-    throw new Error("La comanda no se puede modificar porque ya está completada o en otro estado.");
-  }
-
-  if (data.id_usuario && data.id_usuario !== comanda.usuario.id_usuario) {
-    throw new Error("No se permite cambiar el ID del usuario asociado a la comanda.");
-  }
-
-  if (data.id_comanda && data.id_comanda !== comandaId) {
-    throw new Error("No se permite cambiar el ID de la comanda.");
-  }
-
-  Object.assign(comanda, {
-    estado_comanda: data.estado_comanda || comanda.estado_comanda,
-    fecha_compra_comanda: data.fecha_compra_comanda || comanda.fecha_compra_comanda,
-    hora_compra_comanda: data.hora_compra_comanda || comanda.hora_compra_comanda,
-  });
-
-  await comandaRepository.save(comanda);
-  return comanda;
-}
 
 
 export async function deleteComanda(comandaId) {
