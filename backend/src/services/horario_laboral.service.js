@@ -5,6 +5,8 @@ import horario_dia from "../entity/horario_dia.entity.js";
 import Usuario from "../entity/usuario.entity.js";
 
 export async function createHorarioLaboralService(data) {
+  console.log("Datos recibidos en el servicio:", data);
+
   const horarioLaboralRepository = AppDataSource.getRepository(horario_laboral);
   const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
 
@@ -20,41 +22,44 @@ export async function createHorarioLaboralService(data) {
       throw new Error("Debes agregar al menos un horario de día.");
     }
 
-    // Validar días y horas
-    const diasSemanaValidos = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
-    const formattedHorariosDia = horario_dia.map((horario) => {
-      const dia = horario.dia_semana.toLowerCase(); // Convertir a minúsculas para consistencia
-      if (!diasSemanaValidos.includes(dia)) {
-        throw new Error(`El día '${horario.dia_semana}' no es válido.`);
-      }
-
-      if (horario.hora_inicio >= horario.hora_fin) {
-        throw new Error(
-          `La hora de inicio (${horario.hora_inicio}) debe ser menor que la hora de fin (${horario.hora_fin}) para el día ${horario.dia_semana}.`
-        );
-      }
-
-      return {
-        ...horario,
-        dia_semana: dia,
-      };
-    });
-
     // Crear el horario laboral
     const newHorarioLaboral = horarioLaboralRepository.create({ descripcion });
     const savedHorarioLaboral = await horarioLaboralRepository.save(newHorarioLaboral);
 
-    // Crear los horarios de día asociados
-    const horariosDiaData = formattedHorariosDia.map((horario) => ({
-      ...horario,
-      horario_laboral: savedHorarioLaboral, // Asociar al horario laboral
-    }));
+    const diasSemanaValidos = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+    const horariosDiaAsociados = [];
 
-    // Guarda todos los horarios de día en una sola operación
-    const savedHorariosDia = await horarioDiaRepository.save(horariosDiaData);
+    // Iterar sobre cada horario_dia y crearlo sin validación previa
+    for (const horario of horario_dia) {
+      const dia = horario.dia_semana.toLowerCase();
 
-    // Evitar referencia circular eliminando `horario_laboral` de cada horario_dia
-    const sanitizedHorariosDia = savedHorariosDia.map(({ horario_laboral, ...rest }) => rest);
+      // Validación de día de la semana
+      if (!diasSemanaValidos.includes(dia)) {
+        throw new Error(`El día '${horario.dia_semana}' no es válido.`);
+      }
+
+      // Validación de hora
+      if (horario.hora_inicio >= horario.hora_fin) {
+        throw new Error(
+          `La hora de inicio (${horario.hora_inicio}) debe ser menor que la hora de fin (${horario.hora_fin}) 
+          para el día ${horario.dia_semana}.`
+        );
+      }
+
+      // Crear el horario_dia directamente
+      const newHorarioDia = horarioDiaRepository.create({
+        hora_inicio: horario.hora_inicio,
+        hora_fin: horario.hora_fin,
+        dia_semana: dia,
+        horario_laboral: savedHorarioLaboral, // Asociar al horario laboral
+      });
+
+      await horarioDiaRepository.save(newHorarioDia);
+      horariosDiaAsociados.push(newHorarioDia);
+    }
+
+    // Evitar referencia circular
+    const sanitizedHorariosDia = horariosDiaAsociados.map(({ horario_laboral, ...rest }) => rest);
 
     return [
       {
@@ -193,8 +198,6 @@ export async function updateHorarioLaboralService(id, data) {
     return [null, error.message];
   }
 }
-
-
 
 
 export async function deleteHorarioLaboralService(id) {
