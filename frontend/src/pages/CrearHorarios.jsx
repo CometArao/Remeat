@@ -72,33 +72,43 @@ const CrearHorarios = ({ data = null, isEdit = false, actionCallback }) => {
     e.preventDefault();
 
     if (!horarioLaboral.descripcion) {
-      showErrorAlert("Error", "La descripción del horario laboral es obligatoria.");
-      return;
+        showErrorAlert("Error", "La descripción del horario laboral es obligatoria.");
+        return;
     }
 
     if (horarioLaboral.horariosDia.length === 0) {
-      showErrorAlert("Error", "Debes agregar al menos un horario de día.");
-      return;
+        showErrorAlert("Error", "Debes agregar al menos un horario de día.");
+        return;
     }
+
+    const payload = {
+        descripcion: horarioLaboral.descripcion,
+        horario_dia: horarioLaboral.horariosDia.map((dia) => ({
+            dia_semana: dia.dia_semana,
+            hora_inicio: dia.hora_inicio,
+            hora_fin: dia.hora_fin,
+        })),
+    };
+
+    console.log("Payload enviado al servidor:", payload);
 
     try {
-      if (isEdit) {
-        // Actualizar horario laboral
-        await updateHorarioLaboral(data.id_horario_laboral, horarioLaboral);
-        showSuccessAlert("¡Éxito!", "Horario laboral actualizado correctamente.");
-      } else {
-        // Crear horario laboral
-        await createHorarioLaboral(horarioLaboral);
-        showSuccessAlert("¡Éxito!", "Horario laboral creado correctamente.");
-      }
+        if (isEdit) {
+            await updateHorarioLaboral(data.id_horario_laboral, payload);
+            showSuccessAlert("¡Éxito!", "Horario laboral actualizado correctamente.");
+        } else {
+            await createHorarioLaboral(payload);
+            showSuccessAlert("¡Éxito!", "Horario laboral creado correctamente.");
+        }
 
-      if (actionCallback) actionCallback();
-      navigate("/horarios_laborales");
+        if (actionCallback) actionCallback();
+        navigate("/horarios_laborales");
     } catch (error) {
-      console.error("Error al guardar horario laboral:", error);
-      showErrorAlert("Error", error.message || "Hubo un problema al guardar el horario laboral.");
+        console.error("Error al guardar horario laboral:", error);
+        showErrorAlert("Error", error.message || "Hubo un problema al guardar el horario laboral.");
     }
-  };
+};
+
 
   return (
     <div className="crear-horarios-container">

@@ -121,6 +121,7 @@ export const userBodyValidation = Joi.object({
          }),
      id_horario_laboral: Joi.number() // Agregar validación para el ID del horario laboral
           .integer()
+          .required()
           .positive()
           .messages({
               "number.base": "El ID del horario laboral debe ser un número.",

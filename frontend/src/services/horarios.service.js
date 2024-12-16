@@ -22,13 +22,13 @@ export async function getHorarioLaboralById(id) {
 
 export async function createHorarioLaboral(horarioLaboral) {
     try {
-        const { data } = await axios.post("/horarios-laborales", horarioLaboral);
-        return data;
+      const { data } = await axios.post('/horarios-laborales', horarioLaboral);
+      return data;
     } catch (error) {
-        console.error("Error creando horario laboral:", error.response?.data || error.message);
-        throw error.response?.data || error.message;
+      console.error('Error creando horario laboral:', error);
+      throw error.response?.data || 'Error interno al crear el horario laboral.';
     }
-}
+  }
 
 export async function updateHorarioLaboral(id, horarioLaboral) {
     try {
