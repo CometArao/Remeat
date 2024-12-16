@@ -108,8 +108,137 @@ export function construirLinealPlatillosVentas(datos, time) {
     }
     return result;
 }
-export function construirLinealCosto(datos, time) {
+export function construirLinealCosto(platillos, time) {
     //TODO: primero arregla costos para que lea los platillos
+    console.log("datos")
+    console.log(platillos)
+    let x = null
+    let result = [];
+    //const keys = Object.keys(datos)
+    const colores = [
+        "hsl(308, 70%, 50%)",
+        "hsl(149, 70%, 50%)",
+        "hsl(63, 70%, 50%)",
+        "hsl(155, 70%, 50%)",
+        "hsl(200, 70%, 50%)"
+    ]
+    for (let i = 0; i < platillos.length; i++) {
+        console.log("data[i]")
+        console.log(platillos[i])
+        const platillo = platillos[i];
+        const comandas = platillo.comandas
+        console.log("comandas")
+        console.log(comandas)
+        for (let ii = 0; ii < comandas.length; ii++) {
+            const comanda = comandas[ii]
+            console.log("comanda")
+            console.log(comanda)
+            let indice_color = 0;
+            let formatedLineData = []
+            if (time === "Hora") {
+                x = comanda.hora_compra // TODO que hacer con las horas de mermas y pedidos
+            }
+            if (time === "Fecha") {
+                x = formatearFecha(comanda.fecha)
+            }
+            if (time === "Mes") {
+                x = comanda.fecha
+            }
+            if (time === "Año") {
+                x = comanda.fecha
+            }
+            const obj_point = {
+                "x": x,
+                "y": comanda.costo
+            }
+            formatedLineData.push(obj_point);
+            if (time === "Mes") {
+                formatedLineData = truncarMes(formatedLineData)
+            }
+            if (time === "Año") {
+                formatedLineData = truncarAño(formatedLineData)
+            }
+            const obj_line = {
+                "id": platillo.nombre_platillo,
+                "color": colores[indice_color],
+                "data": formatedLineData
+            }
+            indice_color++;
+            if (indice_color === colores.length) {
+                indice_color = 0;
+            }
+            result.push(obj_line);
+        }
+    }
+    console.log("Construir datos resultado")
+    console.log(result)
+    return result;
+}
+export function construirLinealUtilidades(platillos, time) {
+    //TODO: primero arregla costos para que lea los platillos
+    console.log("datos")
+    console.log(platillos)
+    let x = null
+    let result = [];
+    //const keys = Object.keys(datos)
+    const colores = [
+        "hsl(308, 70%, 50%)",
+        "hsl(149, 70%, 50%)",
+        "hsl(63, 70%, 50%)",
+        "hsl(155, 70%, 50%)",
+        "hsl(200, 70%, 50%)"
+    ]
+    for (let i = 0; i < platillos.length; i++) {
+        console.log("data[i]")
+        console.log(platillos[i])
+        const platillo = platillos[i];
+        const comandas = platillo.comandas
+        console.log("comandas")
+        console.log(comandas)
+        for (let ii = 0; ii < comandas.length; ii++) {
+            const comanda = comandas[ii]
+            console.log("comanda")
+            console.log(comanda)
+            let indice_color = 0;
+            let formatedLineData = []
+            if (time === "Hora") {
+                x = comanda.hora_compra 
+            }
+            if (time === "Fecha") {
+                x = formatearFecha(comanda.fecha)
+            }
+            if (time === "Mes") {
+                x = comanda.fecha
+            }
+            if (time === "Año") {
+                x = comanda.fecha
+            }
+            const obj_point = {
+                "x": x,
+                "y": comanda.utilidad
+            }
+            formatedLineData.push(obj_point);
+            if (time === "Mes") {
+                formatedLineData = truncarMes(formatedLineData)
+            }
+            if (time === "Año") {
+                formatedLineData = truncarAño(formatedLineData)
+            }
+            const obj_line = {
+                "id": platillo.nombre_platillo,
+                "color": colores[indice_color],
+                "data": formatedLineData
+            }
+            indice_color++;
+            if (indice_color === colores.length) {
+                indice_color = 0;
+            }
+            result.push(obj_line);
+        }
+    }
+    console.log("Construir datos resultado")
+    console.log(result)
+    return result;
 }
 export function construirLinealStockUtensilios(datos, time) {
     console.log("datos")
@@ -355,15 +484,15 @@ export function construirPlatillosMenuCircular(datos, time) {
             }
             result.push(itemCircular)
         }
-        if(time === "Año") {
+        if (time === "Año") {
             const today = new Date()
             const todayAño = today.getFullYear()
             let menuCount = 0;
-            for(let ii = 0; ii < platillo_menu.menu.length; ii++) {
+            for (let ii = 0; ii < platillo_menu.menu.length; ii++) {
                 const menu = platillo_menu.menu[ii];
                 const fecha_menu = new Date(menu.fecha)
                 const menuAño = fecha_menu.getFullYear()
-                if(menuAño === todayAño) {
+                if (menuAño === todayAño) {
                     menuCount++;
                 }
             }
@@ -375,17 +504,17 @@ export function construirPlatillosMenuCircular(datos, time) {
             }
             result.push(itemCircular)
         }
-        if(time === "Mes") {
+        if (time === "Mes") {
             const today = new Date()
             const todayAño = today.getFullYear()
             const todayMes = today.getMonth()
             let menuCount = 0;
-            for(let ii = 0; ii < platillo_menu.menu.length; ii++) {
+            for (let ii = 0; ii < platillo_menu.menu.length; ii++) {
                 const menu = platillo_menu.menu[ii];
                 const fecha_menu = new Date(menu.fecha)
                 const menuAño = fecha_menu.getFullYear()
                 const menuMes = fecha_menu.getMonth()
-                if(menuAño === todayAño && menuMes === todayMes) {
+                if (menuAño === todayAño && menuMes === todayMes) {
                     menuCount++;
                 }
             }
@@ -398,7 +527,7 @@ export function construirPlatillosMenuCircular(datos, time) {
             result.push(itemCircular)
 
         }
-        if(time === "Dia") {
+        if (time === "Dia") {
             let today = new Date()
             today = new Date() //TODO: como se ponia la fecha correcta
             console.log("today")
@@ -407,7 +536,7 @@ export function construirPlatillosMenuCircular(datos, time) {
             const todayMes = today.getMonth()
             const todayDia = today.getUTCDate()
             let menuCount = 0;
-            for(let ii = 0; ii < platillo_menu.menu.length; ii++) {
+            for (let ii = 0; ii < platillo_menu.menu.length; ii++) {
                 const menu = platillo_menu.menu[ii];
                 const fecha_menu = new Date(menu.fecha)
                 const menuAño = fecha_menu.getFullYear()
@@ -420,7 +549,7 @@ export function construirPlatillosMenuCircular(datos, time) {
                 console.log(menuDia === todayDia)
                 console.log(menuDia)
                 console.log(todayDia)
-                if(menuAño === todayAño && menuMes === todayMes && menuDia === todayDia) {
+                if (menuAño === todayAño && menuMes === todayMes && menuDia === todayDia) {
                     menuCount++;
                 }
             }
@@ -629,4 +758,17 @@ function getColor(i) {
     ]
     const color_index = i % colores.length;
     return colores[color_index]
+}
+
+export function idsCosto(ids) {
+    console.log("idsCosto")
+    console.log(ids)
+    const nuevasIds = [];
+    for (let i = 0; i < ids.length; i++) {
+        let id = ids[i];
+        id = id.split("_")
+        id = id[1]
+        nuevasIds.push(id);
+    }
+    return nuevasIds;
 }

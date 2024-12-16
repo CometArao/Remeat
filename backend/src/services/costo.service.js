@@ -21,7 +21,7 @@ import TipoIngrediente from "../entity/tipo_ingrediente.entity.js"
 export async function getCostosService(body) {
   const tipo_ingredienteRepositorio = AppDataSource.getRepository(TipoIngrediente)
   const tipo_utensilioRepositorio = AppDataSource.getRepository(TipoUtensilio)
-  const { ids_ti, ids_tu } = body;
+  const { ids_platillo, ids_tu } = body;
   const [comandas, errorComandas] = await ExtraerComandas();
   if (errorComandas) {
     return [null, "Error en extraer comandas"]
@@ -38,8 +38,18 @@ export async function getCostosService(body) {
   Test_descontarIngredientePedido()
   TestDescontarPedidos()
   let CostoComanda = costoFIFO(comandas, pedidos);
-  calcularCostoVentaDeComandasEnBaseAFiltro(ids_ti, CostoComanda)
-  calcularCostoMermasEnBaseAFiltro(mermas, ids_ti, ids_tu);
+  const [platillos, errorExtraerPlatillos] = await extraerPlatillos(ids_platillo)
+  if (errorExtraerPlatillos) {
+    console.log(errorExtraerPlatillos)
+    return
+  }
+  const [costo_platillo, errorCostoPlatillo] = calcularCostoPlatillo(platillos, CostoComanda, mermas)
+  //const [costos_platillo, errorCostoVentaComanda] = calcularCostoPlatilloEnBaseComanda(platillos, CostoComanda)
+  //if (errorCostoVentaComanda) {
+    //console.log(errorCostoVentaComanda)
+    //return
+  //}
+  //calcularCostoMermasEnBaseAFiltro(mermas, ids_platillo, ids_tu);
   //TODO: ordenar mermas y comandas para que sean coherentes y por fecha
   //console.log(CostoComanda)
 
@@ -53,13 +63,18 @@ function calcularCostoMermasEnBaseAFiltro(mermas, ids_ti, ids_tu) {
   for (let i = 0; i < mermas.length; i++) {
     let merma = mermas[i];
     const costo_merma = getCostoMerma(merma, ids_ti, ids_tu);
-    merma.costo_merma = costo_merma;
+    merma.costo = costo_merma;
   }
 }
 function getCostoMerma(merma, ids_ti, ids_tu) {
   let costo_merma = 0;
   const ingredientes = merma.ingredientes;
-  if (ingredientes && ingredientes.length != 0) {
+
+  if (!ingredientes) {
+    return [null, "Error ingrediente"];
+  }
+  const ingedientesKeys = Object.keys(merma.ingredientes);
+  if (ingredientes && ingedientesKeys.length != 0) {
     for (let i = 0; i < ids_ti.length; i++) {
       const id_tipo_ingrediente = ids_ti[i];
       if (ingredientes[id_tipo_ingrediente]) {
@@ -68,7 +83,13 @@ function getCostoMerma(merma, ids_ti, ids_tu) {
     }
   }
   const utensilios = merma.utensilios;
-  if (utensilios && utensilios.length != 0) {
+  console.log("utensilios")
+  console.log(utensilios)
+  if (!utensilios) {
+    return [null, "Error utensilio es nulo"]
+  }
+  const utensilioKeys = Object.keys(merma.utensilios)
+  if (utensilioKeys.length != 0) {
     for (let i = 0; i < ids_tu.length; i++) {
       const id_tipo_utensilio = ids_tu[i];
       if (utensilios[id_tipo_utensilio]) {
@@ -199,19 +220,29 @@ function agregarUtensilioAMerma(merma, utensilios) {
  */
 //Modifica el diccionario CostoEnComandas agregando el costo de la comanda
 //pero solo de los tipos de ingredientes seleccionados anteriormente
-function calcularCostoVentaDeComandasEnBaseAFiltro(ids_ti, CostoEnComandas) {
+function calcularCostoPlatilloEnBaseComanda(platillos, CostoEnComandas) {
   //TODO: validationQuery
   //TODO: agregar calculo de ventas al costo FIFO
-  for (let i = 0; i < CostoEnComandas.length; i++) {
-    const CostoComanda = CostoEnComandas[i];
-    const ingredientes = CostoComanda.ingredientes;
-    const costo_de_comanda = CalcularCostoVentaDeComanda(ids_ti, ingredientes);
-    CostoComanda.costo_comanda = costo_de_comanda;
+  let listaCostoPlatillo = [];
+  let platilloObj = {}
+  for (let i = 0; i < platillos.length; i++) {
+    const platillo = platillos[i];
+    platilloObj.id_platillo = platillo.id_platillo
+    platilloObj.nombre_platillo = platillo.nombre_platillo
+    platilloObj.eventos = [];
+    //Calcular el costo del platillo para cada comanda
+    for (let ii = 0; ii < CostoEnComandas.length; ii++) {
+      const CostoComanda = CostoEnComandas[ii];
+      const ingredientes = CostoComanda.ingredientes;
+      const costo_de_comanda = CalcularCostoVentaDeComanda(platillo.ingredientes, ingredientes);
+      CostoComanda.costo = costo_de_comanda;
+    }
   }
+  return [listaCostoPlatillo, null]
 }
 
 //TODO: prueba unitaria
-function CalcularCostoVentaDeComanda(ids_ti, ingredientes) {
+function CalcularCostoVentaDeComanda(ingredientes_platillo, ingredientes) {
   //iterar por claves
   let costo_comanda_de_ingredientes_seleccionados = 0;
   for (let i = 0; i < ids_ti.length; i++) {
@@ -223,43 +254,6 @@ function CalcularCostoVentaDeComanda(ids_ti, ingredientes) {
   }
   return costo_comanda_de_ingredientes_seleccionados;
 }
-//TODO: Como se que ingrediente pertenece a que comanda, solo asi puedo saber
-//el costo por ingrediente
-//Solucion parcial: 1. No hacer costos por ingrediente
-//2. Usar costo promedio.
-
-/**
- descripcion: Calcula el costo de las comandas describiendo cuanto costo cada ingrediente
- usado por unidad y su costo total. Entonces se calcula el costo de todas las comandas y solo 
- entonces se separa.
- comandas: Una lista de todas las comandas
- ingrediente: Lista de ingredientes y pedidos ordenados de forma ascendente
- este deberia tener la forma
- ingredientes: {
-  id_pedido: {
-    fecha: fecha
-
-  }
- }
-  //si hago un join pedido->ingrediente->tipo_ingrediente
-  //y luego guardo un indice por ingrediente
- retorna: 
- result = {
-  id_comanda: {
-    fecha: fecha_comanda,
-    hora: hora_comanda
-    ingrediente: {
-      costo_unitario: x
-      unidades: y
-      costo_total: x * y
-    }...(otros ingredientes)
-  }
- }
- */
-/*
-    SELECT c.fecha_compra_comanda, cc.cantidad_platillo, cp.porcion_ingrediente_platillo, 
-      p.precio_platillo
-*/
 //Crear comandas para costoFIFO
 async function ExtraerComandas() {
   let result = []
@@ -393,15 +387,9 @@ async function ExtraerPedido() {
 }
 //TODO: test unitario
 function costoFIFO(comandas, pedidos) {
-  console.log("comandas")
-  console.log(comandas)
-  console.log("pedidos")
-  console.log(pedidos)
   let indices = {}
   for (let i = 0; i < comandas.length; i++) {
     const comanda = comandas[i];
-    console.log("comanda")
-    console.log(comanda)
     const ingredientes_keys = Object.keys(comanda.ingredientes);
     for (let ii = 0; ii < ingredientes_keys.length; ii++) {
       descontarPedidos(comanda.ingredientes[ingredientes_keys[ii]], ingredientes_keys[ii], indices, pedidos);
@@ -445,33 +433,33 @@ function descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos) {
   if (id_tipo_ingrediente < 0) {
     return [null, "no es una id"]
   }
-  if(!indices) {
+  if (!indices) {
     return [null, "indices no es un diccionario"]
   }
   //validar Keys
   //validar pedidos
   //Sacar una funcion validar pedido
-  if(pedidos.length === 0) {
+  if (pedidos.length === 0) {
     return [null, "no hay pedidos"]
   }
-  for(let i = 0; i < pedidos.length; i++) {
+  for (let i = 0; i < pedidos.length; i++) {
     const pedido = pedidos[i];
-    if(!pedido.fecha_compra) {
+    if (!pedido.fecha_compra) {
       return [null, "no incluye fecha"]
     }
-    if(!pedido.ingredientes || pedido.ingredientes.length === 0) {
+    if (!pedido.ingredientes || pedido.ingredientes.length === 0) {
       //TODO: que hacer en este caso
       return [null, "pedido no tiene ingredientes"]
     }
-    for(let ii = 0; ii < pedido.ingredientes.length; ii++) {
+    for (let ii = 0; ii < pedido.ingredientes.length; ii++) {
       const ingrediente = pedido.ingredientes[ii];
-      if(ingrediente.cantidad < 0) {
+      if (ingrediente.cantidad < 0) {
         return [null, "cantidad invalida"]
       }
-      if(ingrediente.costo_total < 0) {
+      if (ingrediente.costo_total < 0) {
         return [null, "costo total invalido"]
       }
-      if(ingrediente.costo_unitario < 0) {
+      if (ingrediente.costo_unitario < 0) {
         return [null, "costo unitario invalido"]
       }
     }
@@ -636,7 +624,7 @@ function Test_descontarIngredientePedido() {
       console.log("Test 2 MAL")
       console.log(result)
       console.log("ingrediente: ")
-      console.log(ingrediente) 
+      console.log(ingrediente)
       console.log("ingrediente pedido")
       console.log(ingrediente_pedido)
     }
@@ -839,7 +827,7 @@ function tablaInvalidezDescontarPedidos() {
   let error;
 
   ingrediente = {
-    cantidad:  -10,
+    cantidad: -10,
     consumido: 10,
     costo_unitario: 10,
     costo_total: 10
@@ -856,17 +844,17 @@ function tablaInvalidezDescontarPedidos() {
       }
     ]
   };
-  [result, error ] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
-  if(error) {
+  [result, error] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
+  if (error) {
     console.log("Test 1 BIEN")
     console.log(error)
-  }else {
+  } else {
     console.log("Test 1 MAL")
   }
   //TEST 2
 
   ingrediente = {
-    cantidad:  10,
+    cantidad: 10,
     consumido: -10,
     costo_unitario: 10,
     costo_total: 10
@@ -883,17 +871,17 @@ function tablaInvalidezDescontarPedidos() {
       }
     ]
   };
-  [result, error ] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
-  if(error) {
+  [result, error] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
+  if (error) {
     console.log("Test 2 BIEN")
     console.log(error)
-  }else {
+  } else {
     console.log("Test 2 MAL")
   }
   //TEST 3
 
   ingrediente = {
-    cantidad:  10,
+    cantidad: 10,
     consumido: 100,
     costo_unitario: 10,
     costo_total: 10
@@ -910,17 +898,17 @@ function tablaInvalidezDescontarPedidos() {
       }
     ]
   };
-  [result, error ] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
-  if(error) {
+  [result, error] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
+  if (error) {
     console.log("Test 3 BIEN")
     console.log(error)
-  }else {
+  } else {
     console.log("Test 3 MAL")
   }
   //TEST 4
 
   ingrediente = {
-    cantidad:  10,
+    cantidad: 10,
     consumido: 10,
     costo_unitario: -10,
     costo_total: 10
@@ -937,17 +925,17 @@ function tablaInvalidezDescontarPedidos() {
       }
     ]
   };
-  [result, error ] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
-  if(error) {
+  [result, error] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
+  if (error) {
     console.log("Test 4 BIEN")
     console.log(error)
-  }else {
+  } else {
     console.log("Test 4 MAL")
   }
   //TEST 5
 
   ingrediente = {
-    cantidad:  10,
+    cantidad: 10,
     consumido: 10,
     costo_unitario: 10,
     costo_total: -10
@@ -964,16 +952,16 @@ function tablaInvalidezDescontarPedidos() {
       }
     ]
   };
-  [result, error ] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
-  if(error) {
+  [result, error] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
+  if (error) {
     console.log("Test 5 BIEN")
     console.log(error)
-  }else {
+  } else {
     console.log("Test 5 MAL")
   }
   //TEST 6
   ingrediente = {
-    cantidad:  10,
+    cantidad: 10,
     consumido: 10,
     costo_unitario: 10,
     costo_total: 100
@@ -990,13 +978,55 @@ function tablaInvalidezDescontarPedidos() {
       }
     ]
   };
-  [result, error ] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
-  if(error) {
+  [result, error] = descontarPedidos(ingrediente, id_tipo_ingrediente, indices, pedidos)
+  if (error) {
     console.log("Test 6 BIEN")
     console.log(error)
-  }else {
+  } else {
     console.log("Test 6 MAL")
   }
   // creo que con eso es suficiente por ahora
 
+}
+async function extraerPlatillos(ids_platillo) {
+  let listaPlatillos = []
+  for (let i = 0; i < ids_platillo.length; i++) {
+    let platillo = await AppDataSource.query(`
+    SELECT *
+    FROM platillo p
+    WHERE id_platillo = $1
+    `, [Number(ids_platillo)])
+    if (!platillo || platillo.length === 0) {
+      continue
+    }
+    console.log("platillo")
+    console.log(platillo)
+    let ingredientesDelPlatillo = await AppDataSource.query(`
+      SELECT * 
+      FROM tipo_ingrediente ti  
+      INNER JOIN compuesto_platillo cp ON cp.id_tipo_ingrediente = ti.id_tipo_ingrediente
+      WHERE cp.id_platillo = $1
+    `, [platillo[0].id_platillo])
+    if (!ingredientesDelPlatillo) {
+      return [null, "¿Porque es nulo"]
+    }
+    platillo.ingredientes = ingredientesDelPlatillo;
+    listaPlatillos.push(platillo)
+  }
+  return [listaPlatillos, null]
+}
+
+function calcularCostoPlatillo(platillos, comandas, mermas) {
+  let listaCostosPlatillo = [];
+  for(let i = 0; i < platillos.lenght; i++) {
+    const platillo = platillos[i];
+    //get comandas de platillo
+    for(let ii = 0; ii < comandas.length; ii++) {
+      //if comanda contiene el platillo sumar los costos de los ingredientes
+      //y  
+    }
+    //get mermas de platillo
+    //ordenarlas por fecha pero hacerlo de tal manera que todavia se pueda ordenar por hora
+    listaCostosPlatillo.push()
+  }
 }

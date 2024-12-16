@@ -2,12 +2,15 @@ import { useLocation } from 'react-router-dom'
 import Search from '../components/Search';
 import { useCallback, useState, useRef } from 'react';
 import { formatearFecha } from '../helpers/formatDate';
+import useMerma from '@hooks/mermas/getMerma.jsx';
 
 const detalleMermas = () => {
     const location = useLocation();
-    const data = location.state;
-    console.log("detalle mermas")
-    console.log(data)
+    const merma = location.state;
+    //const {merma, fetchMerma, setMerma } = useMerma(id)
+    const data = merma;
+    console.log("data detalle mermas")
+    console.log(merma)
     const [filterName, setFilterName] = useState('');
     const ingredientes = data.ingredientes
     console.log(ingredientes)
@@ -40,7 +43,7 @@ const detalleMermas = () => {
                                     <th>Nombre</th>
                                     <th>Fecha Compra</th>
                                     <th>Cantidad Restante</th>
-                                    <th>Checklist</th>
+                                    <th>Cantidad Mermada</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -55,7 +58,7 @@ const detalleMermas = () => {
                                             </td>
                                             <td>{item.cantidad_utensilio || 0}</td>
                                             <td>
-                                                {item.cantidad_perdida_ingrediente}
+                                                {item.cantidad_perdida_utensilio}
                                             </td>
                                         </tr>
                                     ) : null
