@@ -139,20 +139,22 @@ export async function deleteTipoIngredienteController(req, res) {
 // Controlador para crear un ingrediente
 export async function createIngredienteController(req, res) {
   try {
-    const { error } = ingredienteBodyValidation.validate(req.body);
-
-    if (error) {
-      return handleErrorClient(res, 400, "Error de validación", error.message);
-    }
-
     const {
       fecha_vencimiento,
       cantidad_ingrediente,
       cantidad_original_ingrediente,
       costo_ingrediente,
-      id_tipo_ingrediente,
-      id_pedido = null, // Si no se proporciona, será null
+      id_tipo_ingrediente, 
+      id_pedido = null,
     } = req.body;
+
+
+    console.log(req.body)
+    const { error } = ingredienteBodyValidation.validate(req.body);
+
+    if (error) {
+      return handleErrorClient(res, 400, "Error de validación", error.message);
+    }
 
     const [newIngrediente, errorIngrediente] = await createIngredienteService({
       fecha_vencimiento,

@@ -15,4 +15,12 @@ socket.on("platillo-actualizado", (data) => {
 socket.on("disconnect", () => {
     console.log("Desconectado del servidor WebSocket");
 });
+
+
+
+socket.on("nueva-comanda", (data) => {
+  console.log("Nueva comanda recibida:", data);
+  alert(`Nueva comanda creada con ID ${data.id_comanda}. Lista para preparar.`);
+});
+
 export default socket;

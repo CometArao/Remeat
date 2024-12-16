@@ -1,10 +1,16 @@
 import axios from './root.service';
 
-export const createComanda = async (comandaData, token) => {
-  const response = await axios.post('/comandas', comandaData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data;
+export const createComanda = async (data, token) => {
+  try {
+    const response = await axios.post('/comandas', data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response.data || new Error('Error desconocido al crear la comanda.');
+  }
 };
 
 export const deleteComanda = async (id, token) => {
@@ -46,16 +52,7 @@ export const getComandasWithPlatillos = async (token) => {
   return response.data;
 };
 
-export const updateComanda = async (comandaId, comandaData, token) => {
-  const response = await axios.put(
-    `/comandas/${comandaId}`,
-    comandaData,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-  return response.data;
-};
+
 
 export const completeComanda = async (comandaId, token) => {
   const response = await axios.patch(

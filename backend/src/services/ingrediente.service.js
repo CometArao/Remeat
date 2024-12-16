@@ -7,6 +7,7 @@ import CompuestoIngrediente from "../entity/compuesto_ingrediente.js";
 
 // Servicio para crear un ingrediente
 export async function createIngredienteService(data) {
+    console.log("En el servicio")
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
     const compuestoIngredienteRepository = AppDataSource.getRepository(CompuestoIngrediente);
