@@ -2,7 +2,7 @@ import React from 'react';
 import useRemovePlatilloFromComanda from '../../hooks/comandas/useRemovePlatilloFromComanda';
 import { deleteDataAlert, showSuccessAlert, showErrorAlert } from '../../helpers/sweetAlert';
 
-const ComandaPlatillos = ({ platillos, comandaId, onPlatilloRemoved }) => {
+const DeleteComandaPlatillos = ({ platillos, comandaId, onPlatilloRemoved }) => {
   const { removePlatillo, loading } = useRemovePlatilloFromComanda();
 
   const handleRemove = async (platilloId) => {
@@ -37,4 +37,4 @@ const ComandaPlatillos = ({ platillos, comandaId, onPlatilloRemoved }) => {
   );
 };
 
-export default ComandaPlatillos;
+export default DeleteComandaPlatillos;
