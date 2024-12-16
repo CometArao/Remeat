@@ -25,10 +25,7 @@ const ComandaList = () => {
     await refetch();
   };
 
-  const handleEditComplete = async () => {
-    console.log('Editando una comanda...');
-    await refetch();
-  };
+ 
 
   const handleCustomAction = async (comandaId) => {
     console.log(`Ejecutando acción personalizada para comanda ${comandaId}`);
@@ -56,7 +53,6 @@ const ComandaList = () => {
             comanda={filteredComanda}
             onDelete={handleDelete}
             onComplete={handleComplete}
-            onEditComplete={handleEditComplete}
             onCustomAction={handleCustomAction}
           />
         </div>
@@ -69,7 +65,6 @@ const ComandaList = () => {
                 comanda={comanda}
                 onDelete={handleDelete}
                 onComplete={handleComplete}
-                onEditComplete={handleEditComplete}
                 onCustomAction={handleCustomAction}
               />
             ))

@@ -382,39 +382,7 @@ export async function getComandaById(comandaId) {
 }
 
 
-export async function updateComanda(comandaId, data) {
-  const comandaRepository = AppDataSource.getRepository(Comanda);
-  const comanda = await comandaRepository.findOne({
-    where: { id_comanda: comandaId },
-    relations: ["usuario"] // Relación con usuario
-  });
 
-  if (!comanda) throw new Error("Comanda no encontrada.");
-
-  // Verificación de horario laboral del usuario asignado a la comanda
-  //await verificarHorarioLaboral(comanda.usuario.id_usuario);
-
-  if (comanda.estado_comanda !== "pendiente") {
-    throw new Error("La comanda no se puede modificar porque ya está completada o en otro estado.");
-  }
-
-  if (data.id_usuario && data.id_usuario !== comanda.usuario.id_usuario) {
-    throw new Error("No se permite cambiar el ID del usuario asociado a la comanda.");
-  }
-
-  if (data.id_comanda && data.id_comanda !== comandaId) {
-    throw new Error("No se permite cambiar el ID de la comanda.");
-  }
-
-  Object.assign(comanda, {
-    estado_comanda: data.estado_comanda || comanda.estado_comanda,
-    fecha_compra_comanda: data.fecha_compra_comanda || comanda.fecha_compra_comanda,
-    hora_compra_comanda: data.hora_compra_comanda || comanda.hora_compra_comanda,
-  });
-
-  await comandaRepository.save(comanda);
-  return comanda;
-}
 
 
 export async function deleteComanda(comandaId) {

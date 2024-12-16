@@ -2,7 +2,6 @@ import express from 'express';
 import {
   createComandaController,
   getAllComandasController,
-  updateComandaController,
   deleteComandaController,
   completeComandaController,
   getComandaByIdController,
@@ -24,7 +23,6 @@ router.use(authenticateJwt);
 router.post('/', isMesero, createComandaController); // Crear una comanda
 router.get('/', isMesero, getAllComandasController); // Obtener todas las comandas
 router.get('/:id', isMesero, getComandaByIdController); // Obtener una comanda por ID
-router.put('/:id', isMesero, updateComandaController); // Actualizar una comanda
 router.delete('/:id', isMesero, deleteComandaController); // Eliminar una comanda (solo admins)
 router.patch('/:id/complete', isMesero, completeComandaController); // Completar una comanda
 router.post('/:id/platillos', isMesero, addPlatilloToComandaController); // Añadir un platillo a una comanda

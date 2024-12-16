@@ -52,16 +52,7 @@ export const getComandasWithPlatillos = async (token) => {
   return response.data;
 };
 
-export const updateComanda = async (comandaId, comandaData, token) => {
-  const response = await axios.put(
-    `/comandas/${comandaId}`,
-    comandaData,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-  return response.data;
-};
+
 
 export const completeComanda = async (comandaId, token) => {
   const response = await axios.patch(

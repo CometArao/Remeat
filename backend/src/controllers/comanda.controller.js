@@ -2,7 +2,6 @@
 import {
   createComanda,
   getComandaById,
-  updateComanda,
   deleteComanda,
   completeComanda,
   getAllComandas,
@@ -16,9 +15,9 @@ import {
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
 
 import {
-  //createComandaValidation,
+  createComandaValidation,
   addPlatilloToComandaValidation,
-  updateComandaValidation
+ 
 } from '../validations/comanda.validation.js';
 
 
@@ -189,18 +188,7 @@ export async function getComandaByIdController(req, res) {
 
 
 
-export async function updateComandaController(req, res) {
-  const { error } = updateComandaValidation.validate(req.body);
-  if (error) return handleErrorClient(res, 400, error.details[0].message);
 
-  const comandaId = req.params.id;
-  try {
-    const updatedComanda = await updateComanda(comandaId, req.body);
-    handleSuccess(res, 200, 'Comanda actualizada', updatedComanda);
-  } catch (error) {
-    handleErrorClient(res, 400, error.message);
-  }
-}
 
 
 export async function deleteComandaController(req, res) {

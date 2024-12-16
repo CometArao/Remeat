@@ -1,20 +1,22 @@
 import React from 'react';
 import useRemovePlatilloFromComanda from '../../hooks/comandas/useRemovePlatilloFromComanda';
-import { deleteDataAlert, showSuccessAlert } from '../../helpers/sweetAlert';
-
+import { deleteDataAlert, showSuccessAlert, showErrorAlert } from '../../helpers/sweetAlert';
 
 const ComandaPlatillos = ({ platillos, comandaId, onPlatilloRemoved }) => {
-  const { removePlatillo, loading, error } = useRemovePlatilloFromComanda();
+  const { removePlatillo, loading } = useRemovePlatilloFromComanda();
 
   const handleRemove = async (platilloId) => {
-    const confirmDelete = await deleteDataAlert();
+    const confirmDelete = await deleteDataAlert('¿Eliminar Platillo?', 'Esta acción no se puede deshacer.');
     if (confirmDelete.isConfirmed) {
       try {
         await removePlatillo(comandaId, platilloId);
         showSuccessAlert('¡Éxito!', 'Platillo eliminado exitosamente.');
         onPlatilloRemoved(platilloId);
       } catch (err) {
-        console.error('Error eliminando el platillo:', err);
+        showErrorAlert(
+          'Error',
+          err.response?.data?.message || 'No se pudo eliminar el platillo debido a su estado.'
+        );
       }
     }
   };
@@ -26,12 +28,11 @@ const ComandaPlatillos = ({ platillos, comandaId, onPlatilloRemoved }) => {
           key={platillo.idPlatillo}
           onClick={() => handleRemove(platillo.idPlatillo)}
           disabled={loading}
-          className="btn-delete" // Aplicamos el estilo desde el CSS
+          className="btn-delete"
         >
           {loading ? 'Eliminando...' : 'Eliminar'}
         </button>
       ))}
-      {error && <p style={{ color: 'red' }}>Error: {error.message}</p>}
     </div>
   );
 };
