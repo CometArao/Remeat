@@ -130,14 +130,24 @@ export async function addPlatilloToComandaController(req, res) {
 
 export async function createComandaController(req, res) {
   try {
-    // Suponiendo que `req.user` contiene el usuario logueado
-    const loggedUser = req.user;
-    console.log(loggedUser);
+    const loggedUser = req.user; // Usuario logueado
+    const platilloData = req.body.platillo; // Datos del platillo
 
-    const newComanda = await createComanda(loggedUser);
-    handleSuccess(res, 201, 'Comanda creada', newComanda);
+    // Verificar que los datos del platillo están presentes
+    if (!platilloData || !platilloData.nombre_platillo) {
+      return res.status(400).json({ status: 'Error', message: 'Debe proporcionar un platillo para crear la comanda.' });
+    }
+
+    // Crear la comanda
+    const newComanda = await createComanda(loggedUser, platilloData);
+
+    res.status(201).json({
+      status: 'Success',
+      message: 'Comanda creada con el platillo asignado.',
+      data: newComanda,
+    });
   } catch (error) {
-    handleErrorServer(res, 500, error.message);
+    res.status(500).json({ status: 'Error', message: error.message });
   }
 }
 

@@ -1,14 +1,30 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import ComandaForm from './ComandaForm';
 import useCreateComanda from '../../hooks/comandas/useCreateComanda';
 
 const CreateComandaPopup = ({ isOpen, onClose }) => {
-  const { create, loading } = useCreateComanda();
+  const { create, loading, platillos, loadingPlatillos } = useCreateComanda();
+  const [selectedPlatillo, setSelectedPlatillo] = useState('');
+  const [cantidad, setCantidad] = useState(1);
 
   const handleCreate = async () => {
-    await create(); // Llamar al servicio sin pasar datos
-    onClose();
-    window.location.reload(); // Refrescar lista
+    if (!selectedPlatillo) {
+      alert('Por favor, selecciona un platillo.');
+      return;
+    }
+
+    const data = {
+      platillo: selectedPlatillo,
+      cantidad,
+    };
+
+    try {
+      await create(data);
+      onClose();
+      window.location.reload();
+    } catch (error) {
+      console.error('Error creando comanda:', error);
+    }
   };
 
   if (!isOpen) return null;
@@ -19,10 +35,18 @@ const CreateComandaPopup = ({ isOpen, onClose }) => {
         &times; Cerrar
       </button>
       <h2>Crear Comanda</h2>
-      {loading ? (
-        <p>Creando comanda...</p>
+      {loadingPlatillos ? (
+        <p>Cargando platillos...</p>
       ) : (
-        <ComandaForm onSubmit={handleCreate} />
+        <ComandaForm
+          platillos={platillos}
+          selectedPlatillo={selectedPlatillo}
+          setSelectedPlatillo={setSelectedPlatillo}
+          cantidad={cantidad}
+          setCantidad={setCantidad}
+          onSubmit={handleCreate}
+          loading={loading}
+        />
       )}
     </div>
   );

@@ -205,7 +205,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   // Si no hay menú para hoy, obtener el menú más cercano anterior
   if (!menu) {
     menu = await menuRepository.createQueryBuilder("menu")
-      .where("menu.fecha >= :currentDate", { currentDate })
+      .where("menu.fecha <= :currentDate", { currentDate })
       .andWhere("menu.disponibilidad = true")
       .orderBy("menu.fecha", "DESC")
       .leftJoinAndSelect("menu.platillo", "platillo")
@@ -280,10 +280,13 @@ export async function createComanda(loggedUser) {
     hora_compra_comanda: horaCompra,
   });
 
-  // Guardar la comanda en la base de datos
-  await comandaRepository.save(nuevaComanda);
+  // Guardar la comanda
+  const savedComanda = await comandaRepository.save(nuevaComanda);
 
-  return nuevaComanda;
+  // Añadir el platillo a la comanda usando la función existente
+  await addPlatilloToComanda(savedComanda.id_comanda, platilloData);
+
+  return savedComanda;
 }
 
 

@@ -1,10 +1,16 @@
 import axios from './root.service';
 
-export const createComanda = async (comandaData, token) => {
-  const response = await axios.post('/comandas', comandaData, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data;
+export const createComanda = async (data, token) => {
+  try {
+    const response = await axios.post('/comandas', data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response.data || new Error('Error desconocido al crear la comanda.');
+  }
 };
 
 export const deleteComanda = async (id, token) => {
