@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useAddPlatilloToComanda from '../../hooks/comandas/useAddPlatilloToComanda';
+import '@styles/Comandas.css';
 
 const AddPlatilloForm = ({ comandaId }) => {
   const { addPlatillo, platillos, refetchPlatillos, loading, error } = useAddPlatilloToComanda();

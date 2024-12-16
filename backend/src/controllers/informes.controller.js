@@ -87,3 +87,21 @@ export async function getCostos(req, res) {
         return handleErrorServer(res, 500, error.message);
     }
 }
+export async function getCostosNormal(req, res) {
+    try {
+        const { body } = req;
+        const { error } = informesValidation.validate(body)
+        if (error) {
+            return handleErrorClient(res, 400, error.message)
+        }
+        const [costos, errorServicio] = await getCostosService(body);
+        if (errorServicio) {
+            console.log(errorServicio)
+            return handleErrorClient(res, 404, errorServicio);
+        }
+        return handleSuccess(res, 200, "costos platillo obtenido exitosamente", costos);
+    } catch (error) {
+        console.log(error)
+        return handleErrorServer(res, 500, error.message);
+    }
+}

@@ -136,6 +136,7 @@
 		background-color: rgba(0, 110, 223, 0.14);
 		font-weight: regular;
 	}
+	/*
 	button {
 		padding: auto;
 		display: flex;
@@ -144,19 +145,22 @@
 		border-radius: 12px;
 		border: none;
 		width: 100%;
-		background-color: #003366; /*Color del boton del formulario*/
+		background-color: #003366; 
 		color: #eef7ff;
 		font-weight: bold;
 		font-size: 16px;
-		border: 3px solid #003366; /*Color del borde del boton*/
+		border: 3px solid #003366; 
 		margin-top: 10px;
 	}
+	*/
+	/*
 	button:hover{
 		border: 3px solid #003366;
 		background-color: #eef7ff;
 		color: #003366;
 		transition: .3s ease-out;
 	}
+	*/
 	div {
 		display: flex;
 		flex-direction: column;
@@ -181,7 +185,7 @@
 
 .container {
 	height: 100vh;	
-	background: linear-gradient(90deg, #003366, #001a33); /*Color principal para login (gradiente)*/
+	background: linear-gradient(90deg, #795548, #A37666); /*Color principal para login (gradiente)*/
 	display: flex;
 	justify-content: center;
 	align-items: center;

@@ -1,6 +1,6 @@
 "use strict";
 import { Router } from "express";
-import { getCostos, getIngresosPorVentas,  
+import { getCostos, getCostosNormal, getIngresosPorVentas,  
     getStockIngrediente, getStockUtensilio } from "../controllers/informes.controller.js"
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAdmin } from "../middlewares/authorization.middleware.js";
@@ -21,9 +21,7 @@ router
     */
     .post("/get_stock_utensilio", getStockUtensilio)
     .post("/get_ingresos_venta", getIngresosPorVentas)
-    //.post("/get_ventas_tipo", )
     .post("/get_costos", getCostos)
+    .post("/get_costos/normal", getCostosNormal)
     .post("/get_utilidades")
-    //grafico circular
-
 export default router;

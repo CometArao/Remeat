@@ -21,7 +21,7 @@
 }
 
 .title-table {
-    color: #003366;
+    color: #FF5722;
     margin-left: 70px;
 }
 
@@ -30,10 +30,11 @@
     gap: 10px;
     button {
         background: rgba(255, 255, 255, 0.87);
+        background-color: #DD9004;
+        background-color: #FFC107;
         border: #fff;
         cursor: pointer;
         box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-        
     }
 }
 .create-button {

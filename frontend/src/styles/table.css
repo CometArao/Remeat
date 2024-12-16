@@ -1,14 +1,18 @@
 .table-container .tabulator .tabulator-col {
-    background-color: #003366;
+    background-color: #FF5722;
+    color: #fff;
+}
+.table-container .tabulator .tabulator-col :hover {
+    background-color: #DD3400;
     color: #fff;
 }
 .tabulator .tabulator-footer .tabulator-page {
-    background-color: #fff;
+    background-color: #FFEBEE;
     color: black;
-    border: 1px solid #003366;
+    border: 1px solid #212121;
     padding: 4px 8px;
     border-radius: 4px;
 }
 .tabulator .tabulator-footer .tabulator-page.active {
-    color: #E4332C;
+    color: #FFC107;
 }
