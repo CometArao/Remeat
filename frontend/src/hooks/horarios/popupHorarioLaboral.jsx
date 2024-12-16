@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CloseIcon from '@assets/XIcon.svg';
 import { createHorarioLaboral } from '@services/horarios.service.js';
+import { truncateToMinutes2 } from '../../../../backend/src/utils/dateUtils.js'; // Asegúrate de la ruta correcta
 import '@styles/popup.css';
 
 export default function PopupHorarioLaboral({
@@ -26,8 +27,8 @@ export default function PopupHorarioLaboral({
         data.horario_dia?.map((dia) => ({
           id_horario_dia: dia.id_horario_dia || null,
           dia_semana: dia.dia_semana || '',
-          hora_inicio: dia.hora_inicio || '',
-          hora_fin: dia.hora_fin || '',
+          hora_inicio: truncateToMinutes2(dia.hora_inicio)|| '',
+          hora_fin: truncateToMinutes2(dia.hora_fin) || '',
         })) || []
       );
     } else {
@@ -36,12 +37,20 @@ export default function PopupHorarioLaboral({
     }
   }, [isEdit, data]);
 
+  // Maneja cambios en los horarios día
   const handleHorarioDiaChange = (index, field, value) => {
-    const updatedHorariosDia = [...horariosDia];
-    updatedHorariosDia[index][field] = value;
-    setHorariosDia(updatedHorariosDia);
+    setHorariosDia((prev) =>
+      prev.map((dia, i) =>
+        i === index
+          ? {
+              ...dia,
+              [field]: field.includes('hora') ? truncateToMinutes2(value) : value, // Trunca las horas
+            }
+          : dia
+      )
+    );
   };
-
+  
   const handleAddHorarioDia = () => {
     if (!horarioDia.dia_semana || !horarioDia.hora_inicio || !horarioDia.hora_fin) {
         alert("Todos los campos de Horario de Día son obligatorios.");
@@ -54,8 +63,8 @@ export default function PopupHorarioLaboral({
         { 
             id_horario_dia: null, 
             dia_semana: horarioDia.dia_semana, 
-            hora_inicio: horarioDia.hora_inicio, 
-            hora_fin: horarioDia.hora_fin 
+            hora_inicio: truncateToMinutes2(horarioDia.hora_inicio), 
+            hora_fin: truncateToMinutes2(horarioDia.hora_fin)
         },
     ]);
 
@@ -68,44 +77,50 @@ export default function PopupHorarioLaboral({
 };
 
 
-  const handleRemoveHorarioDia = (index) => {
-    const updatedHorariosDia = horariosDia.filter((_, i) => i !== index);
-    setHorariosDia(updatedHorariosDia);
-  };
-
-  const handleSubmit = async (e) => {
-    console.log("Estado actual de horariosDia:", horariosDia);
-    e.preventDefault();
-
-    if (!descripcion.trim()) {
-        alert('La descripción es obligatoria');
-        return;
-    }
-
-    if (horariosDia.length === 0) {
-        alert('Debes agregar al menos un horario de día.');
-        return;
-    }
-
-    const payload = {
-      descripcion,
-      horario_dia: horariosDia.map((dia) => ({
-          dia_semana: dia.dia_semana,
-          hora_inicio: dia.hora_inicio,
-          hora_fin: dia.hora_fin,
-      })),
-  };
-    console.log("Payload enviado al servidor:", payload);
-
-    try {
-        await createHorarioLaboral(payload);
-        alert('Horario laboral creado con éxito');
-        setShow(false);
-    } catch (error) {
-        console.error('Error creando horario laboral:', error.response?.data || error.message);
-        alert(error.response?.data?.message || 'Hubo un problema al crear el horario laboral');
-    }
+const handleRemoveHorarioDia = (index) => {
+  setHorariosDia((prev) =>
+    prev.map((dia, i) => 
+      i === index
+        ? { ...dia, eliminar: true } // Marcar para eliminar
+        : dia
+    )
+  );
 };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!descripcion.trim()) {
+    alert("La descripción es obligatoria");
+    return;
+  }
+
+  // Extrae los IDs de los días marcados como eliminar
+  const diasAEliminar = horariosDia
+    .filter((dia) => dia.eliminar)
+    .map((dia) => dia.id_horario_dia);
+
+  console.log("Días a eliminar:", diasAEliminar); // LOG para depuración
+
+  const payload = {
+    descripcion,
+    horariosDia: horariosDia.filter((dia) => !dia.eliminar), // Excluye días eliminados
+    diasAEliminar: diasAEliminar || [], // Asegura que siempre sea un array
+  };
+
+  console.log("Payload enviado:", payload); // LOG para depuración
+
+  try {
+    await action(payload); // Callback reutilizable
+    alert(isEdit ? "Horario laboral actualizado" : "Horario laboral creado");
+    setShow(false);
+  } catch (error) {
+    console.error("Error al guardar horario laboral:", error);
+    alert("Hubo un problema al guardar el horario laboral.");
+  }
+};
+
+
 
 
   return (

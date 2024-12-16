@@ -21,7 +21,7 @@ const platillo = new EntitySchema({
         },
         disponible: {
             type: "boolean",
-            default: true, // Por defecto, el platillo no está disponible
+            default: false, // Por defecto, el platillo no está disponible
             nullable: false
         },
         id_usuario: {
