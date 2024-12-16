@@ -5,7 +5,11 @@ import { AppDataSource } from "../config/configDb.js";
 import { handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 import merma from "../entity/merma.entity.js";
 import { mermaValidation } from "../validations/merma.validation.js";
-
+import {
+    compareDateTime,
+    getCurrentChileanTimestamp,
+    truncateToMinutes,
+} from "../utils/dateUtils.js";
 
 
 export async function createMermaService(query) {
@@ -22,9 +26,10 @@ export async function createMermaService(query) {
             return [null, "No se incluyen datos en la merma"]
         }
         const today = truncateToMinutes(getCurrentChileanTimestamp()).toISOString();
-        const formatedDate = today.toISOString()
+        console.log("today")
+        console.log(today)
         const nuevaMerma = mermasRepository.create({
-            fecha_merma: formatedDate,
+            fecha_merma: today,
         })
         //TODO: que pasa con una merma que ya existe en esta fecha entre este ingrediente
         const mermaCreada = await mermasRepository.save(nuevaMerma);

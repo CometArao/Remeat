@@ -7,6 +7,7 @@ import TablaUtensilios from '@hooks/mermas/TablaUtensilios.jsx';
 import TablaIngredientes from '@hooks/mermas/TablaIngredientes.jsx';
 import { crearMerma } from '../services/merma.service';
 import { useNavigate } from 'react-router-dom';
+import { deleteDataAlert, showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
 
 
@@ -55,11 +56,13 @@ const crearMermas = () => {
             &&
             (!selectedUtensilios || selectedUtensilios.length === 0)
         ) {
+            showErrorAlert("No se pudo crear merma", "Tiene que ingresar una cantidad mayor a 0 para algun ingrediente o utensilio")
             console.log("Error") //TODO: Revisar error
             console.log(selectedIngredientes)
             return;
         }
         //Extraer los datos que nos importan de los utensilios
+        let mermaTotal = 0;
         let utensiliosEnviar = []
         for (let i = 0; i < selectedUtensilios.length; i++) {
             const utensilio = selectedUtensilios[i];
@@ -67,6 +70,7 @@ const crearMermas = () => {
                 id_utensilio: utensilio.id_utensilio,
                 cantidad_perdida: utensilio.cantidad_perdida
             }
+            mermaTotal += utensilio.cantidad_perdida;
             utensiliosEnviar.push(formatedUtensilio)
         }
         //Extraer los datos que nos importan de los ingredientes
@@ -77,7 +81,14 @@ const crearMermas = () => {
                 id_ingrediente: ingrediente.id_ingrediente,
                 cantidad_perdida: ingrediente.cantidad_perdida
             }
+            mermaTotal += ingrediente.cantidad_perdida
             ingredientesEnviar.push(formatedIngrediente)
+        }
+        console.log("mermaTotal")
+        console.log(mermaTotal)
+        if(mermaTotal === 0) {
+            //Creo que es imposible llegar aqui
+            showErrorAlert("No se pudo crear merma", "Tiene que ingresar una cantidad mayor a 0 para algun ingrediente o utensilio")
         }
         const datosAEnviar = {
             utensilios: utensiliosEnviar,
@@ -113,7 +124,7 @@ const crearMermas = () => {
                         data={ingredientes} filtro={filterName} />
                     {/* Lista de tiempos */}
                 </div>
-                <button onClick={handleNavigation}>Enviar</button>
+                <button onClick={handleNavigation}>Crear Merma</button>
             </div>
         </div>
     );
