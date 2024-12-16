@@ -300,20 +300,44 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
         // Actualizar nombre si se proporciona
         if (nombre_platillo !== undefined) platilloFound.nombre_platillo = nombre_platillo;
 
-        // Validar el cambio del estado "disponible" si se intenta cambiar a true
-        if (disponible === true) {
-            const tienePrecio = platilloFound.precio_platillo > 0;
-            const tieneIngredientes = await verificarDisponibilidadPlatillo(id_platillo);
-
-            if (!tienePrecio || !tieneIngredientes) {
-                return [null, "No se puede marcar como disponible: falta precio o ingredientes suficientes."];
-            }
-            platilloFound.disponible = true; // Estado permitido
-        } else if (disponible === false) {
-            platilloFound.disponible = false; // Permitir marcarlo como no disponible
+       // Actualizar el estado `disponible` solo si se especifica
+if (disponible !== undefined) {
+    if (disponible === true) {
+        const tienePrecio = platilloFound.precio_platillo > 0;
+        const tieneIngredientes = await verificarDisponibilidadPlatillo(id_platillo);
+        
+        if (!tienePrecio || !tieneIngredientes) {
+            return [null, "No se puede marcar como disponible: falta precio o ingredientes."];
         }
+        platilloFound.disponible = true; // Se actualiza a true si cumple las condiciones
+    } else {
+        platilloFound.disponible = false; // Permitir actualizar a false directamente
+    }
+}
+// Actualizar el estado `disponible` solo si se especifica
+if (disponible !== undefined) {
+    if (disponible === true) {
+        // Validar si puede marcarse como "disponible"
+        const tienePrecio = platilloFound.precio_platillo > 0;
+        const tieneIngredientes = await verificarDisponibilidadPlatillo(id_platillo);
 
-        // Validar y actualizar el usuario asociado si se proporciona un nuevo id_usuario
+        if (!tienePrecio || !tieneIngredientes) {
+            return [null, "No se puede marcar como disponible: falta precio o ingredientes suficientes."];
+        }
+        platilloFound.disponible = true; // Solo se actualiza si pasa las validaciones
+    } else { (disponible === false) 
+        // Si se quiere poner "No disponible" pero cumple con todas las condiciones
+        const tienePrecio = platilloFound.precio_platillo > 0;
+        const tieneIngredientes = await verificarDisponibilidadPlatillo(id_platillo);
+
+        if (tienePrecio && tieneIngredientes) {
+           return [null, "No se puede marcar como no disponible: el platillo cumple con todas las condiciones."];
+       }
+    }
+}
+
+
+                // Validar y actualizar el usuario asociado si se proporciona un nuevo id_usuario
         if (id_usuario !== undefined) {
             const usuarioFound = await usuarioRepository.findOneBy({ id_usuario });
             if (!usuarioFound) {
@@ -348,6 +372,7 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
 
             platilloFound.disponible = tienePrecio && tieneIngredientes;
         }
+
 
         // Guardar el platillo con los cambios
         await platilloRepository.save(platilloFound);
