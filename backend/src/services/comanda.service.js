@@ -86,23 +86,7 @@ async function verificarHorarioLaboral(idUsuario) {
 
 
 
-export async function getMeserosService(){
-  // Obtén el repositorio de la entidad Usuario
-  const usuarioRepository = AppDataSource.getRepository(Usuario);
 
-  try {
-    // Usa find con un filtro para obtener solo los usuarios con rol "mesero"
-    const meseros = await usuarioRepository.find({
-      where: { rol_usuario: "mesero" },
-      select: ["id_usuario", "nombre_usuario", "apellido_usuario", "correo_usuario"], // Solo los campos necesarios
-    });
-
-    return meseros; // Devuelve la lista de meseros
-  } catch (error) {
-    // Captura cualquier error y lánzalo con un mensaje claro
-    throw new Error("Error al obtener los meseros: " + error.message);
-  }
-};
 
 
 export async function getPlatillosDelDiaService(){
