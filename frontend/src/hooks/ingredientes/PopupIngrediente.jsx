@@ -20,7 +20,7 @@ export default function PopupIngrediente({ show, setShow, data, action, tiposIng
                              title={isEdit ? "Editar Ingrediente" : "Crear Ingrediente"}
                              fields={[
                                  {
-                                     label: "Fecha de vencimiento",
+                                     label: "Fecha de vencimiento del ingrediente",
                                      name: "fecha_vencimiento",
                                      defaultValue: ingredienteData.fecha_vencimiento || "",
                                      placeholder: "Ej: 2029-12-31",
@@ -29,7 +29,7 @@ export default function PopupIngrediente({ show, setShow, data, action, tiposIng
                                      required: true,
                                  },
                                  {
-                                     label: "Cantidad Actual",
+                                     label: "Cantidad de ingrediente",
                                      name: "cantidad_ingrediente",
                                      defaultValue: ingredienteData.cantidad_ingrediente || "",
                                      placeholder: "Ej: 5",
@@ -39,17 +39,7 @@ export default function PopupIngrediente({ show, setShow, data, action, tiposIng
                                      min: 1,
                                  },
                                  {
-                                     label: "Cantidad Original",
-                                     name: "cantidad_original_ingrediente",
-                                     defaultValue: ingredienteData.cantidad_original_ingrediente || "",
-                                     placeholder: "Ej: 10",
-                                     fieldType: "input",
-                                     type: "number",
-                                     required: true,
-                                     min: 1,
-                                 },
-                                 {
-                                     label: "Costo",
+                                     label: "Costo de ingrediente",
                                      name: "costo_ingrediente",
                                      defaultValue: ingredienteData.costo_ingrediente || "",
                                      placeholder: "Ej: 5.50",
@@ -67,16 +57,7 @@ export default function PopupIngrediente({ show, setShow, data, action, tiposIng
                                          label: tipo.nombre_tipo_ingrediente,
                                      })),
                                      required: true,
-                                 },
-                                 {
-                                     label: "ID Pedido (Opcional)",
-                                     name: "id_pedido",
-                                     defaultValue: ingredienteData.id_pedido || "",
-                                     placeholder: "Ej: 3",
-                                     fieldType: "input",
-                                     type: "number",
-                                     required: false,
-                                 },
+                                 }
                              ]}
                              onSubmit={handleSubmit}
                              buttonText={isEdit ? "Guardar Cambios" : "Crear Ingrediente"}

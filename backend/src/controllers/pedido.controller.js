@@ -269,7 +269,7 @@ export async function confirmarPedidoController(req, res) {
         const ingredientesPromises = pedido.compuestoIngredientes.map(async (compIngrediente) => {
             // Obtener el ingrediente con sus relaciones
             const ingredienteOriginal = await ingredienteRepository.findOne({
-                where: { id_ingrediente: compuestoIngrediente.id_ingrediente },
+                where: { id_ingrediente: compIngrediente.id_ingrediente },
                 relations: ["tipo_ingrediente"],
             });
 
@@ -306,7 +306,7 @@ export async function confirmarPedidoController(req, res) {
         const utensiliosPromises = pedido.compuestoUtensilios.map(async (compUtensilio) => {
             // Obtener el ingrediente con sus relaciones
             const utensilioOriginal = await utensilioRepository.findOne({
-                where: { id_utensilio: compuestoUtensilio.id_utensilio },
+                where: { id_utensilio: compUtensilio.id_utensilio },
                 relations: ["tipo_utensilio"],
             });
 
