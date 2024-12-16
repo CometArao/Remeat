@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import useGetComandasWithPlatillos from '../../hooks/comandas/useGetComandasWithPlatillos'; // Hook para obtener comandas con platillos
 import '../../styles/Comandas.css';
-import ComandaPlatillos from './ComandaPlatillos'; // Importamos el componente para eliminar platillos
+import DeleteComandaPlatillos from './DeleteComandaPlatillos'; // Importamos el componente para eliminar platillos
 
 const ComandasWithPlatillosList = () => {
   const { comandasWithPlatillos, loading, error, refetch } = useGetComandasWithPlatillos();
@@ -39,8 +39,8 @@ const ComandasWithPlatillosList = () => {
                       Cantidad: {platillo.cantidad} <br />
                       Estado: {platillo.estadoPlatillo}
                     </p>
-                    {/* Integramos ComandaPlatillos para eliminar */}
-                    <ComandaPlatillos
+                    {/* Integramos DeleteComandaPlatillos para eliminar */}
+                    <DeleteComandaPlatillos
                       platillos={[platillo]} // Pasar el platillo actual
                       comandaId={comanda.idComanda} // ID de la comanda
                       onPlatilloRemoved={handleRefetch} // Actualizar al eliminar
