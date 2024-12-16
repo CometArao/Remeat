@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createIngrediente } from '@services/ingredientes.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
-const useCreateIngrediente = (setIngredientes) => {
+const useCreateIngrediente = (setIngredientes, fetchIngredientes) => {
     const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
     const [dataIngrediente, setDataIngrediente] = useState([]);
 
@@ -12,16 +12,22 @@ const useCreateIngrediente = (setIngredientes) => {
 
     const handleCreate = async (newDataIngrediente) => {
         if (newDataIngrediente) {
-            try {
+            try {/*
                 // Elimina campos vacíos o nulos antes de enviar
                 const cleanedData = Object.fromEntries(
                     Object.entries(newDataIngrediente).filter(([_, v]) => v != null && v !== '')
-                );
+                );*/
+
+                // Las cantidades originales y cantidad son las mismas
+                newDataIngrediente.cantidad_original_ingrediente = newDataIngrediente.cantidad_ingrediente;
+                console.log(newDataIngrediente)
     
-                const createdIngrediente = await createIngrediente(cleanedData);
+                const createdIngrediente = await createIngrediente(newDataIngrediente);
                 showSuccessAlert('¡Creado!', 'El ingrediente ha sido creado correctamente.');
                 setIsCreatePopupOpen(false);
                 setIngredientes((prevArray) => [...prevArray, createdIngrediente]);
+
+                await fetchIngredientes();
                 setDataIngrediente([]);
             } catch (error) {
                 console.error('Error al crear el ingrediente:', error);
