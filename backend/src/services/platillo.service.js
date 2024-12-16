@@ -15,7 +15,7 @@ export async function createPlatilloService(data, userId) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
 
     try {
-        const { nombre_platillo, disponible, ingredientes } = data;
+        const { nombre_platillo,  ingredientes } = data;
 
         const createErrorMessage = (dataInfo, message) => ({
             dataInfo,
@@ -124,7 +124,12 @@ export async function assignPriceToPlatilloService(data) {
 
         // Asignar el precio al platillo
         platillo.precio_platillo = precio_platillo;
-        platillo.disponible = true;
+
+        // Verificar disponibilidad de ingredientes después de asignar el precio
+        const disponible = precio_platillo > 0 && await verificarDisponibilidadPlatillo(id_platillo);
+
+        platillo.disponible = disponible;
+        
         await platilloRepository.save(platillo);
 
         return [platillo, null];

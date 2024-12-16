@@ -1,18 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ComandaItem from './ComandaItem';
 import useGetComandas from '../../hooks/comandas/useGetComandas';
 import ComandaDetail from './ComandaDetail';
+import socket from '../../services/socket.js'; 
+import { showInfoAlert } from '../../helpers/sweetAlert.js'; 
 
 const ComandaList = () => {
   const { comandas, loading, error, refetch } = useGetComandas();
   const [filteredComanda, setFilteredComanda] = useState(null);
 
+ 
+  useEffect(() => {
+    socket.on('nueva-comanda', (data) => {
+      console.log('Nueva comanda recibida:', data);
+      showInfoAlert('¡Nueva Comanda!', `ID de la comanda: ${data.id_comanda} ha sido creada.`);
+      refetch(); 
+    });
+
+    
+    return () => {
+      socket.off('nueva-comanda');
+    };
+  }, [refetch]);
+
   const handleSearchComplete = (comanda) => {
-    setFilteredComanda(comanda); // Reemplaza el estado con la nueva comanda
+    setFilteredComanda(comanda); 
   };
 
   const handleClearSearch = () => {
-    setFilteredComanda(null); // Limpia el estado
+    setFilteredComanda(null); 
   };
 
   const handleDelete = async () => {
@@ -22,11 +38,6 @@ const ComandaList = () => {
 
   const handleComplete = async () => {
     console.log('Completando una comanda...');
-    await refetch();
-  };
-
-  const handleEditComplete = async () => {
-    console.log('Editando una comanda...');
     await refetch();
   };
 
@@ -56,7 +67,6 @@ const ComandaList = () => {
             comanda={filteredComanda}
             onDelete={handleDelete}
             onComplete={handleComplete}
-            onEditComplete={handleEditComplete}
             onCustomAction={handleCustomAction}
           />
         </div>
@@ -69,7 +79,6 @@ const ComandaList = () => {
                 comanda={comanda}
                 onDelete={handleDelete}
                 onComplete={handleComplete}
-                onEditComplete={handleEditComplete}
                 onCustomAction={handleCustomAction}
               />
             ))

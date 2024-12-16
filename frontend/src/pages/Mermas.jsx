@@ -49,8 +49,10 @@ const Mermas = () => {
     //consultar ingredientes y utensilios asociados
     console.log("handle detalle")
     console.log(dataMermas) 
-    const mermaDetalle = await getmerma(dataMermas[0].id_merma)
-    navigate('/detalles_merma', { state: mermaDetalle });
+    const mermaEncontrada = await getmerma(dataMermas[0].id_merma);
+    console.log("mermaEncontrara")
+    console.log(mermaEncontrada)
+    navigate('/detalles_merma', { state: mermaEncontrada });
 
     //redirigir a pestaña de detalle
   }

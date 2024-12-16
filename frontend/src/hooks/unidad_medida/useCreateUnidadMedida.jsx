@@ -19,11 +19,12 @@ const useCreateUnidadMedida = (setUnidadMedida) => {
                 setUnidadMedida((prevArray) => [...prevArray, createdUnidadMedida.data]);
                 setDataUnidadMedida([]);
             } catch (error) {
-                console.error('Error al crear la unidad de medida:', error);
-                showErrorAlert('Error', 'Ocurrió un error al crear la unidad de medida.');
+                // Muestra el mensaje del backend en la alerta
+                showErrorAlert('Error', error.message || 'Ocurrió un error al crear la unidad de medida.');
             }
         }
     };
+    
 
     return {
         handleClickCreate,

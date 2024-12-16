@@ -1,17 +1,23 @@
 import React from 'react';
 import useDeleteComanda from '../../hooks/comandas/useDeleteComanda';
+import { deleteDataAlert, showErrorAlert, showSuccessAlert } from '../../helpers/sweetAlert';
 
 const DeleteComanda = ({ comandaId, onDelete }) => {
   const { remove, loading } = useDeleteComanda();
 
   const handleDelete = async () => {
-    if (window.confirm(`¿Estás seguro de eliminar la comanda ID: ${comandaId}?`)) {
+    const confirmDelete = await deleteDataAlert('¿Eliminar Comanda?',`¿Estás seguro de eliminar la comanda ID: ${comandaId}?`
+    );
+
+    if (confirmDelete.isConfirmed) {
       try {
-        await remove(comandaId); // Elimina la comanda en el backend
-        if (onDelete) {
-          await onDelete(); // Notifica al padre para recargar la lista
+        const success = await remove(comandaId); 
+        if (success) {
+          showSuccessAlert('¡Eliminada!', 'La comanda ha sido eliminada.');
+          if (onDelete) await onDelete(); 
         }
       } catch (error) {
+        showErrorAlert('Error', 'No se pudo eliminar la comanda.');
         console.error('Error al eliminar la comanda:', error);
       }
     }

@@ -83,25 +83,3 @@ export const addPlatilloToComandaValidation = Joi.object({
   
 
 
-// Validación para actualizar una Comanda
-export const updateComandaValidation = Joi.object({
-  estado_comanda: Joi.string()
-    .valid("pendiente", "completada")
-    .optional()
-    .messages({
-      "any.only": "El estado debe ser 'pendiente' o 'completada'."
-    }),
-  fecha_compra_comanda: Joi.date().iso().messages({
-    "date.base": "La fecha debe ser una fecha válida en formato ISO.",
-    "date.iso": "La fecha debe estar en formato ISO."
-  }),
-  hora_compra_comanda: Joi.string()
-    .pattern(/^\d{2}:\d{2}$/)
-    .messages({
-      "string.pattern.base": "La hora debe estar en el formato HH:MM."
-    })
-})
-  .unknown(false)
-  .messages({
-    "object.unknown": "No se permiten propiedades adicionales."
-  });

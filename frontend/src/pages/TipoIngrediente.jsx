@@ -32,7 +32,7 @@ const TiposIngrediente = () => {
         setIsPopupOpen,
         dataTipoIngrediente,
         setDataTipoIngrediente,
-    } = useEditTipoIngrediente(setTiposIngrediente);
+    } = useEditTipoIngrediente(setTiposIngrediente,fetchTiposIngrediente);
 
     const { handleDelete } = useDeleteTipoIngrediente(fetchTiposIngrediente, setDataTipoIngrediente);
 

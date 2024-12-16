@@ -52,3 +52,11 @@ export async function getUtensilios() {
         return error.response.data;
     }
 }
+export async function getUtensiliosDetallado() {
+    try {
+        const { data } = await axios.get(`/utensilios/detallado/detallado`);
+        return data.data;
+    } catch (error) {
+        return error.response.data;
+    }
+}
