@@ -33,7 +33,7 @@ export default function PopupTipoIngrediente({ show, setShow, data, action, unid
                                     required: true,
                                 },
                                 {
-                                    label: "Cantidad Alerta",
+                                    label: "Cantidad de alerta mínima (Advertencia pocos ingredientes)",
                                     name: "cantidad_alerta_tipo_ingrediente",
                                     defaultValue: tipoIngredienteData.cantidad_alerta_tipo_ingrediente || "",
                                     placeholder: "10, 50...",

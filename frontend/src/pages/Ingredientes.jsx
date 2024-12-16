@@ -47,7 +47,7 @@ const Ingredientes = () => {
         setIsCreatePopupOpen,
         dataIngredienteCreate,
         setDataIngredienteCreate,
-    } = useCreateIngrediente(setIngredientes);
+    } = useCreateIngrediente(setIngredientes, fetchIngredientes);
 
     const columns = [
         { title: 'ID', field: 'id_ingrediente', width: 100 },
