@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import useUpdateComanda from '../../hooks/comandas/useUpdateComanda';
+import { showSuccessAlert, showErrorAlert } from '../../helpers/sweetAlert';
 
 const EditComandaForm = ({ comanda, onEditComplete }) => {
   const [fechaCompra, setFechaCompra] = useState(comanda.fecha_compra_comanda);
@@ -15,10 +16,11 @@ const EditComandaForm = ({ comanda, onEditComplete }) => {
     };
 
     try {
-      await update(comanda.id_comanda, updatedData); // Llama al hook para actualizar
-      if (onEditComplete) onEditComplete(); // Notifica al padre tras completar
-      alert('Comanda actualizada correctamente.');
+      await update(comanda.id_comanda, updatedData);
+      showSuccessAlert('¡Actualizado!', 'Comanda actualizada correctamente.');
+      if (onEditComplete) onEditComplete();
     } catch (err) {
+      showErrorAlert('Error', 'No se pudo actualizar la comanda.');
       console.error('Error al actualizar la comanda:', err);
     }
   };

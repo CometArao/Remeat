@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import ComandaForm from './ComandaForm';
 import useCreateComanda from '../../hooks/comandas/useCreateComanda';
+import { showSuccessAlert, showErrorAlert } from '../../helpers/sweetAlert';
+
+
 
 const CreateComandaPopup = ({ isOpen, onClose }) => {
   const { create, loading, error, platillos, loadingPlatillos } = useCreateComanda();
@@ -9,7 +12,7 @@ const CreateComandaPopup = ({ isOpen, onClose }) => {
 
   const handleCreate = async () => {
     if (!selectedPlatillo) {
-      alert('Por favor, selecciona un platillo.');
+      showErrorAlert('Error', 'Por favor, selecciona un platillo');
       return;
     }
 
@@ -22,10 +25,11 @@ const CreateComandaPopup = ({ isOpen, onClose }) => {
 
     try {
       await create(data);
+      showSuccessAlert('¡Comanda creada!', 'La comanda fue creada correctamente');
       onClose();
       window.location.reload();
     } catch (error) {
-      console.error('Error creando comanda:', error);
+      showErrorAlert('Error al crear comanda', error.message || 'Ocurrió un error inesperado');
     }
   };
 

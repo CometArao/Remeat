@@ -1,17 +1,18 @@
 import React from 'react';
 import useRemovePlatilloFromComanda from '../../hooks/comandas/useRemovePlatilloFromComanda';
+import { deleteDataAlert, showSuccessAlert } from '../../helpers/sweetAlert';
+
 
 const ComandaPlatillos = ({ platillos, comandaId, onPlatilloRemoved }) => {
   const { removePlatillo, loading, error } = useRemovePlatilloFromComanda();
 
   const handleRemove = async (platilloId) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este platillo?')) {
+    const confirmDelete = await deleteDataAlert();
+    if (confirmDelete.isConfirmed) {
       try {
-        const result = await removePlatillo(comandaId, platilloId);
-        if (result) {
-          alert('Platillo eliminado exitosamente.');
-          onPlatilloRemoved(platilloId); // Notificar al componente padre
-        }
+        await removePlatillo(comandaId, platilloId);
+        showSuccessAlert('¡Éxito!', 'Platillo eliminado exitosamente.');
+        onPlatilloRemoved(platilloId);
       } catch (err) {
         console.error('Error eliminando el platillo:', err);
       }

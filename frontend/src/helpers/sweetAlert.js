@@ -27,3 +27,30 @@ export const showErrorAlert = (titleMessage, message) => {
     'error'
   );
 };
+
+export async function completeComandaAlert() {
+  return Swal.fire({
+    title: "¿Completar Comanda?",
+    text: "Una vez completada, no se podrá eliminar ni modificar.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Sí, completar",
+    cancelButtonText: "Cancelar",
+  });
+};
+
+
+export async function customConfirmAlert(title, text, confirmButtonText = "Confirmar", cancelButtonText = "Cancelar") {
+  return Swal.fire({
+    title: title,
+    text: text,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: confirmButtonText,
+    cancelButtonText: cancelButtonText,
+  });
+}
