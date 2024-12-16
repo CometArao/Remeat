@@ -58,9 +58,51 @@ export const utensilioValidation = Joi.object({
       "number.integer": "El id debe ser un número entero.",
       "number.positive": "El id debe ser un número positivo.",
     }),
+    costo_utensilio: Joi.number()
+    .integer()
+    .positive()
+    .messages({
+      "number.base": "El costo debe ser un numbero",
+      "number.integer": "El costo debe ser un entero",
+      "number.positive": "El costo debe ser positivo"
+    })
 })
 export const utensilioQueryValidation = Joi.object({
     id_utensilio: Joi.number()
+    .integer()
+    .positive()
+    .messages({
+      "number.base": "El id debe ser un número.",
+      "number.integer": "El id debe ser un número entero.",
+      "number.positive": "El id debe ser un número positivo.",
+    }),
+})
+export const utensilioEditValidation = Joi.object({
+    id_utensilio: Joi.number()
+    .integer()
+    .positive()
+    .messages({
+      "number.base": "El id debe ser un número.",
+      "number.integer": "El id debe ser un número entero.",
+      "number.positive": "El id debe ser un número positivo.",
+    }),
+    cantidad_utensilio: Joi.number()
+    .integer()
+    .min(0)
+    .messages({
+      "number.base": "La cantidad debe ser un número.",
+      "number.integer": "La cantidad debe ser un número entero.",
+      "number.min": "La cantidad restante debe ser mayor o igual a 0"
+    }),
+    cantidad_restante_utensilio: Joi.number()
+    .integer()
+    .min(0)
+    .message({
+      "number.base": "La cantidad restante debe ser un número",
+      "number.integer": "La cantidad restante debe ser un numero entero",
+      "number.min": "La cantidad restante debe ser mayor o igual a 0"
+    }),
+    id_tipo_utensilio: Joi.number()
     .integer()
     .positive()
     .messages({

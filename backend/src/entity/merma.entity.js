@@ -12,8 +12,7 @@ const merma = new EntitySchema({
             generated: true,
         },
         fecha_merma: {
-            type: "date",
-            nullable: true
+            type: "timestamp",
         },
     },
 });

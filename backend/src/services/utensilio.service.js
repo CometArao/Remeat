@@ -90,11 +90,11 @@ export async function createUtensilioService(data) {
 
         // Crear el utensilio
         const newUtensilio = utensilioRepository.create({
-            cantidad_utensilio,
-            costo_utensilio,
+            cantidad_utensilio: cantidad_utensilio,
+            cantidad_restante_utensilio: cantidad_utensilio,
             tipo_utensilio: tipoUtensilio,
+            costo_utensilio: costo_utensilio
         });
-
         await utensilioRepository.save(newUtensilio);
 
         // Si id_pedido está presente, agregarlo a la tabla intermedia
@@ -135,15 +135,13 @@ export async function createUtensilioService(data) {
         return [null, error.message];
     }
 }
-
-
 export async function getUtensiliosService() {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
-
     try {
         const utensilios = await utensilioRepository.find({
             relations: {
-                tipo_utensilio: true, // Relación válida
+                tipo_utensilio: true // Relación válida
+                //pedido: true
             },
         });
 
@@ -154,10 +152,25 @@ export async function getUtensiliosService() {
     }
 }
 
+export async function getUtensiliosDetalladoService() {
+    try {
+        const utensilios = await AppDataSource.query(`
+   select *
+   from utensilio u
+   inner join tipo_utensilio tu on u.id_tipo_utensilio = tu.id_tipo_utensilio 
+   inner join compuesto_utensilio cu on cu.id_utensilio = u.id_utensilio 
+   inner join pedido p on p.id_pedido = cu.id_pedido          
+        `)
+        return [utensilios, null];
+    } catch (error) {
+        console.error("Error al obtener los utensilios:", error);
+        return [null, error.message];
+    }
+}
+
 // Servicio para obtener un utensilio específico
 export async function getUtensilioService(id) {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
-
     try {
         const utensilio = await utensilioRepository.findOne({
             where: { id_utensilio: id },
@@ -170,8 +183,6 @@ export async function getUtensilioService(id) {
         return [null, error.message];
     }
 }
-
-
 // Servicio para actualizar un utensilio
 export async function updateUtensilioService(id, data) {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);

@@ -20,6 +20,15 @@ export async function getIngredientes() {
         return [];
     }
 }
+export async function getIngredietnesDetallado() {
+    try {
+        const { data } = await axios.get('/ingredientes/detallado/detallado');
+        return data.data;
+    } catch (error) {
+        handleErrorResponse(error); // Maneja el error aquí
+        return [];
+    }
+}
 
 
 export async function createIngrediente(data) {

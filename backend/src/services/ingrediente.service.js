@@ -83,28 +83,47 @@ export async function createIngredienteService(data) {
     }
 }
 
-  
-  
+
+
 
 // Servicio para obtener todos los ingredientes
 export async function getIngredientesService() {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
-  
+
     try {
-      const ingredientes = await ingredienteRepository.find({
-        relations: {
-          tipo_ingrediente: true, // Relación con el tipo de ingrediente
-          compuesto_ingrediente: { pedido: true }, // Relación con la tabla intermedia y pedidos
-        },
-      });
-  
-      return [ingredientes, null];
+        const ingredientes = await ingredienteRepository.find({
+            relations: {
+                tipo_ingrediente: true, // Relación con el tipo de ingrediente
+                compuesto_ingrediente: { pedido: true }, // Relación con la tabla intermedia y pedidos
+            },
+        });
+
+        return [ingredientes, null];
     } catch (error) {
-      console.error("Error al obtener los ingredientes:", error);
-      return [null, error.message];
+        console.error("Error al obtener los ingredientes:", error);
+        return [null, error.message];
     }
-  }
-  
+}
+// Servicio para obtener todos los ingredientes
+export async function getIngredientesDetalladoService() {
+
+    try {
+        const ingredientes = await AppDataSource.query(`
+   select *
+   from ingrediente i
+   inner join tipo_ingrediente ti on ti.id_tipo_ingrediente = i.id_tipo_ingrediente 
+   inner join compuesto_ingrediente ci on ci.id_ingrediente = i.id_ingrediente 
+   inner join pedido p on p.id_pedido = ci.id_pedido 
+        `)
+        console.log("ingredientes")
+        console.log(ingredientes)
+        return [ingredientes, null];
+    } catch (error) {
+        console.error("Error al obtener los ingredientes:", error);
+        return [null, error.message];
+    }
+}
+
 
 
 // Servicio para obtener un ingrediente por ID
@@ -132,7 +151,7 @@ export async function updateIngredienteService(id_ingrediente, data) {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
-        const { fecha_vencimiento, cantidad_ingrediente, cantidad_original_ingrediente, 
+        const { fecha_vencimiento, cantidad_ingrediente, cantidad_original_ingrediente,
             costo_ingrediente, id_tipo_ingrediente } = data;
 
         // Verificar que el ingrediente existe
@@ -158,23 +177,23 @@ export async function updateIngredienteService(id_ingrediente, data) {
             }
         }
 
-       // Actualizar los campos del ingrediente
-       ingredienteExistente.fecha_vencimiento = fecha_vencimiento;
-       ingredienteExistente.cantidad_ingrediente = cantidad_ingrediente;
-       ingredienteExistente.cantidad_original_ingrediente = cantidad_original_ingrediente;
-       ingredienteExistente.costo_ingrediente = costo_ingrediente;
-       ingredienteExistente.tipo_ingrediente = tipoIngrediente;
-    
+        // Actualizar los campos del ingrediente
+        ingredienteExistente.fecha_vencimiento = fecha_vencimiento;
+        ingredienteExistente.cantidad_ingrediente = cantidad_ingrediente;
+        ingredienteExistente.cantidad_original_ingrediente = cantidad_original_ingrediente;
+        ingredienteExistente.costo_ingrediente = costo_ingrediente;
+        ingredienteExistente.tipo_ingrediente = tipoIngrediente;
 
-       await ingredienteRepository.save(ingredienteExistente);
 
-       // Obtener nuevamente para incluir todas las relaciones
-       const updatedIngrediente = await ingredienteRepository.findOne({
-           where: { id_ingrediente },
-           relations: { tipo_ingrediente: { unidad_medida: true } },
-       });
+        await ingredienteRepository.save(ingredienteExistente);
 
-       return [updatedIngrediente, null];
+        // Obtener nuevamente para incluir todas las relaciones
+        const updatedIngrediente = await ingredienteRepository.findOne({
+            where: { id_ingrediente },
+            relations: { tipo_ingrediente: { unidad_medida: true } },
+        });
+
+        return [updatedIngrediente, null];
     } catch (error) {
         console.error("Error al actualizar el ingrediente:", error);
         return [null, error.message];
@@ -188,7 +207,7 @@ export async function deleteIngredienteService(id_ingrediente) {
 
     try {
 
-        if(!id_ingrediente){
+        if (!id_ingrediente) {
             return [null, "ID de ingrediente no válido."]
         }
         // Verificar que el ingrediente existe
@@ -271,8 +290,9 @@ export async function getTipoIngredientesService() {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
-        const tipos = await tipoIngredienteRepository.find( {
-             relations: ["unidad_medida"] }
+        const tipos = await tipoIngredienteRepository.find({
+            relations: ["unidad_medida"]
+        }
         );
 
         return [tipos, null];
@@ -343,6 +363,17 @@ export async function updateTipoIngredienteService(id_tipo_ingrediente, data) {
                 )
                 .getOne();
 
+
+        // Actualizar el tipo de ingrediente
+        /*const updatedTipoIngrediente = {
+            ...tipoIngredienteExistente,
+            nombre_tipo_ingrediente: nombre_tipo_ingrediente ?? tipoIngredienteExistente.nombre_tipo_ingrediente,
+            cantidad_alerta_tipo_ingrediente:
+                cantidad_alerta_tipo_ingrediente ?? tipoIngredienteExistente.cantidad_alerta_tipo_ingrediente,
+            unidad_medida: unidadMedidaExistente ?? tipoIngredienteExistente.unidad_medida,
+        }; 
+        */
+
             if (existingTipoIngrediente) {
                 return [null, `El tipo de ingrediente '${nombre_tipo_ingrediente}' ya existe.`];
             }
@@ -406,7 +437,7 @@ export async function deleteTipoIngredienteService(id) {
         if (error.code === "23503") { // Código de error para violación de clave foránea en PostgreSQL
             return [null, `No se puede eliminar este tipo de ingrediente porque está siendo utilizado
                 en uno o más platillos.`];
-                
+
         }
         console.error("Error al eliminar el tipo de ingrediente:", error);
         return [null, error.message];
