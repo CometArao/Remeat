@@ -107,7 +107,6 @@ export async function getHorarioLaboralByIdService(id) {
   }
 }
 
-
 export async function updateHorarioLaboralService(id, data) {
   const horarioLaboralRepository = AppDataSource.getRepository(horario_laboral);
   const horarioDiaRepository = AppDataSource.getRepository(horario_dia);
@@ -122,66 +121,28 @@ export async function updateHorarioLaboralService(id, data) {
 
     const { descripcion, horariosDia } = data;
 
-    // Validación de días duplicados y días válidos
-    if (horariosDia && Array.isArray(horariosDia)) {
-      const diasValidos = [
-        "Lunes",
-        "Martes",
-        "Miércoles",
-        "Jueves",
-        "Viernes",
-        "Sábado",
-        "Domingo",
-      ];
-      const diasUnicos = new Set();
-
-      for (const dia of horariosDia) {
-        if (!diasValidos.includes(dia.dia_semana)) {
-          return [null, `Día inválido: ${dia.dia_semana}. Solo se permiten días de lunes a domingo.`];
-        }
-        if (diasUnicos.has(dia.dia_semana)) {
-          return [null, `Día duplicado: ${dia.dia_semana}. No se permiten días repetidos.`];
-        }
-        diasUnicos.add(dia.dia_semana);
-      }
-    }
-
-    // Actualizar descripción si está presente
+    // Actualizar descripción
     if (descripcion) horarioLaboral.descripcion = descripcion;
 
+    // Procesar días actualizados o nuevos
     if (horariosDia) {
-      // Identificar días que deben eliminarse
-      const diasExistentes = horarioLaboral.horario_dia.map((dia) => dia.dia_semana);
-      const diasNuevos = horariosDia.map((dia) => dia.dia_semana);
-
-      const diasAEliminar = horarioLaboral.horario_dia.filter(
-        (dia) => !diasNuevos.includes(dia.dia_semana)
-      );
-
-      // Eliminar días que ya no están
-      if (diasAEliminar.length > 0) {
-        const idsAEliminar = diasAEliminar.map((dia) => dia.id_horario_dia);
-        await horarioDiaRepository.delete(idsAEliminar);
-      }
-
-      // Actualizar o agregar días
       for (const dia of horariosDia) {
-        const diaExistente = horarioLaboral.horario_dia.find(
-          (d) => d.dia_semana === dia.dia_semana
-        );
-
-        if (diaExistente) {
+        if (dia.id_horario_dia) {
           // Actualizar día existente
-          diaExistente.hora_inicio = dia.hora_inicio.slice(0, 5); // Solo HH:mm
-          diaExistente.hora_fin = dia.hora_fin.slice(0, 5); // Solo HH:mm
-          await horarioDiaRepository.save(diaExistente);
+          const diaExistente = await horarioDiaRepository.findOneBy({
+            id_horario_dia: dia.id_horario_dia,
+          });
+          if (diaExistente) {
+            diaExistente.dia_semana = dia.dia_semana;
+            diaExistente.hora_inicio = dia.hora_inicio.slice(0, 5); // HH:mm
+            diaExistente.hora_fin = dia.hora_fin.slice(0, 5); // HH:mm
+            await horarioDiaRepository.save(diaExistente);
+          }
         } else {
           // Crear un nuevo día
           const nuevoHorarioDia = horarioDiaRepository.create({
             ...dia,
             horario_laboral: horarioLaboral,
-            hora_inicio: dia.hora_inicio.slice(0, 5),
-            hora_fin: dia.hora_fin.slice(0, 5),
           });
           await horarioDiaRepository.save(nuevoHorarioDia);
           horarioLaboral.horario_dia.push(nuevoHorarioDia);

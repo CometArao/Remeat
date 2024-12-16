@@ -32,7 +32,7 @@ export async function createHorarioLaboral(horarioLaboral) {
 
 export async function updateHorarioLaboral(id, horarioLaboral) {
     try {
-        const { data } = await axios.patch(`/horarios-laborales/${id}`, horarioLaboral);
+        const { data } = await axios.put(`/horarios-laborales/${id}`, horarioLaboral);
         return data;
     } catch (error) {
         console.error("Error actualizando horario laboral:", error.response?.data || error.message);
