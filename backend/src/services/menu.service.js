@@ -49,19 +49,14 @@ export async function createMenuService(data, userId) {
                 where: { id_platillo: platilloSeleccionado.id_platillo },
             });
 
-            if (!platillo || platillo.precio_platillo <= 0) {
-                console.warn(
-                    `Platillo con ID ${platilloSeleccionado.id_platillo} no es válido (sin precio o no existe).`
-                );
-                continue;
+            // Si el platillo no existe o no está disponible
+            if (!platillo) {
+                return [null, `El platillo no existe.`];
+            }
+            if (!platillo.disponible) {
+                return [null, `El platillo "${platillo.nombre_platillo}" no está disponible.`];
             }
 
-            // Verificar la disponibilidad del platillo usando `verificarDisponibilidadPlatillo`
-            const disponible = await verificarDisponibilidadPlatillo(platillo.id_platillo);
-            if (!disponible) {
-                console.warn(`Platillo con ID ${platillo.id_platillo} no tiene ingredientes suficientes.`);
-                continue;
-            }
 
             platillosValidos.push(platillo);
         }
@@ -160,8 +155,8 @@ export async function getMenuByIdService(id_menu) {
             return [null, { dataInfo: "id_menu", message: `El menú con ID ${id_menu} no existe.` }];
         }
 
-         // Formatear el menú con los datos requeridos
-         const formattedMenu = {
+        // Formatear el menú con los datos requeridos
+        const formattedMenu = {
             id_menu: menuItem.id_menu,
             fecha: menuItem.fecha,
             disponibilidad: menuItem.disponibilidad,
@@ -190,7 +185,7 @@ export async function updateMenuService(id_menu, menuData) {
     const platilloRepository = AppDataSource.getRepository(Platillo);
     const usuarioRepository = AppDataSource.getRepository(Usuario);
 
-    const { fecha,  id_usuario, platillos } = menuData;
+    const { fecha, id_usuario, platillos } = menuData;
 
     try {
         // Buscar el menú existente
@@ -272,7 +267,7 @@ export async function deleteMenuByIdService(id_menu) {
         const menuRepository = AppDataSource.getRepository(Menu);
 
         const menuFound = await menuRepository.findOne({
-            where: {  id_menu },
+            where: { id_menu },
             relations: ["platillo", "usuario"],
         });
 
