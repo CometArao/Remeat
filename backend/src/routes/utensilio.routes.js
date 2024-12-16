@@ -10,6 +10,7 @@ import {
   getTipoUtensilioController,
   getUtensilioController,
   getUtensiliosController,
+  getUtensiliosDetalladoController,
   updateTipoUtensilioController,
   updateUtensilioController
 } from "../controllers/utensilio.controller.js";
@@ -30,6 +31,7 @@ router
   .post("/", createUtensilioController)                    // Crear utensilio
   .get("/:id", getUtensilioController)                     // Obtener un utensilio específico por ID
   .get("/", getUtensiliosController)                       // Obtener todos los utensilios
+  .get("/detallado", getUtensiliosDetalladoController)     // Obtener todos los utensilios y relaciones
   .patch("/:id", updateUtensilioController)                // Actualizar un utensilio específico
   .delete("/:id", deleteUtensilioController);              // Eliminar un utensilio específico
 

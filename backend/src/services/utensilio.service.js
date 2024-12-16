@@ -90,11 +90,11 @@ export async function createUtensilioService(data) {
 
         // Crear el utensilio
         const newUtensilio = utensilioRepository.create({
-            cantidad_utensilio: cantidad_utensilio, 
-            cantidad_utensilio_restante: cantidad_utensilio,
-            tipo_utensilio: tipoUtensilio, 
+            cantidad_utensilio: cantidad_utensilio,
+            cantidad_restante_utensilio: cantidad_utensilio,
+            tipo_utensilio: tipoUtensilio,
             costo_utensilio: costo_utensilio
-            });
+        });
         await utensilioRepository.save(newUtensilio);
 
         // Si id_pedido está presente, agregarlo a la tabla intermedia
@@ -135,18 +135,38 @@ export async function createUtensilioService(data) {
         return [null, error.message];
     }
 }
-
-
 export async function getUtensiliosService() {
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
-
     try {
         const utensilios = await utensilioRepository.find({
             relations: {
-                tipo_utensilio: true, // Relación válida
-                pedido: true
+                tipo_utensilio: true // Relación válida
+                //pedido: true
             },
         });
+
+        return [utensilios, null];
+    } catch (error) {
+        console.error("Error al obtener los utensilios:", error);
+        return [null, error.message];
+    }
+}
+
+export async function getUtensiliosDetalladoService() {
+    //TODO: Validar
+
+    try {
+        const utensilios = await AppDataSource.query(`
+   select *
+   from utensilio u
+   inner join tipo_utensilio tu on u.id_tipo_utensilio = tu.id_tipo_utensilio 
+   inner join compuesto_utensilio cu on cu.id_utensilio = u.id_utensilio 
+   inner join pedido p on p.id_pedido = cu.id_pedido          
+        `)
+        //if(!utensilios || utensilios.length === 0) {
+            //return [null, "No se encontraron platillos"]
+        //}
+
 
         return [utensilios, null];
     } catch (error) {

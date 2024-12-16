@@ -2,8 +2,9 @@ import Mermas from "../entity/merma.entity.js"
 import UtensilioMermas from "../entity/utensilio_merma.entity.js"
 import IngredientesMermas from "../entity/ingrediente_merma.entity.js"
 import { AppDataSource } from "../config/configDb.js";
-import { handleErrorServer } from "../handlers/responseHandlers.js";
+import { handleErrorClient, handleErrorServer } from "../handlers/responseHandlers.js";
 import merma from "../entity/merma.entity.js";
+import { mermaValidation } from "../validations/merma.validation.js";
 
 
 
@@ -12,20 +13,24 @@ export async function createMermaService(query) {
         const mermasRepository = AppDataSource.getRepository(Mermas);
         const utensilioMermaRepository = AppDataSource.getRepository(UtensilioMermas);
         const ingredienteMermaRepository = AppDataSource.getRepository(IngredientesMermas);
-        console.log("Crear mermas")
-        console.log(query)
-        const { utensilios, ingredientes} = query;
-        console.log(utensilios)
-        console.log(ingredientes)
+        let listaIngredientesEditados = []
+        let listaUtensiliosEditados = []
+        let listaUtensilioMerma = []
+        let listaIngredienteMerma = []
+        const { utensilios, ingredientes } = query;
+        if(utensilios.length === 0 && ingredientes.length === 0) {
+            return [null, "No se incluyen datos en la merma"]
+        }
 
         const today = new Date()
         const formatedDate = today.toISOString()
         const nuevaMerma = mermasRepository.create({
             fecha_merma: formatedDate,
         })
+        //TODO: que pasa con una merma que ya existe en esta fecha entre este ingrediente
         const mermaCreada = await mermasRepository.save(nuevaMerma);
         //crear los utensilios y ingredientes
-        for(let i = 0; i < utensilios.length; i++) {
+        for (let i = 0; i < utensilios.length; i++) {
             const utensilio = utensilios[i]
             const nuevoUtensilioMerma = utensilioMermaRepository.create({
                 id_utensilio: utensilio.id_utensilio,
@@ -33,27 +38,37 @@ export async function createMermaService(query) {
                 cantidad_perdida_utensilio: utensilio.cantidad_perdida
             })
             const UtensilioMermaCreado = await utensilioMermaRepository.save(nuevoUtensilioMerma);
-            console.log(UtensilioMermaCreado)
-            if(!UtensilioMermaCreado) {
+            if (!UtensilioMermaCreado) {
                 return [null, "Error al crear utensilio Merma"]
             }
+            listaUtensilioMerma.push(UtensilioMermaCreado)
             //ajustar cantidad utensilio
             const utensilioAEditar = await AppDataSource.query(`
                 SELECT *
                 FROM utensilio u
                 WHERE u.id_utensilio = $1
-                `, [ingrediente.id_ingrediente])
-            if(!utensilioAEditar) {
+                `, [utensilio.id_utensilio])
+            if (!utensilioAEditar || utensilioAEditar.length === 0) {
                 return [null, "Error integridad de la base de datos"]
             }
-            const nuevaCantidad = utensilioAEditar.cantidad_ingrediente - utensilio.cantidad_perdida; 
+            const nuevaCantidad = utensilioAEditar[0].cantidad_restante_utensilio - utensilio.cantidad_perdida;
+            if(nuevaCantidad < 0) {
+                return [null, "Se esta mermando mas de la cantidad de utensilios existente"]
+            }
             await AppDataSource.query(`
             UPDATE utensilio
             SET cantidad_utensilio = $1
             WHERE id_utensilio = $2; 
             `, [nuevaCantidad, utensilio.id_utensilio])
+            const utensilioEditado = await AppDataSource.query(`
+            SELECT *
+            FROM utensilio
+            WHERE id_utensilio = $1
+            `, [utensilio.id_utensilio])
+            listaUtensiliosEditados.push(utensilioEditado);
+            
         }
-        for(let i = 0; i < ingredientes.length; i++) {
+        for (let i = 0; i < ingredientes.length; i++) {
             console.log("Añadir ingrediente")
             const ingrediente = ingredientes[i]
             const nuevoIngredienteMerma = await AppDataSource.query(`
@@ -61,26 +76,41 @@ export async function createMermaService(query) {
             VALUES ($1, $2, $3)
             `, [ingrediente.id_ingrediente, mermaCreada.id_merma, ingrediente.cantidad_perdida])
 
-            if(!nuevoIngredienteMerma) {
+            if (!nuevoIngredienteMerma) {
                 return [null, "Error al crear ingrediente merma"]
             }
+            listaIngredienteMerma.push(nuevoIngredienteMerma)
             //ajustar cantidad_ingrediente
             const ingredienteAEditar = await AppDataSource.query(`
                 SELECT *
                 FROM ingrediente i
                 WHERE i.id_ingrediente = $1
                 `, [ingrediente.id_ingrediente])
-            const nuevaCantidad = ingredienteAEditar.cantidad_ingrediente - ingrediente.cantidad_perdida; 
+            const nuevaCantidad = ingredienteAEditar[0].cantidad_ingrediente - ingrediente.cantidad_perdida;
+            if(nuevaCantidad < 0) {
+                return [null, "Se esta mermando mas de la cantidad de ingredientes existente"]
+            }
             await AppDataSource.query(`
             UPDATE ingrediente 
             SET cantidad_ingrediente = $1
             WHERE id_ingrediente = $2; 
-            
-                `, [nuevaCantidad, ingrediente.id_ingrediente])
+            `, [nuevaCantidad, ingrediente.id_ingrediente])
+            const ingredienteEditado = await AppDataSource.query(`
+            SELECT *
+            FROM ingrediente i
+            WHERE i.id_ingrediente = $1
+            `, [ingrediente.id_ingrediente])
+            listaIngredientesEditados.push(ingredienteEditado)
         }
-        
-        return [nuevaMerma, null];
-    }catch(error) {
+        nuevaMerma.ingredientes = listaIngredienteMerma;
+        nuevaMerma.utensilios = listaUtensilioMerma;
+        const result = {
+            nuevaMerma: nuevaMerma,
+            ingredientesEditados: listaIngredientesEditados,
+            utensiliosEditados: listaUtensiliosEditados
+        }
+        return [result, null];
+    } catch (error) {
         console.error("Error al crear una merma", error)
         return [null, error.message]
     }
@@ -104,7 +134,7 @@ export async function getMermaService(id_merma) {
             INNER JOIN pedido p ON p.id_pedido = ci.id_pedido
             WHERE im.id_merma = $1
         `, [id_merma])
-        if(!ingredientes) {
+        if (!ingredientes) {
             return [null, "Error no se encontro ingrediente"]
         }
         console.log(ingredientes)
@@ -123,11 +153,11 @@ export async function getMermaService(id_merma) {
         console.log(utensilios)
         mermaEncontrada.utensilios = utensilios;
 
-        if(!mermaEncontrada) {
+        if (!mermaEncontrada) {
             return [null, "Error no se encontro la merma"]
         }
         return [mermaEncontrada, null];
-    }catch(error) {
+    } catch (error) {
         console.error("error al obtener la merma", error);
         return [null, "Error interno del servidor"]
     }
@@ -136,17 +166,12 @@ export async function getMermaService(id_merma) {
 export async function getMermasService() {
     try {
         const mermasRepository = AppDataSource.getRepository(Mermas);
-        const createErrorMessage = (dataInfo, message) => ({
-            dataInfo,
-            message
-        });
-
-    const mermasEncontradas = await mermasRepository.find();
-    if (!mermasEncontradas) {
-        return [null, "mermas no encontrado"];
-    } 
-    return [mermasEncontradas, null];
-    }catch(error) {
+        const mermasEncontradas = await mermasRepository.find();
+        if (!mermasEncontradas) {
+            return [null, "mermas no encontrado"];
+        }
+        return [mermasEncontradas, null];
+    } catch (error) {
         console.error("Error al obtener las mermas", error);
         return [null, "Error interno del servidor"]
     }
@@ -155,9 +180,9 @@ export async function updateMermaService(body) {
     try {
         const mermasRepository = AppDataSource.getRepository(Mermas);
         const mermaEncontrada = await mermasRepository.findOne({
-            where: { id_merma : body.id_merma }
+            where: { id_merma: body.id_merma }
         })
-        if(!mermaEncontrada) {
+        if (!mermaEncontrada) {
             return [null, "No se encontro la merma a editar"]
         }
         const mermaEditada = {
@@ -171,7 +196,7 @@ export async function updateMermaService(body) {
             mermaEditada
         );
         return [mermaEditada, null]
-    }catch(error) {
+    } catch (error) {
         console.log(error)
         return [null, "Error en el servidor"]
     }
@@ -182,20 +207,48 @@ export async function deleteMermaService(id) {
         const mermaEncontrada = await mermasRepository.findOne({
             where: { id_merma: id }
         })
-        if(!mermaEncontrada) {
+        if (!mermaEncontrada) {
             return [null, "No se encontro la merma especificada"]
+        }
+        //actualizar utensilio
+        const utensilio_merma = await AppDataSource.query(`
+            SELECT *
+            FROM utensilio_merma um
+            INNER JOIN utensilio u ON um.id_utensilio = u.id_utensilio
+            WHERE um.id_merma = $1
+        `, [id])
+        const nuevaCantidadUtensilio = utensilio_merma.cantidad_restante_utensilio + utensilio_merma.cantidad_perdida_utensilio
+        if (utensilio_merma && utensilio_merma.length !== 0) {
+            await AppDataSource.query(`
+                UPDATE utensilio
+                SET cantidad_utensilio = $1
+            `, [nuevaCantidadUtensilio])
         }
         await AppDataSource.query(`
             DELETE FROM utensilio_merma
             where id_merma = $1
             `, [id])
+        //actualizar ingrediente
+        const ingrediente_merma = await AppDataSource.query(`
+            SELECT *
+            FROM ingrediente_merma im
+            INNER JOIN ingrediente i ON im.id_utensilio = i.id_ingrediente
+            WHERE im.id_merma = $1
+        `, [id])
+        const nuevaCantidadIngrediente = ingrediente_merma.cantidad_ingrediente + ingrediente_merma.cantidad_perdida_ingrediente
+        if (utensilio_merma && utensilio_merma.length !== 0) {
+            await AppDataSource.query(`
+                UPDATE ingrediente
+                SET cantidad_ingrediente = $1
+            `, [nuevaCantidadIngrediente])
+        }
         await AppDataSource.query(`
             DELETE FROM ingrediente_merma 
             where id_merma = $1
             `, [id])
         const mermaEliminada = await mermasRepository.remove(mermaEncontrada);
         return [mermaEliminada, null];
-    }catch(error) {
+    } catch (error) {
         console.log(error)
         return [null, "Error interno del servidor"]
     }
