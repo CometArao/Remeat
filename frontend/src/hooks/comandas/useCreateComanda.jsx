@@ -28,14 +28,18 @@ const useCreateComanda = () => {
     try {
       const token = cookies.get('jwt-auth');
       const response = await createComanda(data, token);
+      if (response.status !== 201) {
+        throw new Error('Error al crear la comanda.');
+      }
       return response;
     } catch (error) {
-      console.error('Error creating comanda:', error);
-      setError(error);
+      console.error('Error en useCreateComanda:', error);
+      setError(error.message || 'Error desconocido.');
     } finally {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchPlatillos();
@@ -43,5 +47,6 @@ const useCreateComanda = () => {
 
   return { create, loading, error, platillos, loadingPlatillos, errorPlatillos };
 };
+
 
 export default useCreateComanda;

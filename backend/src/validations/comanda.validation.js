@@ -5,7 +5,7 @@ import Joi from 'joi';
 
 
 
-export const createComandaValidation = Joi.object({
+/*export const createComandaValidation = Joi.object({
   id_usuario: Joi.number()
     .integer()
     .positive()
@@ -48,7 +48,7 @@ export const createComandaValidation = Joi.object({
   .messages({
     "object.unknown": "No se permiten propiedades adicionales."
   });
-
+*/
 
 
 

@@ -16,7 +16,7 @@ import {
 import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers/responseHandlers.js';
 
 import {
-  createComandaValidation,
+  //createComandaValidation,
   addPlatilloToComandaValidation,
   updateComandaValidation
 } from '../validations/comanda.validation.js';
@@ -111,7 +111,6 @@ export async function addPlatilloToComandaController(req, res) {
 
   const comandaId = req.params.id;
   try {
-    console.log("Hola")
     const addedPlatillo = await addPlatilloToComanda(comandaId, req.body);
     handleSuccess(res, 201, 'Platillo añadido a la comanda', addedPlatillo);
   } catch (error) {
@@ -130,26 +129,35 @@ export async function addPlatilloToComandaController(req, res) {
 
 export async function createComandaController(req, res) {
   try {
-    const loggedUser = req.user; // Usuario logueado
-    const platilloData = req.body.platillo; // Datos del platillo
+   
+    console.log('Datos recibidos:', req.body);
 
-    // Verificar que los datos del platillo están presentes
-    if (!platilloData || !platilloData.nombre_platillo) {
-      return res.status(400).json({ status: 'Error', message: 'Debe proporcionar un platillo para crear la comanda.' });
+
+    const loggedUser = req.user;
+    const platilloData = req.body.platillo;
+
+    if (!platilloData || !platilloData.nombre_platillo || !platilloData.cantidad) {
+      return res.status(400).json({ 
+        status: 'Error', 
+        message: 'Debe proporcionar un nombre y cantidad para el platillo.' 
+      });
     }
 
-    // Crear la comanda
+    console.log('Datos recibidos:', platilloData);
+
     const newComanda = await createComanda(loggedUser, platilloData);
 
     res.status(201).json({
       status: 'Success',
-      message: 'Comanda creada con el platillo asignado.',
+      message: 'Comanda creada con éxito.',
       data: newComanda,
     });
   } catch (error) {
+    console.error('Error en createComandaController:', error.message);
     res.status(500).json({ status: 'Error', message: error.message });
   }
 }
+
 
 
 
