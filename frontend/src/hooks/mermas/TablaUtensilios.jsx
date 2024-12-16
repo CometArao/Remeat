@@ -1,4 +1,5 @@
 import { useState, useImperativeHandle, forwardRef } from "react";
+import { formatearFecha } from "../../helpers/formatDate";
 
 // Solo puede ir un argumento junto a ref
 // Este argumento luego debe ser destructurado
@@ -76,15 +77,15 @@ const TableWithCheckboxes = forwardRef((props, ref) => {
                 </thead>
                 <tbody>
                     {props.data.map((item) => 
-                            item.tipo_utensilio.nombre_tipo_utensilio.toLowerCase().startsWith(props.filtro) && (item.pedido && item.pedido.length !== 0) ? (
-                                <tr key={item.tipo_utensilio.nombre_tipo_utensilio}>
+                            item.nombre_tipo_utensilio.toLowerCase().startsWith(props.filtro) ? (
+                                <tr key={item.nombre_tipo_utensilio}>
                                     <td>
-                                        {item.tipo_utensilio?.nombre_tipo_utensilio || "Sin tipo"}
+                                        {item.nombre_tipo_utensilio}
                                     </td>
                                     <td>
-                                        {item.pedido?.fecha_compra_pedido || "Sin fecha"}
+                                        {formatearFecha(item.fecha_compra_pedido)}
                                     </td>
-                                    <td>{item.cantidad_utensilio || 0}</td>
+                                    <td>{item.cantidad_restante_utensilio || 0}</td>
                                     <td>
                                         <input
                                             type="number"

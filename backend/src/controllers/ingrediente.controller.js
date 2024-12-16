@@ -6,6 +6,7 @@ import {
     deleteTipoIngredienteService,
     getIngredienteByIdService,
     getIngredientesService,
+    getIngredientesDetalladoService,
     getTipoIngredienteByIdService,
     getTipoIngredientesService,
     updateIngredienteService,
@@ -214,6 +215,18 @@ export async function createIngredienteController(req, res) {
 export async function getIngredientesController(req, res) {
   try {
     const [ingredientes, error] = await getIngredientesService();
+    if (error) {
+      return handleErrorClient(res, 404, "Error obteniendo ingredientes", error);
+    }
+
+    handleSuccess(res, 200, "Ingredientes obtenidos", ingredientes);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+export async function getIngredientesDetalladoController(req, res) {
+  try {
+    const [ingredientes, error] = await getIngredientesDetalladoService();
     if (error) {
       return handleErrorClient(res, 404, "Error obteniendo ingredientes", error);
     }

@@ -174,7 +174,8 @@ const Informes = () => {
             setDatosIndependientes(tiempo_lineal)
         } catch (error) {
             console.log(error)
-            showErrorAlert("Error no se pudo encontrar los ingredientes y utensilios")
+            showErrorAlert('Error, No se pudieron encontrar los platos');
+            //showErrorAlert("Error no se pudo encontrar los ingredientes y utensilios")
         }
     }
     const handleClickUtilidades = async () => {
@@ -205,7 +206,8 @@ const Informes = () => {
             setDatosIndependientes(tiempo_lineal)
         } catch (error) {
             console.log(error)
-            showErrorAlert("Error no se pudo encontrarse los ingredientes y utensilios")
+            showErrorAlert('Error, No se pudieron encontrar los platos');
+            //showErrorAlert("Error no se pudo encontrarse los ingredientes y utensilios")
         }
 
     }

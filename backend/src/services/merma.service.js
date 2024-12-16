@@ -21,8 +21,7 @@ export async function createMermaService(query) {
         if(utensilios.length === 0 && ingredientes.length === 0) {
             return [null, "No se incluyen datos en la merma"]
         }
-
-        const today = new Date()
+        const today = truncateToMinutes(getCurrentChileanTimestamp()).toISOString();
         const formatedDate = today.toISOString()
         const nuevaMerma = mermasRepository.create({
             fecha_merma: formatedDate,
@@ -57,7 +56,7 @@ export async function createMermaService(query) {
             }
             await AppDataSource.query(`
             UPDATE utensilio
-            SET cantidad_utensilio = $1
+            SET cantidad_restante_utensilio = $1
             WHERE id_utensilio = $2; 
             `, [nuevaCantidad, utensilio.id_utensilio])
             const utensilioEditado = await AppDataSource.query(`

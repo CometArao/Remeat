@@ -2,7 +2,7 @@
 import { 
     createTipoUtensilioService, getTiposUtensilioService, updateTipoUtensilioService, deleteTipoUtensilioService,
     createUtensilioService, getUtensiliosService, updateUtensilioService, deleteUtensilioService,
-    getTipoUtensilioService, getUtensilioService
+    getTipoUtensilioService, getUtensilioService, getUtensiliosDetalladoService
 } from "../services/utensilio.service.js";
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import { utensilioQueryValidation, utensilioValidation, utensilioEditValidation,
