@@ -7,7 +7,6 @@ import {
   getComandaByIdController,
   addPlatilloToComandaController,
   getComandasConPlatillosController,
-  getMeserosController,
   getPlatillosDelDiaController,
   removePlatilloFromComandaController
 } from '../controllers/comanda.controller.js';
@@ -27,7 +26,6 @@ router.delete('/:id', isMesero, deleteComandaController); // Eliminar una comand
 router.patch('/:id/complete', isMesero, completeComandaController); // Completar una comanda
 router.post('/:id/platillos', isMesero, addPlatilloToComandaController); // Añadir un platillo a una comanda
 router.get('/comandas/platillos', /*isMesero,*/ getComandasConPlatillosController); // Obtener comandas con platillos
-router.get('/comanda/meseros', isMesero, getMeserosController); // Obtener meseros
 router.get('/comanda/menuplatillo', isMesero, getPlatillosDelDiaController); // Obtener platillos del día
 router.delete('/:id/platillos/:platilloId', isMesero, removePlatilloFromComandaController); // Eliminar un platillo de una comanda
 
