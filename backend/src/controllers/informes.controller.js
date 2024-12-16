@@ -2,7 +2,7 @@
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 import { getIngredientesDeTipoService, getIngresosVentasService, getMenuPlatilloService, 
     getUtensiliosDeTipoService, getVentasPlatilloService } from "../services/informes.service.js"
-import { getCostosService } from "../services/costo.service.js";
+import { getCostosService } from "../services/costo2.service.js";
 import { tipo_utensilioQueryValidation, tipo_utensilioValidation, 
     utensilioQueryValidation, utensilioValidation } from "../validations/utensilio.validation.js"
 
@@ -94,7 +94,7 @@ export async function getCostos(req, res) {
             console.log(error)
             return handleErrorClient(res, 404, error);
         } 
-        return handleSuccess(res, 200, "menu platillo obtenido exitosamente", costos);
+        return handleSuccess(res, 200, "costos platillo obtenido exitosamente", costos);
     } catch (error) {
         console.log(error)
         return handleErrorServer(res, 500, error.message);

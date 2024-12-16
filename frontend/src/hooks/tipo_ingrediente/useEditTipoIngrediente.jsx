@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { updateTipoIngrediente } from '@services/ingredientes.service'; // Servicio correspondiente
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
-const useEditTipoIngrediente = (setTiposIngrediente) => {
+const useEditTipoIngrediente = (setTiposIngrediente,  fetchTiposIngrediente) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [dataTipoIngrediente, setDataTipoIngrediente] = useState([]);
 
@@ -43,6 +43,7 @@ const useEditTipoIngrediente = (setTiposIngrediente) => {
                         )
                     );
                 }
+                await fetchTiposIngrediente(); // Actualizar lista de tipos de ingrediente
     
                 setDataTipoIngrediente([]); // Resetear datos seleccionados
             } catch (error) {

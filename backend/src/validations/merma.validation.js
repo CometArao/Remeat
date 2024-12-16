@@ -10,9 +10,10 @@ export const mermaValidation = Joi.object({
       "number.integer": "El id debe ser un número entero.",
       "number.positive": "El id debe ser un número positivo.",
     }),
-  utensilios: Joi.array().items(
+  utensilios: Joi.array().required()
+  .items(
     Joi.object({
-      id_utensilio: Joi.number()
+      id_utensilio: Joi.number().required()
       .integer()
       .positive()
       .message({
@@ -20,7 +21,7 @@ export const mermaValidation = Joi.object({
         "number.integer": "utensilios solo puede contener enteros",
         "number.positive": "utensilios solo puede contener numeros positivos"
       }),
-      cantidad_perdida: Joi.number()
+      cantidad_perdida: Joi.number().required()
       .integer()
       .positive()
       .message({
@@ -30,9 +31,10 @@ export const mermaValidation = Joi.object({
       })
     })
   ),
-  ingredientes: Joi.array().items(
+  ingredientes: Joi.array().required()
+  .items(
     Joi.object({
-      id_ingrediente: Joi.number()
+      id_ingrediente: Joi.number().required()
       .integer()
       .positive()
       .message({
@@ -40,7 +42,7 @@ export const mermaValidation = Joi.object({
         "number.integer": "utensilios solo puede contener enteros",
         "number.positive": "utensilios solo puede contener numeros positivos"
       }),
-      cantidad_perdida: Joi.number()
+      cantidad_perdida: Joi.number().required()
       .integer()
       .positive()
       .message({
@@ -52,7 +54,7 @@ export const mermaValidation = Joi.object({
   ),
 })
 export const mermaQueryValidation = Joi.object({
-  id_merma: Joi.number()
+  id_merma: Joi.number().required()
     .integer()
     .positive()
     .messages({

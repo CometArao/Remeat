@@ -1,7 +1,7 @@
 import SelectTime from '@components/SelectTime'
 import { useCallback, useState, useRef } from 'react';
-import useGetUtensilios from '../hooks/utensilios/useGetUtensilio';
-import useGetIngredientesSinTiposNulos from '../hooks/ingredientes/useGetIngredientesSinTipoNulos';
+import useGetUtensiliosMermas from '../hooks/utensilios/useGetUtensilioMermas';
+import useGetIngredientesMermas from '../hooks/ingredientes/useGetIngredientesMermas';
 import Search from '../components/Search';
 import TablaUtensilios from '@hooks/mermas/TablaUtensilios.jsx';
 import TablaIngredientes from '@hooks/mermas/TablaIngredientes.jsx';
@@ -13,9 +13,9 @@ import { useNavigate } from 'react-router-dom';
 const crearMermas = () => {
     const navigate = useNavigate();
     const [selectedIngredientes, setSelectedIngredientes] = useState([])
-    const { utensilios, fetchUtensilios, setUtensilios } = useGetUtensilios();
+    const { utensilios, fetchUtensilios, setUtensilios } = useGetUtensiliosMermas();
     const [utensiliosSeleccionados, setSelectedUtensilios] = useState([])
-    const { ingredientes, fetchIngredientes, setIngredientes } = useGetIngredientesSinTiposNulos();
+    const { ingredientes, fetchIngredientes, setIngredientes } = useGetIngredientesMermas();
     const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState([])
     const [filterName, setFilterName] = useState('');
 

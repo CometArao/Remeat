@@ -11,6 +11,7 @@ import {
   deleteTipoIngredienteController,
   getIngredienteController,
   getIngredientesController,
+  getIngredientesDetalladoController,
   getTipoIngredienteController,
   getTipoIngredientesController,
   updateIngredienteController,
@@ -39,6 +40,7 @@ router
   .post("/", createIngredienteController)                  // Crear un nuevo ingrediente
   .get("/", getIngredientesController)                      // Obtener un ingrediente por id
   .get("/:id", getIngredienteController)                     // Obtener todos los ingredientes
+  .get("/detallado/detallado", getIngredientesDetalladoController)     // Obtener todos los utensilios y relaciones
   .put("/:id", updateIngredienteController)                // Actualizar un ingrediente por ID
   .delete("/:id", deleteIngredienteController);            // Eliminar un ingrediente por ID
 

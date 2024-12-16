@@ -37,8 +37,6 @@ export async function getMerma(req, res) {
     }catch(error) {
         return handleErrorServer(res, 500, error.message);
     }
-
-    
 }
 
 export async function getMermas(req, res) {

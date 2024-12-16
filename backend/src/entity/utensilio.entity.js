@@ -14,6 +14,9 @@ const utensilio = new EntitySchema({
             type: "int",
             nullable: true,
         },
+        cantidad_restante_utensilio: {
+            type: "int"
+        },
         costo_utensilio: {
             type: "int",
         },

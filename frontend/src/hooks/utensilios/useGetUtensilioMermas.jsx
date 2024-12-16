@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { getUtensilios } from "@services/utensilios.service";
+import { getUtensiliosDetallado } from "@services/utensilio.service";
 
 const useGetUtensilios = () => {
     const [utensilios, setUtensilios] = useState([]);
 
     const fetchUtensilios = async () => {
         try {
-            const data = await getUtensilios();
-            console.log("data")
+            const data = await getUtensiliosDetallado();
+            console.log("fetchUtensilios")
             console.log(data)
             if (Array.isArray(data)) {
                 setUtensilios(data);

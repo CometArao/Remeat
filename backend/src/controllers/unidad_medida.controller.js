@@ -22,23 +22,29 @@ import {
 from "../handlers/responseHandlers.js";
 
 export async function createMedidaController(req, res) {
+    console.log("createMedidaController");
     try {
         const { nombre_unidad_medida } = req.body;
+        console.log(nombre_unidad_medida);
 
         const { error } = medidaBodyValidation.validate({ nombre_unidad_medida });
 
-        if (error) return handleErrorClient(res, 400, error.message);
+        if (error) {
+            return handleErrorClient(res, 400, "Error de validación", error.message);
+        }
 
-        const [newMedida, errorMedida] = await
-        createUnidadMedidaService({ nombre_unidad_medida });
+        const [newMedida, errorMedida] = await createUnidadMedidaService({ nombre_unidad_medida });
 
-        if (errorMedida) return handleErrorClient(res, 404, errorMedida);
+        if (errorMedida) {
+            return handleErrorClient(res, 400, errorMedida); // Envía el error específico
+        }
 
         handleSuccess(res, 201, "Medida creada exitosamente", newMedida);
     } catch (error) {
         handleErrorServer(res, 500, error.message);
     }
 }
+
 
 export async function getMedidasController(req, res) {
     try {
@@ -71,7 +77,6 @@ export async function getMedidaByIdController(req, res) {
         handleErrorServer(res, 500, error.message);
     }
 }
-
 export async function updateMedidaController(req, res) {
     try {
         const { id } = req.params;
@@ -79,18 +84,22 @@ export async function updateMedidaController(req, res) {
 
         const { error } = medidaBodyValidation.validate({ nombre_unidad_medida });
 
-        if (error) return handleErrorClient(res, 400, error.message);
+        if (error) {
+            return handleErrorClient(res, 400, "Error de validación", error.message);
+        }
 
-        const [updatedMedida, errorMedida] = await
-        updateUnidadMedidaService( id,{ nombre_unidad_medida });
+        const [updatedMedida, errorMedida] = await updateUnidadMedidaService(id, { nombre_unidad_medida });
 
-        if (errorMedida) return handleErrorClient(res, 404, errorMedida);
+        if (errorMedida) {
+            return handleErrorClient(res, 400, errorMedida); // Envía el error específico
+        }
 
         handleSuccess(res, 200, "Medida actualizada exitosamente", updatedMedida);
     } catch (error) {
         handleErrorServer(res, 500, error.message);
     }
 }
+
 
 export async function deleteMedidaController(req, res) {
     try {

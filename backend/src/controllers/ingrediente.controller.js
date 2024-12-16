@@ -6,6 +6,7 @@ import {
     deleteTipoIngredienteService,
     getIngredienteByIdService,
     getIngredientesService,
+    getIngredientesDetalladoService,
     getTipoIngredienteByIdService,
     getTipoIngredientesService,
     updateIngredienteService,
@@ -33,7 +34,7 @@ export async function createTipoIngredienteController(req, res) {
     ({ nombre_tipo_ingrediente, cantidad_alerta_tipo_ingrediente, id_unidad_medida });
 
     if (errorTipoIngrediente) {
-      return handleErrorClient(res, 404, "Error creando tipo de ingrediente", errorTipoIngrediente);
+      return handleErrorClient(res, 400, errorTipoIngrediente);
     }
     handleSuccess(res, 201, "Tipo de ingrediente creado exitosamente", newTipoIngrediente);
   } catch (error) {
@@ -90,7 +91,7 @@ export async function updateTipoIngredienteController(req, res) {
     const [updatedTipoIngrediente, errorTipoIngrediente] = await updateTipoIngredienteService
     (id_tipo_ingrediente, { nombre_tipo_ingrediente, cantidad_alerta_tipo_ingrediente, id_unidad_medida });
     if (errorTipoIngrediente) {
-      return handleErrorClient(res, 404, "Error actualizando tipo de ingrediente", errorTipoIngrediente);
+      return handleErrorClient(res, 400, errorTipoIngrediente);
     }
 
     handleSuccess(res, 200, "Tipo de ingrediente actualizado exitosamente", updatedTipoIngrediente);
@@ -216,6 +217,18 @@ export async function createIngredienteController(req, res) {
 export async function getIngredientesController(req, res) {
   try {
     const [ingredientes, error] = await getIngredientesService();
+    if (error) {
+      return handleErrorClient(res, 404, "Error obteniendo ingredientes", error);
+    }
+
+    handleSuccess(res, 200, "Ingredientes obtenidos", ingredientes);
+  } catch (error) {
+    handleErrorServer(res, 500, error.message);
+  }
+}
+export async function getIngredientesDetalladoController(req, res) {
+  try {
+    const [ingredientes, error] = await getIngredientesDetalladoService();
     if (error) {
       return handleErrorClient(res, 404, "Error obteniendo ingredientes", error);
     }

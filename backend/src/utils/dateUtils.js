@@ -16,6 +16,13 @@ export const truncateToMinutes = (date) => {
     return truncatedDate;
 };
 
+/* Toma un time y le quita los segundos y milisegundos. */
+export const truncateToMinutes2 = (time) => {
+    if (!time) return ""; // Manejo de valores nulos o indefinidos
+    // Asume que `time` viene en formato HH:mm:ss
+    return time.slice(0, 5); // Extrae solo HH:mm
+};
+
 /* Formatea una fecha y hora en formato 'dd-MM-yyyy HH:mm'. */
 export const formatDateTimeCL = (date) => {
     if (!date) return null; // Manejo de valores nulos o indefinidos
