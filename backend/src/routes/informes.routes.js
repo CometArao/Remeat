@@ -1,7 +1,7 @@
 "use strict";
 import { Router } from "express";
-import { getCostos, getIngresosPorVentas, getPlatillosMenu, 
-    getStockIngrediente, getStockUtensilio, getVentasPlatillo } from "../controllers/informes.controller.js"
+import { getCostos, getIngresosPorVentas,  
+    getStockIngrediente, getStockUtensilio } from "../controllers/informes.controller.js"
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { isAdmin } from "../middlewares/authorization.middleware.js";
 const router = Router();
@@ -25,7 +25,5 @@ router
     .post("/get_costos", getCostos)
     .post("/get_utilidades")
     //grafico circular
-    .post("/get_platillos_vendidos", getVentasPlatillo)
-    .post("/get_platillo_menu", getPlatillosMenu)
 
 export default router;

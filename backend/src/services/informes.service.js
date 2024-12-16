@@ -129,7 +129,7 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
         const ingrediente = ingredientes[i];
         const par_cantidad_fecha_pedido = {
           fecha: ingrediente.fecha_compra_pedido,
-          cantidad_ingrediente: ingrediente.cantidad_ingrediente,
+          cantidad_ingrediente: ingrediente.cantidad_original_ingrediente,
           tipo: "pedido"
         }
         inventarioDelTipo.push(par_cantidad_fecha_pedido);
