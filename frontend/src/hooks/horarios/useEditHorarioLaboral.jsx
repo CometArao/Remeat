@@ -1,12 +1,23 @@
 import { useState } from 'react';
 import { updateHorarioLaboral } from '@services/horarios.service.js';
+import { truncateToMinutes2 } from '../../../../backend/src/utils/dateUtils.js';
 
 const useEditHorarioLaboral = (fetchHorariosLaborales) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [selectedHorario, setSelectedHorario] = useState(null);
 
     const handleClickUpdate = (horario) => {
-        setSelectedHorario(horario);
+        // Truncar horas en horario_dia antes de abrir el popup
+        const formattedHorario = {
+            ...horario,
+            horario_dia: horario.horario_dia.map((dia) => ({
+                ...dia,
+                hora_inicio: truncateToMinutes2(dia.hora_inicio),
+                hora_fin: truncateToMinutes2(dia.hora_fin),
+            })),
+        };
+
+        setSelectedHorario(formattedHorario);
         setIsPopupOpen(true);
     };
 
