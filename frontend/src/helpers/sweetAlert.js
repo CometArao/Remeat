@@ -53,4 +53,14 @@ export async function customConfirmAlert(title, text, confirmButtonText = "Confi
     confirmButtonText: confirmButtonText,
     cancelButtonText: cancelButtonText,
   });
-}
+};
+
+export const showInfoAlert = (titleMessage, message) => {
+  Swal.fire(
+    titleMessage,
+    message,
+    'info'
+  );
+};
+
+

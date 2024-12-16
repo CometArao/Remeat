@@ -20,7 +20,7 @@ import {
  
 } from '../validations/comanda.validation.js';
 
-
+import { sendNotification } from '../services/socket.js';
 
 
 
@@ -145,6 +145,15 @@ export async function createComandaController(req, res) {
     console.log('Datos recibidos:', platilloData);
 
     const newComanda = await createComanda(loggedUser, platilloData);
+
+    sendNotification('nueva-comanda', {
+      id_comanda: newComanda.id_comanda,
+      fecha: newComanda.fecha_compra_comanda,
+      hora: newComanda.hora_compra_comanda,
+      estado: newComanda.estado_comanda,
+  });
+   
+
 
     res.status(201).json({
       status: 'Success',
