@@ -54,13 +54,13 @@
 		display: flex;
 	}
 	label {
-		color: #003366; /*Color label de inputs del formulario*/
+		color: #FFC107; /*Color label de inputs del formulario*/
 		font-weight: bold;
 		margin-bottom: 0.7vh;
 	}
 	input {
 		display: flex;
-		border: 3px solid #003366; /*Color del borde de inputs del formulario*/
+		border: 3px solid #DD3400; /*Color del borde de inputs del formulario*/
 		border-radius: 12px;
 		padding: 8px 5px;
 		background-repeat: no-repeat;
@@ -68,23 +68,23 @@
 		background-color: #eef7ff;
 		font-weight: regular;
 		font-size: 16px;
-		color: #003366;
+		color: #DD3400;
 		border-radius: 12px;
 		background-position: right 10px center;
 		background-size: 25px 25px;
 		box-sizing: border-box;
 	}
 	input::placeholder {
-		color: rgba(0, 51, 102, 0.3);
+		color: #212121;
 		font-weight: light;
 	}
 	input:focus {
-		background-color: rgba(0, 110, 223, 0.14);
+		background-color: #FFC107;
 		font-weight: regular;
 	}
 	select {
 		display: flex;
-		border: 3px solid #003366; /*Color del borde de selects del formulario*/
+		border: 3px solid #DD3400; /*Color del borde de selects del formulario*/
 		border-radius: 12px;
 		padding: 8px 5px;
 		background-repeat: no-repeat;
@@ -92,7 +92,7 @@
 		background-color: #eef7ff;
 		font-weight: regular;
 		font-size: 16px;
-		color: #003366;
+		color: #212121;
 		border-radius: 12px;
 		background-position: right 30px center;
 		background-size: 25px 25px;
@@ -105,16 +105,16 @@
 		appearance: none;
 	}
 	select::placeholder {
-		color: rgba(0, 51, 102, 0.3);
+		color: #212121;
 		font-weight: light;
 	}
 	select:focus {
-		background-color: rgba(0, 110, 223, 0.14);
+		background-color: #FFC107;
 		font-weight: regular;
 	}
 	textarea {
 		display: flex;
-		border: 3px solid #003366; /*Color del borde de textareas del formulario*/
+		border: 3px solid #DD3400; /*Color del borde de textareas del formulario*/
 		border-radius: 12px;
 		padding: 8px 5px;
 		background-repeat: no-repeat;
@@ -122,18 +122,18 @@
 		background-color: #eef7ff;
 		font-weight: regular;
 		font-size: 16px;
-		color: #003366;
+		color: #212121;;
 		border-radius: 12px;
 		background-position: right 10px center;
 		background-size: 25px 25px;
 		box-sizing: border-box;
 	}
 	textarea::placeholder {
-		color: rgba(0, 51, 102, 0.3);
+		color: #212121;
 		font-weight: light;
 	}
 	textarea:focus {
-		background-color: rgba(0, 110, 223, 0.14);
+		background-color: #DD3400;;
 		font-weight: regular;
 	}
 	/*

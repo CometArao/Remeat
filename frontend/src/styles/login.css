@@ -105,11 +105,11 @@
 		appearance: none;
 	}
 	select::placeholder {
-		color: rgba(0, 51, 102, 0.3);
+		color: #212121;
 		font-weight: light;
 	}
 	select:focus {
-		background-color: rgba(0, 110, 223, 0.14);
+		background-color: #DD3400;
 		font-weight: regular;
 	}
 	textarea {
