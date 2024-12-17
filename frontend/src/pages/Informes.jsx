@@ -592,14 +592,6 @@ const Informes = () => {
         }
         console.log("fin de switch")
         console.log(datos)
-        if (datos.tipo.variable === "lineal") {
-            ajustarEntradasDistintas(datos.dependientes)
-            console.log("result")
-            console.log(datos.dependientes)
-            for (let i = 0; i < datos.dependientes.length; i++) {
-                datos.dependientes[i].data = ordenarHorasObjetos(datos.dependientes[i].data);
-            }
-        }
         const dependientes_keys = Object.keys(datos.dependientes)
         if (datos.length == 0 || dependientes_keys.length == 0 || !datos.dependientes) {
             showErrorAlert('Error, parece que los elementos seleccionados no tienen suficiente informacion')

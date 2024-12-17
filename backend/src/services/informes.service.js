@@ -7,25 +7,6 @@ import TipoIngrediente from "../entity/tipo_ingrediente.entity.js"
 import Comanda from "../entity/comanda.entity.js"
 import { compareOnlyDate, formatDateToISO } from "../utils/dateUtils.js";
 
-/* 
-Dada una lista de ids devuelve la cantidad vigente en el sistema
-de utensilios, para esto descuenta la cantidad de mermas y agrega la 
-cantidad de pedidos
-
-ids_tipos_utensilio = {
-  ids: [
-    1,2,3,... 
-  ]
-result = {
-  id_utensilio [
-    {
-      fecha: {fecha actual},
-      cantidad_utensilios: {cantidad_utensilios}
-    },
-    ...
-  ]
-}
-*/
 export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
   const { ids } = ids_tipos_utensilio;
   const tipo_utensilioRepository = AppDataSource.getRepository(TipoUtensilio);
@@ -228,13 +209,13 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
     //porcion del ingrediente * cantidad de platillos
     console.log(comanda)
     //Extrae las horas minutos y segundos y convierte cada uno en un numero
-    const [targetHours, targetMinutes, targetSeconds] = 
+    const [targetHours, targetMinutes, targetSeconds] =
       comanda.hora_compra_comanda.split(':').map(num => parseInt(num))
     let fecha_comanda = new Date(comanda.fecha_compra_comanda)
     fecha_comanda.setHours(targetHours, targetMinutes, targetSeconds)
     const fechaIso = fecha_comanda.toISOString()
     const par_cantidad_fecha_comanda = {
-      fecha: fechaIso, 
+      fecha: fechaIso,
       hora: comanda.hora_compra_comanda,
       cantidad_ingrediente: -(comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo),
       tipo: "comanda",
@@ -345,78 +326,6 @@ export async function getMenuPlatilloService(ids_platillo) {
   }
 }
 
-//ignorar
-export async function getGraficoLinea(dependiente, independiente, ingrediente, platillo) {
-  switch (independiente) {
-
-  }
-  /*
-  Graficos de linea {
-    stock ingrediente vs fecha(ultimas x fechas) {
-      consultar cantidad actual.
-      consultar todos los pedidos  (hechos en las ultimas x fechas)
-      comandas con ese ingrediente (hechos en las ultimas x fechas)
-    }
-    ingresos_ventas vs fecha(ultimas x fechas) {
-      consultar comandas
-      sumar el precio de todos los platillos de todas las comandas
-      entregar un listado con la suma de las ventas por fecha
-    }
-    ingresos_cantidad_ventas por un platillo vs fecha {
-      consultar platillo
-      consultar comandas con ese platillo
-    }
-    costos vs fecha {
-      consultar pedidos y sus relaciones con ingredientes y utensilios
-    }
-    Utilidades vs fecha {
-      consultar costos consultar ventas
-    }
-  }
-  Graficos Circulares {
-    Ventas por platillo {
-      consultar platillos 
-      consultar comandas
-      se calcula num_platillos_vendidos / cantidad de relaciones comanda-platillo
-    }
-    Porcentaje de veces que se añadio al menu {
-      consultar platillos
-      consultar menus
-      se calcula num_platillo_en_menu / cantidad de relaciones menu-platillo
-    }
-  }
-  Grafico Barra {
-    Ventas por platillo {
-      consultar platillos 
-      consultar comandas
-    }
-    Porcentaje de veces que se añadio al menu {
-      consultar platillos
-      consultar menus
-    }
-  }
-  tiene que ser un diccionario de forma
-  datos = {
-    //recordar convertir la fecha de la base de datos a fecha js
-    Date(fecha) : cantidad_ingrediente
-  }
-
-
-
-  (mingrediente)
-  SELECT *
-  FROM ingrediente i
-  WHERE i.cantidad_ingrediente = mingrediente
-  INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = i.id_ingrediente
-  INNER JOIN compuesto_platillo cp ON ti.id_tipo_ingrediente = cp.id_tipo_ingrediente
-  INNER JOIN platillo p ON p.id_platillo = cp.id_platillo
-  INNER JOIN conformada_comanda cc ON p.id_platillo = cc.id_platillo
-  INNER JOIN comandas c ON c.id_comanda = cc.id_comanda
-  INNER JOIN 
-  */
-  //¿como tiene que verse en el front end?
-
-}
 export async function getIngresosVentasService(ids_platillo) {
   const { ids } = ids_platillo
   if (!ids) {
@@ -437,7 +346,8 @@ export async function getIngresosVentasService(ids_platillo) {
           cc.cantidad_platillo
           FROM comanda c
           INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
-          WHERE cc.id_platillo = $1
+          WHERE cc.id_platillo = $1 AND
+          c.estado_comanda = 'completada'
       `, [id_platillo]);
     console.log("comandas_platillo")
     console.log(comandas_platillo)

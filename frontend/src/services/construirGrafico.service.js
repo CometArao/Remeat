@@ -53,6 +53,12 @@ export function construirLinealPlatillosIngresos(datos, time) {
         }
         result.push(obj_line);
     }
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, false);
+    }
     return result;
 }
 export function construirLinealPlatillosVentas(datos, time) {
@@ -112,6 +118,11 @@ export function construirLinealPlatillosVentas(datos, time) {
         result.push(obj_line);
     }
     ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, false);
+    }
     return result;
 }
 export function construirLinealCosto(platillos, time) {
@@ -161,11 +172,6 @@ export function construirLinealCosto(platillos, time) {
         //TODO: utilizar esta funcion para utilidades
         console.log("platillo")
         console.log(platillo)
-        const obj_line = {
-            "id": platillo.nombre_platillo,
-            "color": colores[indice_color],
-            "data": formatedLineData
-        }
         if (time === "Mes") {
             formatedLineData = truncarMes(formatedLineData)
         }
@@ -176,10 +182,21 @@ export function construirLinealCosto(platillos, time) {
         if (indice_color === colores.length) {
             indice_color = 0;
         }
+        const obj_line = {
+            "id": platillo.nombre_platillo,
+            "color": colores[indice_color],
+            "data": formatedLineData
+        }
         result.push(obj_line);
     }
     console.log("Construir datos resultado")
     console.log(result)
+    //ajustarEntradasDistintas(result)
+    //console.log("result")
+    //console.log(result)
+    //for (let i = 0; i < result.length; i++) {
+        //result[i].data = ordenarHorasObjetos(result[i].data, false);
+    //}
     return result;
 }
 export function construirLinealUtilidades(platillos, time) {
@@ -246,6 +263,12 @@ export function construirLinealUtilidades(platillos, time) {
     }
     console.log("Construir datos resultado")
     console.log(result)
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, false);
+    }
     return result;
 }
 export function construirLinealStockUtensilios(datos, time) {
@@ -317,6 +340,12 @@ export function construirLinealStockUtensilios(datos, time) {
             indice_color = 0;
         }
         result.push(obj_line);
+    }
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, true);
     }
     return result;
 }
@@ -397,6 +426,12 @@ export function construirStockIngredientes(datos, time) {
     }
     console.log("final construir ingredientes")
     console.log(result)
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, true);
+    }
     return result;
 }
 export function construirVentasPlatilloBarra(datos) {
@@ -618,6 +653,7 @@ function truncarMes(data) {
         "12": "Diciembre"
     };
     if (data.length === 0) {
+        console.log("is empty")
         return []
     }
     let newData = []
@@ -628,6 +664,7 @@ function truncarMes(data) {
             "y": data[0].y
         }
         newData.push(obj_point)
+        console.log(newData)
         return newData;
     }
     let nX = null
@@ -916,7 +953,7 @@ function getYear(year) {
     }
 }
 
-export function ajustarEntradasDistintas(objLines) {
+export function ajustarEntradasDistintas(objLines, mantener) {
     console.log("ajustarEntradasDistintas")
     console.log(objLines)
     let dictionaryOfXs = {}
@@ -972,7 +1009,7 @@ export function ajustarEntradasDistintas(objLines) {
             console.log("x")
             console.log(x)
             if (!dictionaryOfObject[x]) {
-                if (ii - 1 < 0) {
+                if (ii - 1 < 0 || !mantener) {
                     data.push({ x: x, y: 0 });
                 } else {
                     data.push({ x: x, y: lastNonNullValue });
