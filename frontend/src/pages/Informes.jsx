@@ -7,7 +7,7 @@ import '@styles/informe.css';
 import { showErrorAlert } from '@helpers/sweetAlert.js';
 import { useNavigate } from 'react-router-dom';
 import {
-    getVentasPlatillo, getCostos,
+    getVentasPlatillo, getCostosNormal,
     getStockUtensilio, getStockIngrediente,
     getPlatilloMenu,
     getVentas, getUtilidades,

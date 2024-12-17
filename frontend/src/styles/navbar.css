@@ -4,7 +4,8 @@
     top: 0;
     left: 0;
     display: block;
-    background-color: #003366; /* Color de la navbar */
+    background-color: #FF5722; /* Color de la navbar */
+    color: #212121;
     height: 9vh;
     z-index: 1000;
 }
@@ -29,7 +30,7 @@
 }
 
 .nav-menu ul li a {
-    color: white;
+    color: #212121;
     font-size: 0.9em;
     text-decoration: none;
     position: relative;
@@ -42,8 +43,8 @@
 
 .nav-menu ul li a.active {
     font-weight: bold;
-    background-color: #eef7ff;
-    color: #002651;
+    background-color: #FF7944;
+    color: #FFEBEE;
     margin: 0;
     padding-bottom: 0;
     border: 0;
@@ -58,7 +59,7 @@
     left: 0;
     width: 100%;
     height: 3px;
-    background-color: #006edf;
+    background-color: #795548;
     transform: scaleX(0);
     transform-origin: bottom;
     transition: transform 0.3s ease;
@@ -91,7 +92,7 @@
     .nav-menu ul {
         display: none;
         flex-direction: column;
-        background-color: #003366;
+        background-color: #DD3400;
         position: absolute;
         top: 9vh;
         left: 0;
@@ -117,7 +118,7 @@
     }
 
     .nav-menu.activado ul li a {
-        color: #003366;
+        color: #FFC107;
         font-weight: bold;
         font-size: 0.9em;
         text-decoration: none;

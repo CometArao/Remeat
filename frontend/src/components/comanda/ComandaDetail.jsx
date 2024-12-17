@@ -27,6 +27,7 @@ const ComandaDetail = ({ onClearSearch, onSearchComplete }) => {
   return (
     <div className="search-container">
       <input
+        className='comanda-input'
         type="text"
         value={searchId}
         onChange={(e) => setSearchId(e.target.value)}

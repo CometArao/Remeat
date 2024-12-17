@@ -2,6 +2,7 @@
 @import url("animations.css");
 html,
 body {
+  	background-color: #FFEBEE;
 	margin: 0;
 	display: flex;
 	flex-direction: column;
