@@ -95,10 +95,14 @@ export const getCurrentChileanTimestamp = () => {
 /* Formatea una fecha en formato 'dd-MM-yyyy'. */
 
 export const formatDateDMY = (date) => {
-    const inputDate = date ? new Date(date) : new Date();
-    const day = String(inputDate.getDate()).padStart(2, "0");
-    const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Los meses empiezan en 0
-    const year = inputDate.getFullYear();
+    if (!date) return "";
 
+    const [year, month, day] = date.split("T")[0].split("-"); // Extraer directamente la fecha
     return `${day}-${month}-${year}`;
+};
+
+export const formatDateToISO = (date) => {
+    if (!date) return "";
+    const [day, month, year] = date.split("-"); // Divide la fecha
+    return `${year}-${month}-${day}`; // Retorna en formato ISO
 };

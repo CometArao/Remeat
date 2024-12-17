@@ -1,5 +1,6 @@
 import Form from '@components/FormMenu';
 import CloseIcon from '@assets/XIcon.svg';
+import { formatDateToISO } from '../../../../backend/src/utils/dateUtils.js';
 
 export default function PopupMenu({
     show,
@@ -15,13 +16,14 @@ export default function PopupMenu({
         {
             label: "Fecha",
             name: "fecha",
-            defaultValue: menuData.fecha || "",
+            defaultValue: isEdit && menuData.fecha
+                ? formatDateToISO(menuData.fecha) // Convertir fecha al formato correcto
+                : "",
             placeholder: "Ej: 2025-12-31",
             fieldType: "input",
             type: "date",
             required: true,
         },
-
         {
             label: "Platillos",
             name: "platillos",

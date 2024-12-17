@@ -1,139 +1,92 @@
-.navbar {
+/* Sidebar general */
+.sidebar {
     position: fixed;
-    width: 100%;
     top: 0;
     left: 0;
-    display: block;
-    background-color: #FF5722; /* Color de la navbar */
-    color: #212121;
-    height: 9vh;
+    width: 250px;
+    height: 100vh;
+    background-color: #FF5722;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     z-index: 1000;
-}
-
-.nav-menu ul {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center; /* Centra los elementos horizontalmente */
-    align-items: center;
-    padding: 0;
-    margin: 0;
-    height: 100%;
-    list-style: none;
-}
-
-.nav-menu ul li {
-    display: flex;
-    align-items: center;
-    padding: 0 15px; /* Reduce el espacio entre elementos */
-    position: relative;
-    height: 100%;
-}
-
-.nav-menu ul li a {
-    color: #212121;
-    font-size: 0.9em;
-    text-decoration: none;
-    position: relative;
-    border-bottom: transparent 3px solid;
-    transition: border-color 0.3s ease;
-    padding: 0 10px 3px 10px;
-    box-sizing: border-box;
-    white-space: nowrap; /* Evita que las palabras se dividan */
-}
-
-.nav-menu ul li a.active {
-    font-weight: bold;
-    background-color: #FF7944;
-    color: #FFEBEE;
-    margin: 0;
-    padding-bottom: 0;
-    border: 0;
-    height: 100%;
-    line-height: 9.1vh;
-}
-
-.nav-menu ul li a:not(.active)::before {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: #795548;
-    transform: scaleX(0);
-    transform-origin: bottom;
     transition: transform 0.3s ease;
 }
 
-.nav-menu ul li a:not(.active):hover::before {
-    animation: heartbeat 5s ease-in-out infinite;
-    transform: scaleX(1);
+/* Ocultar sidebar */
+.sidebar.hidden {
+    transform: translateX(-100%);
 }
 
-.hamburger {
-    display: none;
+/* Menú del sidebar */
+.nav-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    display: flex;
     flex-direction: column;
+}
+
+.nav-menu ul li a {
+    display: block;
+    padding: 12px 20px;
+    color: white;
+    text-decoration: none;
+    font-size: 1em;
+    transition: background 0.3s ease;
+}
+
+.nav-menu ul li a:hover,
+.nav-menu ul li a.active {
+    background-color: #FF7944;
+    border-left: 4px solid #FFC107;
+}
+
+/* Botón para ocultar sidebar */
+.sidebar-toggle {
+    margin: 10px auto;
+    padding: 10px;
+    color: white;
+    background-color: #FF5722;
+    border: none;
     cursor: pointer;
-    position: absolute;
-    top: 25px;
-    right: 20px;
-    z-index: 1001;
+    font-size: 1em;
+    transition: background 0.3s ease;
 }
 
-.hamburger .bar {
-    width: 25px;
-    height: 3px;
-    background-color: white;
-    margin: 4px 0;
+.sidebar-toggle:hover {
+    background-color: #FF7944;
 }
 
-/* Media Queries para pantallas pequeñas */
-@media (max-width: 768px) {
-    .nav-menu ul {
-        display: none;
-        flex-direction: column;
-        background-color: #DD3400;
-        position: absolute;
-        top: 9vh;
-        left: 0;
-        width: 100%;
-        text-align: center;
-    }
-
-    .nav-menu.activado ul {
-        display: flex;
-        background-color: #eef7ff;
-        justify-content: center;
-        padding: 0;
-    }
-
-    .hamburger {
-        display: flex;
-    }
-
-    .nav-menu.activado ul li {
-        padding: 0;
-        width: 100%;
-        height: 60px;
-    }
-
-    .nav-menu.activado ul li a {
-        color: #FFC107;
-        font-weight: bold;
-        font-size: 0.9em;
-        text-decoration: none;
-        padding-left: 5px;
-    }
+/* Botón flotante para activar sidebar */
+.sidebar-float-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #FF5722;
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1100;
+    transition: background 0.3s ease;
 }
 
-/* Media Queries para pantallas medianas */
-@media (min-width: 768px) and (max-width: 1024px) {
-    .nav-menu ul {
-        flex-wrap: wrap;
-    }
+.sidebar-float-btn:hover {
+    background-color: #FF7944;
+}
 
-    .nav-menu ul li {
-        flex: 1 1 auto; /* Ajusta el tamaño de los elementos según el espacio disponible */
-        text-align: center;
-    }
+/* Ajustar contenido principal cuando el sidebar está abierto */
+.main-content {
+    margin-left: 0; /* Por defecto ocupa todo el espacio */
+    transition: margin-left 0.3s ease;
+}
+
+/* Cuando el sidebar está visible */
+.sidebar-visible ~ .main-content {
+    margin-left: 250px; /* Espacio que ocupa el sidebar */
 }
