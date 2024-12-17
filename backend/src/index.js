@@ -8,7 +8,7 @@ import passport from "passport";
 import express, { json, urlencoded } from "express";
 import { cookieKey, HOST, PORT } from "./config/configEnv.js";
 import { connectDB } from "./config/configDb.js";
-import { createUsers } from "./config/initialSetup.js";
+import { initializeData } from "./config/initialSetup.js";
 import http from "http";
 import { initializeSocket } from "./services/socket.js";
 import { passportJwtSetup } from "./auth/passport.auth.js"; // Importar configuración de Passport
@@ -72,7 +72,7 @@ async function setupAPI() {
   try {
     await connectDB(); // Conectar a la base de datos
     await setupServer(); // Configurar servidor
-    await createUsers(); // Crear usuarios iniciales
+    await initializeData(); // Crear usuarios iniciales
   } catch (error) {
     console.error("Error en index.js -> setupAPI(), el error es:", error);
   }
