@@ -1,39 +1,46 @@
 import React from 'react';
-import '../../styles/menu.css';
+import '../../styles/menuCard.css';
 
 const MenuCard = ({ menu, isSelected, onSelectChange, onActivate, isActivating }) => {
     return (
-        <div className="menu-card" style={{ position: "relative" }}>
-            <span className="card-id">ID: {menu.id_menu}</span>
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h2 className="menu-title">{menu.fecha}</h2>
-                <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={(e) => onSelectChange(menu, e.target.checked)}
-                />
+        <div
+            className={`menu-card ${isSelected ? 'selected' : ''}`}
+            onClick={() => onSelectChange(menu)} // Selecciona/deselecciona tarjeta
+        >
+            {/* Header */}
+            <div className="card-header">
+                <span className="card-id">ID: {menu.id_menu}</span>
+                <span className={`menu-status ${menu.disponibilidad ? 'available' : 'unavailable'}`}>
+                    {menu.disponibilidad ? 'Disponible' : 'No disponible'}
+                </span>
             </div>
 
-            <p className={menu.disponibilidad ? "status-available" : "status-unavailable"}>
-                {menu.disponibilidad ? "Disponible" : "No disponible"}
-            </p>
+            {/* Título */}
+            <h2 className="menu-title">{menu.fecha}</h2>
 
-            <h4>Platillos:</h4>
-            <ul className="menu-platillos">
-                {menu.platillos?.map((platillo, idx) => (
-                    <li key={idx}>{platillo.nombre_platillo}</li>
-                )) || <li>Sin platillos asignados</li>}
-            </ul>
+            {/* Lista de Platillos */}
+            <div className="menu-platillos">
+                <h4>Platillos:</h4>
+                <ul>
+                    {menu.platillos?.length > 0 ? (
+                        menu.platillos.map((platillo, idx) => <li key={idx}>{platillo.nombre_platillo}</li>)
+                    ) : (
+                        <li>Sin platillos asignados</li>
+                    )}
+                </ul>
+            </div>
 
+            {/* Botón Activar/Desactivar */}
             <button
                 className="activate-button"
-                onClick={() => onActivate(menu.id_menu, menu.disponibilidad)}
-                disabled={isActivating} // Evitar múltiples clics mientras procesa
+                onClick={(e) => {
+                    e.stopPropagation(); // Evita conflicto con selección
+                    onActivate(menu.id_menu, menu.disponibilidad);
+                }}
+                disabled={isActivating}
             >
-                {isActivating ? "Procesando..." : menu.disponibilidad ? "Desactivar" : "Activar"}
+                {isActivating ? 'Procesando...' : menu.disponibilidad ? 'Desactivar' : 'Activar'}
             </button>
-
         </div>
     );
 };
