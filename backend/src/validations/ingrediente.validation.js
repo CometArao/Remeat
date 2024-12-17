@@ -1,12 +1,31 @@
 "use strict";
 import Joi from "joi";
 
+// validacion de fecha de vencimiento
+const dateValidator = (value, helper) => {
+    const fechaActual = new Date();
+    const fechaIngresada = new Date(value);
+
+    fechaActual.setHours(fechaActual.getHours() - 3); // Obtengo hora actual chilena
+
+    // Ajustar la fecha actual restando 3 horas (diferencia horaria del servidor)
+    fechaActual.setHours(-3, 0, 0, 0); // Ajuste para considerar solo la fecha
+
+    //fechaIngresada.setHours(0, 0, 0, 0);
+
+    if (fechaIngresada < fechaActual) {
+        return helper.message("La fecha de vencimiento debe ser posterior o igual a la fecha actual.");
+    }
+    return value;
+}
 // Validación para el cuerpo de las solicitudes de ingrediente
 
 export const ingredienteBodyValidation = Joi.object({
 
+
     fecha_vencimiento: Joi.date()
         .iso()
+        .custom(dateValidator, "Validación de fecha")
         .messages({
             "date.base": "La fecha de vencimiento debe ser una fecha válida.",
             "date.iso": "La fecha de vencimiento debe estar en formato ISO 8601.",
