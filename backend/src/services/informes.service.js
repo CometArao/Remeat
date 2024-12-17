@@ -5,6 +5,7 @@ import TipoUtensilio from "../entity/tipo_utensilio.entity.js"
 import Platillo from "../entity/platillo.entity.js"
 import TipoIngrediente from "../entity/tipo_ingrediente.entity.js"
 import Comanda from "../entity/comanda.entity.js"
+import { compareOnlyDate, formatDateToISO } from "../utils/dateUtils.js";
 
 /* 
 Dada una lista de ids devuelve la cantidad vigente en el sistema
@@ -79,12 +80,13 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
         const par_cantidad_fecha_merma = {
           fecha: merma.fecha_merma,
           cantidad_utensilio: merma.cantidad_perdida_utensilio,
-          cantidad_total: cantidad_total
+          cantidad_total: cantidad_total,
+          evento: "merma"
         }
         inventarioDelTipo.push(par_cantidad_fecha_merma)
       }
     }
-    result[id_tipo_utensilio] = inventarioDelTipo
+    result[tipoUtensilioEncontrado.nombre_tipo_utensilio] = inventarioDelTipo
   }
   return [result, null]
   //TODO: Las mermas se pueden crear con fecha anterior a la 
@@ -127,8 +129,14 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
       //Por cada ingrediente mirar mermas y pedidos
       for (let i = 0; i < ingredientes.length; i++) {
         const ingrediente = ingredientes[i];
+        //const hours = date.getHours().toString().padStart(2, '0');
+        //const minutes = date.getMinutes().toString().padStart(2, '0');
+        //const seconds = date.getSeconds().toString().padStart(2, '0');
+
+        //const formattedTime = `${hours}:${minutes}:${seconds}`;
         const par_cantidad_fecha_pedido = {
           fecha: ingrediente.fecha_compra_pedido,
+          //hora: formattedTime,
           cantidad_ingrediente: ingrediente.cantidad_original_ingrediente,
           tipo: "pedido"
         }
@@ -138,16 +146,18 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
         //a considerar
         //push apply es mas eficiente que el operador ...
         inventarioDelTipo = [...inventarioDelTipo, ...listaInfoMermas];
-
       }
       //Mirar comandas
       const listInfoComandas = await getInfoComandasDeTipoIngrediente(id_tipo_ingrediente);
       inventarioDelTipo = [...inventarioDelTipo, ...listInfoComandas]
+
       //Barajar comandas con pedidos y mermas
       inventarioDelTipo.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
       if (tipoIngredienteEncontrado == null) {
         return [null, "Deberia ser imposible llegar aqui; El tipo de ingrediente es nulo"];
       }
+      //Como comandas y pedidos guardan la fecha de forma distinta
+
       //Ahora que tenemos todos los cambios y en orden de fecha calcular el stock total
       let cantidad_total = 0;
       for (let i = 0; i < inventarioDelTipo.length; i++) {
@@ -157,7 +167,6 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
       result[tipoIngredienteEncontrado.nombre_tipo_ingrediente] = inventarioDelTipo;
     }
     return [result, null];
-
   } catch (error) {
     console.log(error);
     return [null, "Error en el service"]
@@ -199,13 +208,16 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
   //que pasa con cantidad
   const comandas = await AppDataSource.query(`
     SELECT c.fecha_compra_comanda, cc.cantidad_platillo, cp.porcion_ingrediente_platillo, 
-      p.precio_platillo
+      p.precio_platillo, c.hora_compra_comanda
     FROM comanda c
     INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
     INNER JOIN platillo p ON p.id_platillo = cc.id_platillo
     INNER JOIN compuesto_platillo cp ON cp.id_platillo = p.id_platillo
     INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = cp.id_tipo_ingrediente
-    WHERE ti.id_tipo_ingrediente = $1
+    WHERE ti.id_tipo_ingrediente = $1 AND
+    cc.estado_platillo = 'preparado' AND
+    cc.estado_platillo = 'entregado'
+
     `, [id_tipo_ingrediente])
   if (!comandas) {
     return null;
@@ -214,9 +226,17 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
     const comanda = comandas[i];
     //Para calcular la cantidad de la comanda se usa
     //porcion del ingrediente * cantidad de platillos
+    console.log(comanda)
+    //Extrae las horas minutos y segundos y convierte cada uno en un numero
+    const [targetHours, targetMinutes, targetSeconds] = 
+      comanda.hora_compra_comanda.split(':').map(num => parseInt(num))
+    let fecha_comanda = new Date(comanda.fecha_compra_comanda)
+    fecha_comanda.setHours(targetHours, targetMinutes, targetSeconds)
+    const fechaIso = fecha_comanda.toISOString()
     const par_cantidad_fecha_comanda = {
-      fecha: comanda.fecha_compra_comanda,
-      cantidad_ingrediente: comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo,
+      fecha: fechaIso, 
+      hora: comanda.hora_compra_comanda,
+      cantidad_ingrediente: -(comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo),
       tipo: "comanda",
     }
     result.push(par_cantidad_fecha_comanda);
@@ -290,8 +310,8 @@ export async function getMenuPlatilloService(ids_platillo) {
       FROM platillo p
       WHERE p.id_platillo = $1
     `, [id_platillo])
-    console.log(id_platillo)
-    console.log(platillosEncontrados)
+      console.log(id_platillo)
+      console.log(platillosEncontrados)
       if (!platillosEncontrados) {
         //Se continua si no tiene platillos esta id
         continue
@@ -304,9 +324,9 @@ export async function getMenuPlatilloService(ids_platillo) {
         INNER JOIN menu_platillo_platillo mpp ON mpp."menuIdMenu" = m.id_menu
         WHERE mpp."platilloIdPlatillo" = $1
         `, [id_platillo])
-          console.log("menusDelPlatillo")
+        console.log("menusDelPlatillo")
         console.log(menusDelPlatillo)
-        if(!menusDelPlatillo) {
+        if (!menusDelPlatillo) {
           //Se deja una lista vacia para que tenga .length 0
           platillo.menu = []
           continue
@@ -441,7 +461,6 @@ export async function getIngresosVentasService(ids_platillo) {
     result[platillo.nombre_platillo] = {
       ventas_por_comanda: cantidadVentasPlatillos
     };
-
   }
   return [result, null];
 }

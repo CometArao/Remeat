@@ -105,3 +105,19 @@ export async function getCostosNormal(req, res) {
         return handleErrorServer(res, 500, error.message);
     }
 }
+export async function getPlatillosMenu(req, res) {
+    //consigue una lista de platillos y su relacion con el menu
+    try {
+        console.log("menu")
+        const { body } = req
+        const [menu_platillos, error] = await getMenuPlatilloService(body);
+        if (error) {
+            console.log(error)
+            return handleErrorClient(res, 404, error);
+        } 
+        return handleSuccess(res, 200, "menu platillo obtenido exitosamente", menu_platillos);
+    } catch (error) {
+        console.log(error)
+        return handleErrorServer(res, 500, error.message);
+    }
+}
