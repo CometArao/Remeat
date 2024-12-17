@@ -5,26 +5,8 @@ import TipoUtensilio from "../entity/tipo_utensilio.entity.js"
 import Platillo from "../entity/platillo.entity.js"
 import TipoIngrediente from "../entity/tipo_ingrediente.entity.js"
 import Comanda from "../entity/comanda.entity.js"
+import { compareOnlyDate, formatDateToISO } from "../utils/dateUtils.js";
 
-/* 
-Dada una lista de ids devuelve la cantidad vigente en el sistema
-de utensilios, para esto descuenta la cantidad de mermas y agrega la 
-cantidad de pedidos
-
-ids_tipos_utensilio = {
-  ids: [
-    1,2,3,... 
-  ]
-result = {
-  id_utensilio [
-    {
-      fecha: {fecha actual},
-      cantidad_utensilios: {cantidad_utensilios}
-    },
-    ...
-  ]
-}
-*/
 export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
   const { ids } = ids_tipos_utensilio;
   const tipo_utensilioRepository = AppDataSource.getRepository(TipoUtensilio);
@@ -79,12 +61,13 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
         const par_cantidad_fecha_merma = {
           fecha: merma.fecha_merma,
           cantidad_utensilio: merma.cantidad_perdida_utensilio,
-          cantidad_total: cantidad_total
+          cantidad_total: cantidad_total,
+          evento: "merma"
         }
         inventarioDelTipo.push(par_cantidad_fecha_merma)
       }
     }
-    result[id_tipo_utensilio] = inventarioDelTipo
+    result[tipoUtensilioEncontrado.nombre_tipo_utensilio] = inventarioDelTipo
   }
   return [result, null]
   //TODO: Las mermas se pueden crear con fecha anterior a la 
@@ -127,8 +110,14 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
       //Por cada ingrediente mirar mermas y pedidos
       for (let i = 0; i < ingredientes.length; i++) {
         const ingrediente = ingredientes[i];
+        //const hours = date.getHours().toString().padStart(2, '0');
+        //const minutes = date.getMinutes().toString().padStart(2, '0');
+        //const seconds = date.getSeconds().toString().padStart(2, '0');
+
+        //const formattedTime = `${hours}:${minutes}:${seconds}`;
         const par_cantidad_fecha_pedido = {
           fecha: ingrediente.fecha_compra_pedido,
+          //hora: formattedTime,
           cantidad_ingrediente: ingrediente.cantidad_original_ingrediente,
           tipo: "pedido"
         }
@@ -138,16 +127,18 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
         //a considerar
         //push apply es mas eficiente que el operador ...
         inventarioDelTipo = [...inventarioDelTipo, ...listaInfoMermas];
-
       }
       //Mirar comandas
       const listInfoComandas = await getInfoComandasDeTipoIngrediente(id_tipo_ingrediente);
       inventarioDelTipo = [...inventarioDelTipo, ...listInfoComandas]
+
       //Barajar comandas con pedidos y mermas
       inventarioDelTipo.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
       if (tipoIngredienteEncontrado == null) {
         return [null, "Deberia ser imposible llegar aqui; El tipo de ingrediente es nulo"];
       }
+      //Como comandas y pedidos guardan la fecha de forma distinta
+
       //Ahora que tenemos todos los cambios y en orden de fecha calcular el stock total
       let cantidad_total = 0;
       for (let i = 0; i < inventarioDelTipo.length; i++) {
@@ -157,7 +148,6 @@ export async function getIngredientesDeTipoService(ids_tipo_ingrediente) {
       result[tipoIngredienteEncontrado.nombre_tipo_ingrediente] = inventarioDelTipo;
     }
     return [result, null];
-
   } catch (error) {
     console.log(error);
     return [null, "Error en el service"]
@@ -199,13 +189,16 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
   //que pasa con cantidad
   const comandas = await AppDataSource.query(`
     SELECT c.fecha_compra_comanda, cc.cantidad_platillo, cp.porcion_ingrediente_platillo, 
-      p.precio_platillo
+      p.precio_platillo, c.hora_compra_comanda
     FROM comanda c
     INNER JOIN conforma_comanda cc ON c.id_comanda = cc.id_comanda
     INNER JOIN platillo p ON p.id_platillo = cc.id_platillo
     INNER JOIN compuesto_platillo cp ON cp.id_platillo = p.id_platillo
     INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = cp.id_tipo_ingrediente
-    WHERE ti.id_tipo_ingrediente = $1
+    WHERE ti.id_tipo_ingrediente = $1 AND
+    cc.estado_platillo = 'preparado' AND
+    cc.estado_platillo = 'entregado'
+
     `, [id_tipo_ingrediente])
   if (!comandas) {
     return null;
@@ -214,9 +207,17 @@ async function getInfoComandasDeTipoIngrediente(id_tipo_ingrediente) {
     const comanda = comandas[i];
     //Para calcular la cantidad de la comanda se usa
     //porcion del ingrediente * cantidad de platillos
+    console.log(comanda)
+    //Extrae las horas minutos y segundos y convierte cada uno en un numero
+    const [targetHours, targetMinutes, targetSeconds] =
+      comanda.hora_compra_comanda.split(':').map(num => parseInt(num))
+    let fecha_comanda = new Date(comanda.fecha_compra_comanda)
+    fecha_comanda.setHours(targetHours, targetMinutes, targetSeconds)
+    const fechaIso = fecha_comanda.toISOString()
     const par_cantidad_fecha_comanda = {
-      fecha: comanda.fecha_compra_comanda,
-      cantidad_ingrediente: comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo,
+      fecha: fechaIso,
+      hora: comanda.hora_compra_comanda,
+      cantidad_ingrediente: -(comanda.cantidad_platillo * comanda.porcion_ingrediente_platillo),
       tipo: "comanda",
     }
     result.push(par_cantidad_fecha_comanda);
@@ -290,8 +291,8 @@ export async function getMenuPlatilloService(ids_platillo) {
       FROM platillo p
       WHERE p.id_platillo = $1
     `, [id_platillo])
-    console.log(id_platillo)
-    console.log(platillosEncontrados)
+      console.log(id_platillo)
+      console.log(platillosEncontrados)
       if (!platillosEncontrados) {
         //Se continua si no tiene platillos esta id
         continue
@@ -304,9 +305,9 @@ export async function getMenuPlatilloService(ids_platillo) {
         INNER JOIN menu_platillo_platillo mpp ON mpp."menuIdMenu" = m.id_menu
         WHERE mpp."platilloIdPlatillo" = $1
         `, [id_platillo])
-          console.log("menusDelPlatillo")
+        console.log("menusDelPlatillo")
         console.log(menusDelPlatillo)
-        if(!menusDelPlatillo) {
+        if (!menusDelPlatillo) {
           //Se deja una lista vacia para que tenga .length 0
           platillo.menu = []
           continue
@@ -325,78 +326,6 @@ export async function getMenuPlatilloService(ids_platillo) {
   }
 }
 
-//ignorar
-export async function getGraficoLinea(dependiente, independiente, ingrediente, platillo) {
-  switch (independiente) {
-
-  }
-  /*
-  Graficos de linea {
-    stock ingrediente vs fecha(ultimas x fechas) {
-      consultar cantidad actual.
-      consultar todos los pedidos  (hechos en las ultimas x fechas)
-      comandas con ese ingrediente (hechos en las ultimas x fechas)
-    }
-    ingresos_ventas vs fecha(ultimas x fechas) {
-      consultar comandas
-      sumar el precio de todos los platillos de todas las comandas
-      entregar un listado con la suma de las ventas por fecha
-    }
-    ingresos_cantidad_ventas por un platillo vs fecha {
-      consultar platillo
-      consultar comandas con ese platillo
-    }
-    costos vs fecha {
-      consultar pedidos y sus relaciones con ingredientes y utensilios
-    }
-    Utilidades vs fecha {
-      consultar costos consultar ventas
-    }
-  }
-  Graficos Circulares {
-    Ventas por platillo {
-      consultar platillos 
-      consultar comandas
-      se calcula num_platillos_vendidos / cantidad de relaciones comanda-platillo
-    }
-    Porcentaje de veces que se añadio al menu {
-      consultar platillos
-      consultar menus
-      se calcula num_platillo_en_menu / cantidad de relaciones menu-platillo
-    }
-  }
-  Grafico Barra {
-    Ventas por platillo {
-      consultar platillos 
-      consultar comandas
-    }
-    Porcentaje de veces que se añadio al menu {
-      consultar platillos
-      consultar menus
-    }
-  }
-  tiene que ser un diccionario de forma
-  datos = {
-    //recordar convertir la fecha de la base de datos a fecha js
-    Date(fecha) : cantidad_ingrediente
-  }
-
-
-
-  (mingrediente)
-  SELECT *
-  FROM ingrediente i
-  WHERE i.cantidad_ingrediente = mingrediente
-  INNER JOIN tipo_ingrediente ti ON ti.id_tipo_ingrediente = i.id_ingrediente
-  INNER JOIN compuesto_platillo cp ON ti.id_tipo_ingrediente = cp.id_tipo_ingrediente
-  INNER JOIN platillo p ON p.id_platillo = cp.id_platillo
-  INNER JOIN conformada_comanda cc ON p.id_platillo = cc.id_platillo
-  INNER JOIN comandas c ON c.id_comanda = cc.id_comanda
-  INNER JOIN 
-  */
-  //¿como tiene que verse en el front end?
-
-}
 export async function getIngresosVentasService(ids_platillo) {
   const { ids } = ids_platillo
   if (!ids) {
@@ -417,7 +346,8 @@ export async function getIngresosVentasService(ids_platillo) {
           cc.cantidad_platillo
           FROM comanda c
           INNER JOIN conforma_comanda cc ON cc.id_comanda = c.id_comanda
-          WHERE cc.id_platillo = $1
+          WHERE cc.id_platillo = $1 AND
+          c.estado_comanda = 'completada'
       `, [id_platillo]);
     console.log("comandas_platillo")
     console.log(comandas_platillo)
@@ -441,7 +371,6 @@ export async function getIngresosVentasService(ids_platillo) {
     result[platillo.nombre_platillo] = {
       ventas_por_comanda: cantidadVentasPlatillos
     };
-
   }
   return [result, null];
 }

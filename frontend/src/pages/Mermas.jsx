@@ -15,6 +15,7 @@ import useCreateMerma from '@hooks/mermas/useCreateMermas.jsx'
 import { useNavigate } from 'react-router-dom';
 import useDeleteMerma from '../hooks/mermas/useDeleteMerma';
 import { getmerma } from '@services/merma.service.js'
+import { formatearFecha } from '../helpers/formatDate';
 //TODO: Que todas las palabras empiecen en minuscula
 //TODO: Revisar si en el backend se ingresan datos solo en minuscula
 const Mermas = () => {
@@ -52,6 +53,7 @@ const Mermas = () => {
     const mermaEncontrada = await getmerma(dataMermas[0].id_merma);
     console.log("mermaEncontrara")
     console.log(mermaEncontrada)
+    mermaEncontrada.fecha_merma = formatearFecha(mermaEncontrada.fecha_merma)
     navigate('/detalles_merma', { state: mermaEncontrada });
 
     //redirigir a pestaña de detalle

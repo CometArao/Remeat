@@ -7,8 +7,6 @@ const useGetUtensilios = () => {
     const fetchUtensilios = async () => {
         try {
             const data = await getUtensilios();
-            console.log("data")
-            console.log(data)
             if (Array.isArray(data)) {
                 setUtensilios(data);
             } else {

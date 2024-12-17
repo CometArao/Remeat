@@ -36,7 +36,7 @@ export async function getCostosNormal(ids_tipo_ingrediente, ids_tipo_utensilio) 
 export async function getCostosPlatillo(ids_platillo) {
     try {
         const body = {
-            ids_platillo: ids_platillo,
+            ids: ids_platillo,
         }
         const { data } = await axios.post(`/informes/get_costos`, body);
         return data.data
@@ -74,7 +74,7 @@ export async function getPlatilloMenu(ids_platillo) {
         const body = {
             ids: ids_platillo
         }
-        const { data } = await axios.post(`/informes/get_platillo_menu`, body)
+        const { data } = await axios.post(`/informes/get_platillos_menu`, body)
         return data.data
     }catch(error) {
         console.error(error)

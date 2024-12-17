@@ -2,7 +2,7 @@ import { AppDataSource } from "../config/configDb.js";
 import Platillo from "../entity/platillo.entity.js"
 
 export async function getCostosService(body) {
-  const { ids_platillo, ids_tu } = body;
+  const { ids, ids_tu } = body;
   //Extraer datos
   const [comandas, errorComandas] = await ExtraerComandas();
   if (errorComandas) {
@@ -12,6 +12,10 @@ export async function getCostosService(body) {
   if (errorPedidos) {
     return [null, "Error en extraer Pedidos"]
   }
+  //let { error } = extraerPedidosValidacion.validate(pedidos)
+  //if(error) {
+    //return [null, error.message]
+  //}
   let [mermas, errorMerma] = await extraerMermas()
   if (errorMerma) {
     return [null, "Error en extraer mermas"]
@@ -20,7 +24,15 @@ export async function getCostosService(body) {
   //Tiene que evaluar todas las comandas primero para que 
   //los costos no sean inconsistentes
   let CostoComanda = costoFIFO(comandas, pedidos);
-  let [CostoPlatillo, errorCalcularPlatillo] = await calcularCostoPlatillo(CostoComanda, ids_platillo, mermas);
+  //Valida Extrae Pedido
+  //Valida CostoComanda
+
+  console.log("costo comanda")
+  console.log(CostoComanda)
+  console.log(CostoComanda[0].platillos)
+  let [CostoPlatillo, errorCalcularPlatillo] = await calcularCostoPlatillo(CostoComanda, ids, mermas);
+  console.log("CostoPlatillo")
+  console.log(CostoPlatillo)
   //Calcular mermas de los platillos
   //mermas de utensilios
   return [CostoPlatillo, null]
@@ -193,10 +205,10 @@ async function ExtraerPedido() {
     for (let ii = 0; ii < ingredientes_de_pedido.length; ii++) {
       const ingrediente_pedido = ingredientes_de_pedido[ii];
       let ingrediente = {}
-      ingrediente["cantidad"] = ingrediente_pedido.cantidad_ingrediente;
+      ingrediente["cantidad"] = ingrediente_pedido.cantidad_original_ingrediente;
       ingrediente["costo_unitario"] = ingrediente_pedido.costo_ingrediente;
       ingrediente["costo_total"] =
-        ingrediente_pedido.costo_ingrediente * ingrediente_pedido.cantidad_ingrediente;
+        ingrediente_pedido.costo_ingrediente * ingrediente_pedido.cantidad_original_ingrediente;
       console.log("ingredientes pedido")
       console.log(ingrediente_pedido)
       const id_tipo_ingrediente = ingrediente_pedido["id_tipo_ingrediente"]

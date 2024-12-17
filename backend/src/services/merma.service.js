@@ -221,7 +221,12 @@ export async function deleteMermaService(id) {
             INNER JOIN utensilio u ON um.id_utensilio = u.id_utensilio
             WHERE um.id_merma = $1
         `, [id])
-        const nuevaCantidadUtensilio = utensilio_merma.cantidad_restante_utensilio + utensilio_merma.cantidad_perdida_utensilio
+        if(!utensilio_merma || utensilio_merma.length === 0) {
+            return [null, "Integridad de la base de datos"]
+        }
+        console.log(utensilio_merma)
+        console.log(utensilio_merma[0])
+        const nuevaCantidadUtensilio = utensilio_merma[0].cantidad_restante_utensilio + utensilio_merma[0].cantidad_perdida_utensilio
         if (utensilio_merma && utensilio_merma.length !== 0) {
             await AppDataSource.query(`
                 UPDATE utensilio
@@ -236,10 +241,10 @@ export async function deleteMermaService(id) {
         const ingrediente_merma = await AppDataSource.query(`
             SELECT *
             FROM ingrediente_merma im
-            INNER JOIN ingrediente i ON im.id_utensilio = i.id_ingrediente
+            INNER JOIN ingrediente i ON im.id_ingrediente = i.id_ingrediente
             WHERE im.id_merma = $1
         `, [id])
-        const nuevaCantidadIngrediente = ingrediente_merma.cantidad_ingrediente + ingrediente_merma.cantidad_perdida_ingrediente
+        const nuevaCantidadIngrediente = ingrediente_merma[0].cantidad_ingrediente + ingrediente_merma[0].cantidad_perdida_ingrediente
         if (utensilio_merma && utensilio_merma.length !== 0) {
             await AppDataSource.query(`
                 UPDATE ingrediente
