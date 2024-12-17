@@ -1,60 +1,113 @@
 .comandas-container {
-    margin: 20px auto;
-    max-width: 800px;
-    font-family: Arial, sans-serif;
-  }
-  
-  .comanda-item {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    padding: 16px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
-  }
-  
-  .comanda-item h3 {
-    margin: 0;
-    font-size: 18px;
-  }
-  
-  .comanda-item p {
-    margin: 8px 0;
-  }
-  
-  .comanda-item button {
-    background-color: #d9534f;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .comanda-item button:hover {
-    background-color: #c9302c;
-  }
-  
-  .comanda-form {
-    margin-bottom: 20px;
-  }
-  
-  .comanda-form input,
-  .comanda-form button {
-    margin: 8px 0;
-    padding: 8px;
-    width: 100%;
-    font-size: 16px;
-  }
-  
-  .comanda-form button {
-    background-color: #5cb85c;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .comanda-form button:hover {
-    background-color: #4cae4c;
-  }
-  
+  margin: 20px auto;
+  max-width: 800px;
+  font-family: Arial, sans-serif;
+}
+
+.comanda-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
+  background-color: #FFEBEE
+}
+
+.comanda-item:hover {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #A37666
+}
+
+.comanda-item h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.comanda-item p {
+  margin: 8px 0;
+}
+
+.comanda-item button {
+  background-color: #FFC107;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comanda-item button:hover {
+  background-color: #DD9004;
+}
+
+.comanda-form {
+  margin-bottom: 20px;
+}
+
+.comanda-form input,
+.comanda-form button {
+  margin: 8px 0;
+  padding: 8px;
+  width: 100%;
+  font-size: 16px;
+}
+
+.comanda-form button {
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.comanda-form button:hover {
+  background-color: #4cae4c;
+}
+
+/* nuevo */
+.comanda-input {
+  width: 30%;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background-color: #FFEBEE;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus {
+  border-color: #FF5722;
+  outline: none;
+}
+
+input[type="text"]:hover {
+  border-color: #FF5722;
+}
+
+input[type="text"]::placeholder {
+  color: #888;
+  opacity: 1;
+}
+/*
+input[type="number"]:focus {
+  border-color: #FF5722;
+  outline: none;
+}
+
+input[type="number"]:hover {
+  border-color: #FF5722;
+}
+
+input[type="number"]::placeholder {
+  color: #888;
+  opacity: 1;
+}
+*/
+.add-platillo-dorm select{
+  background-color: #000;
+}

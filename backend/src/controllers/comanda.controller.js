@@ -7,7 +7,6 @@ import {
   getAllComandas,
   addPlatilloToComanda,
   obtenerComandasConPlatillos,
-  getMeserosService,
   getPlatillosDelDiaService,
   removePlatilloFromComanda
 } from '../services/comanda.service.js';
@@ -55,24 +54,6 @@ console.log('Platillo ID:', req.params.platilloId);
 
 
 
-
-
-
-
-
-
-export async function getMeserosController(req, res){
-  try {
-    // Llama al servicio para obtener la lista de meseros
-    const meseros = await getMeserosService();
-
-    // Devuelve la lista de meseros con un estado 200
-    res.status(200).json({ status: 'Success', data: meseros });
-  } catch (error) {
-    // En caso de error, devuelve un estado 500 y el mensaje de error
-    res.status(500).json({ status: 'Error', message: error.message });
-  }
-};
 
 
 

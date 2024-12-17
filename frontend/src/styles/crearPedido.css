@@ -8,7 +8,7 @@
 }
 
 .crear-pedido-form {
-    background-color: white;
+    background-color: #FFEBEE;
     border-radius: 24px;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
     padding: 40px;
@@ -18,7 +18,7 @@
 }
 
 .crear-pedido-form h1 {
-    color: #003366;
+    color: #DD3400;
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 20px;
@@ -32,7 +32,7 @@
 .crear-pedido-form label {
     display: block;
     font-weight: bold;
-    color: #003366;
+    color: #212121;
     margin-bottom: 8px;
 }
 
@@ -41,19 +41,19 @@
 .crear-pedido-form textarea {
     width: 100%;
     padding: 10px;
-    border: 2px solid #003366;
+    border: 2px solid #212121;
     border-radius: 12px;
     font-size: 16px;
     background-color: #eef7ff;
-    color: #003366;
+    color: #212121;
     outline: none;
 }
 
 .crear-pedido-form input:focus,
 .crear-pedido-form select:focus,
 .crear-pedido-form textarea:focus {
-    background-color: rgba(0, 110, 223, 0.1);
-    border-color: #006edf;
+    background-color: #FF5722;
+    border-color: #212121;
 }
 
 .crear-pedido-form .form-group textarea {
@@ -66,7 +66,7 @@
     font-size: 16px;
     font-weight: bold;
     color: white;
-    background-color: #003366;
+    background-color: #FF5722;
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -74,7 +74,7 @@
 }
 
 .crear-pedido-form button:hover {
-    background-color: #00509e;
+    background-color: #FF5722;
 }
 
 .crear-pedido-form .error-message {

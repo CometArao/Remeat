@@ -16,10 +16,10 @@ const Comandas = () => {
   };
 
   return (
-    <div className="comandas-page">
+    <div>
       <h1>Gestión de Comandas</h1>
 
-      <div className="comandas-actions">
+      <div>
         {/* Botones para cambiar entre las vistas */}
         <button onClick={() => setView('default')}>Ver Comandas</button>
         <button onClick={() => setView('withPlatillos')}>Ver Comandas con Platillos</button>

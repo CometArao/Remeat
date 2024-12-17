@@ -22,17 +22,40 @@
     cursor: pointer;
     border: 1px solid #212121;
     border-radius: 5px;
-    background-color: #FFEBEE;
+    background-color: #FF5722;
     transition: background-color 0.3s;
     color: #212121;
-}
-
-.botones button:hover {
     background-color: #FFC107;
 }
 
+.botones button:hover {
+    background-color: #DD3400;
+    background-color: #DD9004;
+}
+
 .botones button:active {
-    background-color: #0056b3;
+    background-color: #FF5722;
+    background-color: #FFC107;
+}
+/*
+.botones-navegacion button{
+    margin-right: 10px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: 1px solid #212121;
+    border-radius: 5px;
+    background-color: #FFC107;
+    transition: background-color 0.3s;
+    color: #212121;
+
+}
+.botones-navegacion button:hover {
+    background-color: #DD9004;
+}
+
+.botones-navegacion button:active {
+    background-color: #FFC107;
 }
 
 /* Espaciado y disposición */
