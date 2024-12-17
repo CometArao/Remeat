@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import useGetComandasWithPlatillos from '../../hooks/comandas/useGetComandasWithPlatillos'; // Hook para obtener comandas con platillos
-import '../../styles/Comandas.css';
+import '@styles/Comandas.css';
 import DeleteComandaPlatillos from './DeleteComandaPlatillos'; // Importamos el componente para eliminar platillos
 
 const ComandasWithPlatillosList = () => {

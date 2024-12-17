@@ -11,7 +11,7 @@ import {
   removePlatilloFromComandaController
 } from '../controllers/comanda.controller.js';
 import { authenticateJwt } from '../middlewares/authentication.middleware.js';
-import {isMesero, verificarHorarioLaboral} from '../middlewares/authorization.middleware.js';
+import {isMesero, verificarHorarioLaboral,authorizeRoles} from '../middlewares/authorization.middleware.js';
 
 const router = express.Router();
 
@@ -25,7 +25,7 @@ router.get('/:id', isMesero, verificarHorarioLaboral, getComandaByIdController);
 router.delete('/:id', isMesero, verificarHorarioLaboral, deleteComandaController); // Eliminar una comanda (solo admins)
 router.patch('/:id/complete', isMesero, verificarHorarioLaboral, completeComandaController); // Completar una comanda
 router.post('/:id/platillos', isMesero, verificarHorarioLaboral, addPlatilloToComandaController); // Añadir un platillo a una comanda
-router.get('/comandas/platillos', /*isMesero,*/ verificarHorarioLaboral, getComandasConPlatillosController); // Obtener comandas con platillos
+router.get('/comandas/platillos',authorizeRoles(["mesero", "cocinero"]) ,verificarHorarioLaboral, getComandasConPlatillosController); // Obtener comandas con platillos
 router.get('/comanda/menuplatillo', isMesero, verificarHorarioLaboral, getPlatillosDelDiaController); // Obtener platillos del día
 router.delete('/:id/platillos/:platilloId', isMesero,verificarHorarioLaboral, removePlatilloFromComandaController); // Eliminar un platillo de una comanda
 
