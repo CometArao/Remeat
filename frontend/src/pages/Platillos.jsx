@@ -109,7 +109,7 @@ const Platillos = () => {
                                 <img src={CreateIcon} alt="Crear" />
                             </button>
                         )}
-
+                        {user?.rol_usuario === 'cocinero' && (
                         <button onClick={handleClickUpdate} disabled={dataPlatillo.length === 0}>
                             {dataPlatillo.length === 0 ? (
                                 <img src={UpdateIconDisable} alt="edit-disabled" />
@@ -117,6 +117,9 @@ const Platillos = () => {
                                 <img src={UpdateIcon} alt="edit" />
                             )}
                         </button>
+                    )}
+                        {/* Botón para Eliminar Platillos */}
+                        {user?.rol_usuario === 'cocinero' && (
                         <button
                             className="delete-user-button"
                             disabled={dataPlatillo.length === 0}
@@ -128,6 +131,7 @@ const Platillos = () => {
                                 <img src={DeleteIcon} alt="delete" />
                             )}
                         </button>
+                    )}
                         {/* Botón para Editar Precio */}
                         {user?.rol_usuario === 'administrador' && (
                             <button

@@ -20,7 +20,10 @@ export default function PopupPlatillo({
       type: "text",
       required: true,
     },
-    {
+     // Campo para indicar si el platillo está disponible
+      ...(isEdit
+      ? [
+      {
       label: "Disponible",
       name: "disponible",
       defaultValue: platilloData.disponible !== undefined ? platilloData.disponible : true,
@@ -28,6 +31,8 @@ export default function PopupPlatillo({
       type: "checkbox",
       required: false,
     },
+    ]
+    : []),
     {
       label: "Ingredientes",
       name: "ingredientes",
@@ -49,9 +54,13 @@ export default function PopupPlatillo({
   
     const payload = {
       nombre_platillo: formData.nombre_platillo,
-      disponible: formData.disponible,
       ingredientes,
     };
+
+    if (isEdit) {
+
+      payload.disponible = formData.disponible;
+    }
   
     action(payload);
   };
