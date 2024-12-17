@@ -13,19 +13,18 @@ export async function getPlatillosDelDiaService(){
   const menuRepository = AppDataSource.getRepository(Menu);
 
   try {
-    // Busca el menú del día con la relación correcta
-    const menuDelDia = await menuRepository
+    
+    const menuDisponible = await menuRepository
       .createQueryBuilder("menu")
       .leftJoinAndSelect("menu.platillo", "platillo") 
       .where("menu.disponibilidad = :disponible", { disponible: true })
-      .orderBy("menu.fecha", "DESC") // Busca el menú más reciente en caso de múltiples menús disponibles
       .getOne();
 
-    if (!menuDelDia) {
+    if (!menuDisponible) {
       throw new Error("No se encontró un menú disponible para el día actual.");
     }
 
-    return menuDelDia.platillo; // Devuelve la lista de platillos del menú del día
+    return menuDisponible.platillo; 
   } catch (error) {
     throw new Error("Error al obtener los platillos del menú del día: " + error.message);
   }
@@ -99,22 +98,13 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   
 
 
-  // Obtener el menú diario automáticamente
-  const currentDate = new Date();
-  let menu = await menuRepository.findOne({
-    where: { fecha: currentDate.toISOString().split("T")[0], disponibilidad: true },
-    relations: ["platillo"] // Carga los platillos del menú
+  // Obtener el menú disponible
+  const menu = await menuRepository.findOne({
+    where: { disponibilidad: true },
+    relations: ["platillo"],
   });
 
-  // Si no hay menú para hoy, obtener el menú más cercano anterior
-  if (!menu) {
-    menu = await menuRepository.createQueryBuilder("menu")
-      .where("menu.fecha <= :currentDate", { currentDate })
-      .andWhere("menu.disponibilidad = true")
-      .orderBy("menu.fecha", "DESC")
-      .leftJoinAndSelect("menu.platillo", "platillo")
-      .getOne();
-  }
+  
 
   if (!menu) throw new Error("No hay un menú disponible.");
 
