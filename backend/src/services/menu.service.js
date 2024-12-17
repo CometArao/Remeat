@@ -10,20 +10,39 @@ import { verificarDisponibilidadPlatillo } from "./platillo.service.js";
 import QRCode from "qrcode";
 
 
-export async function generateMenuQRCode(url) {
+
+export async function generateMenuQRCode() {
+    const menuRepository = AppDataSource.getRepository(Menu);
+
     try {
-        if (!url || typeof url !== 'string') {
-            throw new Error("No se proporcionó una URL válida para el QR.");
+        // Obtener un menú disponible
+        const menuDisponible = await menuRepository.findOne({
+            where: { disponibilidad: true },
+            relations: ["platillo"],
+        });
+
+        if (!menuDisponible) {
+            throw new Error("No se encontró un menú disponible.");
         }
 
-        // Generar el código QR con la URL proporcionada
-        const qrCode = await QRCode.toDataURL(url);
+        console.log("Menú seleccionado para QR:", menuDisponible);
+
+        // Codificar los datos del menú en Base64
+        const menuDataEncoded = Buffer.from(JSON.stringify(menuDisponible)).toString("base64");
+
+        // Generar la URL con los datos del menú
+        const qrCodeUrl = `http://localhost:5173/menu-dia?menuData=${menuDataEncoded}`;
+
+        // Generar el código QR con la URL
+        const qrCode = await QRCode.toDataURL(qrCodeUrl);
+
         return qrCode;
     } catch (error) {
-        console.error("Error generando el QR del menú:", error);
-        throw new Error("Error al generar el código QR del menú");
+        console.error("Error generando el QR del menú:", error.message);
+        throw new Error("Error al generar el código QR del menú: " + error.message);
     }
 }
+
 
 
 

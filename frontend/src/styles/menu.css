@@ -1,97 +1,140 @@
-.menu-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 16px;
-    width: 350px; /* Incrementa el ancho de la tarjeta */
-    min-height: 150px;
+.menu-container {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    cursor: pointer;
-  }
-  
-  .menu-card:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
-  }
-  
-  .menu-title {
-    font-size: 1.8rem; /* Aumentar el tamaño del texto */
-    font-weight: bold;
-    margin-bottom: 16px;
-    text-align: left;
-    line-height: 1.2; /* Reducir el espacio entre líneas */
-    color: #2c3e50;
-    word-break: break-word; /* Permitir que las palabras largas se dividan */
-    display: inline-block; /* Ajustar al contenido disponible */
-    min-width: 300px; /* Darle un mínimo espacio horizontal */
-  }
-  .menu-details {
-    font-size: 1rem;
-    color: #7f8c8d;
-  }
-  
-  .menu-platillos {
-    margin-top: 10px;
-    list-style: disc;
-    padding-left: 20px;
-  }
-  
-  .menu-platillos li {
-    margin-bottom: 5px;
-    font-size: 1rem;
-    color: #34495e;
-  }
-  
-  .container {
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+.table-menu-container {
+    width: 90%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.top-menu-table {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: #FFF; /* Fondo blanco */
+    padding: 10px 5%; /* Usa un padding dinámico */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    position: sticky;
+}
+
+.title-menu-table {
+    color: #FF5722;
+    font-weight: bold;
+    margin-left: 70px;
+}
+
+.filter-menu-actions {
+    display: flex;
+    gap: 10px;
+    button {
+        background: rgba(255, 255, 255, 0.87);
+        background-color: #DD9004;
+        background-color: #FFC107;
+        border: #fff;
+        cursor: pointer;
+        box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    }
+}
+
+.create-menu-button {
+    width: 35px;
+}
+
+.delete-menu-button {
+    margin-right: 70px;
+}
+
+.empty-menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 20px;
-    max-height: 70vh; /* Limita la altura máxima del contenedor */
-    overflow-y: auto; /* Habilita el desplazamiento vertical si es necesario */
-    padding: 10px; /* Añade espacio interior */
-    border: 1px solid #ddd; /* Opcional: Para visualizar los bordes del contenedor */
-    background-color: #f9f9f9; /* Fondo ligero para destacar las tarjetas */
-  }
-
-  /* Opcional: Mejora el diseño del scroll */
-.container::-webkit-scrollbar {
-  width: 10px; /* Ancho del scroll */
+    padding: 50px;
+    text-align: center;
+    color: #555;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
 }
 
-.container::-webkit-scrollbar-thumb {
-  background-color: #ccc; /* Color del scroll */
-  border-radius: 5px;
+
+
+.empty-menu-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 20px;
+    opacity: 0.8;
 }
 
-.container::-webkit-scrollbar-thumb:hover {
-  background-color: #aaa; /* Color al pasar el cursor */
-}
-.status-available {
-  color: rgb(110, 218, 110); /* Verde para disponible */
-  font-weight: bold;
-  text-align: center;
-  margin-top: 10px;
+.empty-menu-message {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
 }
 
-.status-unavailable {
-  color: rgb(210, 33, 84); /* Rojo para no disponible */
-  font-weight: bold;
-  text-align: center;
-  margin-top: 10px;
-}  
+.empty-menu-description {
+    font-size: 16px;
+    color: #777;
+}
 
-/* Estilo para la ID en la esquina superior izquierda */
-.card-id {
-  position: absolute; /* Posición absoluta para posicionamiento dentro del contenedor */
-  top: 10px; /* Distancia desde la parte superior */
-  left: 10px; /* Distancia desde la parte izquierda */
-  font-size: 0.8rem; /* Tamaño de letra pequeño */
-  color: #7f8c8d; /* Color gris para la ID */
-  font-weight: bold; /* Negrita para destacar la ID */
+@media (max-width: 767px) {
+    .title-menu-table {
+        margin: 0;
+    }
+
+    .top-menu-table {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .delete-menu-button {
+        margin-right: 0;
+    }
+
+    .filter-menu-actions {
+        margin-bottom: 10px;
+    }
+
+    .table-menu-container {
+        margin: 0;
+        width: 352px;
+        height: 500px;
+    }
+
+    .popup-menu {
+        width: 350px;
+        height: 600px;
+    }
+
+    .popup-menu .form {
+        padding: 20px;
+    }
+
+    .popup-menu .close {
+        margin-right: 0;
+    }
+
+    .popup-menu .options-class {
+        width: 10px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .title-menu-table {
+        margin-left: 35px;
+    }
+
+    .delete-menu-button {
+        margin-right: 35px;
+    }
 }

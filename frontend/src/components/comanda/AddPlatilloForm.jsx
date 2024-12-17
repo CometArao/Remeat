@@ -69,8 +69,6 @@ const AddPlatilloForm = ({ comandaId }) => {
           required
         >
           <option value="pendiente">Pendiente</option>
-          <option value="preparado">Preparado</option>
-          <option value="entregado">Entregado</option>
         </select>
       </div>
       <button type="submit" disabled={loading}>

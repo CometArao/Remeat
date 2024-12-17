@@ -5,18 +5,16 @@ import PopupMenu from '@hooks/menus/popupMenu';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
-import UpdateIconDisable from '../assets/updateIconDisabled.svg';
-import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
 import EmptyIcon from '../assets/emptyIcon.svg';
 import { useEffect, useState } from 'react';
-import '@styles/users.css';
+import '@styles/menu.css';
 import useDeleteMenu from '../hooks/menus/useDeletedMenu';
 import useEditMenu from '../hooks/menus/useEditMenu';
 import useCreateMenu from '../hooks/menus/useCreateMenu';
 import MenuCard from '../components/Menu/MenuCard';
 import useUsers from '../hooks/users/useGetUsers';
 import useGetPlatillos from '../hooks/platillos/useGetPlatillos';
-import useActivateMenu from '../hooks/menus/useActivateMenu'; // Importar el hook
+import useActivateMenu from '../hooks/menus/useActivateMenu';
 
 const Menu = () => {
     const { user } = useAuth();
@@ -25,9 +23,12 @@ const Menu = () => {
     const { platillo, fetchPlatillo } = useGetPlatillos();
 
     const [filterName, setFilterName] = useState('');
+    const [dataMenu, setDataMenu] = useState([]); // Menú seleccionado
 
-    // Hook para activar menú
     const { handleActivateMenu, isActivating } = useActivateMenu(fetchMenus);
+    const { handleDelete } = useDeleteMenu(fetchMenus, setDataMenu);
+    const { handleClickUpdate, handleUpdate, isPopupOpen, setIsPopupOpen } = useEditMenu(setMenus, fetchMenus);
+    const { handleClickCreate, handleCreate, isCreatePopupOpen, setIsCreatePopupOpen } = useCreateMenu(fetchMenus, setMenus);
 
     useEffect(() => {
         fetchMenus();
@@ -35,98 +36,48 @@ const Menu = () => {
         fetchPlatillo();
     }, []);
 
-    const {
-        handleClickUpdate,
-        handleUpdate,
-        isPopupOpen,
-        setIsPopupOpen,
-        dataMenu,
-        setDataMenu,
-    } = useEditMenu(setMenus, fetchMenus);
-
-    const { handleDelete } = useDeleteMenu(fetchMenus, setDataMenu);
-
-    const {
-        handleClickCreate,
-        handleCreate,
-        isCreatePopupOpen,
-        setIsCreatePopupOpen,
-        dataMenuCreate,
-        setDataMenuCreate,
-    } = useCreateMenu(fetchMenus, setMenus);
-
     const handleNameFilterChange = (e) => {
         setFilterName(e.target.value.toLowerCase());
     };
 
-    const filteredMenus = Array.isArray(menus)
-        ? menus.filter((menu) => menu.fecha.toLowerCase().includes(filterName))
-        : [];
+    const filteredMenus = menus.filter((menu) => menu.fecha.toLowerCase().includes(filterName));
 
-    const handleCardSelectionChange = (selectedMenu, isChecked) => {
-        if (isChecked) {
-            setDataMenu((prev) => {
-                if (prev.find((item) => item.id_menu === selectedMenu.id_menu)) {
-                    return prev;
-                }
-                return [...prev, selectedMenu];
-            });
-        } else {
-            setDataMenu((prev) => prev.filter((item) => item.id_menu !== selectedMenu.id_menu));
-        }
+    const handleCardSelectionChange = (selectedMenu) => {
+        setDataMenu((prev) => (prev.length > 0 && prev[0].id_menu === selectedMenu.id_menu ? [] : [selectedMenu]));
     };
 
     return (
-        <div className="main-container">
-            <div className="top-table">
-                <h1 className="title-table">Menús</h1>
-                <div className="filter-actions">
-                    <Search
-                        value={filterName}
-                        onChange={handleNameFilterChange}
-                        placeholder="Buscar por fecha"
-                    />
-                    {['cocinero', 'administrador'].includes(user?.rol_usuario) && (
-                        <button className="create-button" onClick={handleClickCreate}>
-                            <img src={CreateIcon} alt="Crear" />
-                        </button>
-                    )}
-                    {['cocinero', 'administrador'].includes(user?.rol_usuario) && (
-                        <button onClick={handleClickUpdate} disabled={dataMenu.length === 0}>
-                            {dataMenu.length === 0 ? (
-                                <img src={UpdateIconDisable} alt="edit-disabled" />
-                            ) : (
-                                <img src={UpdateIcon} alt="edit" />
-                            )}
-                        </button>
-                    )}
-                    {['cocinero', 'administrador'].includes(user?.rol_usuario) && (
-                        <button
-                            className="delete-user-button"
-                            disabled={dataMenu.length === 0}
-                            onClick={() => handleDelete(dataMenu)}
-                        >
-                            {dataMenu.length === 0 ? (
-                                <img src={DeleteIconDisable} alt="delete-disabled" />
-                            ) : (
-                                <img src={DeleteIcon} alt="delete" />
-                            )}
-                        </button>
-                    )}
+        <div className="menu-container">
+            <div className="top-menu-table">
+                <h1 className="title-menu-table">Menús</h1>
+                <div className="filter-menu-actions">
+                    <Search value={filterName} onChange={handleNameFilterChange} placeholder="Buscar por fecha" />
+                    <button className="create-menu-button" onClick={handleClickCreate}>
+                        <img src={CreateIcon} alt="Crear menú" />
+                    </button>
+                    <button
+                        onClick={() => handleClickUpdate(dataMenu[0])} // Pasa el menú seleccionado
+                        disabled={dataMenu.length === 0}
+                    >
+                        <img src={UpdateIcon} alt="Editar menú" />
+                    </button>
+                    <button onClick={() => handleDelete(dataMenu)} disabled={dataMenu.length === 0}>
+                        <img src={DeleteIcon} alt="Eliminar menú" />
+                    </button>
                 </div>
             </div>
 
             {filteredMenus.length > 0 ? (
-                <div className="container">
+                <div className="container-menu">
                     {filteredMenus.map((menu) => {
-                        const isSelected = dataMenu.some((item) => item.id_menu === menu.id_menu);
+                        const isSelected = dataMenu.length > 0 && dataMenu[0].id_menu === menu.id_menu;
                         return (
                             <MenuCard
                                 key={menu.id_menu}
                                 menu={menu}
                                 isSelected={isSelected}
                                 onSelectChange={handleCardSelectionChange}
-                                onActivate={handleActivateMenu} // Pasar función de activación
+                                onActivate={handleActivateMenu}
                                 isActivating={isActivating}
                             />
                         );
@@ -136,9 +87,6 @@ const Menu = () => {
                 <div className="empty-container">
                     <img src={EmptyIcon} alt="No hay menús" className="empty-icon" />
                     <h2 className="empty-message">No hay menús disponibles</h2>
-                    <p className="empty-description">
-                        Crea uno nuevo usando el botón <strong>+</strong> en la parte superior.
-                    </p>
                 </div>
             )}
 
@@ -151,11 +99,12 @@ const Menu = () => {
                 platillos={platillo}
                 isEdit={true}
             />
+
             {isCreatePopupOpen && (
                 <PopupMenu
                     show={isCreatePopupOpen}
                     setShow={setIsCreatePopupOpen}
-                    data={dataMenuCreate || {}}
+                    data={{}}
                     action={handleCreate}
                     usuario={users}
                     platillos={platillo}

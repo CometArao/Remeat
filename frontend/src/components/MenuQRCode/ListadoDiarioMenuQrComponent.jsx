@@ -10,7 +10,7 @@ const ListadoDiarioMenuQrComponent = ({ menuData }) => {
             <p>Disponibilidad: {menuData.disponibilidad ? 'Disponible' : 'No Disponible'}</p>
             <h3>Platillos:</h3>
             <ul>
-                {menuData.platillos.map((platillo) => (
+                {menuData.platillo.map((platillo) => (
                     <li key={platillo.id_platillo}>
                         {platillo.nombre_platillo} - ${platillo.precio_platillo} -{' '}
                         {platillo.disponible ? 'Disponible' : 'No Disponible'}
