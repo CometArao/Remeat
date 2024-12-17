@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import useAddPlatilloToComanda from '../../hooks/comandas/useAddPlatilloToComanda';
 import '@styles/Comandas.css';
+import { showSuccessAlert, showErrorAlert } from '../../helpers/sweetAlert';
 
 const AddPlatilloForm = ({ comandaId }) => {
   const { addPlatillo, platillos, refetchPlatillos, loading, error } = useAddPlatilloToComanda();
@@ -28,8 +29,10 @@ const AddPlatilloForm = ({ comandaId }) => {
     try {
       await addPlatillo(comandaId, formattedData);
       setPlatilloData({ nombre_platillo: '', cantidad: '', estado: 'pendiente' }); // Limpiar formulario
+      showSuccessAlert('¡Platillo Añadido!', 'El platillo ha sido añadido a la comanda exitosamente.');
     } catch (error) {
-      console.error('Error al añadir platillo:', error);
+      showErrorAlert('Error', error.message);
+      
     }
   };
 
