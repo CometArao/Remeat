@@ -68,6 +68,13 @@ const Sidebar = () => {
                             </>
                         )}
 
+                        {/* Rutas solo para cocinero */}
+                        {userRole === 'cocinero' && (
+                            <>
+                                <li><NavLink to="/platillos/confirma-platillo">Confirmar Platillo</NavLink></li>
+                            </>
+                        )}
+
                         <li><NavLink to="/auth" onClick={logoutSubmit}>Cerrar sesión</NavLink></li>
                     </ul>
                 </div>

@@ -1,119 +1,142 @@
-.platillo-card {
-  background-color: white;
-  border: 1px solid #ddd;
+/* Contenedor general de la página de platillos */
+.platillo-container {
+  display: flex;
+  flex-wrap: wrap; /* Permite que las tarjetas se ajusten en varias filas */
+  justify-content: flex-start; /* Alinear las tarjetas al inicio */
+  align-items: flex-start; /* Alinear al inicio verticalmente */
+  gap: 20px; /* Espacio entre tarjetas */
+  padding: 20px; /* Margen interno */
+  background-color: #523532; /* Color principal */
+  min-height: calc(100vh - 70px); /* Ocupa toda la pantalla menos el top-menu-table */
+  box-sizing: border-box;
+  overflow-y: auto; /* Permitir desplazamiento si el contenido excede */
+}
+
+.table-platillo-container {
+  width: 90%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.top-platillo-table {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background-color: #FFF; /* Fondo blanco */
+  padding: 10px 5%; /* Usa un padding dinámico */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  padding: 20px;
-  margin: 16px;
-  width: 350px; /* Igual que menu-card */
-  min-height: 150px;
+  position: sticky;
+  z-index: 10; /* Mantenerlo por encima del contenido */
+}
+
+.title-platillo-table {
+  color: #FF5722;
+  font-weight: bold;
+  margin-left: 70px;
+}
+
+.filter-platillo-actions {
+  display: flex;
+  gap: 10px;
+  button {
+      background: rgba(255, 255, 255, 0.87);
+      background-color: #DD9004;
+      background-color: #FFC107;
+      border: #fff;
+      cursor: pointer;
+      box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  }
+}
+
+.create-platillo-button {
+  width: 35px;
+}
+
+.delete-platillo-button {
+  margin-right: 70px;
+}
+
+.empty-platillo-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-  cursor: pointer;
-}
-
-.platillo-card:hover {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  transform: translateY(-5px);
-}
-
-.platillo-card h2 {
-  font-size: 1.8rem; /* Ajustar tamaño al diseño de menu-card */
-  font-weight: bold;
-  margin-bottom: 16px;
-  text-align: left;
-  line-height: 1.2;
-  color: #2c3e50;
-  word-break: break-word;
-}
-
-.platillo-card h4 {
-  font-size: 1rem;
-  color: #414a4a;
-  margin: 15px 0 10px;
-}
-
-.platillo-card ul {
-  margin-top: 10px;
-  list-style: disc;
-  padding-left: 20px;
-}
-
-.platillo-card li {
-  margin-bottom: 5px;
-  font-size: 1rem;
-  color: #34495e;
-}
-
-.status-available {
-  color: rgb(110, 218, 110);
-  font-weight: bold;
-  font-size: 0.9rem;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-.status-unavailable {
-  color: rgb(210, 33, 84);
-  font-weight: bold;
-  font-size: 0.9rem;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-/* Estilo para el precio del platillo */
-.price-assigned {
-  color: rgb(110, 218, 110); /* Color que resalta cuando el precio está asignado */
-  font-weight: bold; /* Negrita para destacar el precio */
-  font-size: 1.2em; /* Aumentar tamaño de fuente */
-  text-align: right; /* Alinear a la derecha */
-  margin-top: 10px; /* Espaciado superior */
-}
-
-.price-not-assigned {
-  color: rgb(210, 33, 84); /* Color para "Precio no asignado" */
-  font-weight: bold; /* Negrita para destacar el mensaje */
-  font-size: 1.2em; /* Aumentar tamaño de fuente */
-  text-align: right; /* Alinear a la derecha */
-  margin-top: 10px; /* Espaciado superior */
-}
-
-/* Contenedor con desplazamiento */
-.container {
-  display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
-  gap: 20px;
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 10px;
-  border: 1px solid #ddd;
+  padding: 50px;
+  text-align: center;
+  color: #555;
   background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
 }
 
-.container::-webkit-scrollbar {
-  width: 10px;
+.empty-platillo-icon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 20px;
+  opacity: 0.8;
 }
 
-.container::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 5px;
+.empty-platillo-message {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
 }
 
-.container::-webkit-scrollbar-thumb:hover {
-  background-color: #aaa;
+.empty-platillo-description {
+  font-size: 16px;
+  color: #777;
 }
 
-/* Estilo para la ID en la esquina superior izquierda */
-.card-id {
-  position: absolute; /* Posición absoluta para posicionamiento dentro del contenedor */
-  top: 10px; /* Distancia desde la parte superior */
-  left: 10px; /* Distancia desde la parte izquierda */
-  font-size: 0.8rem; /* Tamaño de letra pequeño */
-  color: #7f8c8d; /* Color gris para la ID */
-  font-weight: bold; /* Negrita para destacar la ID */
+/* Responsive Design */
+@media (max-width: 767px) {
+  .title-platillo-table {
+    margin: 0;
+  }
+
+  .top-platillo-table {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .delete-platillo-button {
+    margin-right: 0;
+  }
+
+  .filter-platillo-actions {
+    margin-bottom: 10px;
+  }
+  .table-platillo-container {
+    margin: 0;
+    width: 352px;
+    height: 500px;
+  }
+  .popup-platillo {
+    width: 350px;
+    height: 600px;
+}
+
+.popup-platillo .form {
+    padding: 20px;
+}
+
+.popup-platillo .close {
+    margin-right: 0;
+}
+
+.popup-platillo .options-class {
+    width: 10px;
+}
+}
+@media (min-width: 768px) and (max-width: 1024px) {
+  .title-platillo-table {
+      margin-left: 35px;
+  }
+
+  .delete-platillo-button {
+      margin-right: 35px;
+  }
 }
