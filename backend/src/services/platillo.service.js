@@ -33,7 +33,6 @@ export async function createPlatilloService(data, userId) {
                 ),
             ];
         }
-        console.log("Usuario existente:", usuarioExistente);   
  
         // Crear el platillo con precio inicial de 0
         const newPlatillo = platilloRepository.create({
