@@ -10,7 +10,11 @@ export async function createTipoUtensilioService(data) {
     const tipoUtensilioRepository = AppDataSource.getRepository(TipoUtensilio);
     try {
         const { nombre_tipo_utensilio } = data;
-        const newTipoUtensilio = tipoUtensilioRepository.create({ nombre_tipo_utensilio });
+        console.log("nombre utensilio")
+        console.log(nombre_tipo_utensilio)
+        const formated_nombre_tipo_utensilio = nombre_tipo_utensilio.toLowerCase();
+        console.log(formated_nombre_tipo_utensilio)
+        const newTipoUtensilio = tipoUtensilioRepository.create({ nombre_tipo_utensilio: formated_nombre_tipo_utensilio });
         await tipoUtensilioRepository.save(newTipoUtensilio);
         return [newTipoUtensilio, null];
     } catch (error) {
