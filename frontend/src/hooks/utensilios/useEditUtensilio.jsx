@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { updateUtensilio } from '@services/utensilios.service';
+import { updateUtensilio } from '@services/utensilio.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
 const useEditUtensilio = (setUtensilios) => {

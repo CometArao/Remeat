@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTiposUtensilio } from '@services/utensilios.service';
+import { getTiposUtensilio } from '@services/utensilio.service';
 
 const useGetTipoUtensilio = () => {
     const [tipoUtensilios, setTipoUtensilios] = useState([]);
