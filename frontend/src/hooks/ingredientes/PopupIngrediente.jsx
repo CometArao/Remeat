@@ -23,7 +23,7 @@ export default function PopupIngrediente({ show, setShow, data, action, tiposIng
                                      label: "Fecha de vencimiento del ingrediente",
                                      name: "fecha_vencimiento",
                                      defaultValue: ingredienteData.fecha_vencimiento || "",
-                                     placeholder: "Ej: 2029-12-31",
+                                     placeholder: "Ej: 31-12-2029",
                                      fieldType: "input",
                                      type: "date",
                                      required: true,
