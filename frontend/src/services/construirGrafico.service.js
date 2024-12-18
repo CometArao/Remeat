@@ -872,9 +872,9 @@ function eliminarRepetidos(data, time) {
 
         if (obj_point.x === obj_point_next.x) {
             if (obj_point_next.tipo === "merma" || obj_point_next.tipo === "comanda") {
-                new_obj_point.y -= obj_point_next.y
+                new_obj_point.y -= obj_point_next.dy
             } else {
-                new_obj_point.y += obj_point_next.y
+                new_obj_point.y += obj_point_next.dy
             }
             console.log("new obj point")
             console.log(new_obj_point)

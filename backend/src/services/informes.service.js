@@ -17,9 +17,8 @@ export async function getUtensiliosDeTipoService(ids_tipos_utensilio) {
       where: { id_tipo_utensilio: id_tipo_utensilio }
     })
     if (!tipoUtensilioEncontrado) {
-      //No importa si el resto de las ids no se ve porque en el front end este error no deberia ser posible. 
-      //Es solo si alguien esta accediendo a las urls directamente posiblemente intentando una inyeccion sql
-      return [null, "El utensilio de id: " + id_tipo_utensilio + " no existe"]
+      continue
+      //return [null, "El utensilio de id: " + id_tipo_utensilio + " no existe"]
     }
 
     //Creo que tiene mas sentido consultar los utensilios, despues consultar separadamente los pedidos y las mermas
