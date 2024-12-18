@@ -5,7 +5,7 @@
     align-items: flex-start; /* Alinear al inicio verticalmente */
     gap: 20px; /* Espacio entre tarjetas */
     padding: 20px; /* Margen interno */
-    background-color:#523532;  /*Color principal para login (gradiente)*/
+    background: linear-gradient(90deg, #795548, #A37666); /*Color principal para login (gradiente)*/
     min-height: calc(100vh - 70px); /* Ocupa toda la pantalla menos el tamaño del top-menu-table */
     box-sizing: border-box;
     overflow-y: auto; /* Permitir desplazamiento si el contenido excede */

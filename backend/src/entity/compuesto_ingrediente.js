@@ -24,6 +24,7 @@ const compuestoIngrediente = new EntitySchema({
             type: "many-to-one",
             target: "pedido",
             joinColumn: { name: "id_pedido" },
+            onDelete: "CASCADE",
         },
         ingrediente: {
             type: "many-to-one",

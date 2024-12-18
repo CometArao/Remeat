@@ -51,15 +51,6 @@ export default function PopupUtensilio({ show, setShow, data, action, tiposUtens
                                     })),
                                     required: true,
                                 },
-                                {
-                                    label: "ID Pedido (Opcional)",
-                                    name: "id_pedido",
-                                    defaultValue: utensilioData.id_pedido || "",
-                                    placeholder: "Ej: 3",
-                                    fieldType: "input",
-                                    type: "number",
-                                    required: false,
-                                },
                             ]}
                             onSubmit={handleSubmit}
                             buttonText={isEdit ? "Guardar Cambios" : "Crear"}
