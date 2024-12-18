@@ -1,6 +1,8 @@
 "use strict";
 import { Router } from "express";
-import { isAdmin } from "../middlewares/authorization.middleware.js";
+import { isAdmin,
+  verificarHorarioLaboral
+ } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   createUser,
@@ -13,16 +15,19 @@ import {
 
 const router = Router();
 
+// Se verifica sesión, autorización y horario laboral
 router
   .use(authenticateJwt)
+  .use(isAdmin)
+  .use(verificarHorarioLaboral);
  
-
+// Rutas para manejar usuarios
 router
-  .post("/", isAdmin, createUser)        // Crear un nuevo usuario
-  .get("/", getUsers)         // Obtener todos los usuarios
-  .get("/:id", getUser)        // Obtener un usuario específico por ID
-  .patch("/:id", updateUser)     // Actualizar un usuario específico por ID
-  .patch("/:id/contrasena", updateUserPassword) // Actualizar contraseña de un usuario específico por ID
-  .delete("/:id", deleteUser); // Eliminar un usuario específico por ID
+  .post("/", createUser)
+  .get("/", getUsers)
+  .get("/:id", getUser)
+  .patch("/:id", updateUser)
+  .patch("/:id/contrasena", updateUserPassword) // Ruta para actualizar la contraseña de un usuario
+  .delete("/:id", deleteUser);
 
 export default router;

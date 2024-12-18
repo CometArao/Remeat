@@ -5,12 +5,19 @@ import { createMedidaController,
         getMedidasController,
         updateMedidaController       
  } from "../controllers/unidad_medida.controller.js";
- import { authorizeRoles } from "../middlewares/authorization.middleware.js";
+ import { authorizeRoles,
+    verificarHorarioLaboral
+  } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 
 const router = Router();
-// Rutas para unidad de medida
-router.use(authenticateJwt).use(authorizeRoles(["administrador", "cocinero"]));
+
+// Se verifica sesión, autorización y horario laboral
+router.use(authenticateJwt)
+  .use(authorizeRoles(["administrador", "cocinero"]))
+  .use(verificarHorarioLaboral);
+
+  // Rutas para unidad de medida
 router
   .post("/", createMedidaController)       // Crear una nueva unidad de medida
   .get("/", getMedidasController)          // Obtener todas las unidades de medida

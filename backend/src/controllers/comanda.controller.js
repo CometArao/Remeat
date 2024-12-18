@@ -83,8 +83,6 @@ export async function addPlatilloToComandaController(req, res) {
   }
 }
 
-
-
 export async function createComandaController(req, res) {
   try {
 

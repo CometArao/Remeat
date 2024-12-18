@@ -10,9 +10,9 @@ export function initializeSocket(server) {
     });
 
     io.on("connection", (socket) => {
-        console.log(`Cliente conectado: ${socket.id}`);
+        //console.log(`Cliente conectado: ${socket.id}`);
         socket.on("disconnect", () => {
-            console.log(`Cliente desconectado: ${socket.id}`);
+            //console.log(`Cliente desconectado: ${socket.id}`);
         });
     });
 
@@ -20,7 +20,7 @@ export function initializeSocket(server) {
 }
 
 export function getSocketInstance() {
-  console.log("Obteniendo instancia de WebSocket:", io);
+  //console.log("Obteniendo instancia de WebSocket:", io);
     if (!io) {
         throw new Error("WebSocket no inicializado. Asegúrate de llamar a initializeSocket.");
     }
@@ -33,7 +33,7 @@ export function sendNotification(event, data) {
   try {
     const io = getSocketInstance(); // Obtiene la instancia de Socket.IO
     io.emit(event, data); // Emite el evento y los datos
-    console.log(`Notificación enviada: ${event}`, data);
+    //console.log(`Notificación enviada: ${event}`, data);
   } catch (error) {
     console.error("Error enviando notificación:", error.message);
   }
