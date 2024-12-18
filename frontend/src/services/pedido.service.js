@@ -1,5 +1,16 @@
 import axios from './root.service.js';
 
+// Función para manejar respuestas de error globales
+const handleErrorResponse = (error) => {
+    if (error.response?.status === 403) {
+        console.warn('Acceso denegado: fuera de horario laboral.');
+        window.location.href = '/fuera-horario'; // Redirige a la página específica
+    } else {
+        console.error('Error:', error.message);
+    }
+    throw error;
+};
+
 export async function getPedidos() {
     try {
         const { data } = await axios.get('/pedidos/');
@@ -21,7 +32,6 @@ export async function createPedido(pedido) {
     }
 }
 
-
 export async function updatePedido(pedido, id) {
     try {
         const { data } = await axios.put(`/pedidos/${id}`, pedido);
@@ -36,13 +46,15 @@ export async function deletePedido(id) {
     try {
         if (!id) throw new Error('ID no válido para eliminar el pedido.');
 
-        const { data } = await axios.delete(`/pedidos/${id}`, {
-            headers: { 'Cache-Control': 'no-cache' },
-        });
-        return data;
+        const response = await axios.delete(`/pedidos/${id}`);
+        return response.data;
     } catch (error) {
-        console.error('Error deleting pedido:', error);
-        return error.response?.data || { status: 'Client error', details: error.message };
+        if (error.response && error.response.data) {
+            return error.response.data; 
+        } else {
+            console.error('Error inesperado:', error);
+            return { status: "Client error", message: error.message };
+        }
     }
 }
 
