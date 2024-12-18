@@ -15,6 +15,7 @@ const detalleMermas = () => {
     console.log(merma)
     const [filterName, setFilterName] = useState('');
     const ingredientes = data.ingredientes
+    console.log("ingredientes")
     console.log(ingredientes)
     const utensilios = data.utensilios
     console.log(utensilios)
@@ -55,7 +56,7 @@ const detalleMermas = () => {
                             <tbody>
                                 {utensilios.map((item) =>
                                     item.nombre_tipo_utensilio.toLowerCase().startsWith(filterName) ? (
-                                        <tr key={item.id_utensilio}>
+                                        <tr key={item.id_utensilio + "-" + data.id_merma}>
                                             <td>
                                                 {item.nombre_tipo_utensilio}
                                             </td>
@@ -86,7 +87,7 @@ const detalleMermas = () => {
                             <tbody>
                                 {ingredientes.map((item) =>
                                     item.nombre_tipo_ingrediente.toLowerCase().startsWith(filterName) ? (
-                                        <tr key={item.id_ingrediente}>
+                                        <tr key={item.id_ingrediente + "-" + data.id_merma}>
                                             <td>
                                                 {item.nombre_tipo_ingrediente || "Sin tipo"}
                                             </td>
