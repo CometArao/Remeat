@@ -115,7 +115,7 @@ export async function createComandaController(req, res) {
     }
   
   try {
-
+    console.log('Datos recibidos:', req.body);
     const loggedUser = req.user;
     const platilloData = req.body.platillo;
 
@@ -125,7 +125,7 @@ export async function createComandaController(req, res) {
         message: 'Debe proporcionar un nombre y cantidad para el platillo.'
       });
     }
-
+    console.log('Datos recibidos:', platilloData);
     const newComanda = await createComanda(loggedUser, platilloData);
 
     sendNotification('nueva-comanda', {
