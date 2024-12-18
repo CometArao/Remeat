@@ -3,8 +3,10 @@ import Search from '../components/Search';
 import { useCallback, useState, useRef } from 'react';
 import { formatearFecha } from '../helpers/formatDate';
 import useMerma from '@hooks/mermas/getMerma.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const detalleMermas = () => {
+    const navigate = useNavigate();
     const location = useLocation();
     const merma = location.state;
     //const {merma, fetchMerma, setMerma } = useMerma(id)
@@ -13,6 +15,7 @@ const detalleMermas = () => {
     console.log(merma)
     const [filterName, setFilterName] = useState('');
     const ingredientes = data.ingredientes
+    console.log("ingredientes")
     console.log(ingredientes)
     const utensilios = data.utensilios
     console.log(utensilios)
@@ -20,10 +23,14 @@ const detalleMermas = () => {
         console.log(e)
         setFilterName(e.target.value.toLowerCase());
     };
+    const handleRedirect = () => {
+        navigate('/Mermas');
+    }
     return (
         <div className='main-container'>
             <div className='table-container'>
                 <div className='top-table'>
+                    <button style={{ "margin": "2vh" }} onClick={handleRedirect}>Volver</button>
                     <h1 className='title-table'>Datos de Mermas</h1>
                     <p>Fecha Merma: {data.fecha_merma}</p>
                     <div className='filter-actions'>
@@ -49,14 +56,14 @@ const detalleMermas = () => {
                             <tbody>
                                 {utensilios.map((item) =>
                                     item.nombre_tipo_utensilio.toLowerCase().startsWith(filterName) ? (
-                                        <tr key={item.id_utensilio}>
+                                        <tr key={item.id_utensilio + "-" + data.id_merma}>
                                             <td>
-                                                {item.nombre_tipo_utensilio || "Sin tipo"}
+                                                {item.nombre_tipo_utensilio}
                                             </td>
                                             <td>
-                                                {item.pedido?.fecha_compra_pedido || "Sin fecha"}
+                                                {formatearFecha(item.fecha_compra_pedido)}
                                             </td>
-                                            <td>{item.cantidad_utensilio || 0}</td>
+                                            <td>{item.cantidad_restante_utensilio || 0}</td>
                                             <td>
                                                 {item.cantidad_perdida_utensilio}
                                             </td>
@@ -80,7 +87,7 @@ const detalleMermas = () => {
                             <tbody>
                                 {ingredientes.map((item) =>
                                     item.nombre_tipo_ingrediente.toLowerCase().startsWith(filterName) ? (
-                                        <tr key={item.id_ingrediente}>
+                                        <tr key={item.id_ingrediente + "-" + data.id_merma}>
                                             <td>
                                                 {item.nombre_tipo_ingrediente || "Sin tipo"}
                                             </td>

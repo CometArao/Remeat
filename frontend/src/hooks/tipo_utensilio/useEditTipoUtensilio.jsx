@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { updateTipoUtensilio } from '@services/utensilios.service';
+import { updateTipoUtensilio } from '@services/utensilio.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
 const useEditTipoUtensilio = (setTipoUtensilios) => {

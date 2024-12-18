@@ -11,8 +11,8 @@ const TableWithCheckboxes = forwardRef((props, ref) => {
     // data.splice(i, 1); // Eliminar el elemento sin datos de tipo
     // }
     // }
-    // console.log("data ingrediente revisado");
-    // console.log(data);
+    console.log("data ingrediente revisado");
+    console.log(props);
 
     const [checkedItems, setCheckedItems] = useState({});
     const [numeroIngrediente, setNumeroIngrediente] = useState({});

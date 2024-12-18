@@ -86,7 +86,7 @@ const crearMermas = () => {
         }
         console.log("mermaTotal")
         console.log(mermaTotal)
-        if(mermaTotal === 0) {
+        if (mermaTotal === 0) {
             //Creo que es imposible llegar aqui
             showErrorAlert("No se pudo crear merma", "Tiene que ingresar una cantidad mayor a 0 para algun ingrediente o utensilio")
         }
@@ -100,12 +100,17 @@ const crearMermas = () => {
 
 
         //Redireccionar a /mermas
+        showSuccessAlert("Se creo la merma correctamente")
+        navigate('/mermas');
+    }
+    const handleRedirect = () => {
         navigate('/mermas');
     }
 
     return (
         <div className='main-container'>
             <div className='table-container'>
+                <button style={{ "margin": "2vh" }} onClick={handleRedirect}>Volver</button>
                 <div className='top-table'>
                     <h1 className='title-table'>Registrar Mermas</h1>
                     <div className='filter-actions'>

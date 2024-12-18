@@ -1,4 +1,4 @@
-import { deleteTipoUtensilio } from '@services/utensilios.service';
+import { deleteTipoUtensilio } from '@services/utensilio.service';
 import { deleteDataAlert, showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
 const useDeleteTipoUtensilio = (fetchTipoUtensilios, setDataTipoUtensilio) => {

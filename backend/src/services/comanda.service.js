@@ -7,8 +7,6 @@ import { AppDataSource } from "../config/configDb.js";
 import { format } from "date-fns";
 import Menu from "../entity/menu.entity.js";
 
-
-
 export async function getPlatillosDelDiaService(){
   const menuRepository = AppDataSource.getRepository(Menu);
 
@@ -95,20 +93,19 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   });
   if (!comanda) throw new Error("Comanda no encontrada.");
 
-  
-
+  //Verificar si la comanda está completada
+  if (comanda.estado_comanda === "completada") {
+    throw new Error("No se pueden añadir platillos a una comanda completada.");
+  }
 
   // Obtener el menú disponible
   const menu = await menuRepository.findOne({
     where: { disponibilidad: true },
     relations: ["platillo"],
   });
-
-  
-
   if (!menu) throw new Error("No hay un menú disponible.");
 
-  console.log("Apunto")
+  console.log("Apunto");
   // Verificar si el platillo existe
   const platillo = await platilloRepository.findOne({
     where: { nombre_platillo: platilloData.nombre_platillo }
@@ -133,6 +130,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
   return newConforma;
 }
+
 
 
 export async function createComanda(loggedUser, platilloData) {
@@ -296,6 +294,7 @@ export async function deleteComanda(comandaId) {
 
 export async function completeComanda(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
+  const conformaRepository = AppDataSource.getRepository(ConformaComanda);
 
   // Buscar la comanda por ID
   const comanda = await comandaRepository.findOne({
@@ -307,10 +306,28 @@ export async function completeComanda(comandaId) {
     throw new Error("Comanda no encontrada.");
   }
 
-
   // Validar que el estado sea "pendiente"
   if (comanda.estado_comanda !== "pendiente") {
     throw new Error(`La comanda no se puede completar porque está en estado "${comanda.estado_comanda}".`);
+  }
+
+  //Verificar que todos los platillos asignados estén "preparados"
+  const platillosEnComanda = await conformaRepository.find({
+    where: { comanda: { id_comanda: comandaId } },
+  });
+
+  if (platillosEnComanda.length === 0) {
+    throw new Error("La comanda no tiene platillos asignados.");
+  }
+
+  const hayPlatillosPendientes = platillosEnComanda.some(
+    (platillo) => platillo.estado_platillo !== "preparado"
+  );
+
+  if (hayPlatillosPendientes) {
+    throw new Error(
+      "No se puede completar la comanda porque hay platillos con estado pendiente."
+    );
   }
 
   // Cambiar el estado de la comanda directamente
@@ -328,5 +345,4 @@ export async function completeComanda(comandaId) {
 
   return updatedComanda;
 }
-
 

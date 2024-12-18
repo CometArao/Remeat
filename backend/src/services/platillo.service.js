@@ -8,7 +8,14 @@ import ComponePlatillo from "../entity/compuesto_platillo.entity.js";
 import ConformaComanda from "../entity/conforma_comanda.entity.js";
 import Ingrediente from "../entity/ingrediente.entity.js";
 
-// Función para crear un platillo
+import { sendNotification } from "../services/socket.js"; // Importar función de notificación
+
+// Almacenamiento temporal para rastrear las notificaciones enviadas
+const notificacionesEnviadas = new Map();
+
+// Mapa para rastrear si ya se notificó que se alcanzó el límite de 3 notificaciones
+const notificacionesOmitidas = new Set();
+
 export async function createPlatilloService(data, userId) {
     const platilloRepository = AppDataSource.getRepository(Platillo);
     const usuarioRepository = AppDataSource.getRepository(Usuario);
@@ -603,5 +610,59 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
     } catch (error) {
         console.error("Error al descontar ingredientes:", error.message);
         throw new Error("Ocurrió un error al descontar los ingredientes del inventario.");
+    }
+}
+
+export async function verificarIngredientesBajoStock() {
+    try {
+        const ingredienteRepository = AppDataSource.getRepository("ingrediente");
+
+        // Usar QueryBuilder para realizar la comparación con la cantidad de alerta
+        const ingredientesBajoStock = await ingredienteRepository
+            .createQueryBuilder("ingrediente")
+            .innerJoinAndSelect("ingrediente.tipo_ingrediente", "tipoIngrediente")
+            .where("ingrediente.cantidad_ingrediente <= tipoIngrediente.cantidad_alerta_tipo_ingrediente")
+            .getMany();
+
+        if (ingredientesBajoStock.length > 0) {
+            ingredientesBajoStock.forEach((ingrediente) => {
+                const idIngrediente = ingrediente.id_ingrediente;
+
+                // Comprobar cuántas veces se ha notificado este ingrediente
+                const notificacionesActuales = notificacionesEnviadas.get(idIngrediente) || 0;
+
+                if (notificacionesActuales < 3) {
+                    const data = {
+                        id_ingrediente: ingrediente.id_ingrediente,
+                        tipo_ingrediente: ingrediente.tipo_ingrediente.nombre_tipo_ingrediente,
+                        cantidad_actual: ingrediente.cantidad_ingrediente,
+                        cantidad_alerta: ingrediente.tipo_ingrediente.cantidad_alerta_tipo_ingrediente,
+                    };
+
+                    console.log("Notificando ingrediente bajo stock:", data);
+
+                    // Emitir un evento WebSocket
+                    sendNotification("ingrediente-bajo-stock", data);
+
+                    // Actualizar el contador de notificaciones
+                    notificacionesEnviadas.set(idIngrediente, notificacionesActuales + 1);
+
+                    // Eliminar del mapa de omitidos si se vuelve a notificar
+                    notificacionesOmitidas.delete(idIngrediente);
+                } else {
+                    // Evitar mensajes repetitivos para ingredientes ya notificados como omitidos
+                    if (!notificacionesOmitidas.has(idIngrediente)) {
+                        console.log(
+                            `Notificación omitida para ingrediente ${idIngrediente}, ya se enviaron 3 veces.`
+                        );
+                        notificacionesOmitidas.add(idIngrediente);
+                    }
+                }
+            });
+        } else {
+            console.log("No hay ingredientes en bajo stock actualmente.");
+        }
+    } catch (error) {
+        console.error("Error verificando ingredientes bajo stock:", error.message);
     }
 }

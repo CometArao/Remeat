@@ -22,6 +22,8 @@ import {
 
 import { handleErrorClient, handleErrorServer, handleSuccess } from "../handlers/responseHandlers.js";
 
+import { sendNotification } from "../services/socket.js"; // Importar función de notificación
+
 // Controlador para crear un tipo de ingrediente
 export async function createTipoIngredienteController(req, res) {
   try {

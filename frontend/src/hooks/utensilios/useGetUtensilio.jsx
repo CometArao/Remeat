@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUtensilios } from "@services/utensilios.service";
+import { getUtensilios } from "@services/utensilio.service";
 
 const useGetUtensilios = () => {
     const [utensilios, setUtensilios] = useState([]);
@@ -7,8 +7,6 @@ const useGetUtensilios = () => {
     const fetchUtensilios = async () => {
         try {
             const data = await getUtensilios();
-            console.log("data")
-            console.log(data)
             if (Array.isArray(data)) {
                 setUtensilios(data);
             } else {

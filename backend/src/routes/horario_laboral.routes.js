@@ -1,5 +1,9 @@
 "use strict";
 import { Router } from "express";
+import { isAdmin,
+  verificarHorarioLaboral
+} from "../middlewares/authorization.middleware.js";
+import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import {
   createHorarioLaboral,
   deleteHorarioLaboral,
@@ -11,10 +15,15 @@ import {
 const router = Router();
 
 router
-  .post("/", createHorarioLaboral)               // Crear un nuevo horario laboral
-  .get("/", getHorariosLaborales)                // Obtener todos los horarios laborales
-  .get("/:id_horario_laboral", getHorarioLaboralById)            // Obtener un horario laboral por ID
-  .put("/:id_horario_laboral", updateHorarioLaboral)             // Actualizar un horario laboral por ID
-  .delete("/:id_horario_laboral", deleteHorarioLaboral);         // Eliminar un horario laboral por ID
+  .use(authenticateJwt)
+  .use(isAdmin)
+  .use(verificarHorarioLaboral);
+
+router
+  .post("/", createHorarioLaboral)
+  .get("/", getHorariosLaborales)
+  .get("/:id_horario_laboral", getHorarioLaboralById)
+  .put("/:id_horario_laboral", updateHorarioLaboral)
+  .delete("/:id_horario_laboral", deleteHorarioLaboral);
 
 export default router;

@@ -1,12 +1,12 @@
 "use strict";
 import { Router } from "express";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
-import { 
+import {
   createTipoUtensilioController,
   createUtensilioController,
-  deleteTipoUtensilioController, 
-  deleteUtensilioController, 
-  getTiposUtensilioController, 
+  deleteTipoUtensilioController,
+  deleteUtensilioController,
+  getTiposUtensilioController,
   getTipoUtensilioController,
   getUtensilioController,
   getUtensiliosController,
@@ -14,12 +14,16 @@ import {
   updateTipoUtensilioController,
   updateUtensilioController
 } from "../controllers/utensilio.controller.js";
+import { authorizeRoles, verificarHorarioLaboral } from "../middlewares/authorization.middleware.js";
 
-const router = Router();
+// Se verifica sesión, autorización y horario laboral
+const router = Router()
+  .use(authenticateJwt)  
+  .use(authorizeRoles(["administrador", "cocinero"]))
+  .use(verificarHorarioLaboral)
 
 // Rutas para tipo_utensilio
 router
-  .use(authenticateJwt)  // Aplicar autenticación a todas las rutas
   .post("/tipo", createTipoUtensilioController)            // Crear tipo de utensilio
   .get("/tipo/:id", getTipoUtensilioController)            // Obtener un tipo de utensilio específico por ID
   .get("/tipo", getTiposUtensilioController)               // Obtener todos los tipos de utensilios
