@@ -414,27 +414,23 @@ export async function deleteTipoIngredienteService(id) {
         if (!tipoIngredienteExistente) {
             return [null, `El tipo de ingrediente con ID ${id} no existe.`];
         }
-        // Verificar si el tipo de ingrediente está siendo utilizado en algún ingrediente
-        const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
-        const ingrediente = await ingredienteRepository.findOne({
-            where: { tipo_ingrediente: { id_tipo_ingrediente: id } },
-        });
-        // Si el tipo de ingrediente está siendo utilizado, devolver error
-        if (ingrediente) {
-            return [null, `No se puede eliminar este tipo de ingrediente porque está siendo utilizado
-            en uno o más ingredientes.`];
-        }
+
+            // Verificar si el tipo de ingrediente está asociado a algún platillo
+            const asociadoAPlatillo = await componePlatilloRepository.findOne({
+                where: { id_tipo_ingrediente: id },
+            });
+            // Si está asociado a algún platillo, no se puede eliminar
+            if (asociadoAPlatillo) {
+                return [
+                    null,
+                    `No se puede eliminar el tipo de ingrediente porque está asociado a uno o más platillos.`,
+                ];
+            }
 
         // Intentar eliminar el tipo de ingrediente
         await tipoIngredienteRepository.delete(id);
         return [true, null];
     } catch (error) {
-        // Verificar si el error es de clave foránea
-        if (error.code === "23503") { // Código de error para violación de clave foránea en PostgreSQL
-            return [null, `No se puede eliminar este tipo de ingrediente porque está siendo utilizado
-                en uno o más platillos.`];
-
-        }
         console.error("Error al eliminar el tipo de ingrediente:", error);
         return [null, error.message];
     }
