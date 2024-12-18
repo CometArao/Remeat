@@ -506,7 +506,7 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
           mensaje: `El platillo con ID ${id_platillo} ahora está en estado "preparado".`,
         });
       }
-      // Emitir evento de notificación al cliente
+    
       return [conformaPlatillo, null];
     } catch (error) {
       console.error("Error en confirmarPlatilloService:", error.message);
@@ -592,7 +592,7 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
         const hayIngredientesAgotados = await ingredienteRepository.count({
             where: { cantidad_ingrediente: 0 },
         });
-
+        // Marcar el platillo como no disponible si hay ingredientes agotados
         if (hayIngredientesAgotados) {
             platillo.disponible = false;
             await platilloRepository.save(platillo);
