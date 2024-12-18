@@ -81,7 +81,7 @@ async function setupAPI() {
     console.error("Error en index.js -> setupAPI(), el error es:", error);
   }
 }
-
+console.log();
 setupAPI()
   .then(() => console.log("=> API Iniciada exitosamente"))
   .catch((error) =>

@@ -16,6 +16,9 @@ import { handleErrorClient, handleErrorServer, handleSuccess } from '../handlers
 import {
   createComandaValidation,
   addPlatilloToComandaValidation,
+  deleteComandaValidation,
+  completeComandaValidation,
+  removePlatilloFromComandaValidation,
 
 } from '../validations/comanda.validation.js';
 
@@ -27,6 +30,19 @@ export async function removePlatilloFromComandaController(req, res) {
   const comandaId = parseInt(req.params.id, 10);
   const platilloId = parseInt(req.params.platilloId, 10);
   const loggedUser = req.user; // Usuario logueado, obtenido del middleware de autenticación
+
+
+  const { error } = removePlatilloFromComandaValidation.validate({
+    id_comanda: comandaId,
+    id_platillo: platilloId
+  });
+
+  if (error) {
+    return res.status(400).json({
+      status: 'Error',
+      message: error.details[0].message
+    });
+  }
 
   try {
     const result = await removePlatilloFromComanda(comandaId, platilloId, loggedUser);
@@ -65,8 +81,14 @@ export async function getComandasConPlatillosController(req, res) {
 
 
 export async function addPlatilloToComandaController(req, res) {
+ 
   const { error } = addPlatilloToComandaValidation.validate(req.body);
-  if (error) return handleErrorClient(res, 400, error.details[0].message);
+  if (error) {
+    return res.status(400).json({
+      status: 'Error',
+      message: error.details[0].message
+    });
+  }
 
   const comandaId = req.params.id;
   try {
@@ -84,11 +106,16 @@ export async function addPlatilloToComandaController(req, res) {
 }
 
 export async function createComandaController(req, res) {
+  const { error } = createComandaValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        status: 'Error',
+        message: error.details[0].message
+      });
+    }
+  
   try {
-
     console.log('Datos recibidos:', req.body);
-
-
     const loggedUser = req.user;
     const platilloData = req.body.platillo;
 
@@ -98,9 +125,7 @@ export async function createComandaController(req, res) {
         message: 'Debe proporcionar un nombre y cantidad para el platillo.'
       });
     }
-
     console.log('Datos recibidos:', platilloData);
-
     const newComanda = await createComanda(loggedUser, platilloData);
 
     sendNotification('nueva-comanda', {
@@ -158,9 +183,23 @@ export async function deleteComandaController(req, res) {
   const comandaId = req.params.id;
 
   try {
+
+    const comanda = await getComandaById(comandaId);
+    const { error } = deleteComandaValidation.validate({ estado_comanda: comanda.estado_comanda });
+    if (error) {
+      return res.status(400).json({
+        status: 'Error',
+        message: error.details[0].message
+      });
+    }
+
+
     const deletedComanda = await deleteComanda(comandaId);
     handleSuccess(res, 200, 'Comanda eliminada', deletedComanda);
+
+
   } catch (error) {
+
     if (error.message.includes('no encontrada')) {
       handleErrorClient(res, 404, error.message);
     } else {
@@ -173,6 +212,14 @@ export async function deleteComandaController(req, res) {
 
 export async function completeComandaController(req, res) {
   const comandaId = req.params.id;
+
+  const { error } = completeComandaValidation.validate({ id: comandaId });
+  if (error) {
+    return res.status(400).json({
+      status: 'Error',
+      message: error.details[0].message
+    });
+  }
 
   try {
     const completedComanda = await completeComanda(comandaId);
