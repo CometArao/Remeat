@@ -1,5 +1,6 @@
 "use strict";
 import nodemailer from "nodemailer";
+import { formatDateTimeCL } from "../utils/dateUtils.js";
 
 // Configuración del transportador
 const transporter = nodemailer.createTransport({
@@ -28,12 +29,6 @@ export const sendEmail = async (to, subject, pedido) => {
     }
 };
 
-// Función para formatear fechas al formato "DD-MM-YYYY"
-function formatFecha(fecha) {
-    const [year, month, day] = fecha.split("-");
-    return `${day}-${month}-${year}`;
-}
-
 // Función para generar la plantilla de correo electrónico
 function generarPlantillaCorreo(pedido) {
     return `
@@ -54,11 +49,13 @@ function generarPlantillaCorreo(pedido) {
                 </tr>
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;"><strong>Fecha de Compra:</strong></td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${formatFecha(pedido.fecha_compra_pedido)}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    ${formatDateTimeCL(pedido.fecha_compra_pedido)}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;"><strong>Fecha de Entrega:</strong></td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${formatFecha(pedido.fecha_entrega_pedido)}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                    ${formatDateTimeCL(pedido.fecha_entrega_pedido)}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border: 1px solid #ddd;"><strong>Nombre del Cliente:</strong></td>
@@ -133,5 +130,67 @@ function generarTablaUtensilios(utensilios) {
                 `).join("")}
             </tbody>
         </table>
+    `;
+}
+
+// Función para enviar un correo de cancelación
+export const sendCancellationEmail = async (to, subject, pedido) => {
+    const mailOptions = {
+        from: `"Equipo de Remeat" <${process.env.MAIL_USERNAME}>`,
+        to,
+        subject,
+        html: generarPlantillaCorreoCancelacion(pedido),
+    };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Correo de cancelación enviado: " + info.response);
+    } catch (error) {
+        console.error("Error al enviar el correo de cancelación:", error);
+        throw new Error("Error al enviar el correo de cancelación");
+    }
+};
+
+// Función para generar la plantilla de correo electrónico de cancelación
+function generarPlantillaCorreoCancelacion(pedido) {
+    return `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+            <h2 style="color: #FF5722;">Pedido Cancelado</h2>
+            <p>Estimado(a) ${pedido.nombre_proveedor},</p>
+            <p>Le informamos que el pedido con los siguientes detalles ha sido cancelado:</p>
+            <hr>
+            <h3>Detalles del Pedido Cancelado</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>ID del Pedido:</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${pedido.id_pedido}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>Descripción:</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${pedido.descripcion_pedido}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>Fecha de Creación:</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${formatDateTimeCL(pedido.fecha_compra_pedido)}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>Fecha de Entrega (prevista):</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${formatDateTimeCL(pedido.fecha_entrega_pedido)}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>Nombre del Cliente:</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${pedido.nombre_usuario}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;"><strong>Costo Total:</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">$${pedido.costo_pedido}</td>
+                </tr>
+            </table>
+            <p>Si tiene alguna pregunta o requiere más información, no dude en contactarnos.</p>
+            <p>Gracias por su atención.</p>
+            <p>Atentamente,<br>El equipo de Remeat</p>
+            <hr>
+            <p style="font-size: 12px; color: #777;">Este es un correo generado automáticamente, por favor no responda a este mensaje.</p>
+        </div>
     `;
 }

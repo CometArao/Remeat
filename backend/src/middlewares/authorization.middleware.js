@@ -147,8 +147,9 @@ export const verificarHorarioLaboral = async (req, res, next) => {
       const horaActual = `${isoHours}:${isoMinutes}:00`;
 
       // Obtener el día de la semana
-      const diasSemana = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+      const diasSemana = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
       const diaSemana = diasSemana[fechaActual.getDay()];
+      console.log(diaSemana)
       const diaNormalizado = normalizarTexto(diaSemana);
 
       console.log("Hora actual (Chile):", horaActual);
