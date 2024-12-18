@@ -23,6 +23,7 @@ import{
     handleSuccess,
 }
 from "../handlers/responseHandlers.js";
+import e from "cors";
 
 
 
@@ -45,7 +46,6 @@ export async function getMenuQRCodeController(req, res) {
 
 export async function createMenuController(req, res) {
     try {
-        console.log("CONTROLADOR:", req.body);
 
         const { fecha, disponibilidad, platillos } = req.body;
 
@@ -120,18 +120,20 @@ export async function deleteMenuController(req, res){
 
         const [menu, errorMenu] = await deleteMenuByIdService(id);
 
-        if(errorMenu) return handleErrorClient(res, 404, errorMenu);
+        if(errorMenu) return handleErrorClient(res, 404, errorMenu,
+            { status: "Client error", message: errorMenu });
 
         handleSuccess(res, 200, "Menú eliminado", menu);
     }
     catch(error){
+        console.error("Error al eliminar un menú:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }
 
 export async function updateMenuController(req, res){
     try{
-        const { id_menu } = req.params;
+        const { id } = req.params;
 
         const { fecha, disponibilidad, id_usuario, platillos } = req.body;
 
@@ -140,7 +142,7 @@ export async function updateMenuController(req, res){
         if(error) return handleErrorClient(res, 400, error.message);
 
      
-        const [menu, errorMenu] = await updateMenuService(id_menu, { fecha, disponibilidad, id_usuario, platillos } );
+        const [menu, errorMenu] = await updateMenuService(id, { fecha, disponibilidad, id_usuario, platillos } );
 
         if(errorMenu) return handleErrorClient(res, 404, errorMenu);
 
