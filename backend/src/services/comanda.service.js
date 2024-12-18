@@ -6,7 +6,7 @@ import ConformaComanda from "../entity/conforma_comanda.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { format } from "date-fns";
 import Menu from "../entity/menu.entity.js";
-
+import { getCurrentChileanTime, truncateToMinutes } from "../utils/dateUtils.js"; 
 
 
 export async function getPlatillosDelDiaService(){
@@ -107,7 +107,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   });
   if (!menu) throw new Error("No hay un menú disponible.");
 
-  console.log("Apunto");
+
   // Verificar si el platillo existe
   const platillo = await platilloRepository.findOne({
     where: { nombre_platillo: platilloData.nombre_platillo }
@@ -118,6 +118,35 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   if (!menu.platillo.some(p => p.id_platillo === platillo.id_platillo)) {
     throw new Error("El platillo no está en el menú activo.");
   }
+
+
+
+
+// Buscar si el platillo ya existe en la comanda
+const platilloExistente = await conformaRepository.findOne({
+  where: {
+    comanda: { id_comanda: comandaId },
+    platillo: { id_platillo: platillo.id_platillo }
+  }
+});
+
+
+// Si el platillo ya existe y tiene estado "preparado", no se permite sumar ni añadir
+if (platilloExistente && platilloExistente.estado_platillo === "preparado") {
+  throw new Error(
+    `No se puede modificar el platillo "${platillo.nombre_platillo}" porque su estado es "preparado".`
+  );
+}
+
+
+if (platilloExistente) {
+  // Si ya existe, sumar la cantidad
+  platilloExistente.cantidad_platillo += platilloData.cantidad || 1;
+  await conformaRepository.save(platilloExistente);
+  return platilloExistente;
+} else {
+
+
 
   // Crear la relación en ConformaComanda
   const newConforma = conformaRepository.create({
@@ -131,6 +160,8 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   await conformaRepository.save(newConforma);
 
   return newConforma;
+
+ }
 }
 
 
@@ -139,7 +170,7 @@ export async function createComanda(loggedUser, platilloData) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
   const usuarioRepository = AppDataSource.getRepository(Usuario);
 
-  console.log('Datos del platillo en createComanda:', platilloData); // Log para depurar
+  
 
   // Buscar al usuario logueado en la base de datos
   const usuario = await usuarioRepository.findOne({
@@ -156,11 +187,14 @@ export async function createComanda(loggedUser, platilloData) {
   }
 
 
+// Obtener la fecha y hora actual ajustada a UTC-3
+const fechaActual = getCurrentChileanTime(); // Obtiene la hora actual en Chile
+const fechaTruncada = truncateToMinutes(fechaActual); // Elimina segundos y milisegundos
 
-  // Obtener la fecha y hora actuales
-  const fechaActual = new Date();
-  const fechaCompra = fechaActual.toISOString().split("T")[0]; // YYYY-MM-DD
-  const horaCompra = fechaActual.toTimeString().split(" ")[0]; // HH:MM:SS
+const fechaCompra = fechaTruncada.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+const horaCompra = fechaTruncada.toTimeString().split(" ")[0]; // Formato HH:MM:SS
+
+
 
   // Crear la comanda con los valores dinámicos
   const nuevaComanda = comandaRepository.create({
@@ -173,7 +207,7 @@ export async function createComanda(loggedUser, platilloData) {
   // Guardar la comanda
   const savedComanda = await comandaRepository.save(nuevaComanda);
 
-  console.log('Comanda guardada:', savedComanda);
+  
 
   // Añadir el platillo a la comanda usando la función existente
   await addPlatilloToComanda(savedComanda.id_comanda, platilloData);
@@ -286,6 +320,19 @@ export async function deleteComanda(comandaId) {
   throw new Error("La comanda no se puede eliminar porque ya está completada");
   }
 
+
+    // Verificar si algún platillo tiene el estado "preparado"
+    const platillosEnComanda = await conformaRepository.find({
+      where: { comanda: { id_comanda: comandaId } }
+    });
+  
+    const tienePlatilloPreparado = platillosEnComanda.some(
+      (platillo) => platillo.estado_platillo === "preparado"
+    );
+  
+    if (tienePlatilloPreparado) {
+      throw new Error("No se puede eliminar la comanda porque contiene platillos en estado 'preparado'.");
+    }
 
   await conformaRepository.delete({ id_comanda: comandaId });
   await comandaRepository.remove(comanda);

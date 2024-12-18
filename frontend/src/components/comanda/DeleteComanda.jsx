@@ -17,7 +17,7 @@ const DeleteComanda = ({ comandaId, onDelete }) => {
           if (onDelete) await onDelete(); 
         }
       } catch (error) {
-        showErrorAlert('Error', 'No se pudo eliminar la comanda.');
+        showErrorAlert('Error',error.message);
         console.error('Error al eliminar la comanda:', error);
       }
     }
