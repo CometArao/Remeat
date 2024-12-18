@@ -285,8 +285,15 @@ export async function deleteMenuByIdService(id_menu) {
             where: { id_menu },
             relations: ["platillo", "usuario"],
         });
+        console.log("Menú encontrado para eliminar:", menuFound);
         // Verificar si el menú existe
         if (!menuFound) return [null, { dataInfo: "id_menu", message: `El menú con ID ${id_menu} no existe.` }];
+        console.log("Menú encontrado para eliminar:", menuFound.id_menu);
+
+        // Verificar si el menú está disponible
+        if (menuFound.disponibilidad) {
+            return [null, { dataInfo:"id_menu", message: 'No se puede eliminar un menú disponible. Desactívelo primero.'}];
+        }
         // Eliminar el menú
         const menuDeleted = await menuRepository.remove(menuFound);
 

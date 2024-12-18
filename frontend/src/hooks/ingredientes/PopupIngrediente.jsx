@@ -42,7 +42,7 @@ export default function PopupIngrediente({ show, setShow, data, action, tiposIng
                                      label: "Costo de ingrediente",
                                      name: "costo_ingrediente",
                                      defaultValue: ingredienteData.costo_ingrediente || "",
-                                     placeholder: "Ej: 5.50",
+                                     placeholder: "Ej: 550",
                                      fieldType: "input",
                                      type: "number",
                                      required: true,

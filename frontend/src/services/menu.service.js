@@ -1,5 +1,15 @@
 import axios from './root.service';
 
+// Redirigir al usuario a una página específica en caso de error
+const handleErrorResponse = (error) => {
+  if (error.response?.status === 403) {
+      console.warn('Acceso denegado: fuera de horario laboral.');
+      window.location.href = '/fuera-horario'; // Redirige a la página específica
+  } else {
+      console.error('Error:', error);
+  }
+  throw error; // Opcional: Lanza el error para manejarlo en otras partes
+};
 
 export async function getMenus() {
   try {
@@ -64,7 +74,11 @@ export async function deleteMenu(id) {
     const response = await axios.delete(`menus/${id}`);
     return response.data;
   } catch (error) {
-    return error.response.data;
+    if (error.response && error.response.data) {
+      return error.response.data;
+  }
+  handleErrorResponse(error); // Maneja el error aquí
+  return [];
   }
 }
 

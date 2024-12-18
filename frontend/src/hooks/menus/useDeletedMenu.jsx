@@ -9,6 +9,7 @@ const useDeleteMenu = (fetchMenus, setMenus) => {
                 if (result.isConfirmed) {
                     const id = selectedMenus[0]?.id_menu; // Obtener el ID del seleccionado
 
+                    console.log("id del menu", id); 
                     console.log('id:', id);
                     
                     if (!id) {
@@ -16,7 +17,8 @@ const useDeleteMenu = (fetchMenus, setMenus) => {
                         return;
                     }
 
-                    const response = await deleteMenu(id); // Llama al servicio de elimin
+                    const response = await deleteMenu(id); // Llama al servicio de eliminación
+                    console.log("id del menu", id); 
                     if (response?.status === 'Client error') {
                         throw new Error(response.details || 'Error desconocido al eliminar el menú.');
                     }
