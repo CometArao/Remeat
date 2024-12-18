@@ -147,7 +147,8 @@ export const verificarHorarioLaboral = async (req, res, next) => {
       const horaActual = `${isoHours}:${isoMinutes}:00`;
 
       // Obtener el día de la semana
-      const diasSemana = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
+      //const diasSemana = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"];
+      const diasSemana = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
       const diaSemana = diasSemana[fechaActual.getDay()];
       console.log(diaSemana)
       const diaNormalizado = normalizarTexto(diaSemana);
