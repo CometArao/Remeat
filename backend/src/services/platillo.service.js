@@ -25,21 +25,11 @@ export async function createPlatilloService(data, userId) {
     try {
         const { nombre_platillo,  ingredientes } = data;
 
-        const createErrorMessage = (dataInfo, message) => ({
-            dataInfo,
-            message,
-        });
-
         // Verificar que el usuario existe
         const usuarioExistente = await usuarioRepository.findOneBy({ id_usuario: userId });
         if (!usuarioExistente) {
-            return [
-                null,
-                createErrorMessage(
-                    "id_usuario",
-                    `El usuario con ID ${userId} no existe.`
-                ),
-            ];
+
+            return [ null,`El usuario con ID ${userId} no existe.`];
         }
  
         // Crear el platillo con precio inicial de 0
@@ -211,22 +201,23 @@ export async function getPlatilloByIdService(id_platillo) {
         const platilloRepository = AppDataSource.getRepository(Platillo);
         const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
 
+        // Buscar el platillo por ID
         const platilloItem = await platilloRepository.findOne({
             where: { id_platillo },
             relations: ["creador"],
         });
-
+        // Verificar si el platillo existe
         if (!platilloItem) {
             return [null, `El platillo con ID ${id_platillo} no existe.`];
         }
 
 
-
+        // Buscar los ingredientes asociados al platillo
        const ingredientes = await componePlatilloRepository.find({
             where: { id_platillo },
             relations: ["tipo_ingrediente", "tipo_ingrediente.unidad_medida"],
         });
-
+        // Estructurar los ingredientes con sus tipos y unidad de medida
         const ingredientesEstructurados = ingredientes.map((ingrediente) => ({
             id_tipo_ingrediente: ingrediente.tipo_ingrediente.id_tipo_ingrediente,
             nombre_tipo_ingrediente: ingrediente.tipo_ingrediente.nombre_tipo_ingrediente,
@@ -238,7 +229,7 @@ export async function getPlatilloByIdService(id_platillo) {
                 }
                 : null,
         }));
-
+        // Estructurar el platillo con sus ingredientes
         const responseData = {
             id_platillo: platilloItem.id_platillo,
             nombre_platillo: platilloItem.nombre_platillo,
@@ -271,12 +262,11 @@ export async function deletePlatilloByIdService(id_platillo) {
         // Eliminar registros relacionados en la tabla `compuesto_platillo`
         await componePlatilloRepository.delete({ id_platillo });
 
-        // Ahora eliminar el platillo
+        // Eliminar el platillo
         const platilloItem = await platilloRepository.findOne({ where: { id_platillo } });
         if (!platilloItem) {
             return [null, `El platillo con ID ${id_platillo} no existe.`];
         }
-
         await platilloRepository.remove(platilloItem);
         return [platilloItem, null];
     } catch (error) {
@@ -285,6 +275,7 @@ export async function deletePlatilloByIdService(id_platillo) {
     }
 }
 
+//Función para actualizar un platillo por ID
 export async function updatePlatilloByIdService(id_platillo, platilloData) {
     const platilloRepository = AppDataSource.getRepository(Platillo);
     const usuarioRepository = AppDataSource.getRepository(Usuario);
@@ -307,43 +298,24 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
         // Actualizar nombre si se proporciona
         if (nombre_platillo !== undefined) platilloFound.nombre_platillo = nombre_platillo;
 
-       // Actualizar el estado `disponible` solo si se especifica
-if (disponible !== undefined) {
-    if (disponible === true) {
-        const tienePrecio = platilloFound.precio_platillo > 0;
-        const tieneIngredientes = await verificarDisponibilidadPlatillo(id_platillo);
+        // Actualizar disponibilidad si se proporciona
+        if (typeof disponible === "boolean") {
         
-        if (!tienePrecio || !tieneIngredientes) {
-            return [null, "No se puede marcar como disponible: falta precio o ingredientes."];
+            const tienePrecio = platilloFound.precio_platillo > 0;
+            const tieneIngredientes = await verificarDisponibilidadPlatillo(id_platillo);
+            // Validar si se puede marcar como disponible 
+            if (disponible && (!tienePrecio || !tieneIngredientes)) {
+                return [null, "No se puede marcar como disponible: falta precio o ingredientes suficientes."];
+            }
+            // Validar si se puede marcar como no disponible
+            if (!disponible && tienePrecio && tieneIngredientes) {
+                return [null, "No se puede marcar como no disponible: el platillo cumple con todas las condiciones."];
+            }
+        
+            // Actualizar solo si pasa las validaciones
+            platilloFound.disponible = disponible;
         }
-        platilloFound.disponible = true; // Se actualiza a true si cumple las condiciones
-    } else {
-        platilloFound.disponible = false; // Permitir actualizar a false directamente
-    }
-}
-// Actualizar el estado `disponible` solo si se especifica
-if (disponible !== undefined) {
-    if (disponible === true) {
-        // Validar si puede marcarse como "disponible"
-        const tienePrecio = platilloFound.precio_platillo > 0;
-        const tieneIngredientes = await verificarDisponibilidadPlatillo(id_platillo);
-
-        if (!tienePrecio || !tieneIngredientes) {
-            return [null, "No se puede marcar como disponible: falta precio o ingredientes suficientes."];
-        }
-        platilloFound.disponible = true; // Solo se actualiza si pasa las validaciones
-    } else { (disponible === false) 
-        // Si se quiere poner "No disponible" pero cumple con todas las condiciones
-        const tienePrecio = platilloFound.precio_platillo > 0;
-        const tieneIngredientes = await verificarDisponibilidadPlatillo(id_platillo);
-
-        if (tienePrecio && tieneIngredientes) {
-           return [null, "No se puede marcar como no disponible: el platillo cumple con todas las condiciones."];
-       }
-    }
-}
-
-
+        
                 // Validar y actualizar el usuario asociado si se proporciona un nuevo id_usuario
         if (id_usuario !== undefined) {
             const usuarioFound = await usuarioRepository.findOneBy({ id_usuario });
@@ -356,16 +328,16 @@ if (disponible !== undefined) {
         // Actualizar los ingredientes si se proporcionan
         if (ingredientes && Array.isArray(ingredientes)) {
             await componePlatilloRepository.delete({ id_platillo });
-
+            // Procesar y agregar los ingredientes usando map
             await Promise.all(ingredientes.map(async (ingrediente) => {
                 const tipoIngredienteExistente = await tipoIngredienteRepository.findOneBy({
                     id_tipo_ingrediente: ingrediente.id_tipo_ingrediente,
                 });
-
+                // Verificar si el tipo de ingrediente existe
                 if (!tipoIngredienteExistente) {
                     throw new Error(`El ingrediente con ID ${ingrediente.id_tipo_ingrediente} no existe.`);
                 }
-
+                // Crear la relación entre el platillo y el ingrediente
                 await componePlatilloRepository.save({
                     id_platillo,
                     id_tipo_ingrediente: ingrediente.id_tipo_ingrediente,
@@ -379,11 +351,11 @@ if (disponible !== undefined) {
 
             platilloFound.disponible = tienePrecio && tieneIngredientes;
         }
-
+        
 
         // Guardar el platillo con los cambios
         await platilloRepository.save(platilloFound);
-
+        // Devolver el platillo actualizado
         return [platilloFound, null];
     } catch (error) {
         console.error("Error al actualizar el platillo:", error.message);
@@ -391,7 +363,7 @@ if (disponible !== undefined) {
     }
 }
 
-
+// Función para obtener los tipos de ingredientes filtrados
 export async function getFilteredTipoIngredientesService() {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
@@ -405,7 +377,7 @@ export async function getFilteredTipoIngredientesService() {
             .select(["tipoIngrediente.id_tipo_ingrediente", "tipoIngrediente.nombre_tipo_ingrediente"])
             .distinct(true)
             .getMany();
-
+        // Devolver los tipos de ingredientes filtrados
         return [tiposIngredientes, null];
     } catch (error) {
         console.error("Error al obtener los tipos de ingredientes filtrados:", error.message);
@@ -413,24 +385,25 @@ export async function getFilteredTipoIngredientesService() {
     }
 }
 
-
+// Función para verificar la disponibilidad de ingredientes de un platillo
 export async function verificarDisponibilidadPlatillo(id_platillo) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
+        // Buscar los ingredientes asociados al platillo
         const compuestoPlatillo = await componePlatilloRepository.find({
             where: { id_platillo },
             relations: ["tipo_ingrediente"],
         });
-
+        // Verificar si hay ingredientes asociados al platillo
         if (!compuestoPlatillo.length) {
             throw new Error("El platillo no tiene ingredientes asociados o no existe.");
         }
 
         console.log("Procesando platillo con ID:", id_platillo);
         console.log("Ingredientes asociados:", compuestoPlatillo);
-
+        // Iterar sobre cada tipo de ingrediente del platillo
         for (const compuesto of compuestoPlatillo) {
             console.log("Procesando tipo ingrediente:", compuesto.id_tipo_ingrediente);
 
@@ -439,7 +412,7 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
                 where: { id_tipo_ingrediente: compuesto.id_tipo_ingrediente },
             });
             console.log("Ingredientes del tipo de ingrediente", ingredientes);
-
+            // Verificar si hay ingredientes disponibles
             if (!ingredientes.length) {
                 throw new Error(
                     `No hay ingredientes disponibles para el tipo de ingrediente con ID
@@ -455,6 +428,7 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
 
             console.log(`Cantidad total disponible: ${cantidadTotalDisponible}`);
 
+            // Verificar si la cantidad total disponible es suficiente
             const porcionRequerida = compuesto.porcion_ingrediente_platillo;
 
             if (cantidadTotalDisponible < porcionRequerida) {
@@ -466,15 +440,15 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
 
             console.log(`Ingrediente disponible: ${compuesto.tipo_ingrediente.nombre_tipo_ingrediente}`);
         }
-
-        return true; // Todos los ingredientes tienen suficiente cantidad
+        // Todos los ingredientes tienen suficiente cantidad
+        return true; 
     } catch (error) {
         console.error("Error al verificar la disponibilidad del platillo:", error.message);
         throw new Error("Error al verificar la disponibilidad del platillo.");
     }
 }
 
-  
+  // Función para confirmar un platillo en una comanda
   export async function confirmarPlatilloService(id_platillo, id_comanda, nuevo_estado, io) {
     const conformaRepository = AppDataSource.getRepository(ConformaComanda);
   
@@ -502,7 +476,7 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
       if (!conformaPlatillo) {
         throw new Error("El platillo no está asociado a la comanda proporcionada.");
       }
-  
+
       const estadoActual = conformaPlatillo.estado_platillo;
   
       // Validar la transición de estado
@@ -526,11 +500,11 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
       
       console.log("conformaPlatillo3", conformaPlatillo);
 
-
+    // Obtener instancia de Socket.IO
       const io = getSocketInstance();
  
 
-        // Emitir evento de notificación al cliente
+    // Emitir evento de notificación al cliente
     if (nuevo_estado === "preparado") {
         io.emit("platillo-preparado", {
           id_comanda,
@@ -539,14 +513,14 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
           mensaje: `El platillo con ID ${id_platillo} ahora está en estado "preparado".`,
         });
       }
-  
+    
       return [conformaPlatillo, null];
     } catch (error) {
       console.error("Error en confirmarPlatilloService:", error.message);
       throw new Error("Error al confirmar el platillo.");
     }
   }
-
+// Función para descontar ingredientes del inventario
   export async function descontarIngredientesInventario(id_platillo, id_comanda) {
     const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
@@ -558,10 +532,11 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
         const conformaPlatillo = await conformaRepository.findOne({
             where: { id_comanda, id_platillo },
         });
+        // Verificar si la relación existe
         if (!conformaPlatillo) {
             throw new Error("No se encontró la relación entre el platillo y la comanda.");
         }
-
+        // Obtener la cantidad de platillos
         const cantidadPlatillo = conformaPlatillo.cantidad_platillo;
         console.log("Cantidad de platillos:", cantidadPlatillo);
 
@@ -573,24 +548,24 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
         });
 
         console.log("Ingredientes asociados al platillo", compuestosPlatillo);
-
+        // Verificar si hay ingredientes asociados al platillo
         if (!compuestosPlatillo.length) {
             throw new Error("El platillo no tiene ingredientes asociados o no existe.");
         }
-
-        let cantidadesDescontadas = []; // Para seguimiento de los ingredientes descontados
-
+        // Lista de seguimiento para los ingredientes descontados
+        let cantidadesDescontadas = [];
+        // Iterar sobre cada tipo de ingrediente del platillo
         for (const compuesto of compuestosPlatillo) {
             // Obtener todos los ingredientes disponibles del mismo tipo
             const ingredientes = await ingredienteRepository.find({
                 where: { id_tipo_ingrediente: compuesto.id_tipo_ingrediente },
                 order: { fecha_vencimiento: "ASC" }, // Usar los ingredientes más cercanos a vencerse primero
             });
-
+            // Verificar si hay ingredientes disponibles
             if (!ingredientes.length) {
                 throw new Error(`No hay ingredientes disponibles para el tipo ${compuesto.tipo_ingrediente.nombre_tipo_ingrediente}.`);
             }
-
+            // Calcular la cantidad total requerida
             const porcionRequeridaTotal = compuesto.porcion_ingrediente_platillo * cantidadPlatillo;
             let cantidadRequerida = porcionRequeridaTotal;
             console.log(`Cantidad requerida para ${compuesto.tipo_ingrediente.nombre_tipo_ingrediente}: ${porcionRequeridaTotal}`);
@@ -611,7 +586,7 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
                 console.log(`Ingrediente ${ingrediente.id_ingrediente} descontado en ${cantidadUsable}`);
                 cantidadesDescontadas.push({ id_ingrediente: ingrediente.id_ingrediente, cantidadUsada: cantidadUsable });
             }
-
+            // Verificar si se descontó la cantidad requerida
             if (cantidadRequerida > 0) {
                 throw new Error(`No hay suficiente cantidad de ${compuesto.tipo_ingrediente.nombre_tipo_ingrediente}.`);
             }
@@ -624,7 +599,7 @@ export async function verificarDisponibilidadPlatillo(id_platillo) {
         const hayIngredientesAgotados = await ingredienteRepository.count({
             where: { cantidad_ingrediente: 0 },
         });
-
+        // Marcar el platillo como no disponible si hay ingredientes agotados
         if (hayIngredientesAgotados) {
             platillo.disponible = false;
             await platilloRepository.save(platillo);

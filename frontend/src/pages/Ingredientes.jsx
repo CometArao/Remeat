@@ -1,128 +1,164 @@
+import { useAuth } from '../context/AuthContext';
 import Search from '@components/Search';
-import Table from '@components/Table';
-import useGetTiposIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
-import useGetIngredientes from '../hooks/ingredientes/useGetIngredientes';
-import PopupIngrediente from '../hooks/ingredientes/PopupIngrediente';
+import useTipoIngrediente from '../hooks/tipo_ingrediente/useGetTiposIngredientes';
+import useGetPlatillos from '../hooks/platillos/useGetPlatillos';
+import PopupPlatillo from '@hooks/platillos/popupPlatillo';
+import PopupPrecio from '@hooks/platillos/popupPrecio';
 import DeleteIcon from '../assets/deleteIcon.svg';
 import UpdateIcon from '../assets/updateIcon.svg';
 import CreateIcon from '../assets/PlusIcon.svg';
 import UpdateIconDisable from '../assets/updateIconDisabled.svg';
 import DeleteIconDisable from '../assets/deleteIconDisabled.svg';
-import '@styles/users.css';
-import { useCallback, useEffect, useState } from 'react';
-import useDeleteIngrediente from '../hooks/ingredientes/useDeletedIngredientes';
-import useEditIngrediente from '../hooks/ingredientes/useEditIngredientes';
-import useCreateIngrediente from '../hooks/ingredientes/useCreateIngredientes';
+import EmptyIcon from '../assets/emptyIcon.svg';
+import { useEffect, useState } from 'react';
+import '@styles/platillos.css'; // Estilos adaptados
+import PlatilloCard from '../components/Platillo/PlatilloCard';
+import useDeletePlatillo from '../hooks/platillos/useDeletePlatillo';
+import useEditPlatillo from '../hooks/platillos/useEditPlatillo';
+import useCreatePlatillo from '../hooks/platillos/useCreatePlatillo';
+import useEditPrecioPlatillo from '../hooks/platillos/useEditPrecioPlatillo';
+import useUsers from '../hooks/users/useGetUsers';
 
-const Ingredientes = () => {
-    const { ingredientes, fetchIngredientes, setIngredientes } = useGetIngredientes();
-    const { tiposIngrediente, fetchTiposIngrediente } = useGetTiposIngrediente();
+// Componente para la gestión de platillos
+const Platillos = () => {
+    const { user } = useAuth();
+    const { platillo, fetchPlatillo, setPlatillo } = useGetPlatillos();
+    const { tiposIngrediente, fetchTiposIngrediente } = useTipoIngrediente();
+    const { users, fetchUsers } = useUsers();
 
     const [filterName, setFilterName] = useState('');
+    const [dataPlatillo, setDataPlatillo] = useState([]); // Platillo seleccionado
 
+    const { handleClickUpdate, handleUpdate, isPopupOpen, setIsPopupOpen } =
+        useEditPlatillo(setPlatillo, fetchPlatillo);
+    const { handleDelete } = useDeletePlatillo(fetchPlatillo, setDataPlatillo);
+    const { handleClickCreate, handleCreate, isCreatePopupOpen, setIsCreatePopupOpen, dataPlatilloCreate, setDataPlatilloCreate } =
+        useCreatePlatillo(fetchPlatillo, setPlatillo);
+    const { handleClickEditPrice, handleUpdatePrice, isEditPricePopupOpen, setIsEditPricePopupOpen } = useEditPrecioPlatillo(fetchPlatillo);
+
+    const [selectedPlatillo, setSelectedPlatillo] = useState(null);
+
+    // Cargar platillos, usuarios y tipos de ingrediente al cargar la página
     useEffect(() => {
-        fetchIngredientes();
+        fetchPlatillo();
+        fetchUsers();
         fetchTiposIngrediente();
     }, []);
 
-    const {
-        handleClickUpdate,
-        handleUpdate,
-        isPopupOpen,
-        setIsPopupOpen,
-        dataIngrediente,
-        setDataIngrediente,
-    } = useEditIngrediente(setIngredientes, fetchIngredientes);
-    
-    const { handleDelete } = useDeleteIngrediente(fetchIngredientes, setDataIngrediente);
+    // Función para filtrar platillos por nombre
+    const handleNameFilterChange = (e) => setFilterName(e.target.value.toLowerCase());
 
-    const handleSelectionChange = useCallback((selectedItems) => {
-        setDataIngrediente(selectedItems);
-    }, [setDataIngrediente]);
-
-    const {
-        handleClickCreate,
-        handleCreate,
-        isCreatePopupOpen,
-        setIsCreatePopupOpen,
-        dataIngredienteCreate,
-        setDataIngredienteCreate,
-    } = useCreateIngrediente(setIngredientes, fetchIngredientes);
-
-    const columns = [
-        { title: 'ID', field: 'id_ingrediente', width: 100 },
-        { title: 'Fecha de Vencimiento', field: 'fecha_vencimiento', width: 200 },
-        { title: 'Cantidad', field: 'cantidad_ingrediente', width: 150 },
-        { title: 'Cantidad Original', field: 'cantidad_original_ingrediente', width: 200 },
-        { title: 'Costo', field: 'costo_ingrediente', width: 150 },
-        { title: 'Tipo de Ingrediente', field: 'tipo_ingrediente.nombre_tipo_ingrediente', width: 200 },
-    ];
-    
-    const handleNameFilterChange = (e) => {
-        setFilterName(e.target.value.toLowerCase());
+    const filteredPlatillos = Array.isArray(platillo)
+        ? platillo.filter((p) => p.nombre_platillo.toLowerCase().includes(filterName))
+        : [];
+    // Función para cambiar la selección de un platillo
+    const handleCardSelectionChange = (selectedPlatillo) => {
+        setDataPlatillo((prev) => (prev.length > 0 && prev[0].id_platillo === selectedPlatillo.id_platillo ? [] : [selectedPlatillo]));
+        setSelectedPlatillo(selectedPlatillo);
     };
 
+    // Ajustar el botón Editar para asegurar que el platillo seleccionado se edite
+    const handleEditPlatillo = () => {
+        if (selectedPlatillo) {
+            setDataPlatillo([selectedPlatillo]); // Lo pasamos al array de edición
+            setIsPopupOpen(true); // Abrir el Popup de edición
+        }
+    };
+    // Renderizado del componente
     return (
-        <div className="main-container">
-            <div className="table-container">
-                <div className="top-table">
-                    <h1 className="title-table">Ingredientes</h1>
-                    <div className="filter-actions">
-                        <Search
-                            value={filterName}
-                            onChange={handleNameFilterChange}
-                            placeholder="Buscar por nombre de ingrediente"
-                        />
-                        <button className="create-button" onClick={handleClickCreate}>
+        <div className="platillo-container">
+            <div className="top-platillo-table">
+                <h1 className="title-platillo-table">Platillos</h1>
+                <div className="filter-platillo-actions">
+                    <Search value={filterName} onChange={handleNameFilterChange} placeholder="Buscar por nombre" />
+                    {user?.rol_usuario === 'cocinero' && (
+                        <button className="create-platillo-button" onClick={handleClickCreate}>
                             <img src={CreateIcon} alt="Crear" />
                         </button>
-                        <button onClick={handleClickUpdate} disabled={dataIngrediente.length === 0}>
-                            {dataIngrediente.length === 0 ? (
-                                <img src={UpdateIconDisable} alt="edit-disabled" />
-                            ) : (
-                                <img src={UpdateIcon} alt="edit" />
-                            )}
+                    )}
+                    {user?.rol_usuario === 'cocinero' && (
+                        <button onClick={handleEditPlatillo} disabled={!selectedPlatillo}>
+                            <img src={!selectedPlatillo ? UpdateIconDisable : UpdateIcon} alt="Actualizar" />
                         </button>
+                    )}
+                    {user?.rol_usuario === 'cocinero' && (
                         <button
-                            className="delete-user-button"
-                            disabled={dataIngrediente.length === 0}
-                            onClick={() => handleDelete(dataIngrediente)}
+                            className="delete-platillo-button"
+                            onClick={() => handleDelete(dataPlatillo)}
+                            disabled={dataPlatillo.length === 0}
                         >
-                            {dataIngrediente.length === 0 ? (
-                                <img src={DeleteIconDisable} alt="delete-disabled" />
-                            ) : (
-                                <img src={DeleteIcon} alt="delete" />
-                            )}
+                            <img src={dataPlatillo.length === 0 ? DeleteIconDisable : DeleteIcon} alt="Eliminar" />
                         </button>
-                    </div>
+                    )}
+                    {user?.rol_usuario === 'administrador' && (
+                        <button
+                            className="edit-price-button"
+                            onClick={() => selectedPlatillo && handleClickEditPrice(selectedPlatillo)}
+                            disabled={!selectedPlatillo}
+                        >
+                            Editar Precio
+                        </button>
+                    )}
                 </div>
-                <Table
-                    data={ingredientes}
-                    columns={columns}
-                    filter={filterName}
-                    dataToFilter={'tipo_ingrediente.nombre_tipo_ingrediente'}
-                    initialSortName="tipo_ingrediente.nombre_tipo_ingrediente"
-                    onSelectionChange={handleSelectionChange}
-                />
             </div>
-            <PopupIngrediente
+
+            {filteredPlatillos.length > 0 ? (
+                <div className="platillo-container">
+                    {filteredPlatillos.map((p) => {
+                        const isSelected = dataPlatillo.length > 0 && dataPlatillo[0].id_platillo === p.id_platillo;
+                        return (
+                            <PlatilloCard
+                                key={p.id_platillo}
+                                platillo={p}
+                                isSelected={isSelected}
+                                onSelectChange={() => handleCardSelectionChange(p)}
+                            />
+                        );
+                    })}
+                </div>
+            ) : (
+                <div className="empty-platillo-container">
+                    <img src={EmptyIcon} alt="No hay platillos" className="empty-platillo-icon" />
+                    <h2 className="empty-platillo-message">No hay platillos disponibles</h2>
+                    <p className="empty-platillo-description">
+                        Crea uno nuevo usando el botón <strong>+</strong> en la parte superior.
+                    </p>
+                </div>
+            )}
+
+            {/* Popup para editar precio */}
+            {isEditPricePopupOpen && (
+                <PopupPrecio
+                    show={isEditPricePopupOpen}
+                    setShow={setIsEditPricePopupOpen}
+                    data={selectedPlatillo}
+                    action={handleUpdatePrice}
+                />
+            )}
+
+            {/* Popup para editar y crear platillos */}
+            <PopupPlatillo
                 show={isPopupOpen}
                 setShow={setIsPopupOpen}
-                data={dataIngrediente}
+                data={dataPlatillo}
                 action={handleUpdate}
+                usuario={users}
                 tiposIngrediente={tiposIngrediente}
                 isEdit={true}
             />
-            <PopupIngrediente
-                show={isCreatePopupOpen}
-                setShow={setIsCreatePopupOpen}
-                data={dataIngredienteCreate}
-                action={handleCreate}
-                tiposIngrediente={tiposIngrediente}
-                isEdit={false}
-            />
+            {tiposIngrediente.length > 0 && (
+                <PopupPlatillo
+                    show={isCreatePopupOpen}
+                    setShow={setIsCreatePopupOpen}
+                    data={dataPlatilloCreate || {}}
+                    action={handleCreate}
+                    usuario={users}
+                    tiposIngrediente={tiposIngrediente}
+                    isEdit={false}
+                />
+            )}
         </div>
     );
 };
 
-export default Ingredientes;
+export default Platillos;

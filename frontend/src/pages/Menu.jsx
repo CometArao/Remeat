@@ -52,18 +52,24 @@ const Menu = () => {
                 <h1 className="title-menu-table">Menús</h1>
                 <div className="filter-menu-actions">
                     <Search value={filterName} onChange={handleNameFilterChange} placeholder="Buscar por fecha" />
+                    {/* Boton de crear*/}
+                    {user.rol_usuario === 'administrador' || user.rol_usuario === 'cocinero' && (
                     <button className="create-menu-button" onClick={handleClickCreate}>
                         <img src={CreateIcon} alt="Crear menú" />
                     </button>
+                )} {/* Boton de editar*/}
+                    {user.rol_usuario === 'administrador' || user.rol_usuario === 'cocinero' && (
                     <button
                         onClick={() => handleClickUpdate(dataMenu[0])} // Pasa el menú seleccionado
-                        disabled={dataMenu.length === 0}
-                    >
+                        disabled={dataMenu.length === 0}>
                         <img src={UpdateIcon} alt="Editar menú" />
                     </button>
+                )}  {/* Boton de eliminar*/}
+                    {user.rol_usuario === 'administrador' || user.rol_usuario === 'cocinero' && (
                     <button onClick={() => handleDelete(dataMenu)} disabled={dataMenu.length === 0}>
                         <img src={DeleteIcon} alt="Eliminar menú" />
                     </button>
+                )}
                 </div>
             </div>
 
@@ -84,9 +90,12 @@ const Menu = () => {
                     })}
                 </div>
             ) : (
-                <div className="empty-container">
-                    <img src={EmptyIcon} alt="No hay menús" className="empty-icon" />
-                    <h2 className="empty-message">No hay menús disponibles</h2>
+                <div className="empty-menu-container">
+                    <img src={EmptyIcon} alt="No hay menús" className="empty-menu-icon" />
+                    <h2 className="empty-menu-message">No hay menús disponibles</h2>
+                    <p className="empty-menu-description">
+                    Crea uno nuevo usando el botón <strong>+</strong> en la parte superior.
+                    </p>
                 </div>
             )}
 

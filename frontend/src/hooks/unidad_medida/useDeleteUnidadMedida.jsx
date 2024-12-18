@@ -9,8 +9,8 @@ const useDeleteUnidadMedida = (fetchUnidadMedida, setDataUnidadMedida) => {
                 if (result.isConfirmed) {
                     const response = await deleteUnidadMedida(dataUnidadMedida[0].id_unidad_medida);
 
-                    if (response.status === 'Client error') {
-                        return showErrorAlert('Error', response.details);
+                    if (response.status === "Client error") {
+                        return showErrorAlert('Error', response.message);
                     }
 
                     showSuccessAlert(
@@ -25,7 +25,7 @@ const useDeleteUnidadMedida = (fetchUnidadMedida, setDataUnidadMedida) => {
                 }
             } catch (error) {
                 console.error('Error al eliminar la unidad de medida:', error);
-                showErrorAlert('Error', error.message || 'Ocurrió un error al eliminar la unidad de medida.');
+                showErrorAlert('Error', error || 'Ocurrió un error al eliminar la unidad de medida.');
             }
         }
     };

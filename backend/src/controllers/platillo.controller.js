@@ -21,6 +21,8 @@ import {
 
 import { sendNotification } from "../services/socket.js"; // Importar función de notificación
 
+
+// Controlador para crear un platillo
 export async function createPlatilloController(req, res) {
     try {
         const { nombre_platillo, disponible, ingredientes } = req.body;
@@ -34,6 +36,7 @@ export async function createPlatilloController(req, res) {
 
         if (error) return handleErrorClient(res, 400, error.message);
 
+        // Llamar al servicio para crear un platillo
         const [newPlatillo, errorPlatillo] = await createPlatilloService({
             nombre_platillo,
             disponible,
@@ -41,13 +44,13 @@ export async function createPlatilloController(req, res) {
         }, id_usuario);
 
         if (errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
-
+        // Responder con el platillo creado
         handleSuccess(res, 201, "Platillo creado", newPlatillo);
     } catch (error) {
         handleErrorServer(res, 500, error.message);
     }
 }
-
+// Controlador para asignar precio a un platillo
 export async function assignPriceToPlatilloController(req, res) {
     try {
         const { id_platillo } = req.params;
@@ -63,24 +66,24 @@ export async function assignPriceToPlatilloController(req, res) {
         if (error) {
             return handleErrorClient(res, 400, error.message);
         }
-
         const [updatedPlatillo, serviceError] = await assignPriceToPlatilloService({ id_platillo, precio_platillo });
 
         if (serviceError) return handleErrorClient(res, 404, serviceError);
-
+        // Responder con el platillo y su precio asignado
         handleSuccess(res, 200, "Precio asignado al platillo exitosamente", updatedPlatillo);
     } catch (error) {
         handleErrorServer(res, 500, error.message);
     }
 }
 
-
+// Controlador para obtener todos los platillos
 export async function getPlatillosController(req, res){
-    try{
+
+    try{ // Llamar al servicio para obtener todos los platillos
         const [platillos, errorPlatillos] = await getPlatillosService();
 
         if(errorPlatillos) return handleErrorClient(res, 404, errorPlatillos);
-
+        // Responder con los platillos encontrados
         platillos.length === 0
         ? handleSuccess(res, 204)
         : handleSuccess(res, 200, "Platillos encontrados", platillos);
@@ -89,49 +92,53 @@ export async function getPlatillosController(req, res){
         handleErrorServer(res, 500, error.message);
     }
 }
-
+// Controlador para obtener un platillo por su ID
 export async function getPlatilloByIdController(req, res){
     try{
+        // Obtener el ID del platillo
         const { id_platillo } = req.params;
-
+        // Llamar al servicio para obtener un platillo por su ID
         const [platillo, errorPlatillo] = await getPlatilloByIdService(id_platillo);
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
-
+        // Responder con el platillo encontrado
         handleSuccess(res, 200, "Platillo encontrado", platillo);
     }
     catch(error){
         handleErrorServer(res, 500, error.message);
     }
 }
-
+// Controlador para actualizar un platillo por su ID
 export async function updatePlatilloController(req, res){
     try{
+        // Obtener el ID del platillo
         const { id_platillo } = req.params;
 
         const { error } = platilloBodyValidation.validate(req.body);
+        console.log(req.body)
 
         if(error) return handleErrorClient(res, 400, error.message);
-
+        // Llamar al servicio para actualizar un platillo por su ID
         const [updatedPlatillo, errorPlatillo] = await updatePlatilloByIdService(id_platillo, req.body);
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
-
+        // Responder con el platillo actualizado
         handleSuccess(res, 200, "Platillo actualizado", updatedPlatillo);
     }
     catch(error){
         handleErrorServer(res, 500, error.message);
     }
 }
-
+// Controlador para eliminar un platillo por su ID
 export async function deletePlatilloController(req, res){
     try{
         const { id_platillo } = req.params;
 
+        // Llamar al servicio para eliminar un platillo por su ID
         const [platillo, errorPlatillo] = await deletePlatilloByIdService(id_platillo);
 
         if(errorPlatillo) return handleErrorClient(res, 404, errorPlatillo);
-
+        // Responder con el platillo eliminado
         handleSuccess(res, 200, "Platillo eliminado", platillo);
     }
     catch(error){
@@ -140,13 +147,15 @@ export async function deletePlatilloController(req, res){
 }
 
 
-
+// Controlador para obtener los tipos de ingredientes filtrados
 export async function getFilteredTipoIngredientesController(req, res) {
     try {
+        // Llamar al servicio para obtener los tipos de ingredientes filtrados
         const [tiposIngredientes, error] = await getFilteredTipoIngredientesService();
 
         if (error) return handleErrorClient(res, 404, error);
 
+        // Responder con los tipos de ingredientes filtrados
         handleSuccess(res, 200, "Tipos de ingredientes filtrados obtenidos correctamente", tiposIngredientes);
     } catch (error) {
         handleErrorServer(res, 500, error.message);
@@ -156,7 +165,7 @@ export async function getFilteredTipoIngredientesController(req, res) {
 
 
 
-
+// Controlador para confirmar un platillo
 export async function confirmarPlatilloController(req, res) {
     try {
       const { nuevo_estado } = req.body;

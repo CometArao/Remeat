@@ -55,6 +55,9 @@ export async function deleteUnidadMedida(id) {
         const response = await axios.delete(`unidades-medidas/${id}`);
         return response.data;
     } catch (error) {
+        if (error.response && error.response.data) {
+            return error.response.data;
+        }
         handleErrorResponse(error); // Maneja el error aquí
         return [];
     }
