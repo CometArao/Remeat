@@ -5,10 +5,13 @@ const handleErrorResponse = (error) => {
     if (error.response?.status === 403) {
         console.warn('Acceso denegado: fuera de horario laboral.');
         window.location.href = '/fuera-horario'; // Redirige a la página específica
-    } else {
-        console.error('Error:', error);
+    } else if (error.response?.status === 401) {
+        console.error('Acceso denegado: no autorizado.');
     }
-    throw error; // Opcional: Lanza el error para manejarlo en otras partes
+
+    // Captura el mensaje del backend y lo retorna
+    const errorMessage = error.response?.data?.details || 'Ocurrió un error inesperado.';
+    throw new Error(errorMessage); // Lanza el error con el mensaje del backend
 };
 
 export async function getIngredientes() {
@@ -29,7 +32,6 @@ export async function getIngredietnesDetallado() {
         return [];
     }
 }
-
 
 export async function createIngrediente(data) {
     try {

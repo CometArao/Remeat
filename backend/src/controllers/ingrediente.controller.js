@@ -121,7 +121,7 @@ export async function deleteTipoIngredienteController(req, res) {
     if (errorTipoIngrediente) {
       return handleErrorClient(
         res,
-        404,
+        401,
         "Error eliminando tipo de ingrediente",
         errorTipoIngrediente
       );
@@ -131,8 +131,8 @@ export async function deleteTipoIngredienteController(req, res) {
       res,
       200,
       "Tipo de ingrediente eliminado exitosamente",
-      deletedTipoIngrediente
-    );
+      deletedTipoIngrediente,
+      { status: "Client error", message: errorMedida });
   } catch (error) {
     handleErrorServer(res, 500, error.message);
   }
@@ -149,7 +149,6 @@ export async function createIngredienteController(req, res) {
       id_tipo_ingrediente, 
       id_pedido = null,
     } = req.body;
-
 
     console.log(req.body)
     const { error } = ingredienteBodyValidation.validate(req.body);

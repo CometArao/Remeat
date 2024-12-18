@@ -98,11 +98,14 @@ export const tipoIngredienteBodyValidation = Joi.object({
         .min(3)
         .max(50)
         .required()
+        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
         .messages({
             "string.base": "El nombre del tipo de ingrediente debe ser una cadena de texto.",
             "string.min": "El nombre del tipo de ingrediente debe tener al menos {#limit} caracteres.",
             "string.max": "El nombre del tipo de ingrediente no debe tener más de {#limit} caracteres.",
             "any.required": "El campo 'nombre_tipo_ingrediente' es obligatorio.",
+            "string.pattern.base":
+                 "El nombre solo puede contener letras y espacios.",
         }),
 })
 

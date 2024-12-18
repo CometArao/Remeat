@@ -4,6 +4,7 @@ import Ingrediente from "../entity/ingrediente.entity.js";
 import TipoIngrediente from "../entity/tipo_ingrediente.entity.js";
 import UnidadMedida from "../entity/unidad_medida.entity.js";
 import CompuestoIngrediente from "../entity/compuesto_ingrediente.js";
+import ComponePlatillo from "../entity/compuesto_platillo.entity.js";
 
 // Servicio para crear un ingrediente
 export async function createIngredienteService(data) {
@@ -404,21 +405,26 @@ export async function updateTipoIngredienteService(id_tipo_ingrediente, data) {
 // Servicio para eliminar un tipo de ingrediente
 export async function deleteTipoIngredienteService(id) {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
+    const componePlatilloRepository = AppDataSource.getRepository(ComponePlatillo);
 
     try {
+        
         // Buscar el tipo de ingrediente
         const tipoIngredienteExistente = await tipoIngredienteRepository.findOne({
             where: { id_tipo_ingrediente: id },
         });
+
         // Verificar si el tipo de ingrediente existe
         if (!tipoIngredienteExistente) {
             return [null, `El tipo de ingrediente con ID ${id} no existe.`];
         }
 
+        
             // Verificar si el tipo de ingrediente está asociado a algún platillo
             const asociadoAPlatillo = await componePlatilloRepository.findOne({
                 where: { id_tipo_ingrediente: id },
             });
+            
             // Si está asociado a algún platillo, no se puede eliminar
             if (asociadoAPlatillo) {
                 return [
@@ -426,6 +432,7 @@ export async function deleteTipoIngredienteService(id) {
                     `No se puede eliminar el tipo de ingrediente porque está asociado a uno o más platillos.`,
                 ];
             }
+            console.log("Hola2")
 
         // Intentar eliminar el tipo de ingrediente
         await tipoIngredienteRepository.delete(id);

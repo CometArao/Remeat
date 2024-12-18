@@ -21,6 +21,8 @@ export const tipo_utensilioValidation = Joi.object({
                 "El nombre del tipo utensiliodebe tener como mínimo 1 caracteres.",
             "string.max":
                 "El nombre del tipo utensilio debe tener como máximo 50 caracteres.",
+            "string.pattern.base":
+                 "El nombre solo puede contener letras y espacios.",
         })
 })
 export const tipo_utensilioQueryValidation = Joi.object({

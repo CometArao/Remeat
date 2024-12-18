@@ -20,7 +20,6 @@ const useDeleteIngrediente = (fetchIngredientes, setDataIngrediente) => {
                         return;
                     }
 
-                    console.log("Voy al servicio del front")
                     // Enviar el ID al servicio de eliminación
                     const response = await deleteIngrediente(id_ingrediente);
 
@@ -34,7 +33,7 @@ const useDeleteIngrediente = (fetchIngredientes, setDataIngrediente) => {
                 }
             } catch (error) {
                 console.error('Error al eliminar el ingrediente:', error);
-                showErrorAlert('Error', error.message || 'Ocurrió un problema al eliminar el ingrediente.');
+                showErrorAlert('Error', error.details || 'Ocurrió un problema al eliminar el ingrediente.');
             }
         } else {
             showErrorAlert('Error', 'No se seleccionó ningún ingrediente para eliminar.');
