@@ -109,7 +109,7 @@ export async function getIngredientesDetalladoService() {
 
     try {
         const ingredientes = await AppDataSource.query(`
-   select *
+   select distinct on (i.id_ingrediente) *
    from ingrediente i
    inner join tipo_ingrediente ti on ti.id_tipo_ingrediente = i.id_tipo_ingrediente 
    inner join compuesto_ingrediente ci on ci.id_ingrediente = i.id_ingrediente 

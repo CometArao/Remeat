@@ -78,7 +78,7 @@ const TableWithCheckboxes = forwardRef((props, ref) => {
                 <tbody>
                     {props.data.map((item) => 
                             item.nombre_tipo_utensilio.toLowerCase().startsWith(props.filtro) ? (
-                                <tr key={item.nombre_tipo_utensilio}>
+                                <tr key={item.id_utensilio}>
                                     <td>
                                         {item.nombre_tipo_utensilio}
                                     </td>

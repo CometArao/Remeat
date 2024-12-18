@@ -12,6 +12,7 @@ import '@styles/users.css';
 import useDeleteTipoUtensilio from '@hooks/tipo_utensilio/useDeleteTipoUtensilio';
 import useEditTipoUtensilio from '../hooks/tipo_utensilio/useEditTipoUtensilio';
 import useCreateTipoUtensilio from '@hooks/tipo_utensilio/useCreateTipoUtensilio';
+import utensilio from '../../../backend/src/entity/utensilio.entity';
 
 const TiposUtensilio = () => {
   const { tipoUtensilios, fetchTipoUtensilio, setTipoUtensilios } = useGetTipoUtensilio();
