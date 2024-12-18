@@ -1,9 +1,14 @@
 .menu-container {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    width: 100%;
+    flex-wrap: wrap; /* Permite que las tarjetas se ajusten en varias filas */
+    justify-content: flex-start; /* Alinear las tarjetas al inicio */
+    align-items: flex-start; /* Alinear al inicio verticalmente */
+    gap: 20px; /* Espacio entre tarjetas */
+    padding: 20px; /* Margen interno */
+    background: linear-gradient(90deg, #795548, #A37666); /*Color principal para login (gradiente)*/
+    min-height: calc(100vh - 70px); /* Ocupa toda la pantalla menos el tamaño del top-menu-table */
+    box-sizing: border-box;
+    overflow-y: auto; /* Permitir desplazamiento si el contenido excede */
 }
 
 .table-menu-container {
@@ -22,6 +27,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     position: sticky;
+    z-index: 10; /* Mantenerlo por encima del contenido */
 }
 
 .title-menu-table {
@@ -64,8 +70,6 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
 }
-
-
 
 .empty-menu-icon {
     width: 100px;
