@@ -18,6 +18,7 @@ import useActivateMenu from '../hooks/menus/useActivateMenu';
 
 const Menu = () => {
     const { user } = useAuth();
+    console.log(user);
     const { menus, fetchMenus, setMenus } = useGetMenus();
     const { users, fetchUsers } = useUsers();
     const { platillo, fetchPlatillo } = useGetPlatillos();
@@ -53,19 +54,19 @@ const Menu = () => {
                 <div className="filter-menu-actions">
                     <Search value={filterName} onChange={handleNameFilterChange} placeholder="Buscar por fecha" />
                     {/* Boton de crear*/}
-                    {user.rol_usuario === 'administrador' || user.rol_usuario === 'cocinero' && (
+                    {['administrador', 'cocinero'].includes(user.rol_usuario)  && (
                     <button className="create-menu-button" onClick={handleClickCreate}>
                         <img src={CreateIcon} alt="Crear menú" />
                     </button>
                 )} {/* Boton de editar*/}
-                    {user.rol_usuario === 'administrador' || user.rol_usuario === 'cocinero' && (
+                    {['administrador', 'cocinero'].includes(user.rol_usuario) && (
                     <button
                         onClick={() => handleClickUpdate(dataMenu[0])} // Pasa el menú seleccionado
                         disabled={dataMenu.length === 0}>
                         <img src={UpdateIcon} alt="Editar menú" />
                     </button>
                 )}  {/* Boton de eliminar*/}
-                    {user.rol_usuario === 'administrador' || user.rol_usuario === 'cocinero' && (
+                    {['administrador', 'cocinero'].includes(user.rol_usuario) && (
                     <button onClick={() => handleDelete(dataMenu)} disabled={dataMenu.length === 0}>
                         <img src={DeleteIcon} alt="Eliminar menú" />
                     </button>
