@@ -16,6 +16,7 @@ import {
 } from "../controllers/utensilio.controller.js";
 import { authorizeRoles, verificarHorarioLaboral } from "../middlewares/authorization.middleware.js";
 
+// Se verifica sesión, autorización y horario laboral
 const router = Router()
   .use(authenticateJwt)  
   .use(authorizeRoles(["administrador", "cocinero"]))

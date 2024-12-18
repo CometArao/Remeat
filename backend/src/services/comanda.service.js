@@ -7,8 +7,6 @@ import { AppDataSource } from "../config/configDb.js";
 import { format } from "date-fns";
 import Menu from "../entity/menu.entity.js";
 
-
-
 export async function getPlatillosDelDiaService(){
   const menuRepository = AppDataSource.getRepository(Menu);
 
