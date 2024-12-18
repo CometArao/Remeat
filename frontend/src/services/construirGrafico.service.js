@@ -12,6 +12,7 @@ export function construirLinealPlatillosIngresos(datos, time) {
         "hsl(155, 70%, 50%)",
         "hsl(200, 70%, 50%)"
     ]
+
     for (let i = 0; i < keys.length; i++) {
         const ventas = datos[keys[i]]['ventas_por_comanda'];
         let indice_color = 0;
@@ -36,7 +37,6 @@ export function construirLinealPlatillosIngresos(datos, time) {
             formatedLineData.push(obj_point);
         }
         if (time === "Mes") {
-            truncarMes_Test()
             formatedLineData = truncarMes(formatedLineData)
         }
         if (time === "Año") {
@@ -52,6 +52,12 @@ export function construirLinealPlatillosIngresos(datos, time) {
             indice_color = 0;
         }
         result.push(obj_line);
+    }
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, false);
     }
     return result;
 }
@@ -89,6 +95,11 @@ export function construirLinealPlatillosVentas(datos, time) {
             }
             formatedLineData.push(obj_point);
         }
+        if (time === "Hora") {
+            formatedLineData = ordenarHorasObjetos(formatedLineData)
+            console.log("platillos venta ordenados")
+            console.log(formatedLineData)
+        }
         if (time === "Mes") {
             formatedLineData = truncarMes(formatedLineData)
         }
@@ -106,10 +117,15 @@ export function construirLinealPlatillosVentas(datos, time) {
         }
         result.push(obj_line);
     }
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, false);
+    }
     return result;
 }
 export function construirLinealCosto(platillos, time) {
-    //TODO: primero arregla costos para que lea los platillos
     console.log("datos")
     console.log(platillos)
     let x = null
@@ -129,12 +145,12 @@ export function construirLinealCosto(platillos, time) {
         const comandas = platillo.comandas
         console.log("comandas")
         console.log(comandas)
+        let indice_color = 0;
+        let formatedLineData = []
         for (let ii = 0; ii < comandas.length; ii++) {
             const comanda = comandas[ii]
             console.log("comanda")
             console.log(comanda)
-            let indice_color = 0;
-            let formatedLineData = []
             if (time === "Hora") {
                 x = comanda.hora_compra // TODO que hacer con las horas de mermas y pedidos
             }
@@ -152,26 +168,35 @@ export function construirLinealCosto(platillos, time) {
                 "y": comanda.costo
             }
             formatedLineData.push(obj_point);
-            if (time === "Mes") {
-                formatedLineData = truncarMes(formatedLineData)
-            }
-            if (time === "Año") {
-                formatedLineData = truncarAño(formatedLineData)
-            }
-            const obj_line = {
-                "id": platillo.nombre_platillo,
-                "color": colores[indice_color],
-                "data": formatedLineData
-            }
-            indice_color++;
-            if (indice_color === colores.length) {
-                indice_color = 0;
-            }
-            result.push(obj_line);
         }
+        //TODO: utilizar esta funcion para utilidades
+        console.log("platillo")
+        console.log(platillo)
+        if (time === "Mes") {
+            formatedLineData = truncarMes(formatedLineData)
+        }
+        if (time === "Año") {
+            formatedLineData = truncarAño(formatedLineData)
+        }
+        indice_color++;
+        if (indice_color === colores.length) {
+            indice_color = 0;
+        }
+        const obj_line = {
+            "id": platillo.nombre_platillo,
+            "color": colores[indice_color],
+            "data": formatedLineData
+        }
+        result.push(obj_line);
     }
     console.log("Construir datos resultado")
     console.log(result)
+    //ajustarEntradasDistintas(result)
+    //console.log("result")
+    //console.log(result)
+    //for (let i = 0; i < result.length; i++) {
+        //result[i].data = ordenarHorasObjetos(result[i].data, false);
+    //}
     return result;
 }
 export function construirLinealUtilidades(platillos, time) {
@@ -202,7 +227,7 @@ export function construirLinealUtilidades(platillos, time) {
             let indice_color = 0;
             let formatedLineData = []
             if (time === "Hora") {
-                x = comanda.hora_compra 
+                x = comanda.hora_compra
             }
             if (time === "Fecha") {
                 x = formatearFecha(comanda.fecha)
@@ -238,6 +263,12 @@ export function construirLinealUtilidades(platillos, time) {
     }
     console.log("Construir datos resultado")
     console.log(result)
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, false);
+    }
     return result;
 }
 export function construirLinealStockUtensilios(datos, time) {
@@ -274,17 +305,25 @@ export function construirLinealStockUtensilios(datos, time) {
                 x = formatearFecha(utensilios[ii].fecha)
             }
             if (time === "Mes") {
-                x = utensilios[ii].fecha
+                x = String((new Date(utensilios[ii].fecha).getMonth() + 1)).padStart(2, '0');
             }
             if (time === "Año") {
-                x = utensilios[ii].fecha
+                x = String((new Date(utensilios[ii].fecha)).getFullYear());
+            }
+            if (!utensilios[ii].evento) {
+                utensilios[ii].evento = "otro"
             }
             const obj_point = {
                 "x": x,
-                "y": utensilios[ii].cantidad_total
+                "y": utensilios[ii].cantidad_total,
+                "dy": utensilios[ii].cantidad_utensilio,
+                "tipo": utensilios[ii].evento
             }
             formatedLineData.push(obj_point);
         }
+        formatedLineData = eliminarRepetidos(formatedLineData)
+        console.log("despues de eliminar repetidas")
+        console.log(formatedLineData)
         if (time === "Mes") {
             formatedLineData = truncarMes(formatedLineData)
         }
@@ -302,9 +341,17 @@ export function construirLinealStockUtensilios(datos, time) {
         }
         result.push(obj_line);
     }
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, true);
+    }
     return result;
 }
 export function construirStockIngredientes(datos, time) {
+    console.log("Construir stock ingredientes")
+    console.log(datos)
     let x = null
     let result = [];
     const keys = Object.keys(datos)
@@ -320,30 +367,43 @@ export function construirStockIngredientes(datos, time) {
         if (!ingrediente || ingrediente.length === 0) {
             continue
         }
-        const utensilios = datos[keys[i]]
+        const ingrediente_dato = datos[keys[i]]
         let indice_color = 0;
         let formatedLineData = []
-        for (let ii = 0; ii < utensilios.length; ii++) {
+        for (let ii = 0; ii < ingrediente_dato.length; ii++) {
             if (time === "Hora") {
-                x = new Date(utensilios[ii].fecha)
-                console.log(x)
-                x = x.toTimeString()
-                x = x.split(" ")[0]
+                if (ingrediente_dato[ii].tipo === "comanda") {
+                    console.log("hora?")
+                    console.log(ingrediente_dato[ii])
+                    x = ingrediente_dato[ii].hora
+                } else {
+                    x = new Date(ingrediente_dato[ii].fecha)
+                    console.log(x)
+                    x = x.toTimeString()
+                    x = x.split(" ")[0]
+                }
             }
             if (time === "Fecha") {
-                x = formatearFecha(utensilios[ii].fecha)
+                x = formatearFecha(ingrediente_dato[ii].fecha)
             }
             if (time === "Mes") {
-                x = utensilios[ii].fecha
+                x = String((new Date(ingrediente_dato[ii].fecha).getMonth() + 1)).padStart(2, '0');
             }
             if (time === "Año") {
-                x = utensilios[ii].fecha
+                x = String((new Date(ingrediente_dato[ii].fecha)).getFullYear());
             }
             const obj_punto = {
                 "x": x,
-                "y": utensilios[ii].cantidad_total
+                "y": ingrediente_dato[ii].cantidad_total,
+                "tipo": ingrediente_dato[ii].tipo
             }
             formatedLineData.push(obj_punto);
+        }
+        formatedLineData = eliminarRepetidos(formatedLineData)
+        console.log("formatedLineData")
+        console.log(formatedLineData)
+        if (time === "Hora") {
+            formatedLineData = ordenarHorasObjetos(formatedLineData)
         }
         if (time === "Mes") {
             formatedLineData = truncarMes(formatedLineData)
@@ -351,6 +411,8 @@ export function construirStockIngredientes(datos, time) {
         if (time === "Año") {
             formatedLineData = truncarAño(formatedLineData)
         }
+        console.log("formatedLineData despues truncar")
+        console.log(formatedLineData)
         const obj_linea = {
             "id": keys[i],
             "color": colores[indice_color],
@@ -361,6 +423,14 @@ export function construirStockIngredientes(datos, time) {
             indice_color = 0;
         }
         result.push(obj_linea);
+    }
+    console.log("final construir ingredientes")
+    console.log(result)
+    ajustarEntradasDistintas(result)
+    console.log("result")
+    console.log(result)
+    for (let i = 0; i < result.length; i++) {
+        result[i].data = ordenarHorasObjetos(result[i].data, true);
     }
     return result;
 }
@@ -398,10 +468,11 @@ export function construirPlatillosMenuBarra(datos) {
         const color_barra = getColor(i)
         const platillo_menu = datos[i]
         keys.push(platillo_menu.nombre_platillo)
-        let total = 0;
+        console.log("platillo_menu")
+        console.log(platillo_menu)
         const itemBar = {
             "nombre_platillo": platillo_menu.nombre_platillo,
-            [platillo_menu.nombre_platillo]: total,
+            [platillo_menu.nombre_platillo]: platillo_menu.menu.length,
             "color_barra": color_barra
         }
         result.push(itemBar);
@@ -566,6 +637,7 @@ export function construirPlatillosMenuCircular(datos, time) {
 }
 function truncarMes(data) {
     console.log("Trucar Mes")
+    console.log(data)
     const meses = {
         "01": "Enero",
         "02": "Febrero",
@@ -581,19 +653,26 @@ function truncarMes(data) {
         "12": "Diciembre"
     };
     if (data.length === 0) {
+        console.log("is empty")
         return []
     }
     let newData = []
     if (data.length === 1) {
+        let nXDate = String((new Date(data[0].x).getMonth() + 1)).padStart(2, '0');
         const obj_point = {
-            "x": new Date(data[0].x).getFullYear(),
+            "x": meses[nXDate],
             "y": data[0].y
         }
         newData.push(obj_point)
+        console.log(newData)
         return newData;
     }
     let nX = null
-    let nY = data[0].y;
+    let nY = null;
+    if (data[0].dy) {
+        nY = data[0].dy
+    }
+    nY = data[0].y;
     let prevX = null
     let nXDate = null
     for (let i = 1; i < data.length; i++) {
@@ -604,6 +683,13 @@ function truncarMes(data) {
         nXDate = new Date(nX);
         nXDate = String(nXDate.getMonth() + 1).padStart(2, '0');
         if (prevDate === nXDate) {
+            if (data[0].dy) {
+                if (data[0].tipo === "merma") {
+                    nY -= data[i].dy
+                } else {
+                    nY += data[i].dy
+                }
+            }
             nY += data[i].y
         } else {
             const obj_point = {
@@ -629,6 +715,8 @@ function truncarMes(data) {
         }
         newData.push(obj_point);
     }
+    console.log("newData")
+    console.log(newData)
     return newData
 }
 function truncarMes_Test() {
@@ -681,26 +769,19 @@ function truncarAño(data) {
         return []
     }
     let newData = []
-    //console.log("data de año")
-    //console.log(data.length)
     if (data.length === 1) {
-        //console.log("length 1")
-        //let tmp = data[0].x
-        //console.log(tmp)
-        //tmp = new Date(tmp)
-        //console.log(tmp)
-        //tmp = tmp.getFullYear()
-        //console.log(tmp)
-        //console.log("fin revision")
+        console.log("new date¿?")
+        //console.log(data[0].x)
+        //console.log(new Date(data[0].x, 0, 1))
+        //console.log(new Date(data[0].x, 0, 1).getFullYear())
         const obj_point = {
-            "x": new Date(data[0].x).getFullYear(),
+            //los argumentos son para asegurarse de que no se aproxime la fecha a el año anterior
+            "x": getYear(data[0].x),    //new Date(data[0].x, 0, 1).getFullYear(),
             "y": data[0].y
         }
         newData.push(obj_point)
         return newData;
     }
-    //console.log("truncar año")
-    //console.log(data)
     let nX = null;
     let nY = data[0].y;
     let prevX = null;
@@ -771,4 +852,177 @@ export function idsCosto(ids) {
         nuevasIds.push(id);
     }
     return nuevasIds;
+}
+function eliminarRepetidos(data, time) {
+    console.log("eliminar repetidos")
+    console.log(data)
+    let newData = []
+    let obj_point = data[0];
+    let sobraUno = true;
+    if (data.length === 1) {
+        newData.push(obj_point)
+        return newData;
+    }
+    let new_obj_point = {
+        "x": obj_point.x,
+        "y": obj_point.y
+    };
+    for (let i = 1; i < data.length; i++) {
+        let obj_point_next = data[i];
+
+        if (obj_point.x === obj_point_next.x) {
+            if (obj_point_next.tipo === "merma" || obj_point_next.tipo === "comanda") {
+                new_obj_point.y -= obj_point_next.y
+            } else {
+                new_obj_point.y += obj_point_next.y
+            }
+            console.log("new obj point")
+            console.log(new_obj_point)
+            sobraUno = false;
+        } else {
+            newData.push(new_obj_point)
+            new_obj_point = {
+                "x": obj_point_next.x,
+                "y": obj_point_next.y
+            };
+            sobraUno = true;
+        }
+        obj_point = obj_point_next;
+    }
+    if (sobraUno) {
+        new_obj_point = {
+            "x": obj_point.x,
+            "y": obj_point.y
+        };
+        newData.push(new_obj_point)
+    } else {
+        //Si no sobra uno siempre queda un elemento
+        newData.push(new_obj_point)
+    }
+    return newData;
+}
+function ordenarHoras(data) {
+    console.log("ordenar horas")
+    console.log(data)
+
+    const listaOrdenada = data.sort((a, b) => {
+        console.log("a")
+        console.log(a)
+        const aGroup = a.split(":")
+        const bGroup = b.split(":")
+        const AtimeX = aGroup[0] * 3600 + aGroup[1] * 60 + aGroup[2]
+        const BtimeX = bGroup[0] * 3600 + bGroup[1] * 60 + bGroup[2]
+        if (AtimeX < BtimeX) {
+            return -1;
+        }
+        if (AtimeX > BtimeX) {
+            return 1;
+        }
+        return 0;
+    })
+    console.log(listaOrdenada)
+    return listaOrdenada;
+}
+export function ordenarHorasObjetos(data) {
+    console.log("ordenar horas")
+    console.log(data)
+
+    const listaOrdenada = data.sort((a, b) => {
+        console.log("a.x")
+        console.log(a.x)
+        const aGroup = a.x.split(":")
+        const bGroup = b.x.split(":")
+        const AtimeX = aGroup[0] * 3600 + aGroup[1] * 60 + aGroup[2]
+        const BtimeX = bGroup[0] * 3600 + bGroup[1] * 60 + bGroup[2]
+        if (AtimeX < BtimeX) {
+            return -1;
+        }
+        if (AtimeX > BtimeX) {
+            return 1;
+        }
+        return 0;
+    })
+    console.log(listaOrdenada)
+    return listaOrdenada;
+}
+function getYear(year) {
+    if (year.length === 4) {
+        return new Date(year, 0, 1).getFullYear()
+    } else {
+        return String(new Date(year).getFullYear())
+    }
+}
+
+export function ajustarEntradasDistintas(objLines, mantener) {
+    console.log("ajustarEntradasDistintas")
+    console.log(objLines)
+    let dictionaryOfXs = {}
+    let listOfDictionaryOfObject = []
+    //Primero agregar todas las x a la tabla
+    for (let i = 0; i < objLines.length; i++) {
+        const objLine = objLines[i];
+        const dataOfLine = objLine.data;
+        let dictionaryOfObj = {}
+        for (let ii = 0; ii < dataOfLine.length; ii++) {
+            const objPoint = dataOfLine[ii];
+            //Agregar todas las x de del objeto linea al dict
+            dictionaryOfObj[objPoint.x] = objPoint.y;
+            if (!dictionaryOfXs[objPoint.x]) {
+                dictionaryOfXs[objPoint.x] = objPoint.y
+            }
+        }
+        listOfDictionaryOfObject.push(dictionaryOfObj);
+    }
+    //Asegurarse de que todas las lineas tengan todas las X
+    console.log("test")
+    console.log(Object.keys(dictionaryOfXs))
+    const listOfXs = Object.keys(dictionaryOfXs).sort((a, b) => {
+        console.log("a.x")
+        console.log(a)
+        const aGroup = a.split(":")
+        const bGroup = b.split(":")
+        const AtimeX = aGroup[0] * 3600 + aGroup[1] * 60 + aGroup[2]
+        const BtimeX = bGroup[0] * 3600 + bGroup[1] * 60 + bGroup[2]
+        if (AtimeX < BtimeX) {
+            return -1;
+        }
+        if (AtimeX > BtimeX) {
+            return 1;
+        }
+        return 0;
+    })
+    console.log("listOfX")
+    console.log(listOfXs)
+
+    console.log("listOfDictionary")
+    console.log(listOfDictionaryOfObject)
+
+    for (let i = 0; i < listOfDictionaryOfObject.length; i++) {
+        const dictionaryOfObject = listOfDictionaryOfObject[i];
+        let objLine = objLines[i]
+        let data = objLine.data;
+        let lastNonNullValue = 0;
+        for (let ii = 0; ii < listOfXs.length; ii++) {
+            console.log("dict")
+            console.log(dictionaryOfObject)
+            const x = listOfXs[ii]
+            console.log("x")
+            console.log(x)
+            if (!dictionaryOfObject[x]) {
+                if (ii - 1 < 0 || !mantener) {
+                    data.push({ x: x, y: 0 });
+                } else {
+                    data.push({ x: x, y: lastNonNullValue });
+                }
+            } else {
+                console.log("lastnonnull")
+                console.log(dictionaryOfObject[x])
+                lastNonNullValue = dictionaryOfObject[x]
+            }
+        }
+        console.log("data")
+        console.log(data)
+    }
+    console.log("ajustar")
+    console.log(objLines)
 }

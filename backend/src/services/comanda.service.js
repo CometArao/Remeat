@@ -13,19 +13,18 @@ export async function getPlatillosDelDiaService(){
   const menuRepository = AppDataSource.getRepository(Menu);
 
   try {
-    // Busca el menú del día con la relación correcta
-    const menuDelDia = await menuRepository
+    
+    const menuDisponible = await menuRepository
       .createQueryBuilder("menu")
       .leftJoinAndSelect("menu.platillo", "platillo") 
       .where("menu.disponibilidad = :disponible", { disponible: true })
-      .orderBy("menu.fecha", "DESC") // Busca el menú más reciente en caso de múltiples menús disponibles
       .getOne();
 
-    if (!menuDelDia) {
+    if (!menuDisponible) {
       throw new Error("No se encontró un menú disponible para el día actual.");
     }
 
-    return menuDelDia.platillo; // Devuelve la lista de platillos del menú del día
+    return menuDisponible.platillo; 
   } catch (error) {
     throw new Error("Error al obtener los platillos del menú del día: " + error.message);
   }
@@ -96,29 +95,19 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
   });
   if (!comanda) throw new Error("Comanda no encontrada.");
 
-  
-
-
-  // Obtener el menú diario automáticamente
-  const currentDate = new Date();
-  let menu = await menuRepository.findOne({
-    where: { fecha: currentDate.toISOString().split("T")[0], disponibilidad: true },
-    relations: ["platillo"] // Carga los platillos del menú
-  });
-
-  // Si no hay menú para hoy, obtener el menú más cercano anterior
-  if (!menu) {
-    menu = await menuRepository.createQueryBuilder("menu")
-      .where("menu.fecha <= :currentDate", { currentDate })
-      .andWhere("menu.disponibilidad = true")
-      .orderBy("menu.fecha", "DESC")
-      .leftJoinAndSelect("menu.platillo", "platillo")
-      .getOne();
+  //Verificar si la comanda está completada
+  if (comanda.estado_comanda === "completada") {
+    throw new Error("No se pueden añadir platillos a una comanda completada.");
   }
 
+  // Obtener el menú disponible
+  const menu = await menuRepository.findOne({
+    where: { disponibilidad: true },
+    relations: ["platillo"],
+  });
   if (!menu) throw new Error("No hay un menú disponible.");
 
-  console.log("Apunto")
+  console.log("Apunto");
   // Verificar si el platillo existe
   const platillo = await platilloRepository.findOne({
     where: { nombre_platillo: platilloData.nombre_platillo }
@@ -143,6 +132,7 @@ export async function addPlatilloToComanda(comandaId, platilloData) {
 
   return newConforma;
 }
+
 
 
 export async function createComanda(loggedUser, platilloData) {
@@ -306,6 +296,7 @@ export async function deleteComanda(comandaId) {
 
 export async function completeComanda(comandaId) {
   const comandaRepository = AppDataSource.getRepository(Comanda);
+  const conformaRepository = AppDataSource.getRepository(ConformaComanda);
 
   // Buscar la comanda por ID
   const comanda = await comandaRepository.findOne({
@@ -317,10 +308,28 @@ export async function completeComanda(comandaId) {
     throw new Error("Comanda no encontrada.");
   }
 
-
   // Validar que el estado sea "pendiente"
   if (comanda.estado_comanda !== "pendiente") {
     throw new Error(`La comanda no se puede completar porque está en estado "${comanda.estado_comanda}".`);
+  }
+
+  //Verificar que todos los platillos asignados estén "preparados"
+  const platillosEnComanda = await conformaRepository.find({
+    where: { comanda: { id_comanda: comandaId } },
+  });
+
+  if (platillosEnComanda.length === 0) {
+    throw new Error("La comanda no tiene platillos asignados.");
+  }
+
+  const hayPlatillosPendientes = platillosEnComanda.some(
+    (platillo) => platillo.estado_platillo !== "preparado"
+  );
+
+  if (hayPlatillosPendientes) {
+    throw new Error(
+      "No se puede completar la comanda porque hay platillos con estado pendiente."
+    );
   }
 
   // Cambiar el estado de la comanda directamente
@@ -338,5 +347,4 @@ export async function completeComanda(comandaId) {
 
   return updatedComanda;
 }
-
 

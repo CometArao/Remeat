@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ComandaList from '../components/comanda/ComandaList';
 import ComandasWithPlatillosList from '../components/comanda/ComandasWithPlatillosList';
 import CreateComandaPopup from '../components/comanda/CreateComandaPopup';
+import '@styles/Comandas.css'; // Importa el CSS aquí
 
 const Comandas = () => {
   const [view, setView] = useState('default'); // Controla qué vista mostrar
@@ -16,14 +17,14 @@ const Comandas = () => {
   };
 
   return (
-    <div>
-      <h1>Gestión de Comandas</h1>
+    <div className="comandas-container">
+      <h1 className="comanda-title">Gestión de Comandas</h1>
 
       <div>
         {/* Botones para cambiar entre las vistas */}
-        <button onClick={() => setView('default')}>Ver Comandas</button>
-        <button onClick={() => setView('withPlatillos')}>Ver Comandas con Platillos</button>
-        <button onClick={handleOpenPopup}>Nueva Comanda</button>
+        <button className="btn" onClick={() => setView('default')}>Ver Comandas</button>
+        <button className="btn" onClick={() => setView('withPlatillos')}>Ver Comandas con Platillos</button>
+        <button className="btn" onClick={handleOpenPopup}>Nueva Comanda</button>
       </div>
 
       {/* Renderizar el popup para crear comanda */}

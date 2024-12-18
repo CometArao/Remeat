@@ -28,50 +28,12 @@ from "../handlers/responseHandlers.js";
 
 export async function getMenuQRCodeController(req, res) {
     try {
-        // Obtener los menús desde el servicio
-        const [menus, errorMenus] = await getMenusService();
+        // Llamar al servicio para generar el QR del menú
+        const qrCode = await generateMenuQRCode();
 
-        if (errorMenus || menus.length === 0) {
-            return handleErrorServer(res, 404, "No se encontró el menú del día");
-        }
-
-        // Ordenar los menús por fecha descendente
-        const menusOrdenados = menus.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
-        // Seleccionar el primer menú como el menú del día
-        const menuDelDia = menusOrdenados[0];
-
-        if (!menuDelDia) {
-            return handleErrorServer(res, 404, "No se encontró el menú del día");
-        }
-
-        // Validar que el menú contiene los datos necesarios
-        if (
-            !menuDelDia.platillos ||
-            !Array.isArray(menuDelDia.platillos) ||
-            menuDelDia.platillos.length === 0
-        ) {
-            return handleErrorServer(res, 400, "El menú del día no contiene platillos válidos");
-        }
-
-        try {
-            // Codificar los datos del menú para incluirlos en la URL
-            const menuDataEncoded = Buffer.from(JSON.stringify(menuDelDia)).toString('base64');
-             console.log(menuDataEncoded);
-            // Generar la URL pública
-            const qrCodeUrl = `http://localhost:5173/menu-dia?menuData=${menuDataEncoded}`;
-
-            // Generar el código QR con la URL pública
-            const qrCode = await generateMenuQRCode(qrCodeUrl);
-
-            // Enviar el código QR como respuesta
-            handleSuccess(res, 200, "QR de los platillos del menú generado exitosamente", { qrCode });
-        } catch (error) {
-            console.error("Error al generar el QR:", error.message);
-            return handleErrorServer(res, 500, error.message);
-        }
+        // Responder con el código QR
+        handleSuccess(res, 200, "QR del menú generado exitosamente", { qrCode });
     } catch (error) {
-        console.error("Error en getMenuQRCodeController:", error.message);
         handleErrorServer(res, 500, error.message);
     }
 }
