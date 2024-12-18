@@ -1,113 +1,99 @@
+
 .comandas-container {
   margin: 20px auto;
-  max-width: 800px;
-  font-family: Arial, sans-serif;
+  max-width: 1000px;
+  background-color: #ffe6e6;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+
+.comanda-title {
+  color: #ff6600;
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+
+.btn {
+  background-color: #ffc107;
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  cursor: pointer;
+  margin-right: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.btn:hover {
+  background-color: #e0a800;
+}
+
 
 .comanda-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  margin-top: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+}
+
+.comanda-item:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+
+.add-platillo-form {
+  background-color: #f8f9fa;
   border: 1px solid #ddd;
+  padding: 15px;
+  margin-top: 10px;
   border-radius: 8px;
-  margin: 16px;
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s;
-  background-color: #FFEBEE
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.comanda-item:hover {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  padding: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #A37666
+.add-platillo-form h4 {
+  color: #ff6600;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.comanda-item h3 {
-  margin: 0;
-  font-size: 18px;
+.add-platillo-form label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
 }
 
-.comanda-item p {
-  margin: 8px 0;
+.add-platillo-form select,
+.add-platillo-form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-.comanda-item button {
-  background-color: #FFC107;
+.add-platillo-form button {
+  background-color: #ffc107;
   color: white;
   border: none;
   padding: 8px 12px;
+  cursor: pointer;
   border-radius: 4px;
-  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
 }
 
-.comanda-item button:hover {
-  background-color: #DD9004;
-}
-
-.comanda-form {
-  margin-bottom: 20px;
-}
-
-.comanda-form input,
-.comanda-form button {
-  margin: 8px 0;
-  padding: 8px;
-  width: 100%;
-  font-size: 16px;
-}
-
-.comanda-form button {
-  background-color: #5cb85c;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.comanda-form button:hover {
-  background-color: #4cae4c;
-}
-
-/* nuevo */
-.comanda-input {
-  width: 30%;
-  padding: 10px 15px;
-  font-size: 16px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  background-color: #FFEBEE;
-  color: #333;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus {
-  border-color: #FF5722;
-  outline: none;
-}
-
-input[type="text"]:hover {
-  border-color: #FF5722;
-}
-
-input[type="text"]::placeholder {
-  color: #888;
-  opacity: 1;
-}
-/*
-input[type="number"]:focus {
-  border-color: #FF5722;
-  outline: none;
-}
-
-input[type="number"]:hover {
-  border-color: #FF5722;
-}
-
-input[type="number"]::placeholder {
-  color: #888;
-  opacity: 1;
-}
-*/
-.add-platillo-dorm select{
-  background-color: #000;
+.add-platillo-form button:hover {
+  background-color: #e0a800;
 }

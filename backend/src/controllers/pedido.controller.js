@@ -221,21 +221,39 @@ export async function updatePedido(req, res) {
 }
 
 export async function deletePedido(req, res) {
-    const { id_pedido } = req.params; // Asumiendo que el ID se pasa como parámetro en la URL
+    const { id_pedido } = req.params;
 
     try {
         const [result, error] = await deletePedidoService(id_pedido);
+
         if (error) {
-            if (error === "Pedido no encontrado") {
-                return handleErrorClient(res ,404 ,error);
+            if (error === "No se puede eliminar un pedido con estado 'Ingresado'.") {
+                return handleErrorClient(
+                    res, 
+                    401, 
+                    error,
+                    { status: "Client error", message: error }
+                );
             }
-            return handleErrorServer(res ,500 ,error);
+
+            if (error === "Pedido no encontrado") {
+                return handleErrorClient(
+                    res, 
+                    404, 
+                    error, 
+                    { status: "Client error", message: error }
+                );
+            }
+
+            return handleErrorServer(res, 500, error);
         }
 
-        handleSuccess(res ,200 ,"Pedido eliminado exitosamente", null);
+        // Respuesta exitosa
+        return handleSuccess(res, 200, "Pedido eliminado exitosamente.", null);
     } catch (error) {
-       handleErrorServer(res ,500 ,error.message );
-   }
+        console.error("Error en el controlador:", error);
+        return handleErrorServer(res, 500, error.message);
+    }
 }
 
 // Controlador para confirmar pedido
@@ -297,10 +315,6 @@ export async function confirmarPedidoController(req, res) {
 
         const ingredientesResult = await Promise.all(ingredientesPromises);
         console.log("Ingredientes creados:", ingredientesResult);
-
-        
-        
-        
 
         // Procesar utensilios
         const utensiliosPromises = pedido.compuestoUtensilios.map(async (compUtensilio) => {

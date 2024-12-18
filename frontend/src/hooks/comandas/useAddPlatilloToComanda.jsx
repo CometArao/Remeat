@@ -48,6 +48,7 @@ const useAddPlatilloToComanda = () => {
       await fetchComandas(); // Actualiza la lista después de añadir un platillo
     } catch (err) {
       setError(err);
+      throw err;
     } finally {
       setLoading(false);
     }

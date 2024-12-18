@@ -7,9 +7,10 @@ import useProveedores from "../hooks/proveedores/useGetProveedores";
 import useUsers from "../hooks/users/useGetUsers";
 import useGetUtensilios from "../hooks/utensilios/useGetUtensilio";
 import { truncateToMinutes } from "../../../backend/src/utils/dateUtils.js";
+import SeleccionConCantidad from '../components/Pedido/SeleccionConCantidad.jsx';
+import utensilio from "../../../backend/src/entity/utensilio.entity.js";
 import "@styles/crearPedido.css";
 
-// Obtener la fecha de hoy en formato "YYYY-MM-DD"
 const getTodayDate = () => {
     const now = new Date();
     const year = now.getFullYear();
@@ -17,16 +18,14 @@ const getTodayDate = () => {
     const day = String(now.getDate()).padStart(2, "0");
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`; // Formato para datetime-local
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
 
-
-// Obtener el rango permitido para fechas
 const getYearRange = () => {
     const today = new Date();
     const currentYear = today.getFullYear();
-    const minDate = `${currentYear - 1}-01-01`; // Año anterior
-    const maxDate = `${currentYear + 1}-12-31`; // Año siguiente
+    const minDate = `${currentYear - 1}-01-01`;
+    const maxDate = `${currentYear + 1}-12-31`;
     return { minDate, maxDate };
 };
 
@@ -39,16 +38,14 @@ const CrearPedido = () => {
 
     const [pedidoData, setPedidoData] = useState({
         descripcion_pedido: "",
-        fecha_compra_pedido: getTodayDate(), // Fecha y hora actual
+        fecha_compra_pedido: getTodayDate(),
         fecha_entrega_pedido: "",
         id_usuario: "",
         id_proveedor: "",
-        ingredientes: [], // { id_ingrediente, cantidad }
-        utensilios: [] // { id_utensilio, cantidad }
+        ingredientes: [], // { id_ingrediente, cantidad_ingrediente }
+        utensilios: [] // { id_utensilio, cantidad_utensilio }
     });
 
-    const [selectedIngredientes, setSelectedIngredientes] = useState({});
-    const [selectedUtensilios, setSelectedUtensilios] = useState({});
     const [costoTotal, setCostoTotal] = useState(0);
 
     const { minDate, maxDate } = getYearRange();
@@ -57,37 +54,6 @@ const CrearPedido = () => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setPedidoData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleCheckboxChange = (type, id) => {
-        const isIngredient = type === "ingredientes";
-        const selectedState = isIngredient ? selectedIngredientes : selectedUtensilios;
-
-        const updatedState = {
-            ...selectedState,
-            [id]: !selectedState[id]
-        };
-
-        if (!updatedState[id]) {
-            setPedidoData((prev) => ({
-                ...prev,
-                [type]: prev[type].filter((item) => item[`id_${type.slice(0, -1)}`] !== id)
-            }));
-        }
-
-        isIngredient ? setSelectedIngredientes(updatedState) : setSelectedUtensilios(updatedState);
-    };
-
-    const handleCantidadChange = (type, id, cantidad) => {
-        const key = type === "ingredientes" ? "cantidad_ingrediente" : "cantidad_utensilio";
-
-        setPedidoData((prev) => {
-            const updatedList = prev[type].filter((item) => item[`id_${type.slice(0, -1)}`] !== id);
-            if (cantidad > 0) {
-                updatedList.push({ [`id_${type.slice(0, -1)}`]: id, [key]: parseFloat(cantidad) });
-            }
-            return { ...prev, [type]: updatedList };
-        });
     };
 
     const calculateCostoTotal = () => {
@@ -102,7 +68,7 @@ const CrearPedido = () => {
 
         pedidoData.utensilios.forEach((ut) => {
             const utensilioInfo = utensilios.find((u) => u.id_utensilio === ut.id_utensilio);
-            if (utensilioInfo && ut.cantidad_utensilio) {
+            if (utensilioInfo && utensilioInfo.costo_utensilio) {
                 total += ut.cantidad_utensilio * utensilioInfo.costo_utensilio;
             }
         });
@@ -112,8 +78,7 @@ const CrearPedido = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-    
-        // Validar que al menos un ingrediente o utensilio esté seleccionado
+
         if (
             (!pedidoData.ingredientes || pedidoData.ingredientes.length === 0) &&
             (!pedidoData.utensilios || pedidoData.utensilios.length === 0)
@@ -121,10 +86,9 @@ const CrearPedido = () => {
             showErrorAlert("Error", "Debes seleccionar al menos un ingrediente o utensilio para crear un pedido.");
             return;
         }
-    
+
         try {
-            // Enviar datos al backend con fecha_entrega_pedido ya en formato ISO
-            const response = await createPedido({ ...pedidoData });
+            await createPedido({ ...pedidoData });
             showSuccessAlert("¡Éxito!", "Pedido creado correctamente.");
             navigate("/pedidos");
         } catch (error) {
@@ -132,7 +96,6 @@ const CrearPedido = () => {
             showErrorAlert("Error", "Hubo un problema al crear el pedido.");
         }
     };
-    
 
     useEffect(() => {
         fetchIngredientes();
@@ -144,6 +107,11 @@ const CrearPedido = () => {
     useEffect(() => {
         calculateCostoTotal();
     }, [pedidoData, utensilios]);
+
+    // Si aún no hay datos de ingredientes o utensilios, mostramos un mensaje de carga
+    if (!ingredientes || !utensilios || ingredientes.length === 0 || utensilios.length === 0) {
+        return <div>Cargando datos de ingredientes y utensilios...</div>;
+    }
 
     return (
         <div className="crear-pedido-container">
@@ -170,14 +138,14 @@ const CrearPedido = () => {
                     />
                 </div>
                 <div className="form-group">
-                <label>Fecha y Hora de Entrega</label>
+                    <label>Fecha y Hora de Entrega</label>
                     <input
                         type="datetime-local"
                         name="fecha_entrega_pedido"
                         value={pedidoData.fecha_entrega_pedido}
                         onChange={handleInputChange}
                         required
-                        min={pedidoData.fecha_compra_pedido} // No puede ser antes de la fecha de compr
+                        min={pedidoData.fecha_compra_pedido}
                     />
                 </div>
                 <div className="form-group">
@@ -212,54 +180,63 @@ const CrearPedido = () => {
                         ))}
                     </select>
                 </div>
+
+                {/* Uso del Form con estrategia similar a PopupPlatillo */}
                 <div className="form-group">
-                    <label>Ingredientes</label>
-                    {ingredientes.map(ing => (
-                        <div key={ing.id_ingrediente} className="item">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={!!selectedIngredientes[ing.id_ingrediente]}
-                                    onChange={() => handleCheckboxChange("ingredientes", ing.id_ingrediente)}
-                                />
-                                ID: {ing.id_ingrediente} - Nombre: {ing.tipo_ingrediente.nombre_tipo_ingrediente}
-                            </label>
-                            {selectedIngredientes[ing.id_ingrediente] && (
-                                <input
-                                    type="number"
-                                    placeholder="Cantidad"
-                                    onChange={(e) => handleCantidadChange("ingredientes", ing.id_ingrediente, e.target.value)}
-                                />
-                            )}
-                        </div>
-                    ))}
-                </div>
-                <div className="form-group">
-                    <label>Utensilios</label>
-                    {utensilios.map(ut => (
-                        <div key={ut.id_utensilio} className="item">
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={!!selectedUtensilios[ut.id_utensilio]}
-                                    onChange={() => handleCheckboxChange("utensilios", ut.id_utensilio)}
-                                />
-                                ID: {ut.id_utensilio} - Nombre: {ut.tipo_utensilio.nombre_tipo_utensilio}
-                            </label>
-                            {selectedUtensilios[ut.id_utensilio] && (
-                                <input
-                                    type="number"
-                                    placeholder="Cantidad"
-                                    onChange={(e) => handleCantidadChange("utensilios", ut.id_utensilio, e.target.value)}
-                                />
-                            )}
-                        </div>
-                    ))}
-                </div>
+  <label>Ingredientes</label>
+  <SeleccionConCantidad
+    options={ingredientes.map((i) => ({
+      value: i.id_ingrediente,
+      label: i.tipo_ingrediente.nombre_tipo_ingrediente
+    }))}
+    value={pedidoData.ingredientes.map((ing) => {
+      const ingredienteInfo = ingredientes.find((i) => i.id_ingrediente === ing.id_ingrediente);
+      return {
+        value: ing.id_ingrediente,
+        label: ingredienteInfo ? ingredienteInfo.tipo_ingrediente.nombre_tipo_ingrediente : "",
+        cantidad: ing.cantidad_ingrediente
+      };
+    })}
+    onChange={(newValues) => {
+      const nuevosIngredientes = newValues.map((ing) => ({
+        id_ingrediente: ing.value,
+        cantidad_ingrediente: ing.cantidad
+      }));
+      setPedidoData((prev) => ({ ...prev, ingredientes: nuevosIngredientes }));
+    }}
+  />
+</div>
+
+<div className="form-group">
+  <label>Utensilios</label>
+  <SeleccionConCantidad
+    options={utensilios.map((u) => ({
+      value: u.id_utensilio,
+      label: u.tipo_utensilio.nombre_tipo_utensilio
+    }))}
+    value={pedidoData.utensilios.map((ut) => {
+      const utensilioInfo = utensilios.find((x) => x.id_utensilio === ut.id_utensilio);
+      return {
+        value: ut.id_utensilio,
+        label: utensilioInfo ? utensilioInfo.tipo_utensilio.nombre_tipo_utensilio : "",
+        cantidad: ut.cantidad_utensilio
+      };
+    })}
+    onChange={(newValues) => {
+      const nuevosUtensilios = newValues.map((ut) => ({
+        id_utensilio: ut.value,
+        cantidad_utensilio: ut.cantidad
+      }));
+      setPedidoData((prev) => ({ ...prev, utensilios: nuevosUtensilios }));
+    }}
+  />
+</div>
+
                 <div className="form-group">
                     <label>Costo Total del Pedido</label>
                     <p>${costoTotal.toFixed(2)}</p>
                 </div>
+
                 <button type="submit">Crear Pedido</button>
             </form>
         </div>

@@ -23,6 +23,7 @@ const compuestoUtensilio = new EntitySchema({
             type: "many-to-one",
             target: "pedido",
             joinColumn: { name: "id_pedido" },
+            onDelete: "CASCADE",
         },
         utensilio: {
             type: "many-to-one",

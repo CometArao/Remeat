@@ -75,11 +75,14 @@ export async function addPlatilloToComandaController(req, res) {
   } catch (error) {
     if (error.message.includes('no encontrado')) {
       handleErrorClient(res, 404, error.message);
+    } else if (error.message.includes('completada')) { 
+      handleErrorClient(res, 400, error.message);
     } else {
       handleErrorServer(res, 500, error.message);
     }
   }
 }
+
 
 
 export async function createComandaController(req, res) {

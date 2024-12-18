@@ -7,13 +7,15 @@ import Proveedor from "../entity/proveedor.entity.js"; // Importa la entidad Pro
 import Ingrediente from "../entity/ingrediente.entity.js"; // Importa la entidad Ingrediente
 import Utensilio from "../entity/utensilio.entity.js"; // Importa la entidad Utensilio
 import TipoIngrediente from "../entity/tipo_ingrediente.entity.js";
+import CompuestoIngrediente from "../entity/compuesto_ingrediente.js";
+import CompuestoUtensilio from "../entity/compuesto_utensilio.js";
 
 export async function createPedidoService(data) {
     const pedidoRepository = AppDataSource.getRepository(Pedido);
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
     const utensilioRepository = AppDataSource.getRepository(Utensilio);
-    const compuestoIngredienteRepository = AppDataSource.getRepository("compuesto_ingrediente");
-    const compuestoUtensilioRepository = AppDataSource.getRepository("compuesto_utensilio");
+    const compuestoIngredienteRepository = AppDataSource.getRepository(CompuestoIngrediente);
+    const compuestoUtensilioRepository = AppDataSource.getRepository(CompuestoUtensilio);
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
@@ -298,25 +300,33 @@ export async function updatePedidoService(id_pedido,data) {
    }
 }
 
-export async function deletePedidoService(id_pedido ) { 
-   const pedidoRepository=AppDataSource.getRepository(Pedido);
+export async function deletePedidoService(id_pedido) {
+    const pedidoRepository = AppDataSource.getRepository(Pedido);
+    const compuestoIngredienteRepository = AppDataSource.getRepository(CompuestoIngrediente);
+    const compuestoUtensilioRepository = AppDataSource.getRepository(CompuestoUtensilio);
 
-   try { 
-      // Verificar si el pedido existe 
-      const pedidos=await pedidoRepository.findOneBy({ id_pedido }); 
-      if(!pedidos){ 
-          return [null," Pedido no encontrado"]; 
-      }
 
-      await pedidoRepository.delete(id_pedido ); 
+    try {
+        const pedido = await pedidoRepository.findOneBy({ id_pedido });
+        if (!pedido) {
+            return [null, "Pedido no encontrado"];
+        }
 
-      return [true,null]; // Retornar true si se eliminó exitosamente 
-   } catch(error){ 
-      console.error(" Error al eliminar el Pedido:", error); 
-      return[ null,error.message]; 
-   } 
+        if (pedido.estado_pedido === "Ingresado") {
+            return [null, "No se puede eliminar un pedido con estado 'Ingresado'."];
+        }
+
+        await compuestoIngredienteRepository.delete({ id_pedido });
+        await compuestoUtensilioRepository.delete({ id_pedido });
+
+        await pedidoRepository.delete(id_pedido);
+
+        return [true, null];
+    } catch (error) {
+        console.error("Error al eliminar el Pedido:", error);
+        return [null, error.message];
+    }
 }
-
 
 // Servicio para actualizar el estado del pedido
 export async function updateEstadoPedidoService(id_pedido, nuevoEstado) {
