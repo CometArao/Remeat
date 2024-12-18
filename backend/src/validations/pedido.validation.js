@@ -16,11 +16,14 @@ export const pedidoValidation = Joi.object({
         .min(1)
         .max(255)
         .required()
+        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
         .messages({
             "string.empty": "La descripción del pedido no puede estar vacía.",
             "string.base": "La descripción del pedido debe ser de tipo string.",
             "string.min": "La descripción del pedido debe tener como mínimo 1 carácter.",
             "string.max": "La descripción del pedido debe tener como máximo 255 caracteres.",
+            "string.pattern.base":
+                 "El nombre solo puede contener letras y espacios.",
         }),
     fecha_compra_pedido: Joi.date()
         .required()

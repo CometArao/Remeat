@@ -8,11 +8,14 @@ export const medidaBodyValidation = Joi.object({
     .min(3)
     .max(50)
     .required()
+    .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$/)
     .messages({
       "string.base": "El nombre debe ser una cadena de texto.",
       "string.min": "El nombre debe tener al menos {#limit} caracteres.",
       "string.max": "El nombre debe tener como máximo {#limit} caracteres.",
       "any.required": "El campo 'nombre' es obligatorio.",
+      "string.pattern.base":
+                 "El nombre solo puede contener letras y un único espacio entre palabras.",
     }),
 });
 

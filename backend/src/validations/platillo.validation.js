@@ -6,9 +6,12 @@ import Joi from "joi";
 export const platilloBodyValidation = Joi.object({
   nombre_platillo: Joi.string()
     .max(100)
+    .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
     .messages({
       "string.base": "El campo 'nombre_platillo' debe ser una cadena de texto.",
       "string.max": "El campo 'nombre_platillo' no debe exceder los 100 caracteres.",
+      "string.pattern.base":
+                 "El nombre solo puede contener letras y espacios.",
     }),
     disponible: Joi.boolean()
     .optional()

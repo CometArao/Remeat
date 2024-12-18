@@ -7,21 +7,27 @@ export const proveedorBodyValidation = Joi.object({
         .min(1)
         .max(255)
         .required()
+        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
         .messages({
             "string.empty": "El tipo de proveedor no puede estar vacío.",
             "string.base": "El tipo de proveedor debe ser de tipo string.",
             "string.min": "El tipo de proveedor debe tener como mínimo 1 carácter.",
             "string.max": "El tipo de proveedor debe tener como máximo 255 caracteres.",
+            "string.pattern.base":
+                 "El nombre solo puede contener letras y espacios.",
         }),
     nombre_proveedor: Joi.string()
         .min(1)
         .max(255)
+        .pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)
         .required()
         .messages({
             "string.empty": "El nombre del proveedor no puede estar vacío.",
             "string.base": "El nombre del proveedor debe ser de tipo string.",
             "string.min": "El nombre del proveedor debe tener como mínimo 1 carácter.",
             "string.max": "El nombre del proveedor debe tener como máximo 255 caracteres.",
+            "string.pattern.base":
+                 "El nombre solo puede contener letras y espacios.",
         }),
     correo_proveedor: Joi.string()
         .email()
