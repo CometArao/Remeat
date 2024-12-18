@@ -1,5 +1,16 @@
 import axios from './root.service.js';
 
+// Redirigir al usuario a una página específica en caso de error
+const handleErrorResponse = (error) => {
+  if (error.response?.status === 403) {
+      console.warn('Acceso denegado: fuera de horario laboral.');
+      window.location.href = '/fuera-horario'; // Redirige a la página específica
+  } else {
+      console.error('Error:', error);
+  }
+  throw error; // Opcional: Lanza el error para manejarlo en otras partes
+};
+
 export async function getPlatillos() {
     try {
         const response = await axios.get('/platillos/');
@@ -8,8 +19,9 @@ export async function getPlatillos() {
         console.log('Data:', data);
         return data.data;
     } catch (error) {
-        return error.response.data;
-    }
+      handleErrorResponse(error); // Maneja el error aquí
+      return [];
+  }
 }
 
 export async function getPlatilloById(id) {
@@ -17,8 +29,9 @@ export async function getPlatilloById(id) {
         const response = await axios.get(`platillos/${id}`);
         return response.data.data;
     } catch (error) {
-        return error.response.data;
-    }
+      handleErrorResponse(error); // Maneja el error aquí
+      return [];
+  }
 }
 
 export async function createPlatillo(data, token) {
@@ -35,8 +48,9 @@ export async function createPlatillo(data, token) {
 
         return response.data.data;
     } catch (error) {
-        return error.response.data;
-    }
+      handleErrorResponse(error); // Maneja el error aquí
+      return [];
+  }
 }
 
 export async function updatePlatillo(data, id) {
@@ -52,13 +66,10 @@ export async function updatePlatillo(data, id) {
       console.log('Respuesta del backend:', response.data); // Debug
       return response.data.data; // Devuelve los datos del backend
     } catch (error) {
-      console.error('Error al enviar PATCH:', error.response?.data || error.message);
-      // Manejo de errores con un mensaje claro
-      throw new Error(
-        error.response?.data?.message || 'Error desconocido al actualizar el platillo.'
-      );
-    }
+      handleErrorResponse(error); // Maneja el error aquí
+      return [];
   }
+}
 
 export async function updatePlatilloPrice(id, newPrice) {
   try {
@@ -67,12 +78,9 @@ export async function updatePlatilloPrice(id, newPrice) {
       });
       return response.data.data; // Devuelve los datos del backend
   } catch (error) {
-      console.error('Error al actualizar el precio del platillo:', error.response?.data || error.message);
-      // Manejo de errores con un mensaje claro
-      throw new Error(
-          error.response?.data?.message || 'Error desconocido al actualizar el precio del platillo.'
-      );
-  }
+    handleErrorResponse(error); // Maneja el error aquí
+    return [];
+}
 }
   
 
@@ -81,8 +89,9 @@ export async function deletePlatillo(id) {
         const response = await axios.delete(`platillos/${id}`);
         return response.data;
     } catch (error) {
-        return error.response.data;
-    }
+      handleErrorResponse(error); // Maneja el error aquí
+      return [];
+  }
 }
 
 export async function getFilteredTipoIngredientes() {
@@ -90,8 +99,9 @@ export async function getFilteredTipoIngredientes() {
         const response = await axios.get('/platillos/ingredientes/tipo');
         return response.data.data;
     } catch (error) {
-        return error.response.data;
-    }
+      handleErrorResponse(error); // Maneja el error aquí
+      return [];
+  }
 }
 
 export async function confirmarPlatillo(idPlatillo, idComanda, nuevoEstado) {
@@ -102,9 +112,7 @@ export async function confirmarPlatillo(idPlatillo, idComanda, nuevoEstado) {
       );
       return response.data;
     } catch (error) {
-      console.error('Error al confirmar el platillo:', error.response?.data || error.message);
-      throw new Error(
-        error.response?.data?.message || 'Error al confirmar el platillo.'
-      );
-    }
+      handleErrorResponse(error); // Maneja el error aquí
+      return [];
   }
+}

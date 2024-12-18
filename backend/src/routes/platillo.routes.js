@@ -20,8 +20,7 @@ import { authorizeRoles,
 const router = Router();
 
 router.use(authenticateJwt)
-    .use(isAdmin)
-    .use(verificarHorarioLaboral);
+    .use(verificarHorarioLaboral)
 
 router
     .get("/", getPlatillosController)                   // Obtener todos los platillos

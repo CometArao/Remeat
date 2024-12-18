@@ -16,9 +16,10 @@ import { isMesero, authorizeRoles, verificarHorarioLaboral } from '../middleware
 
 const router = Router();
 
-router.use(authenticateJwt);
+router.use(authenticateJwt)
+    .use(verificarHorarioLaboral);
 router
-    .get("/menu/qr",isMesero,verificarHorarioLaboral, getMenuQRCodeController)
+    .get("/menu/qr",isMesero, getMenuQRCodeController)
     .get("/", authorizeRoles(["cocinero", "administrador","mesero"]),getMenusController)
     .get("/:id",authorizeRoles(["cocinero", "administrador","mesero"]), getMenuByIdController)
     .post("/",authorizeRoles(["cocinero", "administrador"]), createMenuController)

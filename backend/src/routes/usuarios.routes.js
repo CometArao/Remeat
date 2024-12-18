@@ -18,8 +18,7 @@ const router = Router();
 // Se verifica sesión, autorización y horario laboral
 router
   .use(authenticateJwt)
-  .use(isAdmin)
-  .use(verificarHorarioLaboral);
+  .use(verificarHorarioLaboral)
  
 // Rutas para manejar usuarios
 router
