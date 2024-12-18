@@ -1,5 +1,9 @@
 "use strict";
 import { Router } from "express";
+import { isAdmin,
+    verificarHorarioLaboral
+ } from "../middlewares/authorization.middleware.js";
+ import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { createHorarioDia,getHorariosDia,
     getHorarioDiaById,
     updateHorarioDia,
@@ -7,10 +11,15 @@ import { createHorarioDia,getHorariosDia,
 
 const router = Router();
 
-router.post("/", createHorarioDia); // Crear un horario_dia
-router.get("/", getHorariosDia); // Obtener todos los horarios_dia
-router.get("/:id", getHorarioDiaById); // Obtener un horario_dia por ID
-router.put("/:id", updateHorarioDia); // Actualizar un horario_dia por ID
-router.delete("/:id", deleteHorarioDia); // Eliminar un horario_dia por ID
+router
+  .use(authenticateJwt)
+  .use(isAdmin)
+  .use(verificarHorarioLaboral);
+
+router.post("/", createHorarioDia);
+router.get("/", getHorariosDia);
+router.get("/:id", getHorarioDiaById);
+router.put("/:id", updateHorarioDia);
+router.delete("/:id", deleteHorarioDia);
 
 export default router;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createUtensilio } from '@services/utensilios.service';
+import { createUtensilio } from '@services/utensilio.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
 const useCreateUtensilio = (setUtensilios) => {
@@ -13,7 +13,7 @@ const useCreateUtensilio = (setUtensilios) => {
     const handleCreate = async (newDataUtensilio) => {
         if (newDataUtensilio) {
             try {
-                // Elimina campos vacíos o nulos antes de enviar
+                //Elimina campos vacíos o nulos antes de enviar
                 const cleanedData = Object.fromEntries(
                     Object.entries(newDataUtensilio).filter(([_, v]) => v != null && v !== '')
                 );

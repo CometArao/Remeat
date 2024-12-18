@@ -7,7 +7,7 @@ import CompuestoIngrediente from "../entity/compuesto_ingrediente.js";
 
 // Servicio para crear un ingrediente
 export async function createIngredienteService(data) {
-    console.log("En el servicio")
+
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
     const compuestoIngredienteRepository = AppDataSource.getRepository(CompuestoIngrediente);
@@ -50,7 +50,7 @@ export async function createIngredienteService(data) {
                 id_ingrediente: newIngrediente.id_ingrediente,
                 cantidad_pedida: cantidad_ingrediente,
             });
-
+            // Crear el registro en la tabla intermedia
             const compuestoIngrediente = compuestoIngredienteRepository.create({
                 id_pedido,
                 id_ingrediente: newIngrediente.id_ingrediente,
@@ -63,7 +63,7 @@ export async function createIngredienteService(data) {
                     `Datos incompletos para compuesto_ingrediente: ${JSON.stringify(compuestoIngrediente)}`
                 );
             }
-
+            // Guardar en la tabla intermedia
             await compuestoIngredienteRepository.save(compuestoIngrediente);
         } else {
             console.warn(`id_pedido es nulo, no se guardará en compuesto_ingrediente.`);
@@ -91,6 +91,7 @@ export async function getIngredientesService() {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
+        // Obtener los ingredientes con la relación al tipo de ingredientes y pedidos
         const ingredientes = await ingredienteRepository.find({
             relations: {
                 tipo_ingrediente: true, // Relación con el tipo de ingrediente
@@ -109,7 +110,7 @@ export async function getIngredientesDetalladoService() {
 
     try {
         const ingredientes = await AppDataSource.query(`
-   select *
+   select distinct on (i.id_ingrediente) *
    from ingrediente i
    inner join tipo_ingrediente ti on ti.id_tipo_ingrediente = i.id_tipo_ingrediente 
    inner join compuesto_ingrediente ci on ci.id_ingrediente = i.id_ingrediente 
@@ -131,9 +132,10 @@ export async function getIngredienteByIdService(id_ingrediente) {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
+        // Obtener el ingrediente con la relación al tipo de ingrediente
         const ingrediente = await ingredienteRepository.findOneBy(
             { id_ingrediente }, { relations: { tipo_ingrediente: { unidad_medida: true } } });
-
+        // Verificar si el ingrediente existe
         if (!ingrediente) {
             return [null, `El ingrediente con ID ${id_ingrediente} no existe.`];
         }
@@ -206,7 +208,7 @@ export async function deleteIngredienteService(id_ingrediente) {
     const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
-
+    // Verificar que el ingrediente es válido
         if (!id_ingrediente) {
             return [null, "ID de ingrediente no válido."]
         }
@@ -215,7 +217,7 @@ export async function deleteIngredienteService(id_ingrediente) {
             where: { id_ingrediente },
             relations: { tipo_ingrediente: { unidad_medida: true } },
         });
-
+        // Verificar si el ingrediente existe
         if (!ingredienteExistente) {
             return [null, `El ingrediente con ID ${id_ingrediente} no existe.`];
         }
@@ -230,7 +232,7 @@ export async function deleteIngredienteService(id_ingrediente) {
     }
 }
 
-
+// Servicio para crear un tipo de ingrediente
 export async function createTipoIngredienteService(data) {
     const unidadMedidaRepository = AppDataSource.getRepository(UnidadMedida);
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
@@ -252,14 +254,14 @@ export async function createTipoIngredienteService(data) {
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "") // Elimina tildes
             .toLowerCase();
-
+    
         const existingTipoIngrediente = await tipoIngredienteRepository
             .createQueryBuilder("tipo_ingrediente")
             .where("LOWER(unaccent(tipo_ingrediente.nombre_tipo_ingrediente)) = :nombre", {
                 nombre: normalizedNombre,
             })
             .getOne();
-
+        // Si ya existe un tipo de ingrediente con ese nombre, devolver error    
         if (existingTipoIngrediente) {
             return [null, `El tipo de ingrediente '${nombre_tipo_ingrediente}' ya existe.`];
         }
@@ -290,6 +292,7 @@ export async function getTipoIngredientesService() {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
+        // Obtener los tipos de ingredientes con la unidad de medida
         const tipos = await tipoIngredienteRepository.find({
             relations: ["unidad_medida"]
         }
@@ -307,11 +310,12 @@ export async function getTipoIngredienteByIdService(id_tipo_ingrediente) {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
+        // Obtener el tipo de ingrediente con la unidad de medida
         const tipoIngrediente = await tipoIngredienteRepository.findOne({
             where: { id_tipo_ingrediente },
-            relations: ["unidad_medida"] // Incluye la relación con unidad_medida
+            relations: ["unidad_medida"] 
         });
-
+        // Verificar si el tipo de ingrediente existe
         if (!tipoIngrediente) {
             return [null, `El tipo de ingrediente con ID ${id_tipo_ingrediente} no existe.`];
         }
@@ -323,6 +327,7 @@ export async function getTipoIngredienteByIdService(id_tipo_ingrediente) {
     }
 }
 
+// Servicio para actualizar un tipo de ingrediente
 export async function updateTipoIngredienteService(id_tipo_ingrediente, data) {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
     const unidadMedidaRepository = AppDataSource.getRepository(UnidadMedida);
@@ -334,7 +339,7 @@ export async function updateTipoIngredienteService(id_tipo_ingrediente, data) {
         const tipoIngredienteExistente = await tipoIngredienteRepository.findOne({
             where: { id_tipo_ingrediente },
         });
-
+        // Verificar si el tipo de ingrediente existe
         if (!tipoIngredienteExistente) {
             return [null, `El tipo de ingrediente con ID ${id_tipo_ingrediente} no existe.`];
         }
@@ -354,7 +359,7 @@ export async function updateTipoIngredienteService(id_tipo_ingrediente, data) {
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "") // Elimina tildes
                 .toLowerCase();
-
+            // Verificar duplicados
             const existingTipoIngrediente = await tipoIngredienteRepository
                 .createQueryBuilder("tipo_ingrediente")
                 .where(
@@ -363,17 +368,7 @@ export async function updateTipoIngredienteService(id_tipo_ingrediente, data) {
                 )
                 .getOne();
 
-
-        // Actualizar el tipo de ingrediente
-        /*const updatedTipoIngrediente = {
-            ...tipoIngredienteExistente,
-            nombre_tipo_ingrediente: nombre_tipo_ingrediente ?? tipoIngredienteExistente.nombre_tipo_ingrediente,
-            cantidad_alerta_tipo_ingrediente:
-                cantidad_alerta_tipo_ingrediente ?? tipoIngredienteExistente.cantidad_alerta_tipo_ingrediente,
-            unidad_medida: unidadMedidaExistente ?? tipoIngredienteExistente.unidad_medida,
-        }; 
-        */
-
+            // Si ya existe un tipo de ingrediente con ese nombre, devolver error
             if (existingTipoIngrediente) {
                 return [null, `El tipo de ingrediente '${nombre_tipo_ingrediente}' ya existe.`];
             }
@@ -406,39 +401,36 @@ export async function updateTipoIngredienteService(id_tipo_ingrediente, data) {
     }
 }
 
-
+// Servicio para eliminar un tipo de ingrediente
 export async function deleteTipoIngredienteService(id) {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
 
     try {
-        // Verificar que el tipo de ingrediente existe
+        // Buscar el tipo de ingrediente
         const tipoIngredienteExistente = await tipoIngredienteRepository.findOne({
             where: { id_tipo_ingrediente: id },
         });
-
+        // Verificar si el tipo de ingrediente existe
         if (!tipoIngredienteExistente) {
             return [null, `El tipo de ingrediente con ID ${id} no existe.`];
         }
-        const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
-        const ingrediente = await ingredienteRepository.findOne({
-            where: { tipo_ingrediente: { id_tipo_ingrediente: id } },
-        });
 
-        if (ingrediente) {
-            return [null, `No se puede eliminar este tipo de ingrediente porque está siendo utilizado
-            en uno o más ingredientes.`];
-        }
+            // Verificar si el tipo de ingrediente está asociado a algún platillo
+            const asociadoAPlatillo = await componePlatilloRepository.findOne({
+                where: { id_tipo_ingrediente: id },
+            });
+            // Si está asociado a algún platillo, no se puede eliminar
+            if (asociadoAPlatillo) {
+                return [
+                    null,
+                    `No se puede eliminar el tipo de ingrediente porque está asociado a uno o más platillos.`,
+                ];
+            }
 
         // Intentar eliminar el tipo de ingrediente
         await tipoIngredienteRepository.delete(id);
         return [true, null];
     } catch (error) {
-        // Verificar si el error es de clave foránea
-        if (error.code === "23503") { // Código de error para violación de clave foránea en PostgreSQL
-            return [null, `No se puede eliminar este tipo de ingrediente porque está siendo utilizado
-                en uno o más platillos.`];
-
-        }
         console.error("Error al eliminar el tipo de ingrediente:", error);
         return [null, error.message];
     }

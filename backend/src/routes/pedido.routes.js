@@ -1,6 +1,8 @@
 "use strict";
 import { Router } from "express";
-import { isAdmin } from "../middlewares/authorization.middleware.js";
+import { isAdmin,
+  verificarHorarioLaboral
+ } from "../middlewares/authorization.middleware.js";
 import { authenticateJwt } from "../middlewares/authentication.middleware.js";
 import { confirmarPedidoController,
   createPedido,
@@ -12,17 +14,17 @@ import { confirmarPedidoController,
 
 const router = Router();
 
-// Middleware para autenticar y verificar rol
 router
-  .use(authenticateJwt) // Autenticar con JWT
-  .use(isAdmin); // Verificar rol de administrador
+  .use(authenticateJwt)
+  .use(isAdmin)
+  .use(verificarHorarioLaboral);
 
-// Rutas
-router.post("/", createPedido); // Ruta para crear un nuevo pedido
-router.get("/", getAllPedidos); // Ruta para obtener todos los pedidos
-router.get("/:id", getPedidoById); // Ruta para obtener un pedido específico
-router.patch("/:id", updatePedido); // Ruta para actualizar un pedido específico
-router.post("/:id/ingresar", confirmarPedidoController); // Ruta específica para ingresar un pedido
-router.delete("/:id", deletePedido); // Ruta para eliminar un pedido específico
+// Rutas para manejar pedidos
+router.post("/", createPedido)
+  .get("/", getAllPedidos)
+  .get("/:id_pedido", getPedidoById)
+  .patch("/:id_pedido", updatePedido)
+  .post("/:id/ingresar", confirmarPedidoController) // Ruta para ingresar un pedido al sistema
+  .delete("/:id_pedido", deletePedido);
 
 export default router;

@@ -12,6 +12,7 @@ import { initializeData } from "./config/initialSetup.js";
 import http from "http";
 import { initializeSocket } from "./services/socket.js";
 import { passportJwtSetup } from "./auth/passport.auth.js"; // Importar configuración de Passport
+import { verificarIngredientesBajoStock } from "../src/services/platillo.service.js"; // Importa tu servicio
 
 async function setupServer() {
   try {
@@ -56,6 +57,9 @@ async function setupServer() {
 
     // Rutas de la API
     app.use("/api", indexRoutes);
+
+     // Se ejecuta cada 2 minutos, verificando si hay ingredientes en bajo stock
+     setInterval(verificarIngredientesBajoStock, 120000);
 
     // Iniciar servidor
     server.listen(PORT, () => {

@@ -33,7 +33,7 @@ const Ingredientes = () => {
         dataIngrediente,
         setDataIngrediente,
     } = useEditIngrediente(setIngredientes, fetchIngredientes);
-    
+
     const { handleDelete } = useDeleteIngrediente(fetchIngredientes, setDataIngrediente);
 
     const handleSelectionChange = useCallback((selectedItems) => {
@@ -57,7 +57,7 @@ const Ingredientes = () => {
         { title: 'Costo', field: 'costo_ingrediente', width: 150 },
         { title: 'Tipo de Ingrediente', field: 'tipo_ingrediente.nombre_tipo_ingrediente', width: 200 },
     ];
-    
+
     const handleNameFilterChange = (e) => {
         setFilterName(e.target.value.toLowerCase());
     };

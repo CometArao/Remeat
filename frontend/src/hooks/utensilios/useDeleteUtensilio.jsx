@@ -1,4 +1,4 @@
-import { deleteUtensilio } from '@services/utensilios.service';
+import { deleteUtensilio } from '@services/utensilio.service';
 import { deleteDataAlert, showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
 const useDeleteUtensilio = (fetchUtensilios, setDataUtensilio) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createTipoUtensilio } from '@services/utensilios.service';
+import { createTipoUtensilio } from '@services/utensilio.service';
 import { showErrorAlert, showSuccessAlert } from '@helpers/sweetAlert.js';
 
 const useCreateTipoUtensilio = (setTipoUtensilios) => {
@@ -19,8 +19,10 @@ const useCreateTipoUtensilio = (setTipoUtensilios) => {
                 setTipoUtensilios((prevArray) => [...prevArray, createdTipoUtensilio.data]);
                 setDataTipoUtensilio([]);
             } catch (error) {
+                console.log("error")
+                console.log(error)
                 console.error('Error al crear el tipo de utensilio:', error);
-                showErrorAlert('Error', 'Ocurrió un error al crear el tipo de utensilio.');
+                showErrorAlert('Error', error.response.data.message || 'Ocurrió un error al crear el tipo de utensilio.');
             }
         }
     };

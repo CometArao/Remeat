@@ -11,6 +11,12 @@ socket.on("platillo-actualizado", (data) => {
   alert(`El platillo con ID ${data.id_platillo} está en estado "${data.nuevo_estado}"`);
 });
 
+// Escuchar notificaciones de ingredientes en bajo stock
+socket.on("ingrediente-bajo-stock", (data) => {
+  console.log("Notificación de bajo stock recibida:", data);
+  alert(`Ingrediente en bajo stock: ${data.tipo_ingrediente}\nCantidad actual: ${data.cantidad_actual}`);
+});
+
 
 socket.on("disconnect", () => {
     console.log("Desconectado del servidor WebSocket");

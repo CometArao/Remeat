@@ -3,14 +3,10 @@ import { AppDataSource } from "../config/configDb.js";
 import Menu from "../entity/menu.entity.js";
 import Platillo from "../entity/platillo.entity.js";
 import Usuario from "../entity/usuario.entity.js";
-import ComponePlatillo from "../entity/compuesto_platillo.entity.js";
-import Ingrediente from "../entity/ingrediente.entity.js";
-import { verificarDisponibilidadPlatillo } from "./platillo.service.js";
-
 import QRCode from "qrcode";
 
 
-
+// Función para generar un código QR con los datos de un menú
 export async function generateMenuQRCode() {
     const menuRepository = AppDataSource.getRepository(Menu);
 
@@ -20,7 +16,7 @@ export async function generateMenuQRCode() {
             where: { disponibilidad: true },
             relations: ["platillo"],
         });
-
+        // Verificar si hay un un menú disponible
         if (!menuDisponible) {
             throw new Error("No se encontró un menú disponible.");
         }
@@ -46,7 +42,7 @@ export async function generateMenuQRCode() {
 
 
 
-
+// Función para crear un menú
 export async function createMenuService(data, userId) {
     const menuRepository = AppDataSource.getRepository(Menu);
     const platilloRepository = AppDataSource.getRepository(Platillo);
@@ -126,11 +122,11 @@ export async function createMenuService(data, userId) {
 
 
 
-
+// Función para obtener todos los menús
 export async function getMenusService() {
     try {
         const menuRepository = AppDataSource.getRepository(Menu);
-
+        // Obtener todos los menús con sus relaciones
         const menus = await menuRepository.find({
             relations: ["platillo", "usuario"],
         });
@@ -160,16 +156,16 @@ export async function getMenusService() {
     }
 }
 
-
+// Función para obtener un menú por su ID
 export async function getMenuByIdService(id_menu) {
     try {
         const menuRepository = AppDataSource.getRepository(Menu);
-
+        // Obtener el menú con sus relaciones
         const menuItem = await menuRepository.findOne({
             where: { id_menu },
             relations: ["platillo", "usuario"],
         });
-
+        // verificar si el menú existe
         if (!menuItem) {
             return [null, { dataInfo: "id_menu", message: `El menú con ID ${id_menu} no existe.` }];
         }
@@ -198,7 +194,7 @@ export async function getMenuByIdService(id_menu) {
         return [null, "Error interno del servidor"];
     }
 }
-
+// Función para actualizar un menú
 export async function updateMenuService(id_menu, menuData) {
     const menuRepository = AppDataSource.getRepository(Menu);
     const platilloRepository = AppDataSource.getRepository(Platillo);
@@ -212,7 +208,7 @@ export async function updateMenuService(id_menu, menuData) {
             where: { id_menu },
             relations: ["platillo", "usuario"],
         });
-
+        // Verificar si el menú existe
         if (!menuFound) {
             return [null, `El menú con ID ${id_menu} no existe.`];
         }
@@ -240,6 +236,7 @@ export async function updateMenuService(id_menu, menuData) {
             const platilloIds = platillos.map((p) => p.id_platillo);
             const platillosValidos = await platilloRepository.findByIds(platilloIds);
 
+            // Verificar si todos los platillos proporcionados existen
             if (platillosValidos.length !== platilloIds.length) {
                 return [null, "Uno o más IDs de platillos proporcionados no existen."];
             }
@@ -248,7 +245,6 @@ export async function updateMenuService(id_menu, menuData) {
             menuFound.platillo = platillosValidos;
             console.log("Platillos actualizados:", platillosValidos);
         }
-
         // Guardar el menú actualizado en la base de datos
         const updatedMenu = await menuRepository.save(menuFound);
 
@@ -280,18 +276,18 @@ export async function updateMenuService(id_menu, menuData) {
 }
 
 
-
+// Función para eliminar un menú por su ID
 export async function deleteMenuByIdService(id_menu) {
     try {
         const menuRepository = AppDataSource.getRepository(Menu);
-
+        // Buscar el menú por su ID
         const menuFound = await menuRepository.findOne({
             where: { id_menu },
             relations: ["platillo", "usuario"],
         });
-
+        // Verificar si el menú existe
         if (!menuFound) return [null, { dataInfo: "id_menu", message: `El menú con ID ${id_menu} no existe.` }];
-
+        // Eliminar el menú
         const menuDeleted = await menuRepository.remove(menuFound);
 
         return [menuDeleted, null];
@@ -302,14 +298,14 @@ export async function deleteMenuByIdService(id_menu) {
 
     }
 }
-
+// Función para activar o desactivar un menú
 export async function activarMenuService(id_menu) {
     const menuRepository = AppDataSource.getRepository(Menu);
 
     try {
         // Buscar el menú
         const menuFound = await menuRepository.findOne({ where: { id_menu } });
-
+        // Verificar si el menú existe
         if (!menuFound) {
             throw new Error(`El menú con ID ${id_menu} no existe.`);
         }

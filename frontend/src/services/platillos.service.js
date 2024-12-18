@@ -43,6 +43,7 @@ export async function updatePlatillo(data, id) {
     try {
         console.log('Datos enviados:', data, 'ID:', id);
 
+        console.log("Servicio front")
       // Llama al endpoint relativo (baseURL se aplica automáticamente)
       const response = await axios.patch(`platillos/${id}`, data, {
         headers: { 'Cache-Control': 'no-cache' },
