@@ -12,8 +12,8 @@ const CompleteComandaButton = ({ comandaId, onComplete }) => {
         await complete(comandaId);
         showSuccessAlert('¡Comanda Completada!', 'La comanda ha sido completada exitosamente.');
       } catch (err) {
-        showErrorAlert('Error', 'No se pudo completar la comanda.');
-        console.error('Error al completar la comanda:', err);
+        showErrorAlert('Error',err.message);
+        console.error('Error al completar la comanda:', err.message);
       }
     }
   };

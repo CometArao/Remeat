@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import ListadoDiarioMenuQrComponent from '../../src/components/MenuQRCode/ListadoDiarioMenuQrComponent';
 
+
 const ListadoDiarioMenuQrPage = () => {
     const [searchParams] = useSearchParams();
     const menuDataEncoded = searchParams.get('menuData');
