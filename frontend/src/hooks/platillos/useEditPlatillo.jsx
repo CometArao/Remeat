@@ -15,15 +15,22 @@ const useEditPlatillo = (setPlatillo, fetchPlatillo) => {
 
     const handleUpdate = async (updatedDataPlatillo) => {
         try {
-            const id = dataPlatillo[0]?.id_platillo;
+            console.log(updatedDataPlatillo)
+            const id = updatedDataPlatillo.id_platillo;
 
             if (!id) {
                 throw new Error('ID no válido para el platillo seleccionado.');
             }
 
-            console.log('Datos enviados:', updatedDataPlatillo);
+            const formattedData = {
+                nombre_platillo: updatedDataPlatillo.nombre_platillo,
+                ...(updatedDataPlatillo.disponible !== undefined && { disponible: updatedDataPlatillo.disponible }),
+                ingredientes: updatedDataPlatillo.ingredientes,
+            };
 
-            await updatePlatillo(updatedDataPlatillo, id);
+            console.log('Datos enviados:', formattedData);
+
+            await updatePlatillo(formattedData, id);
               // Refresca la tabla
             await fetchPlatillo();
             // Muestra mensaje de éxito

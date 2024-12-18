@@ -53,6 +53,7 @@ export default function PopupPlatillo({
     }));
   
     const payload = {
+      id_platillo: platilloData.id_platillo,
       nombre_platillo: formData.nombre_platillo,
       ingredientes,
     };
