@@ -364,20 +364,26 @@ export async function updatePlatilloByIdService(id_platillo, platilloData) {
 }
 
 // Función para obtener los tipos de ingredientes filtrados
+//Función para filtrar los tipos de ingredientes
 export async function getFilteredTipoIngredientesService() {
     const tipoIngredienteRepository = AppDataSource.getRepository(TipoIngrediente);
-    const ingredienteRepository = AppDataSource.getRepository(Ingrediente);
 
     try {
-        // Usar una consulta con JOIN para obtener solo los tipos de ingredientes relacionados con ingredientes
+        // Consulta con JOIN para incluir la unidad de medida
         const tiposIngredientes = await tipoIngredienteRepository
             .createQueryBuilder("tipoIngrediente")
-            .innerJoin("ingrediente", "ingrediente",
-                     "ingrediente.id_tipo_ingrediente = tipoIngrediente.id_tipo_ingrediente")
-            .select(["tipoIngrediente.id_tipo_ingrediente", "tipoIngrediente.nombre_tipo_ingrediente"])
+            .innerJoinAndSelect("tipoIngrediente.unidad_medida", "unidadMedida") // Join con unidad_medida
+            .innerJoin("ingrediente", "ingrediente", 
+                       "ingrediente.id_tipo_ingrediente = tipoIngrediente.id_tipo_ingrediente")
+            .select([
+                "tipoIngrediente.id_tipo_ingrediente", 
+                "tipoIngrediente.nombre_tipo_ingrediente", 
+                "unidadMedida.nombre_unidad_medida" // Selecciona el nombre de la unidad de medida
+            ])
             .distinct(true)
             .getMany();
-        // Devolver los tipos de ingredientes filtrados
+
+        // Devuelve los tipos de ingredientes con su unidad de medida
         return [tiposIngredientes, null];
     } catch (error) {
         console.error("Error al obtener los tipos de ingredientes filtrados:", error.message);

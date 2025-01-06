@@ -13,6 +13,7 @@ const IngredientesSelect = ({ value, onChange }) => {
         const opciones = response.data.data.map((ingrediente) => ({
           value: ingrediente.id_tipo_ingrediente,
           label: ingrediente.nombre_tipo_ingrediente,
+          unidad_medida: ingrediente.unidad_medida?.nombre_unidad_medida || 'Sin unidad',
         }));
         setIngredientesDisponibles(opciones);
       } catch (error) {
@@ -56,14 +57,17 @@ const IngredientesSelect = ({ value, onChange }) => {
         <div className="ingredientes-porciones">
           {seleccionados.map((ingrediente, index) => (
             <div key={ingrediente.value} className="ingrediente-porcion">
-              <span>{ingrediente.label}</span>
+              <span>
+                {ingrediente.label} 
+                {ingrediente.unidad_medida ? ` (${ingrediente.unidad_medida})` : ''}
+              </span>
               <input
                 type="number"
                 min="0.1"
                 step="0.1"
                 value={ingrediente.porcion}
                 onChange={(e) => actualizarPorcion(index, e.target.value)}
-                placeholder="Porción"
+                placeholder="PorciÃ³n"
               />
             </div>
           ))}
