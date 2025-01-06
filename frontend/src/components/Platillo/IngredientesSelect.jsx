@@ -67,7 +67,7 @@ const IngredientesSelect = ({ value, onChange }) => {
                 step="0.1"
                 value={ingrediente.porcion}
                 onChange={(e) => actualizarPorcion(index, e.target.value)}
-                placeholder="PorciÃ³n"
+                placeholder="Porción"
               />
             </div>
           ))}
